@@ -68,7 +68,7 @@ define('LOGIN_LOCKOUT_MINUTES', env('LOGIN_LOCKOUT_MINUTES', 5));
 // UPLOAD
 // -----------------------------------------------------
 define('MAX_UPLOAD_SIZE_MB', env('MAX_UPLOAD_SIZE_MB', 10));
-define('ALLOWED_UPLOAD_TYPES', env('ALLOWED_UPLOAD_TYPES', 'application/pdf,image/jpeg,image/png,image/webp'));
+define('ALLOWED_UPLOAD_TYPES', env('ALLOWED_UPLOAD_TYPES', 'application/pdf,image/jpeg,image/png,image/webp,image/svg+xml'));
 
 // -----------------------------------------------------
 // ID UTENTI FISSI

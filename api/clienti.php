@@ -213,7 +213,7 @@ function createCliente(): void {
             error_log("Logo upload attempt - error code: " . $_FILES['logo']['error']);
             if ($_FILES['logo']['error'] === UPLOAD_ERR_OK) {
                 error_log("Logo file: " . $_FILES['logo']['name'] . " size: " . $_FILES['logo']['size']);
-                $upload = uploadFile($_FILES['logo'], 'clienti', ['image/jpeg', 'image/png', 'image/gif', 'image/webp'], 2 * 1024 * 1024);
+                $upload = uploadFile($_FILES['logo'], 'clienti', ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'], 2 * 1024 * 1024);
                 if ($upload) {
                     error_log("Logo uploaded successfully to: " . $upload['path']);
                     $stmt = $pdo->prepare("UPDATE clienti SET logo_path = ? WHERE id = ?");
@@ -309,7 +309,7 @@ function updateCliente(string $id): void {
             error_log("Logo upload attempt in update - error code: " . $_FILES['logo']['error']);
             if ($_FILES['logo']['error'] === UPLOAD_ERR_OK) {
                 error_log("Logo file: " . $_FILES['logo']['name'] . " size: " . $_FILES['logo']['size']);
-                $upload = uploadFile($_FILES['logo'], 'clienti', ['image/jpeg', 'image/png', 'image/gif', 'image/webp'], 2 * 1024 * 1024);
+                $upload = uploadFile($_FILES['logo'], 'clienti', ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'], 2 * 1024 * 1024);
                 if ($upload) {
                     error_log("Logo uploaded successfully to: " . $upload['path']);
                     // Elimina logo precedente se esiste
