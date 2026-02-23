@@ -41,7 +41,7 @@ try {
     $stmt = $pdo->query("
         SELECT COUNT(*) as count, COALESCE(SUM(prezzo_totale), 0) as totale
         FROM progetti 
-        WHERE stato IN ('consegnato', 'archiviato') 
+        WHERE stato_progetto IN ('consegnato', 'archiviato') 
         AND stato_pagamento = 'cat'
     ");
     $progettiCAT = $stmt->fetch();
