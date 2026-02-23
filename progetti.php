@@ -119,23 +119,23 @@ include __DIR__ . '/includes/header.php';
                 <option value="">Tutti i colori</option>
                 <?php
                 $coloriTag = [
-                    '#FFFFFF' => ['nome' => 'Bianco', 'emoji' => '⬜'],
-                    '#BAE6FD' => ['nome' => 'Ciano', 'emoji' => '🟦'],
-                    '#BFDBFE' => ['nome' => 'Blu', 'emoji' => '🔵'],
-                    '#BBF7D0' => ['nome' => 'Verde', 'emoji' => '🟩'],
-                    '#D9F99D' => ['nome' => 'Lime', 'emoji' => '🟢'],
-                    '#FDE68A' => ['nome' => 'Giallo', 'emoji' => '🟨'],
-                    '#FED7AA' => ['nome' => 'Arancione', 'emoji' => '🟧'],
-                    '#FECACA' => ['nome' => 'Rosso', 'emoji' => '🟥'],
-                    '#FBCFE8' => ['nome' => 'Rosa', 'emoji' => '🩷'],
-                    '#E9D5FF' => ['nome' => 'Viola', 'emoji' => '🟪'],
-                    '#C4B5FD' => ['nome' => 'Indaco', 'emoji' => '🔷'],
-                    '#CBD5E1' => ['nome' => 'Grigio', 'emoji' => '⬜'],
-                    '#99F6E4' => ['nome' => 'Turchese', 'emoji' => '🔹'],
-                    '#F5D0FE' => ['nome' => 'Fucsia', 'emoji' => '💜'],
+                    '#FFFFFF' => ['nome' => 'Bianco'],
+                    '#BAE6FD' => ['nome' => 'Ciano'],
+                    '#BFDBFE' => ['nome' => 'Blu'],
+                    '#BBF7D0' => ['nome' => 'Verde'],
+                    '#D9F99D' => ['nome' => 'Lime'],
+                    '#FDE68A' => ['nome' => 'Giallo'],
+                    '#FED7AA' => ['nome' => 'Arancione'],
+                    '#FECACA' => ['nome' => 'Rosso'],
+                    '#FBCFE8' => ['nome' => 'Rosa'],
+                    '#E9D5FF' => ['nome' => 'Viola'],
+                    '#C4B5FD' => ['nome' => 'Indaco'],
+                    '#CBD5E1' => ['nome' => 'Grigio'],
+                    '#99F6E4' => ['nome' => 'Turchese'],
+                    '#F5D0FE' => ['nome' => 'Fucsia'],
                 ];
                 foreach ($coloriTag as $hex => $info): ?>
-                <option value="<?php echo $hex; ?>"><?php echo $info['emoji']; ?> <?php echo $info['nome']; ?></option>
+                <option value="<?php echo $hex; ?>"><span class="inline-block w-3 h-3 rounded-sm mr-1 align-middle" style="background-color: <?php echo $hex; ?>"></span> <?php echo $info['nome']; ?></option>
                 <?php endforeach; ?>
             </select>
             </select>
