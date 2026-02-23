@@ -4,10 +4,14 @@ includes/config.php.bak
 # File temporanei
 assets/temp/*
 !assets/temp/.gitkeep
+
+# Uploads dinamici (da sincronizzare manualmente)
 assets/uploads/clienti/*
 !assets/uploads/clienti/.gitkeep
 assets/uploads/progetti/*
 !assets/uploads/progetti/.gitkeep
+assets/uploads/task_images/*
+!assets/uploads/task_images/.gitkeep
 
 # File di sistema
 .DS_Store
@@ -15,6 +19,7 @@ Thumbs.db
 *.log
 
 # Script di utilità temporanei
+check.php
 aggiorna_password.php
 
 # Database dump
