@@ -92,9 +92,14 @@ define('COLORI_PRIORITA', [
     'alta' => 'red'
 ]);
 
-// Configurazione OpenAI
-$openaiConfig = require __DIR__ . '/../config/openai.config.php';
-define('OPENAI_API_KEY', $openaiConfig['api_key'] ?? '');
+// Configurazione OpenAI (opzionale)
+$openaiConfigFile = __DIR__ . '/../config/openai.config.php';
+if (file_exists($openaiConfigFile)) {
+    $openaiConfig = require $openaiConfigFile;
+    define('OPENAI_API_KEY', $openaiConfig['api_key'] ?? '');
+} else {
+    define('OPENAI_API_KEY', '');
+}
 
 // Connessione PDO
 try {

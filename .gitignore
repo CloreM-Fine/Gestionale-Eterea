@@ -1,5 +1,4 @@
 # File di configurazione con credenziali
-config/openai.config.php
 includes/config.php.bak
 
 # File temporanei
