@@ -54,7 +54,7 @@ try {
 }
 
 /**
- * Gestisce il login
+ * Gestisce il login con rate limiting e sicurezza avanzata
  */
 function handleLogin(): void {
     global $pdo;
@@ -64,14 +64,33 @@ function handleLogin(): void {
         jsonResponse(false, null, 'Metodo non consentito');
     }
     
+    // Rate limiting
+    if (isIpBlocked()) {
+        securityLog('Login blocked - IP blocked', ['ip' => $_SERVER['REMOTE_ADDR']]);
+        jsonResponse(false, null, 'Accesso temporaneamente bloccato. Riprova più tardi.');
+    }
+    
+    if (!checkRateLimit('login', MAX_LOGIN_ATTEMPTS, LOGIN_LOCKOUT_MINUTES)) {
+        blockIp($_SERVER['REMOTE_ADDR'] ?? 'unknown', LOGIN_LOCKOUT_MINUTES);
+        securityLog('Login blocked - Rate limit exceeded', ['ip' => $_SERVER['REMOTE_ADDR']]);
+        jsonResponse(false, null, 'Troppi tentativi falliti. Accesso bloccato per ' . LOGIN_LOCKOUT_MINUTES . ' minuti.');
+    }
+    
     // Recupera dati
     $username = trim($_POST['username'] ?? '');
     $password = $_POST['password'] ?? '';
     $csrfToken = $_POST['csrf_token'] ?? '';
     
-    // Validazione base
-    if (empty($username) || empty($password)) {
-        jsonResponse(false, null, 'Inserire username e password');
+    // Validazione CSRF
+    if (!verifyCsrfTokenSecure($csrfToken)) {
+        securityLog('Login failed - Invalid CSRF', ['ip' => $_SERVER['REMOTE_ADDR']]);
+        jsonResponse(false, null, 'Token di sicurezza non valido. Ricarica la pagina.');
+    }
+    
+    // Validazione input
+    $username = validateInput($username, 'string', ['max_length' => 100]);
+    if (!$username || empty($password)) {
+        jsonResponse(false, null, 'Inserire username e password validi');
     }
     
     // Cerca utente per nome

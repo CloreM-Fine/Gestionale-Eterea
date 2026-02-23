@@ -37,9 +37,9 @@ switch ($error) {
         break;
 }
 
-// Genera Token CSRF
-$csrfToken = bin2hex(random_bytes(32));
-$_SESSION['csrf_token'] = $csrfToken;
+// Genera Token CSRF sicuro
+require_once __DIR__ . '/includes/functions.php';
+$csrfToken = generateCsrfTokenSecure();
 ?>
 <!DOCTYPE html>
 <html lang="it">

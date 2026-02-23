@@ -1,11 +1,11 @@
 <?php
 /**
  * Eterea Gestionale
- * Configurazione Database
+ * Configurazione Database e Ambiente
  * 
  * ISTRUZIONI:
- * 1. Modificare i valori qui sotto con quelli corretti per SiteGround
- * 2. Assicurarsi che il file non sia accessibile pubblicamente (.htaccess protegge questa cartella)
+ * 1. Copiare .env.example in .env e compilare i valori
+ * 2. Assicurarsi che il file .env non sia accessibile pubblicamente
  */
 
 // Se chiamato direttamente, restituisci errore JSON
@@ -15,27 +15,72 @@ if (basename($_SERVER['PHP_SELF']) === 'config.php') {
     exit;
 }
 
-// Impostazioni database - CONFIGURATO
-define('DB_HOST', 'localhost');
-define('DB_NAME', 'db4qhf5gnmj3lz');
-define('DB_USER', 'ucwurog3xr8tf');      // Utente MySQL (Lorenzo)
-define('DB_PASS', 'Lorenzo2026!');       // Password MySQL
+// Carica funzioni env
+require_once __DIR__ . '/env_loader.php';
 
-// Impostazioni applicazione
+// Carica file .env
+$envPath = __DIR__ . '/../.env';
+if (file_exists($envPath)) {
+    loadEnv($envPath);
+}
+
+// -----------------------------------------------------
+// DATABASE - Da .env con fallback
+// -----------------------------------------------------
+define('DB_HOST', env('DB_HOST', 'localhost'));
+define('DB_NAME', env('DB_NAME', 'db4qhf5gnmj3lz'));
+define('DB_USER', env('DB_USER', 'ucwurog3xr8tf'));
+define('DB_PASS', env('DB_PASS', ''));
+
+// -----------------------------------------------------
+// SICUREZZA - Da .env
+// -----------------------------------------------------
+define('CSRF_SECRET_KEY', env('CSRF_SECRET_KEY', bin2hex(random_bytes(32))));
+define('ENCRYPTION_KEY', env('ENCRYPTION_KEY', ''));
+define('TASSE_PASSWORD_HASH', env('TASSE_PASSWORD_HASH', ''));
+
+// -----------------------------------------------------
+// CONFIGURAZIONE APPLICAZIONE
+// -----------------------------------------------------
 define('APP_NAME', 'Eterea Gestionale');
 define('APP_VERSION', '1.0.0');
-define('BASE_URL', 'https://gestionale.etereastudio.it');
+define('APP_ENV', env('APP_ENV', 'production'));
+define('APP_DEBUG', env('APP_DEBUG', false));
+
+// URL base
+$protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+define('BASE_URL', env('BASE_URL', $protocol . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost')));
+
+// Path upload
 define('UPLOAD_PATH', __DIR__ . '/../assets/uploads/');
 define('UPLOAD_URL', BASE_URL . '/assets/uploads/');
 
-// ID utenti fissi
+// -----------------------------------------------------
+// SESSIONE E SICUREZZA
+// -----------------------------------------------------
+define('SESSION_LIFETIME', env('SESSION_LIFETIME', 7200)); // 2 ore
+define('COOKIE_LIFETIME', env('COOKIE_LIFETIME', 2592000)); // 30 giorni
+define('MAX_LOGIN_ATTEMPTS', env('MAX_LOGIN_ATTEMPTS', 5));
+define('LOGIN_LOCKOUT_MINUTES', env('LOGIN_LOCKOUT_MINUTES', 15));
+
+// -----------------------------------------------------
+// UPLOAD
+// -----------------------------------------------------
+define('MAX_UPLOAD_SIZE_MB', env('MAX_UPLOAD_SIZE_MB', 10));
+define('ALLOWED_UPLOAD_TYPES', env('ALLOWED_UPLOAD_TYPES', 'application/pdf,image/jpeg,image/png,image/webp'));
+
+// -----------------------------------------------------
+// ID UTENTI FISSI
+// -----------------------------------------------------
 define('USERS', [
     'ucwurog3xr8tf' => ['nome' => 'Lorenzo Puccetti', 'colore' => '#0891B2'],
     'ukl9ipuolsebn' => ['nome' => 'Daniele Giuliani', 'colore' => '#10B981'],
     'u3ghz4f2lnpkx' => ['nome' => 'Edmir Likaj', 'colore' => '#F59E0B']
 ]);
 
-// Tipologie progetto
+// -----------------------------------------------------
+// TIPOLOGIE E STATI
+// -----------------------------------------------------
 define('TIPOLOGIE_PROGETTO', [
     'Sito Web',
     'Grafica',
@@ -47,7 +92,6 @@ define('TIPOLOGIE_PROGETTO', [
     'Altro'
 ]);
 
-// Stati progetto
 define('STATI_PROGETTO', [
     'da_iniziare' => 'Da Iniziare',
     'in_corso' => 'In Corso',
@@ -56,7 +100,6 @@ define('STATI_PROGETTO', [
     'archiviato' => 'Archiviato'
 ]);
 
-// Stati pagamento
 define('STATI_PAGAMENTO', [
     'da_pagare' => 'Da Pagare',
     'da_pagare_acconto' => 'Da Pagare Acconto',
@@ -75,7 +118,6 @@ define('COLORI_STATO_PROGETTO', [
     'archiviato' => 'slate'
 ]);
 
-// Colori stati pagamento
 define('COLORI_STATO_PAGAMENTO', [
     'da_pagare' => 'red',
     'da_pagare_acconto' => 'amber',
@@ -85,36 +127,39 @@ define('COLORI_STATO_PAGAMENTO', [
     'pagamento_completato' => 'green'
 ]);
 
-// Colori priorità
 define('COLORI_PRIORITA', [
     'bassa' => 'blue',
     'media' => 'yellow',
     'alta' => 'red'
 ]);
 
-// Configurazione OpenAI (opzionale)
-$openaiConfigFile = __DIR__ . '/../config/openai.config.php';
-if (file_exists($openaiConfigFile)) {
-    $openaiConfig = require $openaiConfigFile;
-    define('OPENAI_API_KEY', $openaiConfig['api_key'] ?? '');
-} else {
-    define('OPENAI_API_KEY', '');
-}
+// -----------------------------------------------------
+// API ESTERNE
+// -----------------------------------------------------
+define('OPENAI_API_KEY', env('OPENAI_API_KEY', ''));
 
-// Connessione PDO
+// -----------------------------------------------------
+// CONNESSIONE PDO
+// -----------------------------------------------------
 try {
     $pdo = new PDO(
         "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=utf8mb4",
         DB_USER,
         DB_PASS,
         [
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_ERRMODE => APP_DEBUG ? PDO::ERRMODE_EXCEPTION : PDO::ERRMODE_SILENT,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
             PDO::ATTR_EMULATE_PREPARES => false
         ]
     );
 } catch (PDOException $e) {
     error_log("Errore connessione DB: " . $e->getMessage());
-    // Non fare die(), lascia che l'errore venga gestito dall'API
-    throw new Exception("Errore connessione database: " . $e->getMessage());
+    if (APP_DEBUG) {
+        throw new Exception("Errore connessione database: " . $e->getMessage());
+    }
+    // In produzione, non esporre dettagli
+    http_response_code(500);
+    header('Content-Type: application/json');
+    echo json_encode(['success' => false, 'message' => 'Errore di sistema']);
+    exit;
 }

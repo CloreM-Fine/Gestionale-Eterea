@@ -5,6 +5,7 @@
  */
 
 require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/functions_security.php';
 
 // Imposta timezone italiano
 date_default_timezone_set('Europe/Rome');
@@ -345,51 +346,13 @@ function getUserColor(string $userId): string {
  * @param int $maxSize Dimensione massima in bytes
  * @return array|false ['path' => ..., 'filename' => ..., 'size' => ...] o false
  */
+/**
+ * DEPRECATO: Usare uploadFileSecure() invece
+ * @deprecated
+ */
 function uploadFile(array $file, string $destinationDir, array $allowedTypes, int $maxSize): array|false {
-    // Verifica errori
-    if ($file['error'] !== UPLOAD_ERR_OK) {
-        error_log("Upload error: " . $file['error']);
-        return false;
-    }
-    
-    // Verifica dimensione
-    if ($file['size'] > $maxSize) {
-        error_log("File troppo grande: " . $file['size']);
-        return false;
-    }
-    
-    // Verifica tipo MIME
-    $finfo = finfo_open(FILEINFO_MIME_TYPE);
-    $mimeType = finfo_file($finfo, $file['tmp_name']);
-    finfo_close($finfo);
-    
-    if (!in_array($mimeType, $allowedTypes)) {
-        error_log("Tipo file non consentito: " . $mimeType);
-        return false;
-    }
-    
-    // Crea directory se non esiste
-    $fullPath = UPLOAD_PATH . $destinationDir;
-    if (!is_dir($fullPath)) {
-        mkdir($fullPath, 0755, true);
-    }
-    
-    // Genera nome file sicuro
-    $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
-    $hash = bin2hex(random_bytes(8));
-    $newFilename = $hash . '.' . $extension;
-    $destination = $fullPath . '/' . $newFilename;
-    
-    // Sposta file
-    if (move_uploaded_file($file['tmp_name'], $destination)) {
-        return [
-            'path' => $destinationDir . '/' . $newFilename,
-            'filename' => $file['name'], // nome originale per visualizzazione
-            'size' => $file['size']
-        ];
-    }
-    
-    return false;
+    // Wrapper per retrocompatibilità, usa la versione sicura
+    return uploadFileSecure($file, $destinationDir, $allowedTypes, $maxSize, false);
 }
 
 /**

@@ -377,7 +377,6 @@ include __DIR__ . '/includes/header.php';
 </div>
 
 <script>
-const PASSWORD_CORRETTA = 'Tomato2399!?';
 let ultimoCalcolo = null;
 
 // Verifica se l'utente ha già accesso (localStorage - scade dopo 30 minuti)
@@ -411,14 +410,29 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-function verificaPassword() {
+async function verificaPassword() {
     const pwd = document.getElementById('accessPassword').value;
-    if (pwd === PASSWORD_CORRETTA) {
-        document.getElementById('passwordSection').classList.add('hidden');
-        document.getElementById('calcolatoreSection').classList.remove('hidden');
-        document.getElementById('passwordError').classList.add('hidden');
-        setTasseAccess(); // Memorizza accesso
-    } else {
+    const csrfToken = '<?php echo generateCsrfTokenSecure(); ?>';
+    
+    try {
+        const response = await fetch('api/tasse.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `action=verifica_password_tasse&password=${encodeURIComponent(pwd)}&csrf_token=${encodeURIComponent(csrfToken)}`
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            document.getElementById('passwordSection').classList.add('hidden');
+            document.getElementById('calcolatoreSection').classList.remove('hidden');
+            document.getElementById('passwordError').classList.add('hidden');
+            setTasseAccess();
+        } else {
+            document.getElementById('passwordError').classList.remove('hidden');
+        }
+    } catch (error) {
+        console.error('Errore verifica:', error);
         document.getElementById('passwordError').classList.remove('hidden');
     }
 }

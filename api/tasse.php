@@ -24,6 +24,8 @@ switch ($method) {
             salvaCalcoloTasse();
         } elseif ($action === 'elimina_calcolo') {
             eliminaCalcolo();
+        } elseif ($action === 'verifica_password_tasse') {
+            verificaPasswordTasse();
         } else {
             jsonResponse(false, null, 'Azione non valida');
         }
@@ -109,6 +111,46 @@ function eliminaCalcolo(): void {
         error_log("Errore elimina calcolo: " . $e->getMessage());
         jsonResponse(false, null, 'Errore durante l\'eliminazione');
     }
+}
+
+/**
+ * Verifica password accesso Tasse
+ */
+function verificaPasswordTasse(): void {
+    // Rate limiting per prevenire brute force
+    if (!checkRateLimit('tasse_login', 5, 15)) {
+        securityLog('Tasse login rate limit', ['ip' => $_SERVER['REMOTE_ADDR']]);
+        jsonResponse(false, null, 'Troppi tentativi. Riprova più tardi.');
+        return;
+    }
+    
+    // Verifica CSRF
+    $csrfToken = $_POST['csrf_token'] ?? '';
+    if (!verifyCsrfTokenSecure($csrfToken)) {
+        securityLog('Tasse invalid CSRF', ['ip' => $_SERVER['REMOTE_ADDR']]);
+        jsonResponse(false, null, 'Token di sicurezza non valido');
+        return;
+    }
+    
+    $password = $_POST['password'] ?? '';
+    
+    // Verifica password contro l'hash dal .env
+    if (defined('TASSE_PASSWORD_HASH') && !empty(TASSE_PASSWORD_HASH)) {
+        // Usa l'hash bcrypt
+        if (password_verify($password, TASSE_PASSWORD_HASH)) {
+            jsonResponse(true, null, 'Accesso consentito');
+            return;
+        }
+    }
+    
+    // Fallback per retrocompatibilità (da rimuovere in futuro)
+    if ($password === 'Tomato2399!?') {
+        jsonResponse(true, null, 'Accesso consentito');
+        return;
+    }
+    
+    securityLog('Tasse wrong password', ['ip' => $_SERVER['REMOTE_ADDR']]);
+    jsonResponse(false, null, 'Password non corretta');
 }
 
 /**

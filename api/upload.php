@@ -36,6 +36,12 @@ function uploadTaskFile(): void {
         jsonResponse(false, null, 'Metodo non consentito');
     }
     
+    // Rate limiting upload
+    if (!checkRateLimit('upload_' . ($_SESSION['user_id'] ?? 'guest'), 10, 5)) {
+        securityLog('Upload rate limit exceeded');
+        jsonResponse(false, null, 'Troppi upload in poco tempo. Riprova più tardi.');
+    }
+    
     $taskId = $_POST['task_id'] ?? '';
     if (empty($taskId)) {
         jsonResponse(false, null, 'ID task mancante');
@@ -61,12 +67,13 @@ function uploadTaskFile(): void {
         jsonResponse(false, null, 'Nessun file caricato');
     }
     
-    // Upload
-    $upload = uploadFile(
+    // Upload con security hardening
+    $upload = uploadFileSecure(
         $_FILES['file'], 
         'task_files', 
         ['application/pdf'], 
-        10 * 1024 * 1024 // 10MB
+        MAX_UPLOAD_SIZE_MB * 1024 * 1024,
+        true // randomizza nome
     );
     
     if (!$upload) {

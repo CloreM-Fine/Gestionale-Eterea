@@ -1,30 +1,77 @@
-# File di configurazione con credenziali
-includes/config.php.bak
+# =====================================================
+# ETEREA GESTIONALE - FILE DA IGNORARE
+# =====================================================
 
-# File temporanei
-assets/temp/*
-!assets/temp/.gitkeep
+# Configurazione ambiente (contiene password!)
+.env
+.env.local
+.env.*.local
 
-# Uploads (manteniamo i file esistenti, ignoriamo solo quelli nuovi/futuri)
-# I file già presenti nel repo restano, i nuovi vanno aggiunti manualmente
-
-# File di sistema
-.DS_Store
-Thumbs.db
+# File di log
+logs/
 *.log
 
-# Script di utilità temporanei
-check.php
-aggiorna_password.php
+# File di upload (user content)
+assets/uploads/task_files/*
+!assets/uploads/task_files/.gitkeep
+assets/uploads/preventivi/*
+!assets/uploads/preventivi/.gitkeep
+assets/uploads/clienti/*
+!assets/uploads/clienti/.gitkeep
+assets/uploads/loghi/*
+!assets/uploads/loghi/.gitkeep
 
-# Database dump
-*.sql
-
-# Vendor (se usassi composer)
+# Vendor (se si usa composer in futuro)
 vendor/
+composer.lock
 
-# IDE
+# IDE e editor
 .vscode/
 .idea/
 *.swp
 *.swo
+*~
+.DS_Store
+
+# File temporanei
+*.tmp
+*.temp
+cache/
+temp/
+
+# File di backup
+copia di sicurezza/
+*.bak
+*.backup
+*.old
+*.orig
+*.save
+
+# File di configurazione locale
+config/*.local.php
+
+# Script temporanei
+aggiorna_password.php
+update_*.php
+install_*.php
+setup.php
+
+# File di database
+*.sql
+*.sqlite
+*.sqlite3
+
+# File di sistema
+Thumbs.db
+.DS_Store
+
+# File specifici di hosting
+.user.ini
+php.ini
+php5.ini
+.htaccess.bak
+
+# Test files
+test/
+tests/
+phpunit.xml

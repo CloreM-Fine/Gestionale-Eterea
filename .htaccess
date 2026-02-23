@@ -1,5 +1,5 @@
 # =====================================================
-# LDE STUDIO - Configurazione Apache/htaccess
+# ETEREA GESTIONALE - Configurazione Apache/htaccess
 # Compatibile con SiteGround (Apache 2.4+)
 # =====================================================
 
@@ -33,7 +33,7 @@ RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 # -----------------------------------------------------
 <IfModule mod_headers.c>
     # Previene clickjacking
-    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set X-Frame-Options "DENY"
     
     # Previene MIME sniffing
     Header always set X-Content-Type-Options "nosniff"
@@ -43,6 +43,25 @@ RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
     
     # Abilita protezione XSS (browser legacy)
     Header always set X-XSS-Protection "1; mode=block"
+    
+    # Content Security Policy (CSP) - Permissive per compatibilità CDN
+    # In produzione, stringere la policy
+    Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdnjs.cloudflare.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: https:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self';"
+    
+    # Permissions Policy
+    Header always set Permissions-Policy "geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), speaker=()"
+    
+    # Strict Transport Security (HSTS) - solo HTTPS
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+    
+    # Rimuovi header che espongono informazioni
+    Header always unset X-Powered-By
+    Header always unset Server
+</IfModule>
+
+<IfModule mod_rewrite.c>
+    # Rimuovi header PHP X-Powered-By
+    RewriteRule ^ - [E=HTTP_X_POWERED_BY:off]
 </IfModule>
 
 # -----------------------------------------------------
@@ -102,15 +121,57 @@ RewriteRule ^includes/ - [F,L]
 RewriteRule ^assets/uploads/ - [F,L]
 
 # Proteggi file sensibili
-<FilesMatch "\.(sql|log|ini|json|md|gitignore)$">
+<FilesMatch "\.(sql|log|ini|json|md|gitignore|env)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Proteggi specificamente il file .env
+<Files ".env">
+    Order allow,deny
+    Deny from all
+</Files>
+
+# Proteggi file .env.example
+<Files ".env.example">
+    Order allow,deny
+    Deny from all
+</Files>
+
+# Proteggi file di backup
+<FilesMatch "\.(bak|backup|old|orig|save|swp)$">
     Order allow,deny
     Deny from all
 </FilesMatch>
 
 # -----------------------------------------------------
+# LIMITAZIONE METODI HTTP
+# -----------------------------------------------------
+<IfModule mod_rewrite.c>
+    RewriteCond %{REQUEST_METHOD} ^(TRACE|TRACK|OPTIONS|HEAD)
+    RewriteRule .* - [F]
+</IfModule>
+
+# -----------------------------------------------------
+# PROTEZIONE DDOS / FLOOD BASE
+# -----------------------------------------------------
+<IfModule mod_qos.c>
+    # Limita connessioni simultanee per IP
+    QS_SrvMaxConnPerIP 50
+    
+    # Limita richieste per secondo
+    QS_SrvMaxConnClose 100
+</IfModule>
+
+# -----------------------------------------------------
 # DEFAULT PAGE
 # -----------------------------------------------------
 DirectoryIndex index.php
+
+# -----------------------------------------------------
+# DISABLE SERVER SIGNATURE
+# -----------------------------------------------------
+ServerSignature Off
 
 # =====================================================
 # FINE CONFIGURAZIONE
