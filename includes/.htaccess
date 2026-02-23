@@ -1,0 +1,3 @@
+# Proteggi directory includes
+Order deny,allow
+Deny from all

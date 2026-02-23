@@ -1,0 +1,17 @@
+# Proteggi accesso diretto ai file caricati
+# I file devono essere accessibili solo tramite il proxy PHP (api/upload.php)
+
+# Però permetti l'accesso alle immagini dei loghi clienti
+<FilesMatch "\.(jpg|jpeg|png|gif)$">
+    Allow from all
+</FilesMatch>
+
+# Nega accesso diretto a PDF e altri file
+<FilesMatch "\.(pdf|doc|docx|xls|xlsx)$">
+    Order deny,allow
+    Deny from all
+</FilesMatch>
+
+# Disabilita esecuzione di script
+Options -ExecCGI
+AddHandler cgi-script .php .pl .py .jsp .asp .sh .cgi

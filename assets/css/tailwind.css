@@ -1,0 +1,237 @@
+/**
+ * Eterea Gestionale
+ * Custom Tailwind CSS Styles
+ * 
+ * Questo file contiene stili personalizzati che estendono Tailwind CSS.
+ * Tailwind viene caricato via CDN con configurazione inline.
+ */
+
+/* Base styles */
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom utilities */
+@layer utilities {
+    .text-shadow {
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .text-shadow-lg {
+        text-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+}
+
+/* Line clamp utilities */
+.line-clamp-1 {
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Glass effect */
+.glass {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.glass-dark {
+    background: rgba(15, 23, 42, 0.8);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+/* Smooth transitions */
+.transition-smooth {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Focus styles */
+.focus-ring:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.3);
+}
+
+/* Custom scrollbar for modals */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* Animation keyframes */
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-5px);
+    }
+}
+
+.animate-float {
+    animation: float 3s ease-in-out infinite;
+}
+
+/* Status badge sizes */
+.badge-sm {
+    @apply px-2 py-0.5 text-xs;
+}
+
+.badge-md {
+    @apply px-2.5 py-1 text-sm;
+}
+
+.badge-lg {
+    @apply px-3 py-1.5 text-base;
+}
+
+/* Card variations */
+.card-elevated {
+    @apply bg-white rounded-2xl shadow-lg border border-slate-100;
+}
+
+.card-flat {
+    @apply bg-white rounded-xl border border-slate-200;
+}
+
+/* Button variations */
+.btn-icon {
+    @apply p-2 rounded-lg transition-colors inline-flex items-center justify-center;
+}
+
+/* Form enhancements */
+.input-enhanced {
+    @apply w-full px-4 py-2.5 bg-white border border-slate-200 rounded-lg 
+           focus:ring-2 focus:ring-cyan-500 focus:border-transparent 
+           transition-all outline-none;
+}
+
+.input-enhanced:hover {
+    @apply border-slate-300;
+}
+
+/* Table styles */
+.table-responsive {
+    @apply overflow-x-auto;
+}
+
+.table-enhanced {
+    @apply w-full text-left border-collapse;
+}
+
+.table-enhanced th {
+    @apply px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider bg-slate-50 border-b border-slate-200;
+}
+
+.table-enhanced td {
+    @apply px-4 py-3 border-b border-slate-100;
+}
+
+.table-enhanced tr:hover td {
+    @apply bg-slate-50;
+}
+
+/* Dropdown menu */
+.dropdown-menu {
+    @apply absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-slate-200 py-2 z-50
+           opacity-0 invisible transform -translate-y-2 transition-all duration-200;
+}
+
+.dropdown:hover .dropdown-menu,
+.dropdown-menu.show {
+    @apply opacity-100 visible translate-y-0;
+}
+
+/* Tooltip */
+.tooltip {
+    @apply relative;
+}
+
+.tooltip::after {
+    content: attr(data-tooltip);
+    @apply absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 
+           bg-slate-800 text-white text-xs rounded opacity-0 invisible transition-all;
+}
+
+.tooltip:hover::after {
+    @apply opacity-100 visible;
+}
+
+/* Loading skeleton */
+.skeleton {
+    @apply bg-slate-200 animate-pulse rounded;
+}
+
+/* Print styles */
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    
+    body {
+        background: white !important;
+    }
+}
+
+/* Mobile optimizations */
+@media (max-width: 640px) {
+    .mobile-full {
+        @apply w-full;
+    }
+    
+    .mobile-stack {
+        @apply flex-col;
+    }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .focus-ring:focus {
+        box-shadow: 0 0 0 3px black;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}

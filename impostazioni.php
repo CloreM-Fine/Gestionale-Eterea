@@ -1,0 +1,722 @@
+<?php
+/**
+ * Eterea Gestionale
+ * Impostazioni di sistema
+ */
+
+require_once __DIR__ . '/includes/functions.php';
+require_once __DIR__ . '/includes/auth_check.php';
+
+$pageTitle = 'Impostazioni';
+
+include __DIR__ . '/includes/header.php';
+?>
+
+<!-- Header -->
+<div class="mb-6">
+    <h1 class="text-xl sm:text-2xl font-bold text-slate-800">Impostazioni</h1>
+    <p class="text-slate-500 mt-1">Gestione avanzata del sistema</p>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    
+    <!-- Sezione: Pulizia Dati -->
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="p-5 border-b border-slate-100">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center">
+                    <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-slate-800">Pulizia Dati</h3>
+                    <p class="text-xs sm:text-sm text-slate-500">Operazioni irreversibili</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="p-5 space-y-4">
+            <!-- Elimina Cronologia -->
+            <div class="p-4 bg-slate-50 rounded-xl">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="font-medium text-slate-800">Elimina Cronologia</p>
+                        <p class="text-xs sm:text-sm text-slate-500">Cancella tutta la timeline delle attività</p>
+                    </div>
+                    <button onclick="confirmDeleteCronologia()" 
+                            class="px-4 py-2 bg-orange-100 hover:bg-orange-200 text-orange-700 rounded-lg font-medium transition-colors">
+                        Elimina
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Azzera Saldi -->
+            <div class="p-4 bg-slate-50 rounded-xl">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="font-medium text-slate-800">Azzera Saldi Utenti</p>
+                        <p class="text-xs sm:text-sm text-slate-500">Riporta a zero tutti i wallet di tutti gli utenti</p>
+                    </div>
+                    <button onclick="confirmResetSaldi()" 
+                            class="px-4 py-2 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg font-medium transition-colors">
+                        Azzera
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sezione: Backup Dati -->
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="p-5 border-b border-slate-100">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center">
+                    <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4-4m0 0L8 8m4-4v12"/>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-slate-800">Backup Dati</h3>
+                    <p class="text-xs sm:text-sm text-slate-500">Esporta in formato CSV</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="p-5 space-y-3">
+            <div class="grid grid-cols-2 gap-3">
+                <a href="api/impostazioni.php?action=backup&tipo=clienti" 
+                   class="flex items-center justify-center gap-2 p-3 bg-slate-50 hover:bg-slate-100 rounded-lg transition-colors">
+                    <svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                    </svg>
+                    <span class="font-medium text-slate-700">Clienti</span>
+                </a>
+                
+                <a href="api/impostazioni.php?action=backup&tipo=progetti" 
+                   class="flex items-center justify-center gap-2 p-3 bg-slate-50 hover:bg-slate-100 rounded-lg transition-colors">
+                    <svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
+                    </svg>
+                    <span class="font-medium text-slate-700">Progetti</span>
+                </a>
+                
+                <a href="api/impostazioni.php?action=backup&tipo=finanze" 
+                   class="flex items-center justify-center gap-2 p-3 bg-slate-50 hover:bg-slate-100 rounded-lg transition-colors">
+                    <svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <span class="font-medium text-slate-700">Finanze</span>
+                </a>
+                
+                <a href="api/impostazioni.php?action=backup&tipo=appuntamenti" 
+                   class="flex items-center justify-center gap-2 p-3 bg-slate-50 hover:bg-slate-100 rounded-lg transition-colors">
+                    <svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                    <span class="font-medium text-slate-700">Appuntamenti</span>
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sezione: Profilo Utente -->
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="p-5 border-b border-slate-100">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-cyan-100 rounded-xl flex items-center justify-center">
+                    <svg class="w-5 h-5 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-slate-800">Profilo</h3>
+                    <p class="text-xs sm:text-sm text-slate-500">Gestisci la tua immagine profilo</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="p-5">
+            <div class="flex flex-col sm:flex-row items-center gap-6">
+                <!-- Avatar Preview -->
+                <div class="relative">
+                    <div id="avatarPreview" class="w-24 h-24 rounded-full overflow-hidden border-4 border-slate-100 shadow-lg">
+                        <?php if (!empty($currentUser['avatar']) && file_exists(__DIR__ . '/assets/uploads/avatars/' . $currentUser['avatar'])): ?>
+                            <img src="assets/uploads/avatars/<?php echo e($currentUser['avatar']); ?>?v=<?php echo time(); ?>" 
+                                 alt="Avatar" class="w-full h-full object-cover">
+                        <?php else: ?>
+                            <div class="w-full h-full flex items-center justify-center text-white text-2xl font-bold" 
+                                 style="background-color: <?php echo e($currentUser['colore']); ?>">
+                                <?php echo substr($currentUser['nome'], 0, 2); ?>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                    <button onclick="document.getElementById('avatarInput').click()" 
+                            class="absolute -bottom-1 -right-1 w-8 h-8 bg-cyan-600 hover:bg-cyan-700 text-white rounded-full flex items-center justify-center shadow-lg transition-colors"
+                            title="Cambia avatar">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
+                    </button>
+                </div>
+                
+                <!-- Upload Form -->
+                <div class="flex-1 w-full">
+                    <form id="avatarForm" enctype="multipart/form-data">
+                        <input type="file" id="avatarInput" name="avatar" accept="image/jpeg,image/png,image/gif,image/webp" 
+                               class="hidden" onchange="uploadAvatar(this)">
+                        <div class="text-center sm:text-left">
+                            <p class="font-medium text-slate-800"><?php echo e($currentUser['nome']); ?></p>
+                            <p class="text-sm text-slate-500 mb-3">Clicca sull'icona della fotocamera per cambiare avatar</p>
+                            <p class="text-xs text-slate-400">Formati accettati: JPG, PNG, GIF, WEBP<br>Max 2MB - Dimensione consigliata: 400x400px</p>
+                        </div>
+                    </form>
+                    
+                    <!-- Progress bar (hidden by default) -->
+                    <div id="uploadProgress" class="hidden mt-3">
+                        <div class="h-2 bg-slate-100 rounded-full overflow-hidden">
+                            <div class="h-full bg-cyan-500 rounded-full transition-all" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sezione: Personalizzazione -->
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="p-5 border-b border-slate-100">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center">
+                    <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-slate-800">Personalizzazione</h3>
+                    <p class="text-xs sm:text-sm text-slate-500">Logo e branding del gestionale</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="p-5">
+            <div class="flex flex-col sm:flex-row items-center gap-6">
+                <!-- Logo Preview -->
+                <div class="relative">
+                    <div id="logoPreview" class="w-32 h-32 rounded-xl overflow-hidden border-4 border-slate-100 shadow-lg bg-white flex items-center justify-center">
+                        <div id="logoPlaceholder" class="text-center text-slate-400">
+                            <svg class="w-12 h-12 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                            <span class="text-xs">Nessun logo</span>
+                        </div>
+                        <img id="logoImg" src="" alt="Logo" class="w-full h-full object-contain hidden">
+                    </div>
+                    <button onclick="document.getElementById('logoInput').click()" 
+                            class="absolute -bottom-1 -right-1 w-8 h-8 bg-purple-600 hover:bg-purple-700 text-white rounded-full flex items-center justify-center shadow-lg transition-colors"
+                            title="Cambia logo">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
+                    </button>
+                </div>
+                
+                <!-- Upload Form -->
+                <div class="flex-1 w-full">
+                    <form id="logoForm" enctype="multipart/form-data">
+                        <input type="file" id="logoInput" name="logo" accept="image/jpeg,image/png,image/gif,image/webp,image/svg+xml,.svg" 
+                               class="hidden" onchange="uploadLogo(this)">
+                        <div class="text-center sm:text-left">
+                            <p class="font-medium text-slate-800">Logo Gestionale</p>
+                            <p class="text-sm text-slate-500 mb-3">Clicca sull'icona per cambiare il logo visualizzato nel login e nella navbar</p>
+                            <p class="text-xs text-slate-400">Formati accettati: JPG, PNG, GIF, WEBP, SVG<br>Max 2MB per immagini, 5MB per SVG</p>
+                        </div>
+                    </form>
+                    
+                    <div id="logoActions" class="mt-4 flex gap-2 hidden">
+                        <button onclick="rimuoviLogo()" class="px-3 py-1.5 text-sm text-red-600 hover:text-red-700 border border-red-200 rounded-lg hover:bg-red-50 transition-colors">
+                            Rimuovi logo
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sezione: ELIMINA TUTTO (Pericolo Estremo) -->
+    <div class="md:col-span-2 bg-gradient-to-r from-red-50 to-red-100 rounded-2xl shadow-sm border border-red-200 overflow-hidden">
+        <div class="p-5 border-b border-red-200">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-red-500 rounded-xl flex items-center justify-center">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-red-800">⚠️ Zona di Pericolo - Elimina Tutto</h3>
+                    <p class="text-sm text-red-600">Operazione IRREVERSIBILE - Richiede 3 livelli di conferma</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="p-5">
+            <div class="bg-white rounded-xl p-6 border border-red-200">
+                <p class="text-slate-700 mb-4">
+                    Questa operazione eliminerà <strong>TUTTI I DATI</strong> dal sistema:<br>
+                    <span class="text-red-600">Appuntamenti, Saldi, Cronologia, Progetti, Clienti, Task, Transazioni</span>
+                </p>
+                
+                <button onclick="showDeleteAllModal()" 
+                        class="w-full py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors">
+                    AVVIA PROCEDURA DI ELIMINAZIONE TOTALE
+                </button>
+            </div>
+        </div>
+    </div>
+    
+</div>
+
+<!-- Modal Elimina Cronologia - Conferma 1 -->
+<div id="deleteCronologiaModal1" class="fixed inset-0 z-50 hidden">
+    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeModal('deleteCronologiaModal1')"></div>
+    <div class="absolute inset-0 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+            <div class="p-5 border-b border-slate-100">
+                <h3 class="font-bold text-slate-800">⚠️ Conferma Eliminazione</h3>
+            </div>
+            <div class="p-5">
+                <p class="text-slate-600">Sei sicuro di voler eliminare tutta la cronologia delle attività?</p>
+                <p class="text-sm text-red-600 mt-2">Questa operazione è irreversibile.</p>
+            </div>
+            <div class="p-5 border-t border-slate-100 flex justify-end gap-3">
+                <button onclick="closeModal('deleteCronologiaModal1')" class="px-4 py-2 text-slate-600 font-medium">Annulla</button>
+                <button onclick="showDeleteCronologiaStep2()" class="px-6 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg font-medium">Procedi</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Elimina Cronologia - Conferma 2 -->
+<div id="deleteCronologiaModal2" class="fixed inset-0 z-50 hidden">
+    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeModal('deleteCronologiaModal2')"></div>
+    <div class="absolute inset-0 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+            <div class="p-5 border-b border-slate-100">
+                <h3 class="font-bold text-red-800">⚠️ ULTIMA CONFERMA</h3>
+            </div>
+            <div class="p-5">
+                <p class="text-slate-600">Stai per eliminare definitivamente tutta la cronologia.</p>
+                <div class="mt-4 p-3 bg-red-50 rounded-lg">
+                    <p class="text-sm text-red-700 font-medium">Dopo questa operazione non potrai più recuperare i dati!</p>
+                </div>
+            </div>
+            <div class="p-5 border-t border-slate-100 flex justify-end gap-3">
+                <button onclick="closeModal('deleteCronologiaModal2')" class="px-4 py-2 text-slate-600 font-medium">Annulla</button>
+                <button onclick="executeDeleteCronologia()" class="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium">ELIMINA DEFINITIVAMENTE</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Azzera Saldi - Conferma 1 -->
+<div id="resetSaldiModal1" class="fixed inset-0 z-50 hidden">
+    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeModal('resetSaldiModal1')"></div>
+    <div class="absolute inset-0 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+            <div class="p-5 border-b border-slate-100">
+                <h3 class="font-bold text-slate-800">⚠️ Conferma Azzeramento</h3>
+            </div>
+            <div class="p-5">
+                <p class="text-slate-600">Sei sicuro di voler azzerare i saldi di TUTTI gli utenti?</p>
+                <p class="text-sm text-red-600 mt-2">Tutti i wallet verranno portati a zero. Operazione irreversibile.</p>
+            </div>
+            <div class="p-5 border-t border-slate-100 flex justify-end gap-3">
+                <button onclick="closeModal('resetSaldiModal1')" class="px-4 py-2 text-slate-600 font-medium">Annulla</button>
+                <button onclick="showResetSaldiStep2()" class="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium">Procedi</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Azzera Saldi - Conferma 2 -->
+<div id="resetSaldiModal2" class="fixed inset-0 z-50 hidden">
+    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeModal('resetSaldiModal2')"></div>
+    <div class="absolute inset-0 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+            <div class="p-5 border-b border-slate-100">
+                <h3 class="font-bold text-red-800">⚠️ ULTIMA CONFERMA</h3>
+            </div>
+            <div class="p-5">
+                <p class="text-slate-600">Stai per azzerare definitivamente tutti i saldi.</p>
+                <div class="mt-4 p-3 bg-red-50 rounded-lg">
+                    <p class="text-sm text-red-700 font-medium">Questo influenzerà TUTTI gli utenti del sistema!</p>
+                </div>
+            </div>
+            <div class="p-5 border-t border-slate-100 flex justify-end gap-3">
+                <button onclick="closeModal('resetSaldiModal2')" class="px-4 py-2 text-slate-600 font-medium">Annulla</button>
+                <button onclick="executeResetSaldi()" class="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium">AZZERA DEFINITIVAMENTE</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal ELIMINA TUTTO - 3 Livelli di Sicurezza -->
+
+<!-- Livello 1 -->
+<div id="deleteAllModal1" class="fixed inset-0 z-50 hidden">
+    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeModal('deleteAllModal1')"></div>
+    <div class="absolute inset-0 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+            <div class="p-5 border-b border-red-100 bg-red-50">
+                <h3 class="font-bold text-red-800">🔴 LIVELLO 1/3 - Pericolo Estremo</h3>
+            </div>
+            <div class="p-5">
+                <p class="text-slate-700">Stai per eliminare <strong>TUTTI I DATI</strong> dal sistema:</p>
+                <ul class="mt-2 text-sm text-red-600 list-disc list-inside">
+                    <li>Appuntamenti</li>
+                    <li>Saldi di tutti gli utenti</li>
+                    <li>Cronologia timeline</li>
+                    <li>Progetti</li>
+                    <li>Clienti</li>
+                    <li>Task</li>
+                    <li>Transazioni economiche</li>
+                </ul>
+            </div>
+            <div class="p-5 border-t border-slate-100 flex justify-end gap-3">
+                <button onclick="closeModal('deleteAllModal1')" class="px-4 py-2 text-slate-600 font-medium">Annulla</button>
+                <button onclick="showDeleteAllStep2()" class="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium">Ho capito, procedi</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Livello 2 -->
+<div id="deleteAllModal2" class="fixed inset-0 z-50 hidden">
+    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeModal('deleteAllModal2')"></div>
+    <div class="absolute inset-0 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md border-2 border-red-500">
+            <div class="p-5 border-b border-red-100 bg-red-50">
+                <h3 class="font-bold text-red-800">🔴 LIVELLO 2/3 - ULTIMO AVVISO</h3>
+            </div>
+            <div class="p-5">
+                <p class="text-slate-700">Questa è l'ultima schermata prima della distruzione totale.</p>
+                <div class="mt-4 p-4 bg-red-100 rounded-lg border border-red-200">
+                    <p class="text-red-800 font-bold text-center">⚠️ NON POTRAI MAI RECUPERARE I DATI ⚠️</p>
+                </div>
+            </div>
+            <div class="p-5 border-t border-slate-100 flex justify-end gap-3">
+                <button onclick="closeModal('deleteAllModal2')" class="px-4 py-2 text-slate-600 font-medium">Annulla</button>
+                <button onclick="showDeleteAllStep3()" class="px-6 py-2 bg-red-700 hover:bg-red-800 text-white rounded-lg font-medium">Continua comunque</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Livello 3 - Parola chiave -->
+<div id="deleteAllModal3" class="fixed inset-0 z-50 hidden">
+    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeModal('deleteAllModal3')"></div>
+    <div class="absolute inset-0 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md border-2 border-red-600">
+            <div class="p-5 border-b border-red-100 bg-red-600">
+                <h3 class="font-bold text-white">🔴 LIVELLO 3/3 - AUTENTICAZIONE RICHIESTA</h3>
+            </div>
+            <div class="p-5">
+                <p class="text-slate-700 mb-4">Per procedere con l'eliminazione totale, inserisci la parola chiave di sicurezza:</p>
+                
+                <div class="mb-4">
+                    <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-2">Parola chiave</label>
+                    <input type="password" id="deleteAllKeyword" 
+                           class="w-full px-4 py-2.5 border border-red-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none"
+                           placeholder="Inserisci la parola chiave...">
+                    <p class="text-xs text-slate-500 mt-1">Suggerimento: combinazione di due password che conosci...</p>
+                </div>
+                
+                <div class="p-3 bg-red-50 rounded-lg border border-red-200">
+                    <p class="text-sm text-red-800 font-medium text-center">⚠️ Dopo questa operazione il sistema sarà vuoto ⚠️</p>
+                </div>
+            </div>
+            <div class="p-5 border-t border-slate-100 flex justify-end gap-3">
+                <button onclick="closeModal('deleteAllModal3')" class="px-4 py-2 text-slate-600 font-medium">Annulla</button>
+                <button onclick="executeDeleteAll()" class="px-6 py-2 bg-red-700 hover:bg-red-800 text-white rounded-lg font-medium">ELIMINA TUTTO</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const KEYWORD_SICUREZZA = 'Tomato2399Andromeda2399!?';
+
+// Elimina Cronologia
+function confirmDeleteCronologia() {
+    openModal('deleteCronologiaModal1');
+}
+
+function showDeleteCronologiaStep2() {
+    closeModal('deleteCronologiaModal1');
+    openModal('deleteCronologiaModal2');
+}
+
+async function executeDeleteCronologia() {
+    try {
+        const response = await fetch('api/impostazioni.php?action=delete_cronologia', {
+            method: 'POST'
+        });
+        const data = await response.json();
+        
+        closeModal('deleteCronologiaModal2');
+        
+        if (data.success) {
+            showToast('Cronologia eliminata con successo', 'success');
+        } else {
+            showToast(data.message || 'Errore eliminazione', 'error');
+        }
+    } catch (error) {
+        showToast('Errore di connessione', 'error');
+    }
+}
+
+// Azzera Saldi
+function confirmResetSaldi() {
+    openModal('resetSaldiModal1');
+}
+
+function showResetSaldiStep2() {
+    closeModal('resetSaldiModal1');
+    openModal('resetSaldiModal2');
+}
+
+async function executeResetSaldi() {
+    try {
+        const response = await fetch('api/impostazioni.php?action=reset_saldi', {
+            method: 'POST'
+        });
+        const data = await response.json();
+        
+        closeModal('resetSaldiModal2');
+        
+        if (data.success) {
+            showToast('Saldi azzerati con successo', 'success');
+        } else {
+            showToast(data.message || 'Errore', 'error');
+        }
+    } catch (error) {
+        showToast('Errore di connessione', 'error');
+    }
+}
+
+// Upload Avatar
+async function uploadAvatar(input) {
+    const file = input.files[0];
+    if (!file) return;
+    
+    // Validazione
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+        showToast('Formato non valido. Usa JPG, PNG, GIF o WEBP', 'error');
+        return;
+    }
+    
+    if (file.size > 2 * 1024 * 1024) {
+        showToast('File troppo grande. Max 2MB', 'error');
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('avatar', file);
+    formData.append('action', 'upload_avatar');
+    
+    // Mostra progress bar
+    const progressDiv = document.getElementById('uploadProgress');
+    const progressBar = progressDiv.querySelector('div');
+    progressDiv.classList.remove('hidden');
+    progressBar.style.width = '30%';
+    
+    try {
+        const response = await fetch('api/impostazioni.php', {
+            method: 'POST',
+            body: formData
+        });
+        
+        progressBar.style.width = '70%';
+        
+        const data = await response.json();
+        
+        progressBar.style.width = '100%';
+        
+        if (data.success) {
+            showToast('Avatar aggiornato con successo!', 'success');
+            // Ricarica la pagina dopo 500ms per vedere il nuovo avatar
+            setTimeout(() => location.reload(), 500);
+        } else {
+            showToast(data.message || 'Errore upload', 'error');
+            progressDiv.classList.add('hidden');
+        }
+    } catch (error) {
+        showToast('Errore di connessione', 'error');
+        progressDiv.classList.add('hidden');
+    }
+}
+
+// Logo Gestionale
+let currentLogo = '';
+let isLogoSvg = false;
+
+// Carica logo all'avvio
+document.addEventListener('DOMContentLoaded', loadLogo);
+
+async function loadLogo() {
+    try {
+        const response = await fetch('api/impostazioni.php?action=get_logo');
+        const data = await response.json();
+        
+        if (data.success && data.data.logo) {
+            currentLogo = data.data.logo;
+            isLogoSvg = data.data.is_svg;
+            updateLogoPreview();
+        }
+    } catch (error) {
+        console.error('Errore caricamento logo:', error);
+    }
+}
+
+function updateLogoPreview() {
+    const img = document.getElementById('logoImg');
+    const placeholder = document.getElementById('logoPlaceholder');
+    const actions = document.getElementById('logoActions');
+    
+    if (currentLogo) {
+        img.src = 'assets/uploads/logo/' + currentLogo;
+        img.classList.remove('hidden');
+        placeholder.classList.add('hidden');
+        actions.classList.remove('hidden');
+    } else {
+        img.classList.add('hidden');
+        placeholder.classList.remove('hidden');
+        actions.classList.add('hidden');
+    }
+}
+
+async function uploadLogo(input) {
+    const file = input.files[0];
+    if (!file) return;
+    
+    // Validazione dimensione (5MB max per SVG, 2MB per immagini)
+    const isSvg = file.name.toLowerCase().endsWith('.svg');
+    const maxSize = isSvg ? 5 * 1024 * 1024 : 2 * 1024 * 1024;
+    
+    if (file.size > maxSize) {
+        showToast('File troppo grande. Max ' + (isSvg ? '5MB' : '2MB'), 'error');
+        input.value = '';
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('logo', file);
+    formData.append('action', 'save_logo');
+    
+    try {
+        const response = await fetch('api/impostazioni.php', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            currentLogo = data.data.logo;
+            isLogoSvg = data.data.is_svg;
+            updateLogoPreview();
+            showToast('Logo aggiornato con successo!', 'success');
+            // Aggiorna anche il logo nella navbar
+            updateNavbarLogo();
+        } else {
+            showToast(data.message || 'Errore upload', 'error');
+        }
+    } catch (error) {
+        showToast('Errore di connessione', 'error');
+    }
+    
+    input.value = '';
+}
+
+async function rimuoviLogo() {
+    confirmAction('Rimuovere il logo?', async () => {
+        try {
+            const response = await fetch('api/impostazioni.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: 'action=save_logo&remove=true'
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                currentLogo = '';
+                isLogoSvg = false;
+                updateLogoPreview();
+                showToast('Logo rimosso', 'success');
+                updateNavbarLogo();
+            }
+        } catch (error) {
+            showToast('Errore di connessione', 'error');
+        }
+    });
+}
+
+function updateNavbarLogo() {
+    // Ricarica la pagina per aggiornare il logo nella navbar
+    location.reload();
+}
+
+// Elimina Tutto - 3 Livelli
+function showDeleteAllModal() {
+    openModal('deleteAllModal1');
+}
+
+function showDeleteAllStep2() {
+    closeModal('deleteAllModal1');
+    openModal('deleteAllModal2');
+}
+
+function showDeleteAllStep3() {
+    closeModal('deleteAllModal2');
+    openModal('deleteAllModal3');
+}
+
+async function executeDeleteAll() {
+    const keyword = document.getElementById('deleteAllKeyword').value;
+    
+    if (keyword !== KEYWORD_SICUREZZA) {
+        showToast('Parola chiave errata! Operazione annullata.', 'error');
+        return;
+    }
+    
+    try {
+        const response = await fetch('api/impostazioni.php?action=delete_all', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `keyword=${encodeURIComponent(keyword)}`
+        });
+        const data = await response.json();
+        
+        closeModal('deleteAllModal3');
+        document.getElementById('deleteAllKeyword').value = '';
+        
+        if (data.success) {
+            showToast('Tutti i dati sono stati eliminati', 'success');
+            setTimeout(() => {
+                window.location.href = 'dashboard.php';
+            }, 2000);
+        } else {
+            showToast(data.message || 'Errore', 'error');
+        }
+    } catch (error) {
+        showToast('Errore di connessione', 'error');
+    }
+}
+
+</script>
+
+<?php include __DIR__ . '/includes/footer.php'; ?>

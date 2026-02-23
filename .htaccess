@@ -1,0 +1,117 @@
+# =====================================================
+# LDE STUDIO - Configurazione Apache/htaccess
+# Compatibile con SiteGround (Apache 2.4+)
+# =====================================================
+
+# Abilita il rewrite engine
+RewriteEngine On
+
+# -----------------------------------------------------
+# RIMUOVI .PHP DALLE URL (Pretty URLs)
+# -----------------------------------------------------
+
+# Se il file richiesto esiste come .php, servilo senza estensione
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME}.php -f
+RewriteRule ^(.*)$ $1.php [L]
+
+# Redirect da .php a senza .php (per SEO)
+# Esclude la cartella api/ dato che le API richiedono chiamate POST
+RewriteCond %{THE_REQUEST} ^[A-Z]{3,}\s([^.]+)\.php [NC]
+RewriteCond %{REQUEST_URI} !^/api/
+RewriteRule ^ %1 [R=301,L]
+
+# -----------------------------------------------------
+# HTTPS REDIRECT
+# -----------------------------------------------------
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# -----------------------------------------------------
+# HEADER DI SICUREZZA
+# -----------------------------------------------------
+<IfModule mod_headers.c>
+    # Previene clickjacking
+    Header always set X-Frame-Options "SAMEORIGIN"
+    
+    # Previene MIME sniffing
+    Header always set X-Content-Type-Options "nosniff"
+    
+    # Referrer policy
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    
+    # Abilita protezione XSS (browser legacy)
+    Header always set X-XSS-Protection "1; mode=block"
+</IfModule>
+
+# -----------------------------------------------------
+# COMPRESSIONE GZIP
+# -----------------------------------------------------
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/plain
+    AddOutputFilterByType DEFLATE text/html
+    AddOutputFilterByType DEFLATE text/xml
+    AddOutputFilterByType DEFLATE text/css
+    AddOutputFilterByType DEFLATE application/xml
+    AddOutputFilterByType DEFLATE application/xhtml+xml
+    AddOutputFilterByType DEFLATE application/rss+xml
+    AddOutputFilterByType DEFLATE application/javascript
+    AddOutputFilterByType DEFLATE application/x-javascript
+    AddOutputFilterByType DEFLATE application/json
+</IfModule>
+
+# -----------------------------------------------------
+# CACHE BROWSER
+# -----------------------------------------------------
+<IfModule mod_expires.c>
+    ExpiresActive On
+    
+    # Immagini
+    ExpiresByType image/jpg "access plus 1 month"
+    ExpiresByType image/jpeg "access plus 1 month"
+    ExpiresByType image/gif "access plus 1 month"
+    ExpiresByType image/png "access plus 1 month"
+    ExpiresByType image/webp "access plus 1 month"
+    ExpiresByType image/svg+xml "access plus 1 month"
+    
+    # CSS e JS
+    ExpiresByType text/css "access plus 1 week"
+    ExpiresByType application/javascript "access plus 1 week"
+    ExpiresByType text/javascript "access plus 1 week"
+    
+    # Font
+    ExpiresByType font/woff2 "access plus 1 year"
+    ExpiresByType application/font-woff2 "access plus 1 year"
+    
+    # PDF
+    ExpiresByType application/pdf "access plus 1 month"
+</IfModule>
+
+# -----------------------------------------------------
+# PROTEZIONE FILE E DIRECTORY
+# -----------------------------------------------------
+
+# Proteggi file nascosti (iniziano con .)
+RewriteRule ^\. - [F,L]
+
+# Proteggi cartella includes
+RewriteRule ^includes/ - [F,L]
+
+# Proteggi cartella assets/uploads da listing
+RewriteRule ^assets/uploads/ - [F,L]
+
+# Proteggi file sensibili
+<FilesMatch "\.(sql|log|ini|json|md|gitignore)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# -----------------------------------------------------
+# DEFAULT PAGE
+# -----------------------------------------------------
+DirectoryIndex index.php
+
+# =====================================================
+# FINE CONFIGURAZIONE
+# =====================================================

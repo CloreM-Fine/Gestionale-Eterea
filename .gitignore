@@ -1,0 +1,31 @@
+# File di configurazione con credenziali
+config/openai.config.php
+includes/config.php.bak
+
+# File temporanei
+assets/temp/*
+!assets/temp/.gitkeep
+assets/uploads/clienti/*
+!assets/uploads/clienti/.gitkeep
+assets/uploads/progetti/*
+!assets/uploads/progetti/.gitkeep
+
+# File di sistema
+.DS_Store
+Thumbs.db
+*.log
+
+# Script di utilità temporanei
+aggiorna_password.php
+
+# Database dump
+*.sql
+
+# Vendor (se usassi composer)
+vendor/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
