@@ -65,6 +65,8 @@ try {
     $cassaTotale = 0;
     $wallets = [];
     $progettiDistribuiti = [];
+    $tuttiProgettiDistribuiti = [];
+    $progettiCAT = ['count' => 0, 'totale' => 0];
     $totaleMovimentato = 0;
 }
 
