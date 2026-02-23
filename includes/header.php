@@ -699,7 +699,7 @@ try {
         <!-- Briefing -->
         <a href="briefing_ai.php" class="mobile-menu-item <?php echo $currentPage === 'briefing_ai' ? 'active' : ''; ?>">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414A1 1 0 0019.414 9H21a2 2 0 012 2v9a2 2 0 01-2 2h-1.586l-3.707-3.707A1 1 0 0014.586 18z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
             </svg>
             <span>Briefing</span>
         </a>
