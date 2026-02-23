@@ -999,7 +999,7 @@ function ricalcolaDistribuzione() {
 }
 
 function getUtentiEsclusi() {
-    const checkboxes = document.querySelectorAll('.utente-distribuzione-checkbox');
+    const checkboxes = document.querySelectorAll('.utente-distribuzione-checkbox:not([disabled])');
     const esclusi = [];
     checkboxes.forEach(cb => {
         if (!cb.checked) {
@@ -1022,20 +1022,19 @@ function renderUtentiDistribuzioneList() {
     container.innerHTML = tuttiUtenti.map(uid => {
         const user = users[uid];
         const isPartecipante = partecipanti.includes(uid);
-        const isChecked = isPartecipante ? 'checked' : '';
-        const isDisabled = !isPartecipante ? 'disabled' : '';
-        const opacity = !isPartecipante ? 'opacity-50' : '';
+        // Solo i partecipanti possono essere selezionati/deselezionati
+        // I non-partecipanti non appaiono nella lista (sono automaticamente esclusi)
+        if (!isPartecipante) return '';
         
         return `
-            <label class="flex items-center gap-3 cursor-pointer ${opacity}">
-                <input type="checkbox" value="${uid}" ${isChecked} ${isDisabled}
+            <label class="flex items-center gap-3 cursor-pointer">
+                <input type="checkbox" value="${uid}" checked
                        onchange="ricalcolaDistribuzione()"
                        class="utente-distribuzione-checkbox w-5 h-5 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500">
                 <div class="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-medium" style="background-color: ${user?.colore || '#3B82F6'}">
                     ${user?.nome?.charAt(0) || '?'}
                 </div>
-                <span class="text-sm ${isPartecipante ? 'text-slate-800' : 'text-slate-400'}">${user?.nome || uid}</span>
-                ${!isPartecipante ? '<span class="text-xs text-slate-400">(non partecipante)</span>' : ''}
+                <span class="text-sm text-slate-800">${user?.nome || uid}</span>
             </label>
         `;
     }).join('');
@@ -1058,11 +1057,11 @@ function generaDistribuzione(includiCassa = true, utentiEsclusi = []) {
     
     // Calcola percentuali in base a se include o meno la cassa
     const cassaPercent = includiCassa ? 0.10 : 0;
-    // I rimanenti percentuali da distribuire (esclusa la parte degli utenti esclusi)
+    // I rimanenti percentuali da distribuire
     const remainingPercent = 1 - cassaPercent;
     
-    // Numero di utenti esclusi dal progetto (per ridistribuire la loro quota)
-    const numEsclusi = utentiEsclusi.filter(uid => partecipanti.includes(uid)).length;
+    // Numero di utenti esclusi (quelli deselezionati)
+    const numEsclusi = utentiEsclusi.length;
     // Quota da ridistribuire (10% per ogni utente escluso)
     const quotaRidistribuibile = numEsclusi * 0.10;
     
