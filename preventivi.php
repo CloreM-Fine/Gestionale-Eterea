@@ -324,19 +324,15 @@ include __DIR__ . '/includes/header.php';
                               placeholder="Note aggiuntive per il cliente..."></textarea>
                 </div>
                 
-                <!-- Selezione Listino -->
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-slate-700 mb-2">Seleziona il listino</label>
-                    <select id="prevListinoSelect" onchange="onListinoChange()"
-                            class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none bg-white">
-                        <option value="">-- Seleziona un listino --</option>
-                    </select>
-                </div>
-                
                 <!-- Selezione Servizi -->
-                <h3 class="font-semibold text-slate-800 mb-3">Seleziona i Servizi</h3>
+                <h3 class="font-semibold text-slate-800 mb-3 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                    </svg>
+                    Seleziona i Servizi
+                </h3>
                 <div id="preventivoServizi" class="space-y-3 max-h-96 overflow-y-auto border border-slate-200 rounded-xl p-3">
-                    <p class="text-slate-400 text-center py-4">Seleziona un listino per vedere i servizi disponibili</p>
+                    <p class="text-slate-400 text-center py-4">Caricamento servizi...</p>
                 </div>
                 
                 <!-- Riepilogo -->
@@ -1160,11 +1156,94 @@ function openPreventivoModal() {
     document.getElementById('prevNumero').value = 'PREV-' + new Date().getFullYear() + '-' + String(Math.floor(Math.random() * 900) + 100);
     document.getElementById('prevScontoGlobale').value = '0';
     document.getElementById('prevNote').value = '';
-    document.getElementById('prevListinoSelect').value = '';
     
-    loadListiniSelect();
+    // Carica i servizi dal listino prezzi
+    loadPreventivi().then(() => {
+        renderPreventivoServiziListino();
+    });
+    
     updatePreventivoPreview();
     openModal('preventivoModal');
+}
+
+function renderPreventivoServiziListino() {
+    const container = document.getElementById('preventivoServizi');
+    
+    if (!preventiviData || preventiviData.length === 0) {
+        container.innerHTML = '<p class="text-slate-400 text-center py-4">Nessun servizio disponibile. Aggiungi servizi in Gestione Listino.</p>';
+        return;
+    }
+    
+    container.innerHTML = preventiviData.map(cat => `
+        <div class="border border-slate-200 rounded-xl overflow-hidden">
+            <div class="px-4 py-2 bg-gradient-to-r from-cyan-50 to-slate-50 font-semibold text-slate-700 text-sm border-b border-slate-200">
+                ${cat.nome}
+            </div>
+            <div class="divide-y divide-slate-100">
+                ${cat.voci.map(v => {
+                    const prezzoFinale = v.prezzo * (1 - v.sconto_percentuale / 100);
+                    const hasSconto = v.sconto_percentuale > 0;
+                    return `
+                    <div class="p-3 hover:bg-slate-50 transition-colors" id="row-${v.id}">
+                        <div class="flex items-start gap-3">
+                            <!-- Checkbox -->
+                            <div class="pt-1">
+                                <input type="checkbox" id="prev-voce-${v.id}" value="${v.id}" 
+                                       data-prezzo="${prezzoFinale}"
+                                       data-nome="${escapeHtml(v.tipo_servizio)}"
+                                       data-categoria="${escapeHtml(cat.nome)}"
+                                       class="w-5 h-5 text-cyan-600 rounded border-slate-300 focus:ring-cyan-500 cursor-pointer"
+                                       onchange="toggleServizio('${v.id}')">
+                            </div>
+                            
+                            <!-- Contenuto -->
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-start justify-between gap-2">
+                                    <div class="flex-1">
+                                        <p class="font-semibold text-slate-800 text-sm">${v.tipo_servizio}</p>
+                                        ${v.descrizione ? `<p class="text-xs text-slate-500 mt-0.5 line-clamp-2">${v.descrizione}</p>` : ''}
+                                    </div>
+                                    
+                                    <!-- Prezzo -->
+                                    <div class="text-right flex-shrink-0">
+                                        ${hasSconto ? `
+                                            <p class="text-xs text-slate-400 line-through">€ ${v.prezzo.toLocaleString('it-IT', {minimumFractionDigits: 2})}</p>
+                                            <p class="font-bold text-cyan-600">€ ${prezzoFinale.toLocaleString('it-IT', {minimumFractionDigits: 2})}</p>
+                                            <span class="text-xs bg-red-100 text-red-600 px-1.5 py-0.5 rounded">-${v.sconto_percentuale}%</span>
+                                        ` : `
+                                            <p class="font-bold text-cyan-600">€ ${v.prezzo.toLocaleString('it-IT', {minimumFractionDigits: 2})}</p>
+                                        `}
+                                    </div>
+                                </div>
+                                
+                                <!-- Controlli Quantità (nascosti finché non selezionato) -->
+                                <div id="controls-${v.id}" class="hidden mt-3 pt-3 border-t border-slate-100">
+                                    <div class="flex items-center gap-4">
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-xs text-slate-600">Quantità:</span>
+                                            <div class="flex items-center border border-slate-200 rounded-lg">
+                                                <button type="button" onclick="updateQty('${v.id}', -1)" 
+                                                        class="px-3 py-1 text-slate-600 hover:bg-slate-100 rounded-l-lg transition-colors">-</button>
+                                                <input type="number" id="qty-${v.id}" value="1" min="1" 
+                                                       class="w-12 text-center text-sm py-1 border-x border-slate-200 focus:outline-none"
+                                                       onchange="updatePreventivoPreview()">
+                                                <button type="button" onclick="updateQty('${v.id}', 1)" 
+                                                        class="px-3 py-1 text-slate-600 hover:bg-slate-100 rounded-r-lg transition-colors">+</button>
+                                            </div>
+                                        </div>
+                                        <div class="text-sm text-slate-600">
+                                            Totale: <span id="totale-${v.id}" class="font-semibold text-slate-800">€ ${prezzoFinale.toLocaleString('it-IT', {minimumFractionDigits: 2})}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    `;
+                }).join('')}
+            </div>
+        </div>
+    `).join('');
 }
 
 function renderPreventivoServizi() {

@@ -37,6 +37,15 @@ try {
     ");
     $progettiDistribuiti = $stmt->fetchAll();
     
+    // Progetti CAT (Consegnati/Archiviati con pagamento CAT)
+    $stmt = $pdo->query("
+        SELECT COUNT(*) as count, COALESCE(SUM(prezzo_totale), 0) as totale
+        FROM progetti 
+        WHERE stato IN ('consegnato', 'archiviato') 
+        AND stato_pagamento = 'cat'
+    ");
+    $progettiCAT = $stmt->fetch();
+    
     // Totale movimentato
     $stmt = $pdo->query("SELECT COALESCE(SUM(importo), 0) FROM transazioni_economiche WHERE tipo = 'wallet'");
     $totaleMovimentato = (float)$stmt->fetchColumn();
@@ -60,8 +69,24 @@ include __DIR__ . '/includes/header.php';
 
 <!-- Statistiche -->
 <div class="space-y-4 md:space-y-6 mb-8">
-    <!-- Prima riga: 4 card originali -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
+    <!-- Prima riga: Cassa, Movimentato, CAT, Wallet -->
+    <div class="grid grid-cols-2 lg:grid-cols-5 gap-3 md:gap-4">
+        <!-- Card Progetti CAT -->
+        <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl md:rounded-2xl p-4 md:p-5 text-white shadow-lg">
+            <div class="flex items-center justify-between">
+                <div class="min-w-0 flex-1">
+                    <p class="text-purple-100 text-xs md:text-sm font-medium">Progetti CAT</p>
+                    <h3 class="text-lg md:text-xl lg:text-2xl font-bold mt-1 truncate"><?php echo formatCurrency($progettiCAT['totale']); ?></h3>
+                    <p class="text-purple-100 text-xs mt-1"><?php echo $progettiCAT['count']; ?> progetti</p>
+                </div>
+                <div class="w-10 h-10 md:w-12 md:h-12 bg-white/20 rounded-lg md:rounded-xl flex items-center justify-center flex-shrink-0 ml-2">
+                    <svg class="w-5 h-5 md:w-6 md:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+        
         <div class="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl md:rounded-2xl p-4 md:p-6 text-white shadow-lg relative">
             <div class="flex items-center justify-between">
                 <div class="min-w-0 flex-1">
