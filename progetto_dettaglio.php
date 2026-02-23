@@ -761,7 +761,7 @@ function switchTab(tabName) {
     
     <!-- Modal Content -->
     <div class="absolute inset-0 flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto">
+        <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl max-h-[90vh] overflow-hidden flex flex-col">
             <!-- Header -->
             <div class="p-6 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white z-10">
                 <h3 class="font-bold text-slate-800" id="taskModalTitle">Nuova Task</h3>
@@ -773,7 +773,7 @@ function switchTab(tabName) {
             </div>
             
             <!-- Body -->
-            <form id="taskForm" class="p-6 space-y-4">
+            <form id="taskForm" class="p-6 space-y-4 overflow-y-auto flex-1">
                 <input type="hidden" name="progetto_id" value="<?php echo $progettoId; ?>">
                 <input type="hidden" name="task_id" id="taskIdInput">
                 
@@ -876,7 +876,7 @@ function switchTab(tabName) {
             </form>
             
             <!-- Footer -->
-            <div class="p-6 border-t border-slate-100 flex flex-col sm:flex-row justify-end gap-3">
+            <div class="p-6 border-t border-slate-100 flex flex-col sm:flex-row justify-end gap-3 sticky bottom-0 bg-white z-10">
                 <button type="button" onclick="closeModal('taskModal')" class="w-full sm:w-auto px-4 py-3 min-h-[44px] text-slate-600 font-medium rounded-lg hover:bg-slate-100 transition-colors">
                     Annulla
                 </button>
@@ -895,7 +895,7 @@ function switchTab(tabName) {
     
     <!-- Modal Content -->
     <div class="absolute inset-0 flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto">
+        <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl max-h-[90vh] overflow-hidden flex flex-col">
             <!-- Header -->
             <div class="p-6 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white z-10">
                 <h3 class="font-bold text-slate-800">Anteprima Distribuzione</h3>
@@ -907,12 +907,12 @@ function switchTab(tabName) {
             </div>
             
             <!-- Body -->
-            <div id="distribuzionePreview" class="p-6">
+            <div id="distribuzionePreview" class="p-6 overflow-y-auto flex-1">
                 <!-- Popolato via JS -->
             </div>
             
             <!-- Footer -->
-            <div class="p-6 border-t border-slate-100 flex flex-col sm:flex-row justify-end gap-3">
+            <div class="p-6 border-t border-slate-100 flex flex-col sm:flex-row justify-end gap-3 sticky bottom-0 bg-white z-10">
                 <button type="button" onclick="closeModal('distribuzioneModal')" class="w-full sm:w-auto px-4 py-3 min-h-[44px] text-slate-600 font-medium rounded-lg hover:bg-slate-100 transition-colors">
                     Annulla
                 </button>

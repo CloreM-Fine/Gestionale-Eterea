@@ -335,8 +335,8 @@ include __DIR__ . '/includes/header.php';
 <div id="modalAggiunta" class="fixed inset-0 z-50 hidden">
     <div class="absolute inset-0 bg-black/50" onclick="closeModalAggiunta()"></div>
     <div class="absolute inset-0 flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto">
-            <div class="p-4 md:p-5 border-b border-slate-100 flex items-center justify-between">
+        <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl max-h-[90vh] overflow-hidden flex flex-col">
+            <div class="p-4 md:p-5 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white z-10">
                 <h3 class="font-bold text-slate-800 text-lg" id="modalTitle">Aggiungi Importo</h3>
                 <button onclick="closeModalAggiunta()" class="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -345,7 +345,7 @@ include __DIR__ . '/includes/header.php';
                 </button>
             </div>
             
-            <div class="p-4 md:p-5 space-y-4">
+            <div class="p-4 md:p-5 space-y-4 overflow-y-auto flex-1">
                 <input type="hidden" id="tipoAggiunta" value="">
                 <input type="hidden" id="utenteIdAggiunta" value="">
                 
@@ -369,7 +369,7 @@ include __DIR__ . '/includes/header.php';
                 </div>
             </div>
             
-            <div class="p-4 md:p-5 border-t border-slate-100 flex flex-col sm:flex-row justify-end gap-3">
+            <div class="p-4 md:p-5 border-t border-slate-100 flex flex-col sm:flex-row justify-end gap-3 sticky bottom-0 bg-white z-10">
                 <button type="button" onclick="closeModalAggiunta()" class="w-full sm:w-auto px-4 py-3 text-slate-600 font-medium hover:bg-slate-100 rounded-xl transition-colors">
                     Annulla
                 </button>

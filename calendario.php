@@ -137,7 +137,7 @@ include __DIR__ . '/includes/header.php';
 <div id="eventModal" class="fixed inset-0 z-50 hidden">
     <div class="absolute inset-0 bg-black/50" onclick="closeModal('eventModal')"></div>
     <div class="absolute inset-0 flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto">
+        <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl max-h-[90vh] overflow-hidden flex flex-col">
             <div class="p-3 sm:p-5 border-b border-slate-100 flex items-center justify-between flex-shrink-0">
                 <h3 class="text-sm sm:text-lg font-bold text-slate-800" id="eventModalTitle">Nuovo Evento</h3>
                 <button onclick="closeModal('eventModal')" class="text-slate-400 hover:text-slate-600 p-1 min-h-[44px] min-w-[44px] flex items-center justify-center">
@@ -274,7 +274,7 @@ include __DIR__ . '/includes/header.php';
 <div id="dayEventsModal" class="fixed inset-0 z-50 hidden">
     <div class="absolute inset-0 bg-black/50" onclick="closeModal('dayEventsModal')"></div>
     <div class="absolute inset-0 flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto">
+        <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl max-h-[90vh] overflow-hidden flex flex-col">
             <div class="p-3 sm:p-5 border-b border-slate-100 flex items-center justify-between flex-shrink-0">
                 <h3 id="dayEventsTitle" class="text-sm sm:text-base font-bold text-slate-800 truncate pr-4">Eventi</h3>
                 <button onclick="closeModal('dayEventsModal')" class="text-slate-400 hover:text-slate-600 p-1 min-h-[44px] min-w-[44px] flex items-center justify-center flex-shrink-0">
@@ -284,7 +284,7 @@ include __DIR__ . '/includes/header.php';
                 </button>
             </div>
             
-            <div id="dayEventsList" class="p-3 sm:p-5 space-y-2 sm:space-y-3">
+            <div id="dayEventsList" class="p-3 sm:p-5 space-y-2 sm:space-y-3 overflow-y-auto flex-1">
                 <!-- Popolato via JS -->
             </div>
         </div>
