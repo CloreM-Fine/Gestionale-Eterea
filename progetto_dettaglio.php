@@ -920,6 +920,16 @@ function switchTab(tabName) {
                         <span class="text-lg">💰</span>
                     </label>
                 </div>
+                
+                <!-- Selezione utenti da escludere -->
+                <div class="mb-4 p-3 bg-slate-50 rounded-xl border border-slate-200">
+                    <p class="font-medium text-slate-800 mb-2">Membri da includere</p>
+                    <p class="text-xs text-slate-500 mb-3">Deseleziona chi non deve ricevere il compenso</p>
+                    <div id="utentiDistribuzioneList" class="space-y-2">
+                        <!-- Popolato via JS -->
+                    </div>
+                </div>
+                
                 <div id="distribuzionePreview">
                     <!-- Popolato via JS -->
                 </div>
@@ -957,13 +967,18 @@ function formatCurrency(val) {
 
 // Variabile globale per memorizzare l'ultima distribuzione calcolata
 let lastDistribuzione = [];
-let lastDistribuzioneConfig = { includiCassa: true };
+let lastDistribuzioneConfig = { includiCassa: true, utentiEsclusi: [] };
 
 function calcolaDistribuzione() {
     const includiCassa = document.getElementById('includiCassa')?.checked ?? true;
+    const utentiEsclusi = getUtentiEsclusi();
     lastDistribuzioneConfig.includiCassa = includiCassa;
+    lastDistribuzioneConfig.utentiEsclusi = utentiEsclusi;
     
-    const result = generaDistribuzione(includiCassa);
+    // Render lista utenti con checkbox
+    renderUtentiDistribuzioneList();
+    
+    const result = generaDistribuzione(includiCassa, utentiEsclusi);
     lastDistribuzione = result.distribuzione;
     
     renderDistribuzione(result.distribuzione, result.totale);
@@ -973,21 +988,69 @@ function calcolaDistribuzione() {
 
 function ricalcolaDistribuzione() {
     const includiCassa = document.getElementById('includiCassa')?.checked ?? true;
+    const utentiEsclusi = getUtentiEsclusi();
     lastDistribuzioneConfig.includiCassa = includiCassa;
+    lastDistribuzioneConfig.utentiEsclusi = utentiEsclusi;
     
-    const result = generaDistribuzione(includiCassa);
+    const result = generaDistribuzione(includiCassa, utentiEsclusi);
     lastDistribuzione = result.distribuzione;
     
     renderDistribuzione(result.distribuzione, result.totale);
 }
 
-function generaDistribuzione(includiCassa = true) {
+function getUtentiEsclusi() {
+    const checkboxes = document.querySelectorAll('.utente-distribuzione-checkbox');
+    const esclusi = [];
+    checkboxes.forEach(cb => {
+        if (!cb.checked) {
+            esclusi.push(cb.value);
+        }
+    });
+    return esclusi;
+}
+
+function renderUtentiDistribuzioneList() {
+    const users = <?php echo json_encode(USERS); ?>;
+    const partecipanti = progettoData.partecipanti || [];
+    
+    // Mostra tutti e 3 gli utenti con checkbox
+    const tuttiUtenti = ['ucwurog3xr8tf', 'ukl9ipuolsebn', 'u3ghz4f2lnpkx'];
+    
+    const container = document.getElementById('utentiDistribuzioneList');
+    if (!container) return;
+    
+    container.innerHTML = tuttiUtenti.map(uid => {
+        const user = users[uid];
+        const isPartecipante = partecipanti.includes(uid);
+        const isChecked = isPartecipante ? 'checked' : '';
+        const isDisabled = !isPartecipante ? 'disabled' : '';
+        const opacity = !isPartecipante ? 'opacity-50' : '';
+        
+        return `
+            <label class="flex items-center gap-3 cursor-pointer ${opacity}">
+                <input type="checkbox" value="${uid}" ${isChecked} ${isDisabled}
+                       onchange="ricalcolaDistribuzione()"
+                       class="utente-distribuzione-checkbox w-5 h-5 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500">
+                <div class="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-medium" style="background-color: ${user?.colore || '#3B82F6'}">
+                    ${user?.nome?.charAt(0) || '?'}
+                </div>
+                <span class="text-sm ${isPartecipante ? 'text-slate-800' : 'text-slate-400'}">${user?.nome || uid}</span>
+                ${!isPartecipante ? '<span class="text-xs text-slate-400">(non partecipante)</span>' : ''}
+            </label>
+        `;
+    }).join('');
+}
+
+function generaDistribuzione(includiCassa = true, utentiEsclusi = []) {
     const totale = parseFloat(progettoData.prezzo_totale) || 0;
     const partecipanti = progettoData.partecipanti || [];
-    const count = partecipanti.length;
+    
+    // Filtra partecipanti esclusi
+    const partecipantiEffettivi = partecipanti.filter(uid => !utentiEsclusi.includes(uid));
+    const count = partecipantiEffettivi.length;
     
     if (count === 0) {
-        showToast('Nessun partecipante', 'error');
+        showToast('Nessun partecipante selezionato per la distribuzione', 'error');
         return { distribuzione: [], totale: 0 };
     }
     
@@ -1001,7 +1064,7 @@ function generaDistribuzione(includiCassa = true) {
         case 3:
             // 3 partecipanti: dividi equamente il rimanente
             const share3 = remainingPercent / 3;
-            partecipanti.forEach(uid => {
+            partecipantiEffettivi.forEach(uid => {
                 distribuzione.push({ id: uid, importo: totale * share3, percentuale: Math.round(share3 * 100), tipo: 'attivo' });
             });
             if (includiCassa) {
@@ -1010,11 +1073,12 @@ function generaDistribuzione(includiCassa = true) {
             break;
         case 2:
             const tutti = ['ucwurog3xr8tf', 'ukl9ipuolsebn', 'u3ghz4f2lnpkx'];
-            const inattivi = tutti.filter(id => !partecipanti.includes(id));
-            // 2 partecipanti attivi: 40% ciascuno (o 45% senza cassa), 1 inattivo: 10% (o 10% senza cassa)
+            // Inattivi = quelli non nei partecipanti effettivi, ma facenti parte del progetto originale
+            const inattivi = tutti.filter(id => partecipanti.includes(id) && !partecipantiEffettivi.includes(id));
+            // 2 partecipanti attivi: 40% ciascuno (o 45% senza cassa), 1 escluso: 10% (o 10% senza cassa)
             const activeShare2 = includiCassa ? 0.40 : 0.45;
             const passiveShare2 = 0.10;
-            partecipanti.forEach(uid => {
+            partecipantiEffettivi.forEach(uid => {
                 distribuzione.push({ id: uid, importo: totale * activeShare2, percentuale: Math.round(activeShare2 * 100), tipo: 'attivo' });
             });
             inattivi.forEach(uid => {
@@ -1026,11 +1090,12 @@ function generaDistribuzione(includiCassa = true) {
             break;
         case 1:
             const tutti2 = ['ucwurog3xr8tf', 'ukl9ipuolsebn', 'u3ghz4f2lnpkx'];
-            const inattivi2 = tutti2.filter(id => !partecipanti.includes(id));
-            // 1 partecipante attivo: 70% (o 80% senza cassa), 2 inattivi: 10% ciascuno
+            // Inattivi = partecipanti del progetto ma esclusi dalla distribuzione
+            const inattivi2 = tutti2.filter(id => partecipanti.includes(id) && !partecipantiEffettivi.includes(id));
+            // 1 partecipante attivo: 70% (o 80% senza cassa), 2 esclusi: 10% ciascuno
             const activeShare1 = includiCassa ? 0.70 : 0.80;
             const passiveShare1 = 0.10;
-            distribuzione.push({ id: partecipanti[0], importo: totale * activeShare1, percentuale: Math.round(activeShare1 * 100), tipo: 'attivo' });
+            distribuzione.push({ id: partecipantiEffettivi[0], importo: totale * activeShare1, percentuale: Math.round(activeShare1 * 100), tipo: 'attivo' });
             inattivi2.forEach(uid => {
                 distribuzione.push({ id: uid, importo: totale * passiveShare1, percentuale: Math.round(passiveShare1 * 100), tipo: 'passivo' });
             });
@@ -1504,10 +1569,12 @@ async function editTask(taskId) {
 async function confermaDistribuzione() {
     try {
         const includiCassa = lastDistribuzioneConfig.includiCassa ?? true;
+        const utentiEsclusi = lastDistribuzioneConfig.utentiEsclusi ?? [];
+        
         const response = await fetch('api/progetti.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `action=distribuisci&id=${progettoId}&includi_cassa=${includiCassa ? 1 : 0}`
+            body: `action=distribuisci&id=${progettoId}&includi_cassa=${includiCassa ? 1 : 0}&utenti_esclusi=${encodeURIComponent(JSON.stringify(utentiEsclusi))}`
         });
         
         const data = await response.json();
