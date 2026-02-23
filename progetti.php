@@ -303,9 +303,9 @@ include __DIR__ . '/includes/header.php';
 
 <!-- Modal Nuovo/Edit Progetto -->
 <div id="progettoModal" class="fixed inset-0 z-50 hidden">
-    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeModal('progettoModal')"></div>
-    <div class="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
-        <div class="bg-white w-full h-[90vh] sm:h-auto sm:w-[600px] sm:rounded-2xl rounded-t-2xl flex flex-col overflow-hidden">
+    <div class="absolute inset-0 bg-black/50" onclick="closeModal('progettoModal')"></div>
+    <div class="absolute inset-0 flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto">
             <div class="p-4 sm:p-6 border-b border-slate-100 flex items-center justify-between">
                 <h2 class="text-base sm:text-lg font-bold text-slate-800" id="modalTitle">Nuovo Progetto</h2>
                 <button onclick="closeModal('progettoModal')" class="text-slate-400 hover:text-slate-600 min-h-[44px] min-w-[44px] flex items-center justify-center">
@@ -315,7 +315,7 @@ include __DIR__ . '/includes/header.php';
                 </button>
             </div>
             
-            <form id="progettoForm" class="flex-1 overflow-y-auto p-4 sm:p-6">
+            <form id="progettoForm" class="p-4 sm:p-6">
                 <input type="hidden" name="id" id="progettoId">
                 
                 <div class="space-y-5">

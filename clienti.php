@@ -74,9 +74,9 @@ include __DIR__ . '/includes/header.php';
 
 <!-- Modal Cliente -->
 <div id="clienteModal" class="fixed inset-0 z-50 hidden">
-    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeModal('clienteModal')"></div>
-    <div class="absolute inset-x-0 bottom-0 sm:inset-0 sm:flex sm:items-center sm:justify-center sm:p-4">
-        <div class="bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl w-full sm:max-w-2xl sm:max-h-[90vh] h-[85vh] sm:h-auto overflow-hidden flex flex-col">
+    <div class="absolute inset-0 bg-black/50" onclick="closeModal('clienteModal')"></div>
+    <div class="absolute inset-0 flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl max-h-[90vh] overflow-hidden flex flex-col">
             <div class="p-4 sm:p-6 border-b border-slate-100 flex items-center justify-between">
                 <h2 class="text-lg sm:text-xl font-bold text-slate-800" id="modalTitle">Nuovo Cliente</h2>
                 <button onclick="closeModal('clienteModal')" class="p-2 -mr-2 text-slate-400 hover:text-slate-600 min-h-[44px] min-w-[44px] flex items-center justify-center">
@@ -233,9 +233,9 @@ include __DIR__ . '/includes/header.php';
 
 <!-- Modal Dettaglio Cliente -->
 <div id="dettaglioModal" class="fixed inset-0 z-50 hidden">
-    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeModal('dettaglioModal')"></div>
-    <div class="absolute inset-x-0 bottom-0 sm:inset-0 sm:flex sm:items-center sm:justify-center sm:p-4">
-        <div class="bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl w-full sm:max-w-2xl sm:max-h-[90vh] h-[85vh] sm:h-auto overflow-hidden flex flex-col">
+    <div class="absolute inset-0 bg-black/50" onclick="closeModal('dettaglioModal')"></div>
+    <div class="absolute inset-0 flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl max-h-[90vh] overflow-hidden flex flex-col">
             <div class="p-4 sm:p-6 border-b border-slate-100 flex items-center justify-between">
                 <h2 class="text-lg sm:text-xl font-bold text-slate-800" id="dettaglioNome">Cliente</h2>
                 <button onclick="closeModal('dettaglioModal')" class="p-2 -mr-2 text-slate-400 hover:text-slate-600 min-h-[44px] min-w-[44px] flex items-center justify-center">

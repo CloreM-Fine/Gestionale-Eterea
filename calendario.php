@@ -133,11 +133,11 @@ include __DIR__ . '/includes/header.php';
     </div>
 </div>
 
-<!-- Modal Evento - Full screen su mobile -->
-<div id="eventModal" class="fixed inset-0 z-50 hidden overflow-hidden">
-    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeModal('eventModal')"></div>
-    <div class="absolute inset-x-0 bottom-0 sm:inset-0 sm:flex sm:items-center sm:justify-center sm:p-4 overflow-hidden">
-        <div class="bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl w-full max-w-xl h-[92vh] sm:h-auto sm:max-h-[90vh] flex flex-col">
+<!-- Modal Evento -->
+<div id="eventModal" class="fixed inset-0 z-50 hidden">
+    <div class="absolute inset-0 bg-black/50" onclick="closeModal('eventModal')"></div>
+    <div class="absolute inset-0 flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto">
             <div class="p-3 sm:p-5 border-b border-slate-100 flex items-center justify-between flex-shrink-0">
                 <h3 class="text-sm sm:text-lg font-bold text-slate-800" id="eventModalTitle">Nuovo Evento</h3>
                 <button onclick="closeModal('eventModal')" class="text-slate-400 hover:text-slate-600 p-1 min-h-[44px] min-w-[44px] flex items-center justify-center">
@@ -236,7 +236,7 @@ include __DIR__ . '/includes/header.php';
                 </div>
             </form>
             
-            <div class="p-3 sm:p-5 pb-safe border-t border-slate-100 flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 flex-shrink-0">
+            <div class="p-3 sm:p-5 border-t border-slate-100 flex flex-col sm:flex-row justify-end gap-2 sm:gap-3">
                 <button type="button" onclick="closeModal('eventModal')" class="w-full sm:w-auto px-4 py-3 text-slate-600 font-medium text-sm min-h-[44px] rounded-lg hover:bg-slate-100 transition-colors">
                     Annulla
                 </button>
@@ -270,11 +270,11 @@ include __DIR__ . '/includes/header.php';
 }
 </style>
 
-<!-- Modal Lista Eventi Giorno - Full screen su mobile -->
+<!-- Modal Lista Eventi Giorno -->
 <div id="dayEventsModal" class="fixed inset-0 z-50 hidden">
-    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeModal('dayEventsModal')"></div>
-    <div class="absolute inset-x-0 bottom-0 sm:inset-0 sm:flex sm:items-center sm:justify-center sm:p-4 overflow-hidden">
-        <div class="bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl w-full max-w-md h-[85vh] sm:h-auto sm:max-h-[85vh] flex flex-col">
+    <div class="absolute inset-0 bg-black/50" onclick="closeModal('dayEventsModal')"></div>
+    <div class="absolute inset-0 flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto">
             <div class="p-3 sm:p-5 border-b border-slate-100 flex items-center justify-between flex-shrink-0">
                 <h3 id="dayEventsTitle" class="text-sm sm:text-base font-bold text-slate-800 truncate pr-4">Eventi</h3>
                 <button onclick="closeModal('dayEventsModal')" class="text-slate-400 hover:text-slate-600 p-1 min-h-[44px] min-w-[44px] flex items-center justify-center flex-shrink-0">
@@ -284,7 +284,7 @@ include __DIR__ . '/includes/header.php';
                 </button>
             </div>
             
-            <div id="dayEventsList" class="flex-1 overflow-y-auto p-3 sm:p-5 space-y-2 sm:space-y-3">
+            <div id="dayEventsList" class="p-3 sm:p-5 space-y-2 sm:space-y-3">
                 <!-- Popolato via JS -->
             </div>
         </div>

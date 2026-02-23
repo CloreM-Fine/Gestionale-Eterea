@@ -37,31 +37,6 @@ try {
     $stmt = $pdo->query("SELECT COALESCE(SUM(importo), 0) FROM transazioni_economiche WHERE tipo = 'wallet'");
     $totaleMovimentato = (float)$stmt->fetchColumn();
     
-    // === NUOVE CARD CAT ===
-    // 1. Totale progetti consegnati con pagamento CAT
-    $stmt = $pdo->query("
-        SELECT COALESCE(SUM(prezzo_totale), 0) 
-        FROM progetti 
-        WHERE stato_progetto = 'consegnato' 
-        AND stato_pagamento = 'cat'
-    ");
-    $totaleCATConsegnati = (float)$stmt->fetchColumn();
-    
-    // 2. Pagamenti CAT già effettuati (somma degli importi pagati su progetti CAT)
-    // Questo è il totale versato ai wallet dai progetti CAT
-    $stmt = $pdo->query("
-        SELECT COALESCE(SUM(importo), 0) 
-        FROM transazioni_economiche 
-        WHERE tipo = 'wallet'
-        AND progetto_id IN (
-            SELECT id FROM progetti WHERE stato_pagamento = 'cat'
-        )
-    ");
-    $pagamentiCATEffettuati = (float)$stmt->fetchColumn();
-    
-    // 3. Residuo CAT = Totale CAT - Pagamenti effettuati
-    $residuoCAT = $totaleCATConsegnati - $pagamentiCATEffettuati;
-    
 } catch (PDOException $e) {
     error_log("Errore finanze: " . $e->getMessage());
     $cassaTotale = 0;
@@ -134,111 +109,8 @@ include __DIR__ . '/includes/header.php';
             </div>
         </div>
         
-        <div class="bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl md:rounded-2xl p-4 md:p-6 text-white shadow-lg">
-            <div class="flex items-center justify-between">
-                <div class="min-w-0 flex-1">
-                    <p class="text-amber-100 text-xs md:text-sm font-medium">In Attesa Pagamento</p>
-                    <h3 class="text-lg md:text-2xl lg:text-3xl font-bold mt-1 truncate">
-                        <?php
-                        // Calcola: saldo rimanente + acconti ancora da pagare
-                        $stmt = $pdo->query("
-                            SELECT COALESCE(SUM(
-                                CASE 
-                                    WHEN stato_pagamento = 'da_pagare' THEN prezzo_totale
-                                    WHEN stato_pagamento = 'da_pagare_acconto' THEN acconto_importo
-                                    WHEN stato_pagamento = 'acconto_pagato' THEN saldo_importo
-                                    WHEN stato_pagamento = 'da_saldare' THEN saldo_importo
-                                    ELSE 0
-                                END
-                            ), 0) as totale_atteso
-                            FROM progetti 
-                            WHERE stato_pagamento NOT IN ('pagamento_completato', 'cat')
-                            AND stato_progetto NOT IN ('annullato', 'archiviato')
-                        ");
-                        echo formatCurrency((float)$stmt->fetchColumn());
-                        ?>
-                    </h3>
-                </div>
-                <div class="w-10 h-10 md:w-14 md:h-14 bg-white/20 rounded-lg md:rounded-xl flex items-center justify-center flex-shrink-0 ml-2">
-                    <svg class="w-5 h-5 md:w-7 md:h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Seconda riga: 3 card CAT -->
-    <div class="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-6">
-        <!-- CARD CAT: Totale Progetti Consegnati CAT -->
-        <div class="bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl md:rounded-2xl p-4 md:p-6 text-white shadow-lg">
-            <div class="flex items-center justify-between">
-                <div class="min-w-0 flex-1">
-                    <p class="text-indigo-100 text-xs md:text-sm font-medium">Totale CAT Consegnati</p>
-                    <h3 class="text-lg md:text-2xl lg:text-3xl font-bold mt-1 truncate"><?php echo formatCurrency($totaleCATConsegnati); ?></h3>
-                </div>
-                <div class="w-10 h-10 md:w-14 md:h-14 bg-white/20 rounded-lg md:rounded-xl flex items-center justify-center flex-shrink-0 ml-2">
-                    <svg class="w-5 h-5 md:w-7 md:h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                    </svg>
-                </div>
-            </div>
-        </div>
-        
-        <!-- CARD CAT: Residuo da Pagare -->
-        <div class="bg-gradient-to-br from-rose-500 to-rose-600 rounded-xl md:rounded-2xl p-4 md:p-6 text-white shadow-lg">
-            <div class="flex items-center justify-between">
-                <div class="min-w-0 flex-1">
-                    <p class="text-rose-100 text-xs md:text-sm font-medium">Residuo CAT</p>
-                    <h3 class="text-lg md:text-2xl lg:text-3xl font-bold mt-1 truncate"><?php echo formatCurrency($residuoCAT); ?></h3>
-                    <p class="text-xs text-rose-200 mt-1 hidden sm:block">Totale - Pagamenti</p>
-                </div>
-                <div class="w-10 h-10 md:w-14 md:h-14 bg-white/20 rounded-lg md:rounded-xl flex items-center justify-center flex-shrink-0 ml-2">
-                    <svg class="w-5 h-5 md:w-7 md:h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                </div>
-            </div>
-        </div>
-        
-        <!-- CARD CAT: Dopo Tasse -->
-        <div class="col-span-2 md:col-span-1 bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl md:rounded-2xl p-4 md:p-6 text-white shadow-lg">
-            <div class="flex items-center justify-between">
-                <div class="min-w-0 flex-1">
-                    <div class="flex items-center gap-2 mb-1 flex-wrap">
-                        <p class="text-teal-100 text-xs md:text-sm font-medium">Netto Tasse</p>
-                        <input type="number" id="percentualeTasse" value="30" min="0" max="100" 
-                               class="w-12 md:w-16 px-1 py-0.5 text-sm bg-white/20 border border-white/30 rounded text-white placeholder-white/70 text-center"
-                               onchange="calcolaNettoTasse()" title="Percentuale tasse">
-                        <span class="text-sm">%</span>
-                    </div>
-                    <h3 class="text-lg md:text-2xl font-bold truncate" id="nettoTasse"><?php echo formatCurrency($residuoCAT * 0.7); ?></h3>
-                    <p class="text-xs text-teal-200 mt-1 hidden sm:block">Residuo - Tasse</p>
-                </div>
-                <div class="w-10 h-10 md:w-14 md:h-14 bg-white/20 rounded-lg md:rounded-xl flex items-center justify-center flex-shrink-0 ml-2">
-                    <svg class="w-5 h-5 md:w-7 md:h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"/>
-                    </svg>
-                </div>
-            </div>
-        </div>
     </div>
 </div>
-
-<script>
-// Calcolo netto tasse in tempo reale
-function calcolaNettoTasse() {
-    const residuo = <?php echo $residuoCAT; ?>;
-    const percentuale = parseFloat(document.getElementById('percentualeTasse').value) || 0;
-    const netto = residuo * (1 - percentuale / 100);
-    
-    // Formatta come valuta
-    document.getElementById('nettoTasse').textContent = new Intl.NumberFormat('it-IT', {
-        style: 'currency',
-        currency: 'EUR'
-    }).format(netto);
-}
-</script>
 
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
     <!-- Wallet Utenti -->
@@ -455,12 +327,11 @@ function calcolaNettoTasse() {
 </div>
 
 <?php if ($isLorenzo): ?>
-<!-- Modal Aggiunta Importo - Mobile Optimized -->
+<!-- Modal Aggiunta Importo -->
 <div id="modalAggiunta" class="fixed inset-0 z-50 hidden">
-    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeModalAggiunta()"></div>
-    <!-- Mobile: Fixed bottom sheet, Desktop: Centered modal -->
-    <div class="absolute inset-x-0 bottom-0 sm:inset-0 sm:flex sm:items-center sm:justify-center sm:p-4">
-        <div class="bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl w-full sm:max-w-md sm:w-full max-h-[90vh] sm:max-h-none overflow-y-auto">
+    <div class="absolute inset-0 bg-black/50" onclick="closeModalAggiunta()"></div>
+    <div class="absolute inset-0 flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto">
             <div class="p-4 md:p-5 border-b border-slate-100 flex items-center justify-between">
                 <h3 class="font-bold text-slate-800 text-lg" id="modalTitle">Aggiungi Importo</h3>
                 <button onclick="closeModalAggiunta()" class="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors">
