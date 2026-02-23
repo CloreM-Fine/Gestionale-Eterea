@@ -11,9 +11,19 @@ $method = $_SERVER['REQUEST_METHOD'];
 $action = $_GET['action'] ?? $_POST['action'] ?? '';
 
 switch ($method) {
+    case 'GET':
+        if ($action === 'get_cronologia') {
+            getCronologia();
+        } else {
+            jsonResponse(false, null, 'Azione non valida');
+        }
+        break;
+        
     case 'POST':
         if ($action === 'salva_calcolo_tasse') {
             salvaCalcoloTasse();
+        } elseif ($action === 'elimina_calcolo') {
+            eliminaCalcolo();
         } else {
             jsonResponse(false, null, 'Azione non valida');
         }
@@ -21,6 +31,84 @@ switch ($method) {
         
     default:
         jsonResponse(false, null, 'Metodo non consentito');
+}
+
+/**
+ * Recupera la cronologia dei calcoli dell'utente
+ */
+function getCronologia(): void {
+    global $pdo;
+    
+    $userId = $_SESSION['user_id'] ?? '';
+    
+    if (empty($userId)) {
+        jsonResponse(false, null, 'Utente non autenticato');
+        return;
+    }
+    
+    try {
+        $stmt = $pdo->prepare("
+            SELECT * FROM cronologia_calcoli_tasse 
+            WHERE user_id = ? 
+            ORDER BY created_at DESC 
+            LIMIT 50
+        ");
+        $stmt->execute([$userId]);
+        $cronologia = $stmt->fetchAll();
+        
+        jsonResponse(true, $cronologia);
+        
+    } catch (PDOException $e) {
+        error_log("Errore get cronologia: " . $e->getMessage());
+        jsonResponse(false, null, 'Errore durante il recupero della cronologia');
+    }
+}
+
+/**
+ * Elimina un calcolo dalla cronologia
+ */
+function eliminaCalcolo(): void {
+    global $pdo;
+    
+    $userId = $_SESSION['user_id'] ?? '';
+    $id = intval($_POST['id'] ?? 0);
+    
+    if (empty($userId)) {
+        jsonResponse(false, null, 'Utente non autenticato');
+        return;
+    }
+    
+    if ($id <= 0) {
+        jsonResponse(false, null, 'ID calcolo non valido');
+        return;
+    }
+    
+    try {
+        // Verifica che il calcolo appartenga all'utente
+        $stmt = $pdo->prepare("
+            SELECT id FROM cronologia_calcoli_tasse 
+            WHERE id = ? AND user_id = ?
+        ");
+        $stmt->execute([$id, $userId]);
+        
+        if (!$stmt->fetch()) {
+            jsonResponse(false, null, 'Calcolo non trovato o non autorizzato');
+            return;
+        }
+        
+        // Elimina il calcolo
+        $stmt = $pdo->prepare("
+            DELETE FROM cronologia_calcoli_tasse 
+            WHERE id = ? AND user_id = ?
+        ");
+        $stmt->execute([$id, $userId]);
+        
+        jsonResponse(true, null, 'Calcolo eliminato con successo');
+        
+    } catch (PDOException $e) {
+        error_log("Errore elimina calcolo: " . $e->getMessage());
+        jsonResponse(false, null, 'Errore durante l\'eliminazione');
+    }
 }
 
 /**

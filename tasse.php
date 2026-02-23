@@ -320,7 +320,7 @@ include __DIR__ . '/includes/header.php';
     
     <!-- Cronologia Calcoli -->
     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
-        <div class="flex items-center justify-between mb-4">
+        <div id="cronologiaHeader" class="flex items-center justify-between mb-4">
             <div class="flex items-center gap-2">
                 <div class="w-10 h-10 bg-cyan-100 rounded-xl flex items-center justify-center">
                     <svg class="w-5 h-5 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -329,9 +329,7 @@ include __DIR__ . '/includes/header.php';
                 </div>
                 <h2 class="font-semibold text-slate-800">Cronologia Calcoli</h2>
             </div>
-            <?php if (count($cronologia) > 0): ?>
             <span class="text-sm text-slate-500"><?php echo count($cronologia); ?> calcoli salvati</span>
-            <?php endif; ?>
         </div>
         
         <?php if (count($cronologia) > 0): ?>
@@ -365,7 +363,7 @@ include __DIR__ . '/includes/header.php';
             <?php endforeach; ?>
         </div>
         <?php else: ?>
-        <div class="text-center py-8">
+        <div id="cronologiaEmpty" class="text-center py-8">
             <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3">
                 <svg class="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
@@ -382,12 +380,44 @@ include __DIR__ . '/includes/header.php';
 const PASSWORD_CORRETTA = 'Tomato2399!?';
 let ultimoCalcolo = null;
 
+// Verifica se l'utente ha già accesso (localStorage - scade dopo 30 minuti)
+const TASSE_ACCESS_KEY = 'tasse_access';
+const TASSE_ACCESS_DURATION = 30 * 60 * 1000; // 30 minuti
+
+function hasTasseAccess() {
+    const accessData = localStorage.getItem(TASSE_ACCESS_KEY);
+    if (!accessData) return false;
+    try {
+        const { timestamp } = JSON.parse(accessData);
+        return (Date.now() - timestamp) < TASSE_ACCESS_DURATION;
+    } catch {
+        return false;
+    }
+}
+
+function setTasseAccess() {
+    localStorage.setItem(TASSE_ACCESS_KEY, JSON.stringify({ timestamp: Date.now() }));
+}
+
+function clearTasseAccess() {
+    localStorage.removeItem(TASSE_ACCESS_KEY);
+}
+
+// Mostra il calcolatore se l'utente ha già accesso
+document.addEventListener('DOMContentLoaded', function() {
+    if (hasTasseAccess()) {
+        document.getElementById('passwordSection').classList.add('hidden');
+        document.getElementById('calcolatoreSection').classList.remove('hidden');
+    }
+});
+
 function verificaPassword() {
     const pwd = document.getElementById('accessPassword').value;
     if (pwd === PASSWORD_CORRETTA) {
         document.getElementById('passwordSection').classList.add('hidden');
         document.getElementById('calcolatoreSection').classList.remove('hidden');
         document.getElementById('passwordError').classList.add('hidden');
+        setTasseAccess(); // Memorizza accesso
     } else {
         document.getElementById('passwordError').classList.remove('hidden');
     }
@@ -554,10 +584,111 @@ async function salvaCalcolo() {
         
         if (data.success) {
             showToast('Calcolo salvato!', 'success');
-            // Ricarica la pagina per vedere la cronologia aggiornata
-            setTimeout(() => window.location.reload(), 500);
+            // Aggiorna la cronologia senza ricaricare
+            await aggiornaCronologia();
         } else {
             showToast(data.message || 'Errore durante il salvataggio', 'error');
+        }
+    } catch (error) {
+        console.error('Errore:', error);
+        showToast('Errore di connessione', 'error');
+    }
+}
+
+async function aggiornaCronologia() {
+    try {
+        const response = await fetch('api/tasse.php?action=get_cronologia');
+        const data = await response.json();
+        
+        if (data.success) {
+            renderCronologia(data.data);
+        }
+    } catch (error) {
+        console.error('Errore aggiornamento cronologia:', error);
+    }
+}
+
+function renderCronologia(items) {
+    const container = document.querySelector('.space-y-3.max-h-96');
+    const emptyState = document.getElementById('cronologiaEmpty');
+    const countSpan = document.querySelector('#cronologiaHeader .text-sm.text-slate-500');
+    
+    // Aggiorna il conteggio nell'header
+    if (countSpan) {
+        countSpan.textContent = `${items.length} calcoli salvati`;
+    }
+    
+    if (!items || items.length === 0) {
+        if (container) container.style.display = 'none';
+        if (emptyState) emptyState.style.display = 'block';
+        return;
+    }
+    
+    if (container) container.style.display = 'block';
+    if (emptyState) emptyState.style.display = 'none';
+    
+    container.innerHTML = items.map(item => {
+        const date = new Date(item.created_at);
+        const dateStr = date.toLocaleDateString('it-IT');
+        const timeStr = date.toLocaleTimeString('it-IT', {hour: '2-digit', minute:'2-digit'});
+        
+        return `
+            <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 hover:border-emerald-300 transition-colors group relative">
+                <button onclick="eliminaCalcolo(${item.id})" 
+                        class="absolute top-2 right-2 p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all opacity-0 group-hover:opacity-100"
+                        title="Elimina calcolo">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                </button>
+                <div class="flex items-start justify-between pr-8">
+                    <div>
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="font-semibold text-slate-800">€ ${parseFloat(item.fatturato).toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                            <span class="text-xs px-2 py-1 bg-emerald-100 text-emerald-700 rounded-full">
+                                Coeff: ${item.coefficiente}%
+                            </span>
+                        </div>
+                        <p class="text-sm text-slate-600">${item.codice_ateco || ''} - ${item.descrizione_ateco || ''}</p>
+                        ${item.note ? `<p class="text-xs text-slate-500 mt-1">📝 ${item.note}</p>` : ''}
+                        <p class="text-xs text-slate-400 mt-2">
+                            IRPEF: € ${parseFloat(item.imposta_irpef).toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})} | 
+                            INPS: € ${parseFloat(item.contributi_inps).toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})} | 
+                            Netto: € ${parseFloat(item.netto).toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                        </p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-lg font-bold text-emerald-700">€ ${parseFloat(item.netto).toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
+                        <p class="text-xs text-slate-400">${dateStr} ${timeStr}</p>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+async function eliminaCalcolo(id) {
+    if (!confirm('Sei sicuro di voler eliminare questo calcolo?')) {
+        return;
+    }
+    
+    try {
+        const formData = new FormData();
+        formData.append('action', 'elimina_calcolo');
+        formData.append('id', id);
+        
+        const response = await fetch('api/tasse.php', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showToast('Calcolo eliminato!', 'success');
+            await aggiornaCronologia();
+        } else {
+            showToast(data.message || 'Errore durante l\'eliminazione', 'error');
         }
     } catch (error) {
         console.error('Errore:', error);
