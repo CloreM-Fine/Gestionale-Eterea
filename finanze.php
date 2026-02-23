@@ -26,7 +26,7 @@ try {
         return isset(USERS[$u['id']]); // Solo utenti definiti in config
     });
     
-    // Progetti consegnati con distribuzione (ultimi 10 per la card)
+    // Progetti consegnati con distribuzione
     $stmt = $pdo->query("
         SELECT p.*, c.ragione_sociale as cliente_nome
         FROM progetti p
@@ -36,16 +36,6 @@ try {
         LIMIT 10
     ");
     $progettiDistribuiti = $stmt->fetchAll();
-    
-    // Tutti i progetti distribuiti per il modal
-    $stmt = $pdo->query("
-        SELECT p.*, c.ragione_sociale as cliente_nome
-        FROM progetti p
-        LEFT JOIN clienti c ON p.cliente_id = c.id
-        WHERE p.distribuzione_effettuata = TRUE
-        ORDER BY p.data_pagamento DESC
-    ");
-    $tuttiProgettiDistribuiti = $stmt->fetchAll();
     
     // Progetti CAT (Consegnati/Archiviati con pagamento CAT)
     $stmt = $pdo->query("
@@ -65,7 +55,6 @@ try {
     $cassaTotale = 0;
     $wallets = [];
     $progettiDistribuiti = [];
-    $tuttiProgettiDistribuiti = [];
     $progettiCAT = ['count' => 0, 'totale' => 0];
     $totaleMovimentato = 0;
 }
@@ -210,9 +199,9 @@ include __DIR__ . '/includes/header.php';
                     <h2 class="font-bold text-slate-800">Progetti Distribuiti</h2>
                     <p class="text-xs md:text-sm text-slate-500">Ultimi progetti con profit sharing</p>
                 </div>
-                <button onclick="openModalProgettiDistribuiti()" class="text-cyan-600 hover:text-cyan-700 text-xs md:text-sm font-medium">
+                <a href="progetti.php?stato=consegnato" class="text-cyan-600 hover:text-cyan-700 text-xs md:text-sm font-medium">
                     Vedi tutti
-                </button>
+                </a>
             </div>
             
             <div class="divide-y divide-slate-100">
@@ -629,101 +618,11 @@ function formatCurrency(amount) {
     }).format(amount);
 }
 
-<?php if ($isLorenzo): ?>
 // Carica transazioni all'avvio
 document.addEventListener('DOMContentLoaded', function() {
     caricaTransazioni();
 });
-<?php endif; ?>
 </script>
 <?php endif; ?>
-
-<!-- Modal Progetti Distribuiti -->
-<div id="modalProgettiDistribuiti" class="fixed inset-0 z-[60] hidden">
-    <div class="absolute inset-0 bg-black/50" onclick="closeModalProgettiDistribuiti()"></div>
-    <div class="absolute inset-0 flex items-end sm:items-center justify-center p-0 sm:p-4">
-        <div class="bg-white w-full max-w-3xl sm:rounded-2xl rounded-t-2xl shadow-2xl max-h-[85vh] sm:max-h-[90vh] overflow-hidden flex flex-col">
-            <div class="p-4 sm:p-6 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white z-10">
-                <div>
-                    <h2 class="text-lg sm:text-xl font-bold text-slate-800">Tutti i Progetti Distribuiti</h2>
-                    <p class="text-sm text-slate-500"><?php echo count($tuttiProgettiDistribuiti); ?> progetti con profit sharing</p>
-                </div>
-                <button onclick="closeModalProgettiDistribuiti()" class="p-2 -mr-2 text-slate-400 hover:text-slate-600 min-h-[44px] min-w-[44px] flex items-center justify-center">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                    </svg>
-                </button>
-            </div>
-            
-            <div class="flex-1 overflow-y-auto p-4">
-                <div class="space-y-3">
-                    <?php foreach ($tuttiProgettiDistribuiti as $p):
-                        $partecipanti = json_decode($p['partecipanti'] ?? '[]', true);
-                    ?>
-                    <a href="progetto_dettaglio.php?id=<?php echo e($p['id']); ?>" 
-                       class="block p-4 bg-slate-50 rounded-xl border border-slate-200 hover:border-cyan-500 hover:shadow-md transition-all">
-                        <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
-                            <div class="flex-1 min-w-0">
-                                <h3 class="font-semibold text-slate-800"><?php echo e($p['titolo']); ?></h3>
-                                <p class="text-sm text-slate-500 mt-1">
-                                    <?php echo e($p['cliente_nome'] ?: 'Nessun cliente'); ?> • 
-                                    Pagato il <?php echo formatDate($p['data_pagamento']); ?>
-                                </p>
-                                <?php if ($p['note']): ?>
-                                <p class="text-xs text-slate-400 mt-2 line-clamp-2"><?php echo e($p['note']); ?></p>
-                                <?php endif; ?>
-                            </div>
-                            <div class="text-right">
-                                <span class="font-bold text-slate-800 text-lg"><?php echo formatCurrency($p['prezzo_totale']); ?></span>
-                                <p class="text-xs text-emerald-600 mt-1">Distribuito</p>
-                            </div>
-                        </div>
-                        
-                        <div class="mt-3 flex items-center gap-2 flex-wrap">
-                            <span class="text-xs text-slate-500">Team:</span>
-                            <div class="flex -space-x-2">
-                                <?php foreach ($partecipanti as $pid): 
-                                    if (!isset(USERS[$pid])) continue;
-                                    $u = USERS[$pid];
-                                ?>
-                                <div class="w-7 h-7 rounded-full border-2 border-white flex items-center justify-center text-white text-xs font-medium" 
-                                     style="background-color: <?php echo $u['colore']; ?>" 
-                                     title="<?php echo e($u['nome']); ?>">
-                                    <?php echo substr($u['nome'], 0, 1); ?>
-                                </div>
-                                <?php endforeach; ?>
-                            </div>
-                        </div>
-                    </a>
-                    <?php endforeach; ?>
-                </div>
-            </div>
-            
-            <div class="p-4 sm:p-6 border-t border-slate-100 bg-slate-50">
-                <div class="flex items-center justify-between">
-                    <span class="text-sm text-slate-600">Totale progetti distribuiti</span>
-                    <span class="font-bold text-slate-800">
-                        <?php 
-                        $totaleDistribuito = array_sum(array_column($tuttiProgettiDistribuiti, 'prezzo_totale'));
-                        echo formatCurrency($totaleDistribuito);
-                        ?>
-                    </span>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script>
-function openModalProgettiDistribuiti() {
-    document.getElementById('modalProgettiDistribuiti').classList.remove('hidden');
-    document.body.style.overflow = 'hidden';
-}
-
-function closeModalProgettiDistribuiti() {
-    document.getElementById('modalProgettiDistribuiti').classList.add('hidden');
-    document.body.style.overflow = '';
-}
-</script>
 
 <?php include __DIR__ . '/includes/footer.php'; ?>

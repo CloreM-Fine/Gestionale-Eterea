@@ -138,12 +138,6 @@ include __DIR__ . '/includes/header.php';
                 <option value="<?php echo $hex; ?>"><?php echo $info['emoji']; ?> <?php echo $info['nome']; ?></option>
                 <?php endforeach; ?>
             </select>
-            </div>
-                <option value="#A78BFA">💜 Indaco</option>
-                <option value="#94A3B8">⚪ Grigio</option>
-                <option value="#78350F">🟤 Marrone</option>
-                <option value="#14B8A6">🩵 Turchese</option>
-                <option value="#E879F9">💗 Fucsia</option>
             </select>
         </div>
     </div>
