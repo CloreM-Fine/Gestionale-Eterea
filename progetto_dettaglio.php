@@ -125,13 +125,21 @@ include __DIR__ . '/includes/header.php';
     background: #f0f9ff;
     border: 1px solid #bae6fd;
     border-radius: 12px;
-    padding: 8px 12px;
-    margin-bottom: 8px;
+    padding: 10px 14px;
+    margin-bottom: 10px;
     display: inline-flex;
     align-items: flex-start;
-    gap: 8px;
+    gap: 10px;
     max-width: 100%;
     box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+@media (max-width: 640px) {
+    .task-commento {
+        padding: 12px 16px;
+        margin-bottom: 12px;
+        border-radius: 16px;
+    }
 }
 
 .task-commento::before {
@@ -249,8 +257,15 @@ include __DIR__ . '/includes/header.php';
 .task-commenti-container {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 8px;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+@media (max-width: 640px) {
+    .task-commenti-container {
+        gap: 12px;
+        margin-bottom: 12px;
+    }
 }
 </style>
 
@@ -367,11 +382,11 @@ function switchTab(tabName) {
 </div>
 
 <!-- Tab Content -->
-<div class="bg-white rounded-b-2xl shadow-sm border border-slate-200 border-t-0 p-6">
+<div class="bg-white rounded-b-2xl shadow-sm border border-slate-200 border-t-0 p-4 sm:p-6">
     
     <!-- Tab: Dettagli -->
     <div id="content-dettagli" class="tab-content">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
             <!-- Info Generali -->
             <div>
                 <h3 class="font-semibold text-slate-800 mb-4 flex items-center gap-2">
@@ -382,9 +397,9 @@ function switchTab(tabName) {
                 </h3>
                 
                 <div class="space-y-4">
-                    <div>
+                    <div class="bg-slate-50 rounded-xl p-4">
                         <label class="text-sm text-slate-500">Descrizione</label>
-                        <p class="text-slate-800 mt-1"><?php echo nl2br(e($progetto['descrizione'] ?: 'Nessuna descrizione')); ?></p>
+                        <p class="text-slate-800 mt-2 leading-relaxed"><?php echo nl2br(e($progetto['descrizione'] ?: 'Nessuna descrizione')); ?></p>
                     </div>
                     
                     <div>
@@ -428,14 +443,14 @@ function switchTab(tabName) {
                         </div>
                     </div>
                     
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="bg-slate-50 rounded-xl p-3">
                             <label class="text-sm text-slate-500">Data Inizio</label>
-                            <p class="text-slate-800 mt-1"><?php echo formatDate($progetto['data_inizio']); ?></p>
+                            <p class="text-slate-800 mt-1 font-medium"><?php echo formatDate($progetto['data_inizio']); ?></p>
                         </div>
-                        <div>
+                        <div class="bg-slate-50 rounded-xl p-3">
                             <label class="text-sm text-slate-500">Consegna Prevista</label>
-                            <p class="text-slate-800 mt-1"><?php echo formatDate($progetto['data_consegna_prevista']); ?></p>
+                            <p class="text-slate-800 mt-1 font-medium"><?php echo formatDate($progetto['data_consegna_prevista']); ?></p>
                         </div>
                     </div>
                     
@@ -515,10 +530,10 @@ function switchTab(tabName) {
     
     <!-- Tab: Task -->
     <div id="content-task" class="tab-content hidden">
-        <div class="flex items-center justify-between mb-4">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
             <h3 class="font-semibold text-slate-800">Task del Progetto</h3>
             <button onclick="openTaskModal()" 
-                    class="px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg font-medium text-sm flex items-center gap-2">
+                    class="w-full sm:w-auto px-4 py-3 min-h-[44px] bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg font-medium text-sm flex items-center justify-center gap-2">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                 </svg>
@@ -549,7 +564,7 @@ function switchTab(tabName) {
                 </div>
                 
                 <!-- Form Upload -->
-                <div class="bg-slate-50 rounded-xl p-5 border border-slate-200">
+                <div class="bg-slate-50 rounded-xl p-4 sm:p-5 border border-slate-200">
                     <h4 class="font-medium text-slate-700 mb-3">Aggiungi Documento</h4>
                     <form id="documentoForm" enctype="multipart/form-data" class="space-y-4">
                         <input type="hidden" name="progetto_id" value="<?php echo $progettoId; ?>">
@@ -557,9 +572,9 @@ function switchTab(tabName) {
                         <div>
                             <label class="block text-sm font-medium text-slate-700 mb-2">File PDF (max 5MB)</label>
                             <input type="file" name="documento" id="documentoInput" accept=".pdf" 
-                                   class="w-full text-sm text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-cyan-50 file:text-cyan-700 hover:file:bg-cyan-100"
+                                   class="w-full text-base text-slate-600 file:mr-4 file:py-3 file:px-4 file:rounded-lg file:border-0 file:font-medium file:bg-cyan-50 file:text-cyan-700 hover:file:bg-cyan-100"
                                    onchange="validateDocumento(this)">
-                            <p class="text-xs text-slate-500 mt-1">
+                            <p class="text-xs text-slate-500 mt-2">
                                 Massimo 5 documenti per progetto. Formato: PDF
                             </p>
                             <p id="documentoError" class="text-xs text-red-500 mt-1 hidden"></p>
@@ -568,14 +583,14 @@ function switchTab(tabName) {
                         <div>
                             <label class="block text-sm font-medium text-slate-700 mb-2">Note</label>
                             <textarea name="note" rows="3" 
-                                      class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none resize-none"
+                                      class="w-full text-base px-3 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none resize-none"
                                       placeholder="Aggiungi note opzionali sul documento..."></textarea>
                         </div>
                         
-                        <div class="flex items-center justify-between">
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                             <span id="documentiCounter" class="text-sm text-slate-500">0/5 documenti</span>
                             <button type="button" onclick="uploadDocumento()" 
-                                    class="px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg font-medium flex items-center gap-2">
+                                    class="w-full sm:w-auto px-4 py-3 min-h-[44px] bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg font-medium flex items-center justify-center gap-2">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
                                 </svg>
@@ -629,32 +644,32 @@ function switchTab(tabName) {
     
     <!-- Tab: Economia -->
     <div id="content-economia" class="tab-content hidden">
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
             <!-- Riepilogo -->
-            <div class="lg:col-span-1 space-y-4">
-                <div class="bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-xl p-5 text-white">
+            <div class="lg:col-span-1 space-y-3 sm:space-y-4">
+                <div class="bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-xl p-4 sm:p-5 text-white">
                     <p class="text-cyan-100 text-sm">Prezzo Totale</p>
-                    <p class="text-3xl font-bold"><?php echo formatCurrency($progetto['prezzo_totale']); ?></p>
+                    <p class="text-2xl sm:text-3xl font-bold"><?php echo formatCurrency($progetto['prezzo_totale']); ?></p>
                 </div>
                 
-                <div class="bg-white border border-slate-200 rounded-xl p-5">
+                <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5">
                     <p class="text-slate-500 text-sm">Acconto</p>
-                    <p class="text-xl font-semibold text-slate-800"><?php echo formatCurrency($progetto['acconto_importo']); ?></p>
+                    <p class="text-lg sm:text-xl font-semibold text-slate-800"><?php echo formatCurrency($progetto['acconto_importo']); ?></p>
                 </div>
                 
-                <div class="bg-white border border-slate-200 rounded-xl p-5">
+                <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5">
                     <p class="text-slate-500 text-sm">Saldo</p>
-                    <p class="text-xl font-semibold text-slate-800"><?php echo formatCurrency($progetto['saldo_importo']); ?></p>
+                    <p class="text-lg sm:text-xl font-semibold text-slate-800"><?php echo formatCurrency($progetto['saldo_importo']); ?></p>
                 </div>
                 
                 <?php if ($progetto['distribuzione_effettuata']): ?>
-                <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-4 flex items-center gap-3">
-                    <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-3 sm:p-4 flex items-center gap-3">
+                    <svg class="w-6 h-6 text-emerald-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
                     <div>
                         <p class="font-medium text-emerald-800">Distribuzione Effettuata</p>
-                        <p class="text-sm text-emerald-600">L'importo è stato suddiviso</p>
+                        <p class="text-xs sm:text-sm text-emerald-600">L'importo è stato suddiviso</p>
                     </div>
                 </div>
                 <?php endif; ?>
@@ -662,9 +677,9 @@ function switchTab(tabName) {
             
             <!-- Transazioni -->
             <div class="lg:col-span-2">
-                <h4 class="font-semibold text-slate-800 mb-4">Transazioni</h4>
-                <div id="transazioniList" class="space-y-3">
-                    <p class="text-center text-slate-400 py-8">Nessuna transazione</p>
+                <h4 class="font-semibold text-slate-800 mb-3 sm:mb-4">Transazioni</h4>
+                <div id="transazioniList" class="space-y-2 sm:space-y-3">
+                    <p class="text-center text-slate-400 py-6 sm:py-8">Nessuna transazione</p>
                 </div>
             </div>
         </div>
@@ -672,9 +687,9 @@ function switchTab(tabName) {
     
     <!-- Tab: Controllo -->
     <div id="content-controllo" class="tab-content hidden">
-        <div class="space-y-6">
+        <div class="space-y-4 sm:space-y-6">
             <!-- Header con info -->
-            <div class="flex items-center justify-between">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                 <div>
                     <h3 class="font-semibold text-slate-800">Checklist di Controllo</h3>
                     <p class="text-sm text-slate-500">Verifica completamento per ogni tipologia di lavoro</p>
@@ -685,8 +700,8 @@ function switchTab(tabName) {
             </div>
             
             <!-- Selettore Tipologia -->
-            <div class="bg-slate-50 rounded-xl p-4">
-                <label class="block text-sm font-medium text-slate-700 mb-3">Seleziona tipologia da controllare</label>
+            <div class="bg-slate-50 rounded-xl p-3 sm:p-4">
+                <label class="block text-sm font-medium text-slate-700 mb-3">Seleziona tipologia</label>
                 <div class="flex flex-wrap gap-2" id="tipologieControlloButtons">
                     <?php foreach (TIPOLOGIE_PROGETTO as $tipo): ?>
                     <button type="button" onclick="showChecklist('<?php echo e($tipo); ?>')" 
@@ -701,23 +716,23 @@ function switchTab(tabName) {
             <!-- Contenuto Checklist -->
             <div id="checklistContainer" class="hidden">
                 <!-- Sito Web - Linguaggio -->
-                <div id="sitoWebLinguaggio" class="hidden mb-6 bg-cyan-50 border border-cyan-200 rounded-xl p-4">
+                <div id="sitoWebLinguaggio" class="hidden mb-4 sm:mb-6 bg-cyan-50 border border-cyan-200 rounded-xl p-3 sm:p-4">
                     <label class="block text-sm font-medium text-cyan-800 mb-2">
                         Linguaggio/Framework utilizzato
                     </label>
                     <input type="text" id="linguaggioSito" placeholder="Es: PHP/Laravel, React, Next.js, WordPress..."
-                           class="w-full px-4 py-2 border border-cyan-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none bg-white">
+                           class="w-full text-base px-3 py-3 border border-cyan-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none bg-white">
                 </div>
                 
                 <!-- Lista Checklist -->
-                <div id="checklistItems" class="space-y-3">
+                <div id="checklistItems" class="space-y-2 sm:space-y-3">
                     <!-- Popolato via JS -->
                 </div>
                 
                 <!-- Pulsante Salva -->
-                <div class="mt-6 flex items-center gap-4">
+                <div class="mt-4 sm:mt-6 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
                     <button onclick="salvaChecklist()" 
-                            class="px-6 py-3 bg-cyan-600 hover:bg-cyan-700 text-white font-medium rounded-xl transition-colors flex items-center gap-2">
+                            class="w-full sm:w-auto px-6 py-3 min-h-[44px] bg-cyan-600 hover:bg-cyan-700 text-white font-medium rounded-xl transition-colors flex items-center justify-center gap-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                         </svg>
@@ -728,11 +743,11 @@ function switchTab(tabName) {
             </div>
             
             <!-- Messaggio iniziale -->
-            <div id="checklistEmptyState" class="text-center py-12 text-slate-400">
-                <svg class="w-16 h-16 mx-auto mb-4 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div id="checklistEmptyState" class="text-center py-8 sm:py-12 text-slate-400">
+                <svg class="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-4 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
                 </svg>
-                <p>Seleziona una tipologia per visualizzare la checklist</p>
+                <p class="text-sm sm:text-base">Seleziona una tipologia per visualizzare la checklist</p>
             </div>
         </div>
     </div>
@@ -742,37 +757,37 @@ function switchTab(tabName) {
 <!-- Modal Nuova Task -->
 <div id="taskModal" class="fixed inset-0 z-50 hidden">
     <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeModal('taskModal')"></div>
-    <div class="absolute inset-0 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl">
-            <div class="p-5 border-b border-slate-100 flex items-center justify-between">
+    <div class="absolute inset-x-0 bottom-0 sm:inset-0 sm:flex sm:items-center sm:justify-center sm:p-4">
+        <div class="bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div class="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white z-10">
                 <h3 class="font-bold text-slate-800" id="taskModalTitle">Nuova Task</h3>
-                <button onclick="closeModal('taskModal')" class="text-slate-400 hover:text-slate-600">
+                <button onclick="closeModal('taskModal')" class="text-slate-400 hover:text-slate-600 p-2 -mr-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                     </svg>
                 </button>
             </div>
             
-            <form id="taskForm" class="p-5 space-y-4">
+            <form id="taskForm" class="p-4 sm:p-5 space-y-4">
                 <input type="hidden" name="progetto_id" value="<?php echo $progettoId; ?>">
                 <input type="hidden" name="task_id" id="taskIdInput">
                 
                 <div>
                     <label class="block text-sm font-medium text-slate-700 mb-2">Titolo *</label>
                     <input type="text" name="titolo" required
-                           class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
+                           class="w-full text-base px-3 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
                 </div>
                 
                 <div>
                     <label class="block text-sm font-medium text-slate-700 mb-2">Descrizione</label>
-                    <textarea name="descrizione" rows="2"
-                              class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none resize-none"></textarea>
+                    <textarea name="descrizione" rows="3"
+                              class="w-full text-base px-3 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none resize-none"></textarea>
                 </div>
                 
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-slate-700 mb-2">Assegnato a</label>
-                        <div class="space-y-2 max-h-32 overflow-y-auto border border-slate-200 rounded-lg p-3">
+                        <div class="space-y-2 max-h-40 sm:max-h-32 overflow-y-auto border border-slate-200 rounded-lg p-3 bg-slate-50">
                             <?php foreach (USERS as $id => $u): ?>
                             <label class="flex items-center gap-2 cursor-pointer hover:bg-slate-50 p-1.5 rounded">
                                 <input type="checkbox" name="assegnati[]" value="<?php echo $id; ?>" class="w-4 h-4 text-cyan-600 border-slate-300 rounded focus:ring-cyan-500">
@@ -788,7 +803,7 @@ function switchTab(tabName) {
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-slate-700 mb-2">Priorità</label>
-                        <select name="priorita" class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
+                        <select name="priorita" class="w-full text-base px-3 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none bg-white">
                             <option value="bassa">Bassa</option>
                             <option value="media" selected>Media</option>
                             <option value="alta">Alta</option>
@@ -799,7 +814,7 @@ function switchTab(tabName) {
                 <div>
                     <label class="block text-sm font-medium text-slate-700 mb-2">Scadenza</label>
                     <input type="date" name="scadenza"
-                           class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
+                           class="w-full text-base px-3 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
                 </div>
                 
                 <div>
@@ -855,11 +870,11 @@ function switchTab(tabName) {
                 </div>
             </form>
             
-            <div class="p-5 border-t border-slate-100 flex justify-end gap-3">
-                <button type="button" onclick="closeModal('taskModal')" class="px-4 py-2 text-slate-600 font-medium">
+            <div class="p-4 sm:p-5 border-t border-slate-100 flex flex-col sm:flex-row justify-end gap-3">
+                <button type="button" onclick="closeModal('taskModal')" class="w-full sm:w-auto px-4 py-3 min-h-[44px] text-slate-600 font-medium rounded-lg hover:bg-slate-100 transition-colors">
                     Annulla
                 </button>
-                <button type="button" onclick="saveTask()" class="px-6 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg font-medium">
+                <button type="button" onclick="saveTask()" class="w-full sm:w-auto px-6 py-3 min-h-[44px] bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg font-medium">
                     Salva
                 </button>
             </div>
@@ -870,21 +885,26 @@ function switchTab(tabName) {
 <!-- Modal Distribuzione -->
 <div id="distribuzioneModal" class="fixed inset-0 z-50 hidden">
     <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeModal('distribuzioneModal')"></div>
-    <div class="absolute inset-0 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md">
-            <div class="p-5 border-b border-slate-100">
+    <div class="absolute inset-x-0 bottom-0 sm:inset-0 sm:flex sm:items-center sm:justify-center sm:p-4">
+        <div class="bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl w-full max-w-md max-h-[80vh] overflow-y-auto">
+            <div class="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white z-10">
                 <h3 class="font-bold text-slate-800">Anteprima Distribuzione</h3>
+                <button onclick="closeModal('distribuzioneModal')" class="text-slate-400 hover:text-slate-600 p-2 -mr-2 sm:hidden">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
             </div>
             
-            <div id="distribuzionePreview" class="p-5">
+            <div id="distribuzionePreview" class="p-4 sm:p-5">
                 <!-- Popolato via JS -->
             </div>
             
-            <div class="p-5 border-t border-slate-100 flex justify-end gap-3">
-                <button type="button" onclick="closeModal('distribuzioneModal')" class="px-4 py-2 text-slate-600 font-medium">
+            <div class="p-4 sm:p-5 border-t border-slate-100 flex flex-col sm:flex-row justify-end gap-3">
+                <button type="button" onclick="closeModal('distribuzioneModal')" class="w-full sm:w-auto px-4 py-3 min-h-[44px] text-slate-600 font-medium rounded-lg hover:bg-slate-100 transition-colors">
                     Annulla
                 </button>
-                <button type="button" onclick="confermaDistribuzione()" class="px-6 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium">
+                <button type="button" onclick="confermaDistribuzione()" class="w-full sm:w-auto px-6 py-3 min-h-[44px] bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium">
                     Conferma Distribuzione
                 </button>
             </div>
@@ -1007,97 +1027,181 @@ async function loadTask() {
             const prioritaColor = {bassa: 'blue', media: 'yellow', alta: 'red'}[t.priorita];
             const statoClass = t.stato === 'completato' ? 'line-through text-slate-400' : '';
             const hasDescrizione = t.descrizione && t.descrizione.trim().length > 0;
-            const descrizioneBreve = hasDescrizione ? (t.descrizione.length > 60 ? t.descrizione.substring(0, 60) + '...' : t.descrizione) : '';
+            const descrizioneBreve = hasDescrizione ? (t.descrizione.length > 80 ? t.descrizione.substring(0, 80) + '...' : t.descrizione) : '';
             const taskBorderColor = t.colore && t.colore !== '#FFFFFF' ? `border-left: 4px solid ${t.colore}` : '';
+            const taskBgColor = t.colore && t.colore !== '#FFFFFF' ? `background-color: ${t.colore}15` : '';
             
             const hasExpandableContent = hasDescrizione || t.assegnati_list?.length > 0 || t.scadenza;
             
             return `
-                <div class="flex flex-col p-4 bg-slate-50 rounded-xl group" style="${taskBorderColor}" id="task-${t.id}">
+                <div class="bg-white rounded-xl p-4 mb-3 shadow-sm border border-slate-100 sm:bg-slate-50 sm:rounded-xl sm:shadow-none sm:border-0" style="${taskBorderColor};${taskBgColor}" id="task-${t.id}">
                     <!-- Commenti (nuvolette) - caricati dinamicamente -->
-                    <div class="task-commenti-container" id="commenti-container-${t.id}">
+                    <div class="task-commenti-container mb-3" id="commenti-container-${t.id}">
                         <!-- Caricamento... -->
                     </div>
                     
-                    <div class="flex items-start gap-4">
-                        <button onclick="toggleTaskStatus('${t.id}', '${t.stato === 'completato' ? 'da_fare' : 'completato'}')" 
-                                class="w-6 h-6 mt-0.5 rounded-full border-2 ${t.stato === 'completato' ? 'bg-cyan-500 border-cyan-500 text-white' : 'border-slate-300 hover:border-cyan-500'} flex items-center justify-center transition-colors flex-shrink-0">
-                            ${t.stato === 'completato' ? '✓' : ''}
-                        </button>
-                        ${t.immagine ? `
-                            <div class="flex-shrink-0 w-14 h-14 rounded-lg overflow-hidden border border-slate-200 cursor-pointer" onclick="openImageModal('assets/uploads/${t.immagine}')">
-                                <img src="assets/uploads/${t.immagine}" alt="Task" class="w-full h-full object-cover hover:scale-110 transition-transform">
+                    <!-- Mobile Card Layout -->
+                    <div class="sm:hidden">
+                        <div class="flex justify-between items-start gap-3 mb-2">
+                            <div class="flex items-start gap-3 flex-1 min-w-0">
+                                <button onclick="toggleTaskStatus('${t.id}', '${t.stato === 'completato' ? 'da_fare' : 'completato'}')" 
+                                        class="w-6 h-6 mt-0.5 rounded-full border-2 ${t.stato === 'completato' ? 'bg-cyan-500 border-cyan-500 text-white' : 'border-slate-300 hover:border-cyan-500'} flex items-center justify-center transition-colors flex-shrink-0">
+                                    ${t.stato === 'completato' ? '✓' : ''}
+                                </button>
+                                ${t.immagine ? `
+                                    <div class="flex-shrink-0 w-12 h-12 rounded-lg overflow-hidden border border-slate-200 cursor-pointer" onclick="openImageModal('assets/uploads/${t.immagine}')">
+                                        <img src="assets/uploads/${t.immagine}" alt="Task" class="w-full h-full object-cover">
+                                    </div>
+                                ` : ''}
+                                <div class="flex-1 min-w-0">
+                                    <p class="font-medium ${statoClass} text-slate-800">${t.titolo}</p>
+                                </div>
                             </div>
-                        ` : ''}
-                        <div class="flex-1 min-w-0">
-                            <p class="font-medium ${statoClass}">${t.titolo}</p>
-                            ${hasDescrizione ? `
-                                <p class="text-sm text-slate-500 mt-1 line-clamp-2" id="desc-preview-${t.id}">
-                                    ${descrizioneBreve}
-                                </p>
-                            ` : ''}
+                            <span class="px-2 py-1 bg-${prioritaColor}-100 text-${prioritaColor}-700 rounded-lg text-xs font-medium flex-shrink-0">${t.priorita}</span>
                         </div>
-                        <span class="px-2 py-1 bg-${prioritaColor}-100 text-${prioritaColor}-700 rounded text-xs font-medium flex-shrink-0">${t.priorita}</span>
                         
-                        <!-- Avatar creatore task -->
-                        ${t.creato_nome ? `
-                            <div class="flex-shrink-0 tooltip-container">
-                                <span class="tooltip-text">Creata da: ${t.creato_nome}</span>
-                                ${t.creato_avatar ? `
-                                    <img src="assets/uploads/avatars/${t.creato_avatar}" alt="${t.creato_nome}" class="w-6 h-6 rounded-full border-2 border-white object-cover" style="box-shadow: 0 1px 2px rgba(0,0,0,0.1);">
-                                ` : `
-                                    <div class="w-6 h-6 rounded-full border-2 border-white flex items-center justify-center text-white text-xs font-medium" style="background-color: ${t.creato_colore || '#94A3B8'}; box-shadow: 0 1px 2px rgba(0,0,0,0.1);">${t.creato_nome.charAt(0)}</div>
-                                `}
+                        ${hasDescrizione ? `
+                            <p class="text-sm text-slate-500 mt-2 line-clamp-2 pl-9">${descrizioneBreve}</p>
+                        ` : ''}
+                        
+                        <div class="flex items-center justify-between mt-3 pl-9">
+                            <div class="flex items-center gap-2">
+                                ${t.assegnati_list && t.assegnati_list.length > 0 ? `
+                                    <span class="flex -space-x-2">
+                                        ${t.assegnati_list.slice(0, 3).map(a => `<span class="w-7 h-7 rounded-full border-2 border-white flex items-center justify-center text-white text-xs font-medium" style="background-color: ${a.colore}">${a.nome.charAt(0)}</span>`).join('')}
+                                        ${t.assegnati_list.length > 3 ? `<span class="w-7 h-7 rounded-full border-2 border-white bg-slate-200 flex items-center justify-center text-xs text-slate-600">+${t.assegnati_list.length - 3}</span>` : ''}
+                                    </span>
+                                ` : ''}
+                                ${t.scadenza ? `<span class="text-xs text-slate-400">📅 ${new Date(t.scadenza).toLocaleDateString('it-IT')}</span>` : ''}
                             </div>
-                        ` : ''}
+                        </div>
                         
-                        ${hasExpandableContent ? `
-                            <button onclick="toggleTaskExpand('${t.id}')" class="text-slate-400 hover:text-cyan-600 p-1 transition-colors" title="Espandi/Collassa">
-                                <svg class="w-5 h-5 transform transition-transform" id="expand-icon-${t.id}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                                </svg>
+                        <!-- Bottoni azione mobile -->
+                        <div class="flex gap-2 mt-4">
+                            <button onclick="toggleTaskStatus('${t.id}', '${t.stato === 'completato' ? 'da_fare' : 'completato'}')" 
+                                    class="flex-1 py-3 min-h-[44px] ${t.stato === 'completato' ? 'bg-emerald-600 text-white' : 'bg-cyan-600 text-white'} rounded-lg font-medium text-sm">
+                                ${t.stato === 'completato' ? '✓ Completata' : 'Completa'}
                             </button>
-                        ` : ''}
-                        <div class="flex items-center gap-1 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button onclick="editTask('${t.id}')" class="text-slate-400 hover:text-cyan-600 p-1" title="Modifica">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                                </svg>
+                            <button onclick="editTask('${t.id}')" class="flex-1 py-3 min-h-[44px] bg-slate-100 text-slate-700 rounded-lg font-medium text-sm">
+                                Modifica
                             </button>
-                            <button onclick="deleteTask('${t.id}')" class="text-slate-400 hover:text-red-500 p-1" title="Elimina">
+                            <button onclick="deleteTask('${t.id}')" class="px-4 py-3 min-h-[44px] bg-red-50 text-red-600 rounded-lg">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                                 </svg>
                             </button>
                         </div>
+                        
+                        <!-- Dettagli espandibili mobile -->
+                        <div class="mt-3 pt-3 border-t border-slate-100">
+                            ${hasDescrizione ? `
+                                <div class="text-sm text-slate-600 mb-3">${t.descrizione.replace(/\n/g, '<br>')}</div>
+                            ` : ''}
+                            ${t.assegnati_list && t.assegnati_list.length > 0 ? `
+                                <div class="flex flex-wrap items-center gap-2 mb-3">
+                                    <span class="text-xs text-slate-400">Assegnati:</span>
+                                    ${t.assegnati_list.map(a => `<span class="text-xs bg-slate-100 px-2 py-1 rounded">${a.nome}</span>`).join('')}
+                                </div>
+                            ` : ''}
+                            ${t.stato === 'completato' ? `<span class="text-xs bg-emerald-100 text-emerald-700 px-3 py-1.5 rounded-lg inline-block">✓ Task Completata</span>` : `<span class="text-xs bg-amber-100 text-amber-700 px-3 py-1.5 rounded-lg inline-block">⏳ Da completare</span>`}
+                            
+                            <!-- Form aggiunta commento mobile -->
+                            <div class="flex gap-2 mt-4 pt-3 border-t border-slate-100">
+                                <input type="text" 
+                                       id="commento-input-${t.id}" 
+                                       placeholder="Aggiungi un commento..." 
+                                       maxlength="500"
+                                       class="flex-1 text-base px-3 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none"
+                                       onkeypress="if(event.key==='Enter') aggiungiCommento('${t.id}')">
+                                <button onclick="aggiungiCommento('${t.id}')" class="px-4 py-2.5 bg-cyan-600 text-white rounded-lg font-medium">
+                                    Invia
+                                </button>
+                            </div>
+                        </div>
                     </div>
                     
-                    <!-- Contenuto espandibile -->
-                    <div class="hidden mt-3 pt-3 border-t border-slate-200" id="task-expand-${t.id}">
-                        ${hasDescrizione ? `
-                            <div class="text-sm text-slate-600 mb-3">${t.descrizione.replace(/\n/g, '<br>')}</div>
-                        ` : ''}
-                        <div class="flex flex-wrap items-center gap-3 text-sm text-slate-500">
-                            ${t.assegnati_list && t.assegnati_list.length > 0 ? `
-                                <span class="flex items-center gap-1">
-                                    <span class="text-xs text-slate-400">Assegnati:</span>
-                                    <span class="flex -space-x-2">
-                                        ${t.assegnati_list.map(a => `<span class="w-6 h-6 rounded-full border-2 border-white flex items-center justify-center text-white text-xs font-medium" style="background-color: ${a.colore}" title="${a.nome}">${a.nome.charAt(0)}</span>`).join('')}
-                                    </span>
-                                </span>
+                    <!-- Desktop Layout (originale) -->
+                    <div class="hidden sm:flex sm:flex-col">
+                        <div class="flex items-start gap-4">
+                            <button onclick="toggleTaskStatus('${t.id}', '${t.stato === 'completato' ? 'da_fare' : 'completato'}')" 
+                                    class="w-6 h-6 mt-0.5 rounded-full border-2 ${t.stato === 'completato' ? 'bg-cyan-500 border-cyan-500 text-white' : 'border-slate-300 hover:border-cyan-500'} flex items-center justify-center transition-colors flex-shrink-0">
+                                ${t.stato === 'completato' ? '✓' : ''}
+                            </button>
+                            ${t.immagine ? `
+                                <div class="flex-shrink-0 w-14 h-14 rounded-lg overflow-hidden border border-slate-200 cursor-pointer" onclick="openImageModal('assets/uploads/${t.immagine}')">
+                                    <img src="assets/uploads/${t.immagine}" alt="Task" class="w-full h-full object-cover hover:scale-110 transition-transform">
+                                </div>
                             ` : ''}
-                            ${t.scadenza ? `<span class="text-xs bg-slate-100 px-2 py-1 rounded">📅 Scadenza: ${new Date(t.scadenza).toLocaleDateString('it-IT')}</span>` : ''}
-                            ${t.stato === 'completato' ? `<span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">✓ Completata</span>` : `<span class="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded">⏳ Da fare</span>`}
+                            <div class="flex-1 min-w-0">
+                                <p class="font-medium ${statoClass}">${t.titolo}</p>
+                                ${hasDescrizione ? `
+                                    <p class="text-sm text-slate-500 mt-1 line-clamp-2" id="desc-preview-${t.id}">
+                                        ${descrizioneBreve}
+                                    </p>
+                                ` : ''}
+                            </div>
+                            <span class="px-2 py-1 bg-${prioritaColor}-100 text-${prioritaColor}-700 rounded text-xs font-medium flex-shrink-0">${t.priorita}</span>
+                            
+                            <!-- Avatar creatore task -->
+                            ${t.creato_nome ? `
+                                <div class="flex-shrink-0 tooltip-container">
+                                    <span class="tooltip-text">Creata da: ${t.creato_nome}</span>
+                                    ${t.creato_avatar ? `
+                                        <img src="assets/uploads/avatars/${t.creato_avatar}" alt="${t.creato_nome}" class="w-6 h-6 rounded-full border-2 border-white object-cover" style="box-shadow: 0 1px 2px rgba(0,0,0,0.1);">
+                                    ` : `
+                                        <div class="w-6 h-6 rounded-full border-2 border-white flex items-center justify-center text-white text-xs font-medium" style="background-color: ${t.creato_colore || '#94A3B8'}; box-shadow: 0 1px 2px rgba(0,0,0,0.1);">${t.creato_nome.charAt(0)}</div>
+                                    `}
+                                </div>
+                            ` : ''}
+                            
+                            ${hasExpandableContent ? `
+                                <button onclick="toggleTaskExpand('${t.id}')" class="text-slate-400 hover:text-cyan-600 p-1 transition-colors" title="Espandi/Collassa">
+                                    <svg class="w-5 h-5 transform transition-transform" id="expand-icon-${t.id}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                    </svg>
+                                </button>
+                            ` : ''}
+                            <div class="flex items-center gap-1 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button onclick="editTask('${t.id}')" class="text-slate-400 hover:text-cyan-600 p-1" title="Modifica">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                    </svg>
+                                </button>
+                                <button onclick="deleteTask('${t.id}')" class="text-slate-400 hover:text-red-500 p-1" title="Elimina">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                    </svg>
+                                </button>
+                            </div>
                         </div>
                         
-                        <!-- Form aggiunta commento -->
-                        <div class="task-commento-form">
-                            <input type="text" 
-                                   id="commento-input-${t.id}" 
-                                   placeholder="Aggiungi un commento..." 
-                                   maxlength="500"
-                                   onkeypress="if(event.key==='Enter') aggiungiCommento('${t.id}')">
-                            <button onclick="aggiungiCommento('${t.id}')">Invia</button>
+                        <!-- Contenuto espandibile -->
+                        <div class="hidden mt-3 pt-3 border-t border-slate-200" id="task-expand-${t.id}">
+                            ${hasDescrizione ? `
+                                <div class="text-sm text-slate-600 mb-3">${t.descrizione.replace(/\n/g, '<br>')}</div>
+                            ` : ''}
+                            <div class="flex flex-wrap items-center gap-3 text-sm text-slate-500">
+                                ${t.assegnati_list && t.assegnati_list.length > 0 ? `
+                                    <span class="flex items-center gap-1">
+                                        <span class="text-xs text-slate-400">Assegnati:</span>
+                                        <span class="flex -space-x-2">
+                                            ${t.assegnati_list.map(a => `<span class="w-6 h-6 rounded-full border-2 border-white flex items-center justify-center text-white text-xs font-medium" style="background-color: ${a.colore}" title="${a.nome}">${a.nome.charAt(0)}</span>`).join('')}
+                                        </span>
+                                    </span>
+                                ` : ''}
+                                ${t.scadenza ? `<span class="text-xs bg-slate-100 px-2 py-1 rounded">📅 Scadenza: ${new Date(t.scadenza).toLocaleDateString('it-IT')}</span>` : ''}
+                                ${t.stato === 'completato' ? `<span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">✓ Completata</span>` : `<span class="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded">⏳ Da fare</span>`}
+                            </div>
+                            
+                            <!-- Form aggiunta commento -->
+                            <div class="task-commento-form">
+                                <input type="text" 
+                                       id="commento-input-${t.id}" 
+                                       placeholder="Aggiungi un commento..." 
+                                       maxlength="500"
+                                       onkeypress="if(event.key==='Enter') aggiungiCommento('${t.id}')">
+                                <button onclick="aggiungiCommento('${t.id}')">Invia</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1926,20 +2030,20 @@ function showChecklist(tipologia) {
         const commento = saved[item.id]?.commento || '';
         
         const div = document.createElement('div');
-        div.className = 'bg-white border border-slate-200 rounded-xl p-4 hover:border-cyan-300 transition-colors';
+        div.className = 'bg-white border border-slate-200 rounded-xl p-3 sm:p-4 hover:border-cyan-300 transition-colors';
         div.innerHTML = `
             <div class="flex items-start gap-3">
                 <input type="checkbox" id="check_${item.id}" 
                        ${isChecked ? 'checked' : ''}
-                       class="w-5 h-5 mt-0.5 text-cyan-600 border-slate-300 rounded focus:ring-cyan-500 cursor-pointer">
-                <div class="flex-1">
-                    <label for="check_${item.id}" class="text-sm font-medium text-slate-700 cursor-pointer select-none">
+                       class="w-5 h-5 mt-0.5 text-cyan-600 border-slate-300 rounded focus:ring-cyan-500 cursor-pointer flex-shrink-0">
+                <div class="flex-1 min-w-0">
+                    <label for="check_${item.id}" class="text-sm font-medium text-slate-700 cursor-pointer select-none block leading-relaxed">
                         ${item.label}
                     </label>
                     <input type="text" id="comment_${item.id}" 
                            value="${escapeHtml(commento)}"
                            placeholder="Aggiungi un commento..."
-                           class="mt-2 w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
+                           class="mt-2 w-full text-base px-3 py-2.5 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
                 </div>
             </div>
         `;

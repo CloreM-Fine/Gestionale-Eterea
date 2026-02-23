@@ -37,7 +37,7 @@ switch ($error) {
         break;
 }
 
-// Genera token CSRF
+// Genera Token CSRF
 $csrfToken = bin2hex(random_bytes(32));
 $_SESSION['csrf_token'] = $csrfToken;
 ?>
@@ -46,7 +46,7 @@ $_SESSION['csrf_token'] = $csrfToken;
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Eterea Gestionale Gestionale</title>
+    <title>Login - Eterea Gestionale</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -101,25 +101,25 @@ $_SESSION['csrf_token'] = $csrfToken;
 </head>
 <body class="gradient-bg min-h-screen flex items-center justify-center p-4">
     
-    <div class="w-full max-w-md fade-in">
+    <div class="w-full max-w-md mx-auto fade-in">
         <!-- Logo -->
-        <div class="text-center mb-8">
+        <div class="text-center mb-6">
             <?php if ($logoGestionale): ?>
-                <div class="inline-flex items-center justify-center w-24 h-24 rounded-2xl shadow-xl mb-4 bg-white overflow-hidden">
+                <div class="inline-flex items-center justify-center w-20 h-20 sm:w-24 sm:h-24 rounded-2xl shadow-xl mb-4 bg-white overflow-hidden">
                     <img src="assets/uploads/logo/<?php echo e($logoGestionale); ?>?v=<?php echo time(); ?>" 
                          alt="Logo" class="w-full h-full object-contain p-2">
                 </div>
             <?php else: ?>
-                <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-2xl shadow-xl mb-4">
-                    <span class="text-white font-bold text-2xl sm:text-3xl">LDE</span>
+                <div class="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-2xl shadow-xl mb-4">
+                    <span class="text-white font-bold text-xl sm:text-2xl">LDE</span>
                 </div>
             <?php endif; ?>
-            <h1 class="text-2xl sm:text-3xl font-bold text-slate-800">Eterea Gestionale</h1>
-            <p class="text-slate-500 mt-1">Gestionale Progetti</p>
+            <h1 class="text-xl sm:text-2xl font-bold text-slate-800">Eterea Gestionale</h1>
+            <p class="text-slate-500 mt-1 text-sm sm:text-base">Gestionale Progetti</p>
         </div>
         
         <!-- Login Card -->
-        <div class="glass-card rounded-2xl shadow-2xl p-8">
+        <div class="glass-card rounded-2xl shadow-2xl p-6 sm:p-8">
             <h2 class="text-base sm:text-lg font-semibold text-slate-800 mb-6 text-center">Accedi al sistema</h2>
             
             <?php if ($errorMsg): ?>
@@ -133,13 +133,13 @@ $_SESSION['csrf_token'] = $csrfToken;
             </div>
             <?php endif; ?>
             
-            <form id="loginForm" class="space-y-5">
+            <form id="loginForm" class="space-y-4">
                 <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
                 <input type="hidden" name="action" value="login">
                 
                 <!-- Username -->
                 <div>
-                    <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-2">
+                    <label class="block text-sm font-medium text-slate-700 mb-2">
                         Nome Utente
                     </label>
                     <div class="relative">
@@ -152,7 +152,7 @@ $_SESSION['csrf_token'] = $csrfToken;
                             type="text" 
                             name="username" 
                             required
-                            class="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all outline-none"
+                            class="w-full pl-10 pr-4 py-4 text-base min-h-[48px] border border-slate-200 rounded-xl focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all outline-none"
                             placeholder="Inserisci il tuo nome"
                             autocomplete="username"
                         >
@@ -161,7 +161,7 @@ $_SESSION['csrf_token'] = $csrfToken;
                 
                 <!-- Password -->
                 <div>
-                    <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-2">
+                    <label class="block text-sm font-medium text-slate-700 mb-2">
                         Password
                     </label>
                     <div class="relative">
@@ -174,7 +174,7 @@ $_SESSION['csrf_token'] = $csrfToken;
                             type="password" 
                             name="password" 
                             required
-                            class="w-full pl-10 pr-12 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all outline-none"
+                            class="w-full pl-10 pr-12 py-4 text-base min-h-[48px] border border-slate-200 rounded-xl focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all outline-none"
                             placeholder="Inserisci la password"
                             autocomplete="current-password"
                         >
@@ -195,7 +195,7 @@ $_SESSION['csrf_token'] = $csrfToken;
                 <button 
                     type="submit" 
                     id="submitBtn"
-                    class="w-full bg-gradient-to-r from-cyan-600 to-cyan-500 text-white py-3 rounded-lg font-medium hover:from-cyan-700 hover:to-cyan-600 focus:ring-4 focus:ring-cyan-200 transition-all flex items-center justify-center gap-2"
+                    class="w-full bg-gradient-to-r from-cyan-600 to-cyan-500 text-white py-4 text-lg font-medium rounded-xl hover:from-cyan-700 hover:to-cyan-600 focus:ring-4 focus:ring-cyan-200 transition-all flex items-center justify-center gap-2"
                 >
                     <span id="btnText">Accedi</span>
                     <svg id="btnSpinner" class="w-5 h-5 animate-spin hidden" fill="none" viewBox="0 0 24 24">
@@ -207,12 +207,12 @@ $_SESSION['csrf_token'] = $csrfToken;
             
             <!-- Error Message Container -->
             <div id="errorContainer" class="hidden mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-                <p id="errorText" class="text-red-600 text-xs sm:text-sm text-center"></p>
+                <p id="errorText" class="text-red-600 text-sm text-center"></p>
             </div>
         </div>
         
         <!-- Footer -->
-        <p class="text-center text-slate-400 text-xs sm:text-sm mt-8">
+        <p class="text-center text-slate-400 text-xs sm:text-sm mt-6 sm:mt-8">
             © <?php echo date('Y'); ?> Eterea Gestionale. Tutti i diritti riservati.
         </p>
     </div>

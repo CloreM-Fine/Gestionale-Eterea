@@ -28,21 +28,23 @@ include __DIR__ . '/includes/header.php';
             <h1 class="text-xl sm:text-2xl font-bold text-slate-800">Progetti</h1>
             <p class="text-sm text-slate-500 mt-1">Gestisci tutti i progetti dello studio</p>
         </div>
-        <div class="flex items-center gap-3">
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
             <!-- Toggle Raggruppamento Cliente -->
-            <label class="flex items-center gap-2 cursor-pointer group bg-white px-3 py-2 rounded-lg border border-slate-200 hover:border-cyan-300 transition-colors">
-                <svg class="w-4 h-4 text-slate-400 group-hover:text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
-                </svg>
-                <span class="text-sm text-slate-600 group-hover:text-slate-800 hidden sm:inline">Raggruppa per cliente</span>
+            <label class="flex items-center justify-between sm:justify-start gap-2 cursor-pointer group bg-white px-3 py-2 rounded-lg border border-slate-200 hover:border-cyan-300 transition-colors">
+                <div class="flex items-center gap-2">
+                    <svg class="w-4 h-4 text-slate-400 group-hover:text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                    </svg>
+                    <span class="text-sm text-slate-600 group-hover:text-slate-800">Raggruppa</span>
+                </div>
                 <div class="relative">
                     <input type="checkbox" id="groupByClienteToggle" class="sr-only peer" onchange="toggleGroupByCliente()">
-                    <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-cyan-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-cyan-600"></div>
+                    <div class="w-8 h-4 sm:w-9 sm:h-5 bg-slate-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-cyan-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 sm:after:h-4 sm:after:w-4 after:transition-all peer-checked:bg-cyan-600"></div>
                 </div>
             </label>
             
             <button onclick="openModal('progettoModal')" 
-                    class="bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2.5 rounded-lg font-medium flex items-center gap-2 transition-colors">
+                    class="bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2.5 rounded-lg font-medium flex items-center justify-center gap-2 transition-colors min-h-[44px]">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                 </svg>
@@ -51,7 +53,7 @@ include __DIR__ . '/includes/header.php';
             
             <button onclick="toggleArchiviati()" 
                     id="btnArchiviati"
-                    class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-4 py-2.5 rounded-lg font-medium flex items-center gap-2 transition-colors">
+                    class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-4 py-2.5 rounded-lg font-medium flex items-center justify-center gap-2 transition-colors min-h-[44px]">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/>
                 </svg>
@@ -63,59 +65,75 @@ include __DIR__ . '/includes/header.php';
 
 <!-- Filtri -->
 <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 mb-6">
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-        <!-- Ricerca -->
-        <div class="relative">
-            <input type="text" id="searchInput" placeholder="Cerca progetto..."
-                   class="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none">
-            <svg class="w-5 h-5 text-slate-400 absolute left-3 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+    <!-- Mobile: Accordion Header -->
+    <button type="button" onclick="toggleFiltriMobile()" class="sm:hidden w-full flex items-center justify-between mb-2">
+        <span class="text-sm font-medium text-slate-700 flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
             </svg>
+            Filtri
+        </span>
+        <svg id="filtriArrow" class="w-4 h-4 text-slate-400 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+        </svg>
+    </button>
+    
+    <!-- Filtri Grid -->
+    <div id="filtriContainer" class="hidden sm:block">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+            <!-- Ricerca -->
+            <div class="relative">
+                <input type="text" id="searchInput" placeholder="Cerca progetto..."
+                       class="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none min-h-[44px]">
+                <svg class="w-5 h-5 text-slate-400 absolute left-3 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+            </div>
+            
+            <!-- Filtro Stato -->
+            <select id="statoFilter" class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none min-h-[44px]">
+                <option value="">Tutti gli stati</option>
+                <?php foreach (STATI_PROGETTO as $key => $label): ?>
+                <option value="<?php echo $key; ?>"><?php echo $label; ?></option>
+                <?php endforeach; ?>
+            </select>
+            
+            <!-- Filtro Cliente -->
+            <select id="clienteFilter" class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none min-h-[44px]">
+                <option value="">Tutti i clienti</option>
+                <?php foreach ($clienti as $c): ?>
+                <option value="<?php echo $c['id']; ?>"><?php echo e($c['ragione_sociale']); ?></option>
+                <?php endforeach; ?>
+            </select>
+            
+            <!-- Filtro Partecipante -->
+            <select id="partecipanteFilter" class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none min-h-[44px]">
+                <option value="">Tutti i partecipanti</option>
+                <?php foreach (USERS as $id => $u): ?>
+                <option value="<?php echo $id; ?>"><?php echo e($u['nome']); ?></option>
+                <?php endforeach; ?>
+            </select>
+            
+            <!-- Filtro Colore -->
+            <select id="coloreFilter" class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none min-h-[44px]">
+                <option value="">Tutti i colori</option>
+                <option value="#FFFFFF">⚪ Bianco</option>
+                <option value="#22D3EE">🔵 Ciano</option>
+                <option value="#60A5FA">🔵 Blu</option>
+                <option value="#34D399">🟢 Verde</option>
+                <option value="#A3E635">🟢 Lime</option>
+                <option value="#FACC15">🟡 Giallo</option>
+                <option value="#FB923C">🟠 Arancione</option>
+                <option value="#F87171">🔴 Rosso</option>
+                <option value="#F472B6">🩷 Rosa</option>
+                <option value="#C084FC">🟣 Viola</option>
+                <option value="#A78BFA">💜 Indaco</option>
+                <option value="#94A3B8">⚪ Grigio</option>
+                <option value="#78350F">🟤 Marrone</option>
+                <option value="#14B8A6">🩵 Turchese</option>
+                <option value="#E879F9">💗 Fucsia</option>
+            </select>
         </div>
-        
-        <!-- Filtro Stato -->
-        <select id="statoFilter" class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
-            <option value="">Tutti gli stati</option>
-            <?php foreach (STATI_PROGETTO as $key => $label): ?>
-            <option value="<?php echo $key; ?>"><?php echo $label; ?></option>
-            <?php endforeach; ?>
-        </select>
-        
-        <!-- Filtro Cliente -->
-        <select id="clienteFilter" class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
-            <option value="">Tutti i clienti</option>
-            <?php foreach ($clienti as $c): ?>
-            <option value="<?php echo $c['id']; ?>"><?php echo e($c['ragione_sociale']); ?></option>
-            <?php endforeach; ?>
-        </select>
-        
-        <!-- Filtro Partecipante -->
-        <select id="partecipanteFilter" class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
-            <option value="">Tutti i partecipanti</option>
-            <?php foreach (USERS as $id => $u): ?>
-            <option value="<?php echo $id; ?>"><?php echo e($u['nome']); ?></option>
-            <?php endforeach; ?>
-        </select>
-        
-        <!-- Filtro Colore -->
-        <select id="coloreFilter" class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
-            <option value="">Tutti i colori</option>
-            <option value="#FFFFFF">⚪ Bianco</option>
-            <option value="#22D3EE">🔵 Ciano</option>
-            <option value="#60A5FA">🔵 Blu</option>
-            <option value="#34D399">🟢 Verde</option>
-            <option value="#A3E635">🟢 Lime</option>
-            <option value="#FACC15">🟡 Giallo</option>
-            <option value="#FB923C">🟠 Arancione</option>
-            <option value="#F87171">🔴 Rosso</option>
-            <option value="#F472B6">🩷 Rosa</option>
-            <option value="#C084FC">🟣 Viola</option>
-            <option value="#A78BFA">💜 Indaco</option>
-            <option value="#94A3B8">⚪ Grigio</option>
-            <option value="#78350F">🟤 Marrone</option>
-            <option value="#14B8A6">🩵 Turchese</option>
-            <option value="#E879F9">💗 Fucsia</option>
-        </select>
     </div>
 </div>
 
@@ -224,8 +242,6 @@ include __DIR__ . '/includes/header.php';
     transform: rotate(180deg);
 }
 
-
-
 /* Scroll orizzontale per mobile */
 @media (max-width: 768px) {
     .card-stack-container.collapsed {
@@ -256,8 +272,6 @@ include __DIR__ . '/includes/header.php';
         width: 100%;
         justify-content: center;
     }
-    
-
     
     /* Aumenta area touch */
     .card-stack-item button,
@@ -290,18 +304,18 @@ include __DIR__ . '/includes/header.php';
 <!-- Modal Nuovo/Edit Progetto -->
 <div id="progettoModal" class="fixed inset-0 z-50 hidden">
     <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeModal('progettoModal')"></div>
-    <div class="absolute inset-0 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
-            <div class="p-6 border-b border-slate-100 flex items-center justify-between">
+    <div class="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
+        <div class="bg-white w-full h-[90vh] sm:h-auto sm:w-[600px] sm:rounded-2xl rounded-t-2xl flex flex-col overflow-hidden">
+            <div class="p-4 sm:p-6 border-b border-slate-100 flex items-center justify-between">
                 <h2 class="text-base sm:text-lg font-bold text-slate-800" id="modalTitle">Nuovo Progetto</h2>
-                <button onclick="closeModal('progettoModal')" class="text-slate-400 hover:text-slate-600">
+                <button onclick="closeModal('progettoModal')" class="text-slate-400 hover:text-slate-600 min-h-[44px] min-w-[44px] flex items-center justify-center">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                     </svg>
                 </button>
             </div>
             
-            <form id="progettoForm" class="flex-1 overflow-y-auto p-6">
+            <form id="progettoForm" class="flex-1 overflow-y-auto p-4 sm:p-6">
                 <input type="hidden" name="id" id="progettoId">
                 
                 <div class="space-y-5">
@@ -309,14 +323,14 @@ include __DIR__ . '/includes/header.php';
                     <div>
                         <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-2">Titolo *</label>
                         <input type="text" name="titolo" required
-                               class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none"
+                               class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none min-h-[44px]"
                                placeholder="Nome del progetto">
                     </div>
                     
                     <!-- Cliente -->
                     <div>
                         <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-2">Cliente</label>
-                        <select name="cliente_id" class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
+                        <select name="cliente_id" class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none min-h-[44px]">
                             <option value="">Seleziona cliente...</option>
                             <?php foreach ($clienti as $c): ?>
                             <option value="<?php echo $c['id']; ?>"><?php echo e($c['ragione_sociale']); ?></option>
@@ -352,13 +366,13 @@ include __DIR__ . '/includes/header.php';
                             <div class="relative">
                                 <span class="absolute left-3 top-2.5 text-slate-400">€</span>
                                 <input type="number" name="prezzo_totale" step="0.01" min="0"
-                                       class="w-full pl-8 pr-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none"
+                                       class="w-full pl-8 pr-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none min-h-[44px]"
                                        placeholder="0.00">
                             </div>
                         </div>
                         <div>
                             <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-2">Stato Progetto</label>
-                            <select name="stato_progetto" class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
+                            <select name="stato_progetto" class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none min-h-[44px]">
                                 <?php foreach (STATI_PROGETTO as $key => $label): ?>
                                 <option value="<?php echo $key; ?>" <?php echo $key === 'da_iniziare' ? 'selected' : ''; ?>><?php echo $label; ?></option>
                                 <?php endforeach; ?>
@@ -366,7 +380,7 @@ include __DIR__ . '/includes/header.php';
                         </div>
                         <div>
                             <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-2">Stato Pagamento</label>
-                            <select name="stato_pagamento" id="statoPagamentoSelect" onchange="toggleAccontoPercentuale()" class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
+                            <select name="stato_pagamento" id="statoPagamentoSelect" onchange="toggleAccontoPercentuale()" class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none min-h-[44px]">
                                 <?php foreach (STATI_PAGAMENTO as $key => $label): ?>
                                 <option value="<?php echo $key; ?>" <?php echo $key === 'da_pagare' ? 'selected' : ''; ?>><?php echo $label; ?></option>
                                 <?php endforeach; ?>
@@ -378,7 +392,7 @@ include __DIR__ . '/includes/header.php';
                     <div id="accontoPercentualeWrapper" class="hidden">
                         <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-2">Percentuale Acconto (%)</label>
                         <input type="number" name="acconto_percentuale" id="accontoPercentuale" min="0" max="100" step="1" placeholder="Es: 30"
-                               class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
+                               class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none min-h-[44px]">
                     </div>
                     
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -440,24 +454,24 @@ include __DIR__ . '/includes/header.php';
                         <div>
                             <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-2">Data Inizio</label>
                             <input type="date" name="data_inizio"
-                                   class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
+                                   class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none min-h-[44px]">
                         </div>
                         <div>
                             <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-2">Data Consegna Prevista</label>
                             <input type="date" name="data_consegna_prevista"
-                                   class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
+                                   class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none min-h-[44px]">
                         </div>
                     </div>
                 </div>
             </form>
             
-            <div class="p-6 border-t border-slate-100 flex justify-end gap-3">
+            <div class="p-4 sm:p-6 border-t border-slate-100 flex justify-end gap-3">
                 <button type="button" onclick="closeModal('progettoModal')" 
-                        class="px-4 py-2 text-slate-600 hover:text-slate-800 font-medium">
+                        class="px-4 py-2.5 text-slate-600 hover:text-slate-800 font-medium min-h-[44px]">
                     Annulla
                 </button>
                 <button type="button" onclick="saveProgetto()" 
-                        class="px-6 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg font-medium">
+                        class="px-6 py-2.5 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg font-medium min-h-[44px]">
                     Salva
                 </button>
             </div>
@@ -475,6 +489,19 @@ const USERS = <?php echo json_encode(USERS); ?>;
 
 let progettiData = [];
 let mostraArchiviati = false;
+
+// Toggle filtri mobile
+function toggleFiltriMobile() {
+    const container = document.getElementById('filtriContainer');
+    const arrow = document.getElementById('filtriArrow');
+    if (container.classList.contains('hidden')) {
+        container.classList.remove('hidden');
+        arrow.style.transform = 'rotate(180deg)';
+    } else {
+        container.classList.add('hidden');
+        arrow.style.transform = 'rotate(0deg)';
+    }
+}
 
 // Toggle archiviati
 function toggleArchiviati() {
@@ -742,7 +769,7 @@ function renderProgettoCard(p, isStackItem = false) {
              style="background-color: ${coloreSfondo}; ${!isDefaultColor ? 'border-color: ' + coloreSfondo.replace('FF', 'DD') : ''}">
             <div class="p-5">
                 <div class="flex items-start justify-between mb-3">
-                    <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-2 flex-wrap">
                         <span class="px-2.5 py-1 rounded-full text-xs font-medium bg-${statoColor}-100 text-${statoColor}-700">
                             ${statoLabel}
                         </span>
@@ -797,15 +824,15 @@ function renderProgettoCard(p, isStackItem = false) {
             </div>
             
             <div class="px-5 py-3 border-t border-slate-100/50 flex gap-2" style="background-color: ${coloreSfondo}; filter: brightness(0.97);">
-                <a href="progetto_dettaglio.php?id=${p.id}" class="flex-1 text-center py-2 bg-white border border-slate-200 rounded-lg text-xs sm:text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors">
+                <a href="progetto_dettaglio.php?id=${p.id}" class="flex-1 text-center py-2 bg-white border border-slate-200 rounded-lg text-xs sm:text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors min-h-[44px] flex items-center justify-center">
                     Dettagli
                 </a>
-                <button onclick="editProgetto('${p.id}')" class="p-2 text-slate-400 hover:text-cyan-600 hover:bg-cyan-50 rounded-lg transition-colors">
+                <button onclick="editProgetto('${p.id}')" class="p-2 text-slate-400 hover:text-cyan-600 hover:bg-cyan-50 rounded-lg transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                     </svg>
                 </button>
-                <button onclick="deleteProgetto('${p.id}', '${(p.titolo || '').replace(/'/g, '&#39;')}')" class="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                <button onclick="deleteProgetto('${p.id}', '${(p.titolo || '').replace(/'/g, '&#39;')}')" class="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                     </svg>

@@ -214,6 +214,146 @@ try {
         .main-wrapper {
             transition: margin-left 0.3s ease;
         }
+
+        /* BOTTOM NAVIGATION - Mobile */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #1e293b;
+            border-top: 1px solid #334155;
+            z-index: 50;
+            padding-bottom: env(safe-area-inset-bottom, 0);
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .bottom-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 56px;
+            min-width: 56px;
+            padding: 8px 4px;
+            color: #94a3b8;
+            transition: all 0.2s ease;
+            border-radius: 12px;
+            margin: 0 2px;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .bottom-nav-item:active {
+            transform: scale(0.95);
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .bottom-nav-item.active {
+            color: #22d3ee;
+        }
+        
+        .bottom-nav-item svg {
+            width: 24px;
+            height: 24px;
+            margin-bottom: 2px;
+        }
+        
+        .bottom-nav-item span {
+            font-size: 11px;
+            font-weight: 500;
+            line-height: 1.2;
+        }
+        
+        /* Menu completo mobile */
+        .mobile-full-menu {
+            position: fixed;
+            inset: 0;
+            background: #0f172a;
+            z-index: 60;
+            transform: translateY(100%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow-y: auto;
+            padding-bottom: 80px;
+        }
+        
+        .mobile-full-menu.open {
+            transform: translateY(0);
+        }
+        
+        .mobile-full-menu-header {
+            position: sticky;
+            top: 0;
+            background: #0f172a;
+            padding: 16px;
+            border-bottom: 1px solid #1e293b;
+            z-index: 10;
+        }
+        
+        .mobile-menu-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            padding: 16px;
+        }
+        
+        .mobile-menu-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 80px;
+            padding: 16px 8px;
+            background: #1e293b;
+            border-radius: 16px;
+            color: #cbd5e1;
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
+        }
+        
+        .mobile-menu-item:active {
+            transform: scale(0.96);
+            background: #334155;
+        }
+        
+        .mobile-menu-item.active {
+            background: rgba(8, 145, 178, 0.2);
+            border-color: #0891b2;
+            color: #22d3ee;
+        }
+        
+        .mobile-menu-item svg {
+            width: 28px;
+            height: 28px;
+            margin-bottom: 8px;
+        }
+        
+        .mobile-menu-item span {
+            font-size: 13px;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        /* Main content padding per bottom nav su mobile */
+        @media (max-width: 1023px) {
+            .main-wrapper {
+                padding-bottom: 80px;
+            }
+            main {
+                padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+            }
+        }
+        
+        /* Touch targets minimum 44px */
+        .touch-target {
+            min-height: 44px;
+            min-width: 44px;
+        }
+        
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
     </style>
 </head>
 <body class="bg-slate-50 font-sans text-slate-800">
@@ -221,7 +361,7 @@ try {
     <div id="mobileOverlay" class="fixed inset-0 bg-black/50 z-40 hidden lg:hidden" onclick="closeMobileMenu()"></div>
     
     <!-- Sidebar / Mobile Menu -->
-    <aside id="sidebar" class="mobile-menu fixed left-0 top-0 h-full bg-slate-800 text-white z-50 flex flex-col lg:translate-x-0 sidebar-collapsed">
+    <aside id="sidebar" class="mobile-menu fixed left-0 top-0 h-full bg-slate-800 text-white z-50 flex flex-col hidden lg:flex lg:translate-x-0 sidebar-collapsed">
         <!-- Logo -->
         <div class="p-4 border-b border-slate-700 sidebar-logo flex items-center gap-3 h-16">
             <?php if ($logoNavbar): ?>
@@ -355,20 +495,20 @@ try {
         <header class="bg-white shadow-sm sticky top-0 z-30">
             <div class="px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
                 <!-- Left: Mobile Menu Button -->
-                <button onclick="openMobileMenu()" class="lg:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100">
+                <button onclick="openMobileMenu()" class="lg:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100 touch-target">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
                     </svg>
                 </button>
                 
                 <!-- Center: Page Title -->
-                <h2 class="text-base sm:text-lg font-semibold text-slate-800 lg:hidden"><?php echo e($pageTitle ?? 'Eterea Gestionale'); ?></h2>
+                <h2 class="text-base sm:text-lg font-semibold text-slate-800 lg:hidden truncate max-w-[150px]"><?php echo e($pageTitle ?? 'Eterea Gestionale'); ?></h2>
                 
                 <!-- Right: Actions -->
                 <div class="flex items-center gap-4 ml-auto">
                     <!-- Notifications -->
                     <div class="dropdown relative" id="notificheDropdown">
-                        <button onclick="toggleNotifiche()" class="relative p-2 rounded-lg text-slate-600 hover:bg-slate-100 transition-colors">
+                        <button onclick="toggleNotifiche()" class="relative p-2 rounded-lg text-slate-600 hover:bg-slate-100 transition-colors touch-target">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
                             </svg>
@@ -400,7 +540,7 @@ try {
                     
                     <!-- User Menu -->
                     <div class="dropdown relative hidden lg:block">
-                        <button class="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-100 transition-colors">
+                        <button class="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-100 transition-colors touch-target">
                             <div class="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-semibold overflow-hidden" 
                                  style="background-color: <?php echo e($currentUser['colore']); ?>">
                                 <?php if (!empty($currentUser['avatar']) && file_exists(__DIR__ . '/../assets/uploads/avatars/' . $currentUser['avatar'])): ?>
@@ -436,3 +576,234 @@ try {
         
         <!-- Page Content -->
         <main class="p-4 sm:p-6 lg:p-8">
+
+<!-- Bottom Navigation - Solo Mobile -->
+<nav class="bottom-nav lg:hidden">
+    <div class="flex items-center justify-around px-2 py-1 max-w-lg mx-auto">
+        <!-- Dashboard -->
+        <a href="dashboard.php" class="bottom-nav-item <?php echo $currentPage === 'dashboard' ? 'active' : ''; ?>">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+            </svg>
+            <span>Dashboard</span>
+        </a>
+        
+        <!-- Progetti -->
+        <a href="progetti.php" class="bottom-nav-item <?php echo in_array($currentPage, ['progetti', 'progetto_dettaglio']) ? 'active' : ''; ?>">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
+            </svg>
+            <span>Progetti</span>
+        </a>
+        
+        <!-- Clienti -->
+        <a href="clienti.php" class="bottom-nav-item <?php echo $currentPage === 'clienti' ? 'active' : ''; ?>">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
+            </svg>
+            <span>Clienti</span>
+        </a>
+        
+        <!-- Calendario -->
+        <a href="calendario.php" class="bottom-nav-item <?php echo $currentPage === 'calendario' ? 'active' : ''; ?>">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
+            <span>Calendario</span>
+        </a>
+        
+        <!-- Menu (apre menu completo) -->
+        <button onclick="openMobileFullMenu()" class="bottom-nav-item" type="button">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+            </svg>
+            <span>Menu</span>
+        </button>
+    </div>
+</nav>
+
+<!-- Menu Completo Mobile (Overlay) -->
+<div id="mobileFullMenu" class="mobile-full-menu lg:hidden">
+    <div class="mobile-full-menu-header flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold overflow-hidden" 
+                 style="background-color: <?php echo e($currentUser['colore']); ?>">
+                <?php if (!empty($currentUser['avatar']) && file_exists(__DIR__ . '/../assets/uploads/avatars/' . $currentUser['avatar'])): ?>
+                    <img src="assets/uploads/avatars/<?php echo e($currentUser['avatar']); ?>" 
+                         alt="Avatar" class="w-full h-full object-cover">
+                <?php else: ?>
+                    <?php echo e(substr($currentUser['nome'], 0, 2)); ?>
+                <?php endif; ?>
+            </div>
+            <div>
+                <p class="font-medium text-white text-sm"><?php echo e($currentUser['nome']); ?></p>
+                <p class="text-xs text-slate-400">Menu</p>
+            </div>
+        </div>
+        <button onclick="closeMobileFullMenu()" class="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-700 touch-target">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+        </button>
+    </div>
+    
+    <div class="mobile-menu-grid">
+        <!-- Dashboard -->
+        <a href="dashboard.php" class="mobile-menu-item <?php echo $currentPage === 'dashboard' ? 'active' : ''; ?>">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
+            </svg>
+            <span>Dashboard</span>
+        </a>
+        
+        <!-- Progetti -->
+        <a href="progetti.php" class="mobile-menu-item <?php echo in_array($currentPage, ['progetti', 'progetto_dettaglio']) ? 'active' : ''; ?>">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
+            </svg>
+            <span>Progetti</span>
+        </a>
+        
+        <!-- Clienti -->
+        <a href="clienti.php" class="mobile-menu-item <?php echo $currentPage === 'clienti' ? 'active' : ''; ?>">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+            </svg>
+            <span>Clienti</span>
+        </a>
+        
+        <!-- Preventivi -->
+        <a href="preventivi.php" class="mobile-menu-item <?php echo $currentPage === 'preventivi' ? 'active' : ''; ?>">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.121 15.536c-1.171 1.952-3.07 1.952-4.242 0-1.172-1.953-1.172-5.119 0-7.072 1.171-1.952 3.07-1.952 4.242 0M8 10.5h4m-4 3h4m9-1.5a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <span>Preventivi</span>
+        </a>
+        
+        <!-- Calendario -->
+        <a href="calendario.php" class="mobile-menu-item <?php echo $currentPage === 'calendario' ? 'active' : ''; ?>">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
+            <span>Calendario</span>
+        </a>
+        
+        <!-- Finanze -->
+        <a href="finanze.php" class="mobile-menu-item <?php echo $currentPage === 'finanze' ? 'active' : ''; ?>">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <span>Finanze</span>
+        </a>
+        
+        <!-- Briefing -->
+        <a href="briefing_ai.php" class="mobile-menu-item <?php echo $currentPage === 'briefing_ai' ? 'active' : ''; ?>">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414A1 1 0 0019.414 9H21a2 2 0 012 2v9a2 2 0 01-2 2h-1.586l-3.707-3.707A1 1 0 0014.586 18z"/>
+            </svg>
+            <span>Briefing</span>
+        </a>
+        
+        <!-- Impostazioni -->
+        <a href="impostazioni.php" class="mobile-menu-item <?php echo $currentPage === 'impostazioni' ? 'active' : ''; ?>">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+            </svg>
+            <span>Impostazioni</span>
+        </a>
+        
+        <!-- Logout -->
+        <a href="api/auth.php?action=logout" class="mobile-menu-item text-red-400">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+            </svg>
+            <span>Logout</span>
+        </a>
+    </div>
+    
+    <!-- Info versione -->
+    <div class="px-4 py-4 text-center">
+        <p class="text-xs text-slate-500">Eterea Gestionale</p>
+    </div>
+</div>
+
+<script>
+// Mobile Menu Functions
+function openMobileMenu() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('mobileOverlay');
+    if (sidebar && overlay) {
+        sidebar.classList.add('open');
+        overlay.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function closeMobileMenu() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('mobileOverlay');
+    if (sidebar && overlay) {
+        sidebar.classList.remove('open');
+        overlay.classList.add('hidden');
+        document.body.style.overflow = '';
+    }
+}
+
+// Mobile Full Menu Functions
+function openMobileFullMenu() {
+    const menu = document.getElementById('mobileFullMenu');
+    if (menu) {
+        menu.classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function closeMobileFullMenu() {
+    const menu = document.getElementById('mobileFullMenu');
+    if (menu) {
+        menu.classList.remove('open');
+        document.body.style.overflow = '';
+    }
+}
+
+// Gestione resize - chiudi menu mobile quando si passa a desktop
+window.addEventListener('resize', function() {
+    if (window.innerWidth >= 1024) {
+        closeMobileMenu();
+        closeMobileFullMenu();
+    }
+});
+
+// Chiudi menu con tasto ESC
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeMobileMenu();
+        closeMobileFullMenu();
+    }
+});
+
+// Toggle Notifiche
+function toggleNotifiche() {
+    const menu = document.getElementById('notificheMenu');
+    if (menu) {
+        menu.classList.toggle('hidden');
+        menu.classList.toggle('show');
+        
+        // Carica notifiche se aperto
+        if (!menu.classList.contains('hidden')) {
+            loadNotifiche();
+        }
+    }
+}
+
+// Chiudi dropdown notifiche quando si clicca fuori
+document.addEventListener('click', function(e) {
+    const dropdown = document.getElementById('notificheDropdown');
+    const menu = document.getElementById('notificheMenu');
+    if (dropdown && menu && !dropdown.contains(e.target)) {
+        menu.classList.add('hidden');
+        menu.classList.remove('show');
+    }
+});
+</script>
