@@ -78,8 +78,8 @@ include __DIR__ . '/includes/header.php';
 
 <!-- Statistiche -->
 <div class="space-y-4 md:space-y-6 mb-8">
-    <!-- Prima riga: Cassa, Movimentato, CAT, Wallet -->
-    <div class="grid grid-cols-2 lg:grid-cols-5 gap-3 md:gap-4">
+    <!-- Prima riga: Cassa, Movimentato, CAT, Progetti Distribuiti -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
         <!-- Card Progetti CAT -->
         <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl md:rounded-2xl p-4 md:p-5 text-white shadow-lg">
             <div class="flex items-center justify-between">
