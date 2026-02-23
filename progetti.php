@@ -48,6 +48,15 @@ include __DIR__ . '/includes/header.php';
                 </svg>
                 Nuovo Progetto
             </button>
+            
+            <button onclick="toggleArchiviati()" 
+                    id="btnArchiviati"
+                    class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-4 py-2.5 rounded-lg font-medium flex items-center gap-2 transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/>
+                </svg>
+                <span id="txtArchiviati">Mostra Archiviati</span>
+            </button>
         </div>
     </div>
 </div>
@@ -465,6 +474,27 @@ const STATI_PAGAMENTO = <?php echo json_encode(STATI_PAGAMENTO); ?>;
 const USERS = <?php echo json_encode(USERS); ?>;
 
 let progettiData = [];
+let mostraArchiviati = false;
+
+// Toggle archiviati
+function toggleArchiviati() {
+    mostraArchiviati = !mostraArchiviati;
+    
+    const btn = document.getElementById('btnArchiviati');
+    const txt = document.getElementById('txtArchiviati');
+    
+    if (mostraArchiviati) {
+        btn.classList.remove('bg-slate-200', 'text-slate-700');
+        btn.classList.add('bg-amber-600', 'text-white', 'hover:bg-amber-700');
+        txt.textContent = 'Mostra Attivi';
+    } else {
+        btn.classList.remove('bg-amber-600', 'text-white', 'hover:bg-amber-700');
+        btn.classList.add('bg-slate-200', 'text-slate-700');
+        txt.textContent = 'Mostra Archiviati';
+    }
+    
+    loadProgetti();
+}
 
 // Carica progetti
 document.addEventListener('DOMContentLoaded', function() {
@@ -491,6 +521,7 @@ async function loadProgetti() {
     const colore = document.getElementById('coloreFilter').value;
     
     let url = 'api/progetti.php?action=list';
+    url += '&archiviati=' + (mostraArchiviati ? '1' : '0');
     if (search) url += '&search=' + encodeURIComponent(search);
     if (stato) url += '&stato=' + encodeURIComponent(stato);
     if (cliente) url += '&cliente=' + encodeURIComponent(cliente);
