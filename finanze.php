@@ -629,10 +629,12 @@ function formatCurrency(amount) {
     }).format(amount);
 }
 
+<?php if ($isLorenzo): ?>
 // Carica transazioni all'avvio
 document.addEventListener('DOMContentLoaded', function() {
     caricaTransazioni();
 });
+<?php endif; ?>
 </script>
 <?php endif; ?>
 
