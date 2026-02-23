@@ -9,7 +9,7 @@ require_once __DIR__ . '/../includes/auth_check.php';
 
 // Solo admin può accedere alle impostazioni avanzate
 // (opzionale - togliere il commento se vuoi limitare l'accesso)
-// if ($_SESSION['user_id'] !== 'ugv7adudxudhx') {
+// if ($_SESSION['user_id'] !== 'ucwurog3xr8tf') {
 //     jsonResponse(false, null, 'Accesso negato');
 // }
 

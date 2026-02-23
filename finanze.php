@@ -10,7 +10,7 @@ require_once __DIR__ . '/includes/auth_check.php';
 $pageTitle = 'Finanze';
 
 // Verifica se l'utente è Lorenzo Puccetti (admin)
-$isLorenzo = ($_SESSION['user_id'] === 'ugv7adudxudhx' || $_SESSION['user_name'] === 'Lorenzo Puccetti');
+$isLorenzo = ($_SESSION['user_id'] === 'ucwurog3xr8tf' || $_SESSION['user_name'] === 'Lorenzo Puccetti');
 
 // Ottieni dati finanziari
 try {

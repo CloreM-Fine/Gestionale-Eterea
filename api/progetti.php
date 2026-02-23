@@ -162,7 +162,7 @@ function listProgetti(): void {
         $utentiStmt = $pdo->prepare("SELECT id, avatar FROM utenti WHERE id IN (?, ?, ?)");
         $utentiAvatar = [];
         try {
-            $utentiStmt->execute(['ugv7adudxudhx', 'ugl368yvg6vsj', 'uhr15idk3qwpg']);
+            $utentiStmt->execute(['ucwurog3xr8tf', 'ukl9ipuolsebn', 'u3ghz4f2lnpkx']);
             while ($row = $utentiStmt->fetch()) {
                 $utentiAvatar[$row['id']] = $row['avatar'];
             }

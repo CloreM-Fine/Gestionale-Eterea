@@ -8,7 +8,7 @@ require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../includes/auth_check.php';
 
 // Verifica che l'utente sia Lorenzo Puccetti (admin)
-$isAdmin = ($_SESSION['user_id'] === 'ugv7adudxudhx' || $_SESSION['user_name'] === 'Lorenzo Puccetti');
+$isAdmin = ($_SESSION['user_id'] === 'ucwurog3xr8tf' || $_SESSION['user_name'] === 'Lorenzo Puccetti');
 
 if (!$isAdmin) {
     jsonResponse(false, null, 'Non autorizzato');

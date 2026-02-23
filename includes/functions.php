@@ -138,7 +138,7 @@ function calcolaDistribuzione(float $totale, array $partecipantiIds): array {
     $distribuzione = [];
     
     // Tutti gli utenti possibili
-    $tuttiUtenti = ['ugv7adudxudhx', 'ugl368yvg6vsj', 'uhr15idk3qwpg'];
+    $tuttiUtenti = ['ucwurog3xr8tf', 'ukl9ipuolsebn', 'u3ghz4f2lnpkx'];
     
     switch($count) {
         case 3:

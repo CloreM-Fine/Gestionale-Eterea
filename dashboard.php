@@ -126,9 +126,9 @@ function toggleResoconto() {
 <?php
 // Recupera dati per il Team Dashboard
 $teamMembers = [
-    ['id' => 'ugv7adudxudhx', 'nome' => 'Lorenzo', 'cognome' => 'Puccetti', 'colore' => '#0891B2'],
-    ['id' => 'ugl368yvg6vsj', 'nome' => 'Daniele', 'cognome' => 'Giuliani', 'colore' => '#10B981'],
-    ['id' => 'uhr15idk3qwpg', 'nome' => 'Edmir', 'cognome' => 'Likaj', 'colore' => '#F59E0B']
+    ['id' => 'ucwurog3xr8tf', 'nome' => 'Lorenzo', 'cognome' => 'Puccetti', 'colore' => '#0891B2'],
+    ['id' => 'ukl9ipuolsebn', 'nome' => 'Daniele', 'cognome' => 'Giuliani', 'colore' => '#10B981'],
+    ['id' => 'u3ghz4f2lnpkx', 'nome' => 'Edmir', 'cognome' => 'Likaj', 'colore' => '#F59E0B']
 ];
 
 // Recupera avatar per ogni membro

@@ -929,7 +929,7 @@ function calcolaDistribuzione() {
             distribuzione.push({ id: 'cassa', importo: totale * 0.10, percentuale: 10, tipo: 'cassa' });
             break;
         case 2:
-            const tutti = ['ugv7adudxudhx', 'ugl368yvg6vsj', 'uhr15idk3qwpg'];
+            const tutti = ['ucwurog3xr8tf', 'ukl9ipuolsebn', 'u3ghz4f2lnpkx'];
             const inattivi = tutti.filter(id => !partecipanti.includes(id));
             partecipanti.forEach(uid => {
                 distribuzione.push({ id: uid, importo: totale * 0.40, percentuale: 40, tipo: 'attivo' });
@@ -940,7 +940,7 @@ function calcolaDistribuzione() {
             distribuzione.push({ id: 'cassa', importo: totale * 0.10, percentuale: 10, tipo: 'cassa' });
             break;
         case 1:
-            const tutti2 = ['ugv7adudxudhx', 'ugl368yvg6vsj', 'uhr15idk3qwpg'];
+            const tutti2 = ['ucwurog3xr8tf', 'ukl9ipuolsebn', 'u3ghz4f2lnpkx'];
             const inattivi2 = tutti2.filter(id => !partecipanti.includes(id));
             distribuzione.push({ id: partecipanti[0], importo: totale * 0.70, percentuale: 70, tipo: 'attivo' });
             inattivi2.forEach(uid => {
