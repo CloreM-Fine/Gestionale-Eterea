@@ -324,40 +324,13 @@ include __DIR__ . '/includes/header.php';
                               placeholder="Note aggiuntive per il cliente..."></textarea>
                 </div>
                 
-                <!-- Selezione Fonte Dati -->
-                <div class="mb-4 p-4 bg-slate-50 rounded-xl border border-slate-200">
-                    <label class="block text-sm font-medium text-slate-700 mb-3">Seleziona la fonte dei servizi</label>
-                    
-                    <div class="flex flex-wrap gap-4 mb-4">
-                        <label class="flex items-center gap-2 cursor-pointer">
-                            <input type="radio" name="fonte_dati" value="listini_nuovi" checked 
-                                   onchange="onFonteChange()" class="w-4 h-4 text-cyan-600">
-                            <span class="text-sm">Listini (nuovi)</span>
-                        </label>
-                        <label class="flex items-center gap-2 cursor-pointer">
-                            <input type="radio" name="fonte_dati" value="listino_vecchio" 
-                                   onchange="onFonteChange()" class="w-4 h-4 text-cyan-600">
-                            <span class="text-sm">Listino Prezzi (vecchio)</span>
-                        </label>
-                        <label class="flex items-center gap-2 cursor-pointer">
-                            <input type="radio" name="fonte_dati" value="entrambi" 
-                                   onchange="onFonteChange()" class="w-4 h-4 text-cyan-600">
-                            <span class="text-sm">Entrambi</span>
-                        </label>
-                    </div>
-                    
-                    <!-- Select Listini Nuovi -->
-                    <div id="selectListiniNuovi">
-                        <select id="prevListinoSelect" onchange="onListinoChange()"
-                                class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none bg-white">
-                            <option value="">-- Seleziona un listino --</option>
-                        </select>
-                    </div>
-                    
-                    <!-- Messaggio Listino Vecchio -->
-                    <div id="msgListinoVecchio" class="hidden text-sm text-slate-500">
-                        Verranno mostrati i servizi dal Listino Prezzi esistente
-                    </div>
+                <!-- Selezione Listino -->
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-slate-700 mb-2">Seleziona il listino</label>
+                    <select id="prevListinoSelect" onchange="onListinoChange()"
+                            class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none bg-white">
+                        <option value="">-- Seleziona un listino --</option>
+                    </select>
                 </div>
                 
                 <!-- Selezione Servizi -->
@@ -996,40 +969,9 @@ async function loadListiniSelect() {
     }
 }
 
-function onFonteChange() {
-    const fonte = document.querySelector('input[name="fonte_dati"]:checked').value;
-    const selectNuovi = document.getElementById('selectListiniNuovi');
-    const msgVecchio = document.getElementById('msgListinoVecchio');
-    
-    if (fonte === 'listini_nuovi') {
-        selectNuovi.classList.remove('hidden');
-        msgVecchio.classList.add('hidden');
-        // Reset e ricarica se c'è un listino selezionato
-        onListinoChange();
-    } else if (fonte === 'listino_vecchio') {
-        selectNuovi.classList.add('hidden');
-        msgVecchio.classList.remove('hidden');
-        // Carica dal listino vecchio
-        renderPreventivoServizi();
-    } else if (fonte === 'entrambi') {
-        selectNuovi.classList.remove('hidden');
-        msgVecchio.classList.add('hidden');
-        msgVecchio.classList.remove('hidden');
-        msgVecchio.textContent = 'Verranno mostrati i servizi sia dal listino selezionato che dal Listino Prezzi';
-        // Carica entrambi
-        loadEntrambiListini();
-    }
-}
 
 async function onListinoChange() {
-    const fonte = document.querySelector('input[name="fonte_dati"]:checked').value;
-    const listinoId = document.getElementById('prevListinoSelect').value;
-    
-    if (fonte === 'entrambi') {
-        await loadEntrambiListini();
-        return;
-    }
-    
+    const listinoId = document.getElementById("prevListinoSelect").value;
     if (!listinoId) {
         document.getElementById('preventivoServizi').innerHTML = 
             '<p class="text-slate-400 text-center py-4">Seleziona un listino per vedere i servizi disponibili</p>';
@@ -1156,13 +1098,6 @@ function openPreventivoModal() {
     document.getElementById('prevNote').value = '';
     document.getElementById('prevListinoSelect').value = '';
     
-    // Reset radio button a "Listini (nuovi)"
-    const radioNuovi = document.querySelector('input[name="fonte_dati"][value="listini_nuovi"]');
-    if (radioNuovi) radioNuovi.checked = true;
-    
-    // Aggiorna UI
-    onFonteChange();
-    
     loadListiniSelect();
     updatePreventivoPreview();
     openModal('preventivoModal');
@@ -1170,11 +1105,9 @@ function openPreventivoModal() {
 
 function renderPreventivoServizi() {
     const container = document.getElementById('preventivoServizi');
-    const fonte = document.querySelector('input[name="fonte_dati"]:checked')?.value;
-    
-    // Se è selezionato "listini_nuovi" e non c'è un listino selezionato
     const listinoSelect = document.getElementById('prevListinoSelect');
-    if (fonte === 'listini_nuovi' && listinoSelect && !listinoSelect.value) {
+    
+    if (listinoSelect && !listinoSelect.value) {
         container.innerHTML = '<p class="text-slate-400 text-center py-4">Seleziona un listino per vedere i servizi disponibili</p>';
         return;
     }
