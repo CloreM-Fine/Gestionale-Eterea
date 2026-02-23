@@ -365,7 +365,7 @@ try {
         <!-- Logo -->
         <div class="p-4 border-b border-slate-700 sidebar-logo flex items-center gap-3 h-16">
             <?php if ($logoNavbar): ?>
-                <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-lg overflow-hidden flex-shrink-0">
+                <div class="w-10 h-10 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
                     <img src="assets/uploads/logo/<?php echo e($logoNavbar); ?>?v=<?php echo time(); ?>" 
                          alt="Logo" class="w-full h-full object-contain p-1">
                 </div>
@@ -460,7 +460,7 @@ try {
                     <a href="briefing_ai.php" 
                        class="flex items-center gap-3 px-3 py-3 rounded-lg transition-colors <?php echo $currentPage === 'briefing_ai' ? 'bg-cyan-600 text-white' : 'text-slate-300 hover:bg-slate-700 hover:text-white'; ?>">
                         <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414A1 1 0 0019.414 9H21a2 2 0 012 2v9a2 2 0 01-2 2h-1.586l-3.707-3.707A1 1 0 0014.586 18H9a1 1 0 00-1 1v3.586l-3.707-3.707A1 1 0 003.586 18H3a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414A1 1 0 0017.414 9H19a2 2 0 012 2v9a2 2 0 01-2 2h-1.586l-3.707-3.707A1 1 0 0014.586 18z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/>
                         </svg>
                         <span class="sidebar-text">Briefing</span>
                     </a>
@@ -495,13 +495,7 @@ try {
         <header class="bg-white shadow-sm sticky top-0 z-30">
             <div class="px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
                 <!-- Left: Mobile Menu Button -->
-                <button onclick="openMobileMenu()" class="lg:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100 touch-target">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-                    </svg>
-                </button>
-                
-                <!-- Center: Page Title -->
+                <!-- Page Title -->
                 <h2 class="text-base sm:text-lg font-semibold text-slate-800 lg:hidden truncate max-w-[150px]"><?php echo e($pageTitle ?? 'Eterea Gestionale'); ?></h2>
                 
                 <!-- Right: Actions -->
@@ -699,7 +693,7 @@ try {
         <!-- Briefing -->
         <a href="briefing_ai.php" class="mobile-menu-item <?php echo $currentPage === 'briefing_ai' ? 'active' : ''; ?>">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/>
             </svg>
             <span>Briefing</span>
         </a>

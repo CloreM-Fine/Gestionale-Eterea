@@ -105,7 +105,7 @@ $_SESSION['csrf_token'] = $csrfToken;
         <!-- Logo -->
         <div class="text-center mb-6">
             <?php if ($logoGestionale): ?>
-                <div class="inline-flex items-center justify-center w-20 h-20 sm:w-24 sm:h-24 rounded-2xl shadow-xl mb-4 bg-white overflow-hidden">
+                <div class="inline-flex items-center justify-center w-20 h-20 sm:w-24 sm:h-24 rounded-2xl shadow-xl mb-4 overflow-hidden">
                     <img src="assets/uploads/logo/<?php echo e($logoGestionale); ?>?v=<?php echo time(); ?>" 
                          alt="Logo" class="w-full h-full object-contain p-2">
                 </div>
