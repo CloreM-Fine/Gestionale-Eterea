@@ -1073,17 +1073,23 @@ function generaDistribuzione(includiCassa = true, includiPassivo = false, utenti
     const distribuzione = [];
     const tuttiUtenti = ['ucwurog3xr8tf', 'ukl9ipuolsebn', 'u3ghz4f2lnpkx'];
     
-    // Calcola percentuali
+    // Calcola percentuali disponibili
     const cassaPercent = includiCassa ? 0.10 : 0;
-    const remainingPercent = 1 - cassaPercent;
+    // Percentuale rimanente dopo la cassa (0.90 o 1.00)
+    const basePercent = 1 - cassaPercent;
     
-    // Quota passiva da ridistribuire se non includiamo i passivi
-    const quotaPassivaRidistribuibile = !includiPassivo ? 0.10 * (3 - count) : 0;
+    // Numero di membri non attivi (passivi)
+    const numPassivi = 3 - count;
+    
+    // Se includiPassivo è true: i passivi prendono il loro 10%, il resto va agli attivi
+    // Se includiPassivo è false: la quota dei passivi viene ridistribuita agli attivi
+    const percentualePassivi = includiPassivo ? (numPassivi * 0.10) : 0;
+    const percentualePerAttivi = basePercent - percentualePassivi;
     
     switch(count) {
         case 3:
-            // 3 partecipanti: dividi equamente
-            const share3 = remainingPercent / 3;
+            // 3 partecipanti: dividi la percentuale disponibile
+            const share3 = percentualePerAttivi / 3;
             partecipantiEffettivi.forEach(uid => {
                 distribuzione.push({ id: uid, importo: totale * share3, percentuale: Math.round(share3 * 100), tipo: 'attivo' });
             });
@@ -1092,11 +1098,11 @@ function generaDistribuzione(includiCassa = true, includiPassivo = false, utenti
             }
             break;
         case 2:
-            // 2 attivi: 40% ciascuno + eventuale quota passiva ridistribuita
+            // 2 attivi: dividi la percentuale disponibile
             const inattivi = tuttiUtenti.filter(id => !partecipantiEffettivi.includes(id));
-            const activeShare2 = includiCassa ? (0.40 + quotaPassivaRidistribuibile / 2) : (0.50 + quotaPassivaRidistribuibile / 2);
+            const share2 = percentualePerAttivi / 2;
             partecipantiEffettivi.forEach(uid => {
-                distribuzione.push({ id: uid, importo: totale * activeShare2, percentuale: Math.round(activeShare2 * 100), tipo: 'attivo' });
+                distribuzione.push({ id: uid, importo: totale * share2, percentuale: Math.round(share2 * 100), tipo: 'attivo' });
             });
             // Passivo solo se includiPassivo è true
             if (includiPassivo) {
@@ -1109,10 +1115,10 @@ function generaDistribuzione(includiCassa = true, includiPassivo = false, utenti
             }
             break;
         case 1:
-            // 1 attivo: 70% + eventuale quota passiva ridistribuita
+            // 1 attivo: prende tutta la percentuale disponibile
             const inattivi2 = tuttiUtenti.filter(id => !partecipantiEffettivi.includes(id));
-            const activeShare1 = includiCassa ? (0.70 + quotaPassivaRidistribuibile) : (0.80 + quotaPassivaRidistribuibile);
-            distribuzione.push({ id: partecipantiEffettivi[0], importo: totale * activeShare1, percentuale: Math.round(activeShare1 * 100), tipo: 'attivo' });
+            const share1 = percentualePerAttivi;
+            distribuzione.push({ id: partecipantiEffettivi[0], importo: totale * share1, percentuale: Math.round(share1 * 100), tipo: 'attivo' });
             // Passivi solo se includiPassivo è true
             if (includiPassivo) {
                 inattivi2.forEach(uid => {

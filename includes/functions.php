@@ -141,18 +141,18 @@ function calcolaDistribuzione(float $totale, array $partecipantiIds, bool $inclu
     // Tutti gli utenti possibili
     $tuttiUtenti = ['ucwurog3xr8tf', 'ukl9ipuolsebn', 'u3ghz4f2lnpkx'];
     
-    // Percentuale cassa e rimanente
+    // Calcola percentuali disponibili
     $cassaPercent = $includiCassa ? 0.10 : 0;
-    $remainingPercent = 1 - $cassaPercent;
+    $basePercent = 1 - $cassaPercent; // 0.90 o 1.00
     
-    // Quota passiva da ridistribuire se non includiamo i passivi
     $numPassivi = 3 - $count;
-    $quotaPassivaRidistribuibile = !$includiPassivo ? $numPassivi * 0.10 : 0;
+    $percentualePassivi = $includiPassivo ? ($numPassivi * 0.10) : 0;
+    $percentualePerAttivi = $basePercent - $percentualePassivi;
     
     switch($count) {
         case 3:
-            // Tutti e 3 attivi: dividi equamente
-            $share = $remainingPercent / 3;
+            // Tutti e 3 attivi: dividi la percentuale disponibile
+            $share = $percentualePerAttivi / 3;
             foreach($partecipantiIds as $uid) {
                 $distribuzione[$uid] = [
                     'importo' => round($totale * $share, 2),
@@ -170,10 +170,8 @@ function calcolaDistribuzione(float $totale, array $partecipantiIds, bool $inclu
             break;
             
         case 2:
-            // 2 attivi: 40% ciascuno + quota passiva ridistribuita (se non includiPassivo)
-            $activeShare = $includiCassa ? 0.40 : 0.45;
-            $bonusShare = $includiPassivo ? 0 : 0.10;
-            $share = $activeShare + $bonusShare;
+            // 2 attivi: dividi la percentuale disponibile
+            $share = $percentualePerAttivi / 2;
             foreach($partecipantiIds as $uid) {
                 $distribuzione[$uid] = [
                     'importo' => round($totale * $share, 2),
@@ -202,10 +200,8 @@ function calcolaDistribuzione(float $totale, array $partecipantiIds, bool $inclu
             break;
             
         case 1:
-            // 1 attivo: 70% + quota passiva ridistribuita (se non includiPassivo)
-            $activeShare = $includiCassa ? 0.70 : 0.80;
-            $bonusShare = $includiPassivo ? 0 : 0.20;
-            $share = $activeShare + $bonusShare;
+            // 1 attivo: prende tutta la percentuale disponibile
+            $share = $percentualePerAttivi;
             $distribuzione[$partecipantiIds[0]] = [
                 'importo' => round($totale * $share, 2),
                 'percentuale' => round($share * 100),
