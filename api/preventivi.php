@@ -286,6 +286,47 @@ function generaPreventivo(): void {
 }
 
 /**
+ * Recupera i dati dell'azienda dal database
+ */
+function getDatiAzienda(): array {
+    global $pdo;
+    
+    try {
+        $chiavi = [
+            'azienda_ragione_sociale',
+            'azienda_indirizzo',
+            'azienda_cap',
+            'azienda_citta',
+            'azienda_provincia',
+            'azienda_piva',
+            'azienda_cf',
+            'azienda_email',
+            'azienda_telefono',
+            'azienda_pec',
+            'azienda_sdi',
+            'azienda_logo'
+        ];
+        
+        $dati = [];
+        foreach ($chiavi as $chiave) {
+            $stmt = $pdo->prepare("SELECT valore FROM impostazioni WHERE chiave = ?");
+            $stmt->execute([$chiave]);
+            $dati[str_replace('azienda_', '', $chiave)] = $stmt->fetchColumn() ?: '';
+        }
+        
+        // Default se non configurati
+        if (empty($dati['ragione_sociale'])) {
+            $dati['ragione_sociale'] = 'Eterea Studio';
+        }
+        
+        return $dati;
+    } catch (PDOException $e) {
+        error_log("Errore get dati azienda: " . $e->getMessage());
+        return ['ragione_sociale' => 'Eterea Studio'];
+    }
+}
+
+/**
  * Genera HTML del preventivo
  */
 function generaHTMLPreventivo(array $voci, string $cliente, string $numero, string $note, float $scontoGlobale, float $subtotale, float $totale, string $dataScadenza = ''): string {
@@ -294,6 +335,51 @@ function generaHTMLPreventivo(array $voci, string $cliente, string $numero, stri
     $clienteEsc = htmlspecialchars($cliente);
     $numeroEsc = htmlspecialchars($numero);
     $noteEsc = $note ? nl2br(htmlspecialchars($note)) : '';
+    
+    // Recupera dati azienda
+    $datiAzienda = getDatiAzienda();
+    
+    // Costruisci indirizzo completo
+    $indirizzoCompleto = '';
+    if ($datiAzienda['indirizzo']) {
+        $indirizzoCompleto = $datiAzienda['indirizzo'];
+        if ($datiAzienda['cap'] || $datiAzienda['citta']) {
+            $indirizzoCompleto .= ', ';
+        }
+    }
+    if ($datiAzienda['cap']) {
+        $indirizzoCompleto .= $datiAzienda['cap'] . ' ';
+    }
+    if ($datiAzienda['citta']) {
+        $indirizzoCompleto .= $datiAzienda['citta'];
+    }
+    if ($datiAzienda['provincia']) {
+        $indirizzoCompleto .= ' (' . $datiAzienda['provincia'] . ')';
+    }
+    
+    // Costruisci riga contatti
+    $contatti = [];
+    if ($datiAzienda['telefono']) $contatti[] = 'Tel: ' . $datiAzienda['telefono'];
+    if ($datiAzienda['email']) $contatti[] = $datiAzienda['email'];
+    if ($datiAzienda['pec']) $contatti[] = 'PEC: ' . $datiAzienda['pec'];
+    $contattiStr = implode(' | ', $contatti);
+    
+    // Logo
+    $logoHtml = '';
+    if (!empty($datiAzienda['logo'])) {
+        $logoPath = __DIR__ . '/../assets/uploads/logo_azienda/' . $datiAzienda['logo'];
+        if (file_exists($logoPath)) {
+            $logoData = base64_encode(file_get_contents($logoPath));
+            $logoExt = pathinfo($datiAzienda['logo'], PATHINFO_EXTENSION);
+            $mimeType = ($logoExt === 'svg') ? 'image/svg+xml' : 'image/' . $logoExt;
+            $logoHtml = '<img src="data:' . $mimeType . ';base64,' . $logoData . '" style="max-height:60px;max-width:150px;object-fit:contain;" alt="Logo">';
+        }
+    }
+    
+    $ragioneSociale = htmlspecialchars($datiAzienda['ragione_sociale']);
+    $piva = $datiAzienda['piva'] ? 'P.IVA ' . htmlspecialchars($datiAzienda['piva']) : '';
+    $cf = $datiAzienda['cf'] ? 'CF ' . htmlspecialchars($datiAzienda['cf']) : '';
+    $sdi = $datiAzienda['sdi'] ? 'SDI: ' . htmlspecialchars($datiAzienda['sdi']) : '';
     
     // Raggruppa per categoria
     $grouped = [];
@@ -496,10 +582,10 @@ function generaHTMLPreventivo(array $voci, string $cliente, string $numero, stri
 <body>
     <div class="header">
         <div class="logo">
-            <div class="logo-icon">LDE</div>
+            {$logoHtml}
             <div class="logo-text">
-                <h1>Eterea Gestionale</h1>
-                <p>Creatività Digitale & Marketing</p>
+                <h1>{$ragioneSociale}</h1>
+                <p>{$indirizzoCompleto}</p>
             </div>
         </div>
         <div class="doc-info">
@@ -563,8 +649,8 @@ function generaHTMLPreventivo(array $voci, string $cliente, string $numero, stri
     </div>
     
     <div class="footer">
-        <p><strong>Eterea Gestionale</strong> | Via Example 123, 00100 Roma | P.IVA 12345678901</p>
-        <p>Email: info@ldestudio.it | Tel: +39 06 1234567 | www.ldestudio.it</p>
+        <p><strong>{$ragioneSociale}</strong> | {$indirizzoCompleto} | {$piva} {$cf}</p>
+        <p>{$contattiStr}</p>
         <p style="margin-top:10px;font-style:italic;">Grazie per la fiducia accordataci!</p>
     </div>
     

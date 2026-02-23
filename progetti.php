@@ -139,6 +139,25 @@ include __DIR__ . '/includes/header.php';
 
 <!-- Stili per Card Stack Orizzontale -->
 <style>
+/* Fix per modal su mobile - gestione safe area e viewport */
+@media (max-width: 640px) {
+    #progettoModal {
+        /* Supporto per safe area su iOS */
+        padding-bottom: env(safe-area-inset-bottom, 0);
+    }
+    
+    #progettoModal > div:last-child {
+        /* Spazio per la bottom nav (64px) + safe area */
+        max-height: calc(100vh - 80px - env(safe-area-inset-bottom, 0));
+    }
+    
+    /* Assicura che il contenuto sia scrollabile */
+    #progettoModal form {
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior-y: contain;
+    }
+}
+
 /* Container del gruppo cliente */
 .cliente-group {
     background: linear-gradient(to bottom, #f8fafc 0%, #ffffff 100%);
@@ -302,10 +321,10 @@ include __DIR__ . '/includes/header.php';
 </div>
 
 <!-- Modal Nuovo/Edit Progetto -->
-<div id="progettoModal" class="fixed inset-0 z-50 hidden">
+<div id="progettoModal" class="fixed inset-0 z-[60] hidden">
     <div class="absolute inset-0 bg-black/50" onclick="closeModal('progettoModal')"></div>
-    <div class="absolute inset-0 flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl max-h-[90vh] overflow-hidden flex flex-col">
+    <div class="absolute inset-0 flex items-end sm:items-center justify-center p-0 sm:p-4">
+        <div class="bg-white w-full max-w-2xl sm:rounded-2xl rounded-t-2xl shadow-2xl max-h-[85vh] sm:max-h-[90vh] overflow-hidden flex flex-col">
             <div class="p-4 sm:p-6 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white z-10">
                 <h2 class="text-lg sm:text-xl font-bold text-slate-800" id="modalTitle">Nuovo Progetto</h2>
                 <button onclick="closeModal('progettoModal')" class="p-2 -mr-2 text-slate-400 hover:text-slate-600 min-h-[44px] min-w-[44px] flex items-center justify-center">
@@ -465,13 +484,13 @@ include __DIR__ . '/includes/header.php';
                 </div>
             </form>
             
-            <div class="p-4 sm:p-6 border-t border-slate-100 flex flex-col sm:flex-row justify-end gap-3 sticky bottom-0 bg-white z-10">
+            <div class="p-3 sm:p-6 border-t border-slate-100 flex flex-row justify-end gap-2 sticky bottom-0 bg-white z-10">
                 <button type="button" onclick="closeModal('progettoModal')" 
-                        class="w-full sm:w-auto px-4 py-3 sm:py-2 text-slate-600 hover:text-slate-800 font-medium min-h-[44px] rounded-lg hover:bg-slate-100 transition-colors">
+                        class="px-3 py-2 sm:px-4 sm:py-2 text-sm sm:text-base text-slate-600 hover:text-slate-800 font-medium rounded-lg hover:bg-slate-100 transition-colors">
                     Annulla
                 </button>
                 <button type="button" onclick="saveProgetto()" 
-                        class="w-full sm:w-auto px-6 py-3 sm:py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg font-medium min-h-[44px] transition-colors">
+                        class="px-4 py-2 sm:px-6 sm:py-2 text-sm sm:text-base bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg font-medium transition-colors">
                     Salva
                 </button>
             </div>

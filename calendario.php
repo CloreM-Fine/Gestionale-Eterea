@@ -134,10 +134,10 @@ include __DIR__ . '/includes/header.php';
 </div>
 
 <!-- Modal Evento -->
-<div id="eventModal" class="fixed inset-0 z-50 hidden">
+<div id="eventModal" class="fixed inset-0 z-[60] hidden">
     <div class="absolute inset-0 bg-black/50" onclick="closeModal('eventModal')"></div>
-    <div class="absolute inset-0 flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl max-h-[90vh] overflow-hidden flex flex-col">
+    <div class="absolute inset-0 flex items-end sm:items-center justify-center p-0 sm:p-4">
+        <div class="bg-white w-full max-w-lg sm:rounded-2xl rounded-t-2xl shadow-2xl max-h-[85vh] sm:max-h-[90vh] overflow-hidden flex flex-col">
             <div class="p-3 sm:p-5 border-b border-slate-100 flex items-center justify-between flex-shrink-0">
                 <h3 class="text-sm sm:text-lg font-bold text-slate-800" id="eventModalTitle">Nuovo Evento</h3>
                 <button onclick="closeModal('eventModal')" class="text-slate-400 hover:text-slate-600 p-1 min-h-[44px] min-w-[44px] flex items-center justify-center">
@@ -236,11 +236,11 @@ include __DIR__ . '/includes/header.php';
                 </div>
             </form>
             
-            <div class="p-3 sm:p-5 border-t border-slate-100 flex flex-col sm:flex-row justify-end gap-2 sm:gap-3">
-                <button type="button" onclick="closeModal('eventModal')" class="w-full sm:w-auto px-4 py-3 text-slate-600 font-medium text-sm min-h-[44px] rounded-lg hover:bg-slate-100 transition-colors">
+            <div class="p-4 sm:p-6 border-t border-slate-100 flex flex-row justify-end gap-2 sm:gap-3">
+                <button type="button" onclick="closeModal('eventModal')" class="flex-1 sm:flex-none px-4 py-2.5 sm:py-2 text-slate-600 hover:text-slate-800 font-medium min-h-[44px] rounded-lg hover:bg-slate-100 transition-colors text-sm sm:text-base">
                     Annulla
                 </button>
-                <button type="button" onclick="saveEvent()" class="w-full sm:w-auto px-5 sm:px-6 py-3 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg font-medium text-sm min-h-[44px]">
+                <button type="button" onclick="saveEvent()" class="flex-1 sm:flex-none px-4 sm:px-6 py-2.5 sm:py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg font-medium min-h-[44px] transition-colors text-sm sm:text-base">
                     Salva
                 </button>
             </div>
@@ -271,10 +271,10 @@ include __DIR__ . '/includes/header.php';
 </style>
 
 <!-- Modal Lista Eventi Giorno -->
-<div id="dayEventsModal" class="fixed inset-0 z-50 hidden">
+<div id="dayEventsModal" class="fixed inset-0 z-[60] hidden">
     <div class="absolute inset-0 bg-black/50" onclick="closeModal('dayEventsModal')"></div>
-    <div class="absolute inset-0 flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl max-h-[90vh] overflow-hidden flex flex-col">
+    <div class="absolute inset-0 flex items-end sm:items-center justify-center p-0 sm:p-4">
+        <div class="bg-white w-full max-w-md sm:rounded-2xl rounded-t-2xl shadow-2xl max-h-[85vh] sm:max-h-[90vh] overflow-hidden flex flex-col">
             <div class="p-3 sm:p-5 border-b border-slate-100 flex items-center justify-between flex-shrink-0">
                 <h3 id="dayEventsTitle" class="text-sm sm:text-base font-bold text-slate-800 truncate pr-4">Eventi</h3>
                 <button onclick="closeModal('dayEventsModal')" class="text-slate-400 hover:text-slate-600 p-1 min-h-[44px] min-w-[44px] flex items-center justify-center flex-shrink-0">

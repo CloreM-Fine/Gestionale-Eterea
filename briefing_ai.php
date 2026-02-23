@@ -162,10 +162,10 @@ include __DIR__ . '/includes/header.php';
 </div>
 
 <!-- MODAL SALVA -->
-<div id="modalSalva" class="fixed inset-0 z-50 hidden">
+<div id="modalSalva" class="fixed inset-0 z-[60] hidden">
     <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="chiudiModalSalva()"></div>
-    <div class="absolute inset-0 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+    <div class="absolute inset-0 flex items-end sm:items-center justify-center p-0 sm:p-4">
+        <div class="bg-white sm:rounded-2xl rounded-t-2xl shadow-2xl w-full max-w-md max-h-[85vh] sm:max-h-[90vh] overflow-hidden flex flex-col">
             <div class="p-6 border-b border-slate-100 flex items-center justify-between">
                 <h2 class="text-xl font-bold text-slate-800">Salva Briefing</h2>
                 <button onclick="chiudiModalSalva()" class="text-slate-400 hover:text-slate-600">
@@ -219,14 +219,15 @@ include __DIR__ . '/includes/header.php';
                 </div>
             </div>
             
-            <div class="p-6 border-t border-slate-100 flex justify-end gap-3">
+            <div class="p-4 sm:p-6 border-t border-slate-100 flex flex-row justify-end gap-2 sm:gap-3">
                 <button onclick="chiudiModalSalva()" 
-                        class="px-5 py-2.5 text-slate-600 hover:text-slate-800 font-medium transition-colors">
+                        class="flex-1 sm:flex-none px-4 py-2.5 sm:py-2 text-slate-600 hover:text-slate-800 font-medium min-h-[44px] rounded-lg hover:bg-slate-100 transition-colors text-sm sm:text-base">
                     Annulla
                 </button>
                 <button onclick="salvaBriefing()" 
-                        class="px-6 py-2.5 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg font-medium transition-colors">
-                    Salva nel Progetto
+                        class="flex-1 sm:flex-none px-4 sm:px-6 py-2.5 sm:py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg font-medium min-h-[44px] transition-colors text-sm sm:text-base">
+                    <span class="hidden sm:inline">Salva nel Progetto</span>
+                    <span class="sm:hidden">Salva</span>
                 </button>
             </div>
         </div>

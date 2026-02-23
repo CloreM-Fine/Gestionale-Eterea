@@ -755,13 +755,13 @@ function switchTab(tabName) {
 </div>
 
 <!-- Modal Nuova Task -->
-<div id="taskModal" class="fixed inset-0 z-50 hidden">
+<div id="taskModal" class="fixed inset-0 z-[60] hidden">
     <!-- Overlay -->
     <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeModal('taskModal')"></div>
     
     <!-- Modal Content -->
-    <div class="absolute inset-0 flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl max-h-[90vh] overflow-hidden flex flex-col">
+    <div class="absolute inset-0 flex items-end sm:items-center justify-center p-0 sm:p-4">
+        <div class="bg-white w-full max-w-2xl sm:rounded-2xl rounded-t-2xl shadow-2xl max-h-[85vh] sm:max-h-[90vh] overflow-hidden flex flex-col">
             <!-- Header -->
             <div class="p-6 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white z-10">
                 <h3 class="font-bold text-slate-800" id="taskModalTitle">Nuova Task</h3>
@@ -876,11 +876,11 @@ function switchTab(tabName) {
             </form>
             
             <!-- Footer -->
-            <div class="p-6 border-t border-slate-100 flex flex-col sm:flex-row justify-end gap-3 sticky bottom-0 bg-white z-10">
-                <button type="button" onclick="closeModal('taskModal')" class="w-full sm:w-auto px-4 py-3 min-h-[44px] text-slate-600 font-medium rounded-lg hover:bg-slate-100 transition-colors">
+            <div class="p-3 sm:p-6 border-t border-slate-100 flex flex-row justify-end gap-2 sticky bottom-0 bg-white z-10">
+                <button type="button" onclick="closeModal('taskModal')" class="px-3 py-2 sm:px-4 sm:py-2 text-sm sm:text-base text-slate-600 font-medium rounded-lg hover:bg-slate-100 transition-colors">
                     Annulla
                 </button>
-                <button type="button" onclick="saveTask()" class="w-full sm:w-auto px-6 py-3 min-h-[44px] bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg font-medium">
+                <button type="button" onclick="saveTask()" class="px-4 py-2 sm:px-6 sm:py-2 text-sm sm:text-base bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg font-medium">
                     Salva
                 </button>
             </div>
@@ -889,13 +889,13 @@ function switchTab(tabName) {
 </div>
 
 <!-- Modal Distribuzione -->
-<div id="distribuzioneModal" class="fixed inset-0 z-50 hidden">
+<div id="distribuzioneModal" class="fixed inset-0 z-[60] hidden">
     <!-- Overlay -->
     <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeModal('distribuzioneModal')"></div>
     
     <!-- Modal Content -->
-    <div class="absolute inset-0 flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl max-h-[90vh] overflow-hidden flex flex-col">
+    <div class="absolute inset-0 flex items-end sm:items-center justify-center p-0 sm:p-4">
+        <div class="bg-white w-full max-w-md sm:rounded-2xl rounded-t-2xl shadow-2xl max-h-[85vh] sm:max-h-[90vh] overflow-hidden flex flex-col">
             <!-- Header -->
             <div class="p-6 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white z-10">
                 <h3 class="font-bold text-slate-800">Anteprima Distribuzione</h3>
@@ -912,11 +912,11 @@ function switchTab(tabName) {
             </div>
             
             <!-- Footer -->
-            <div class="p-6 border-t border-slate-100 flex flex-col sm:flex-row justify-end gap-3 sticky bottom-0 bg-white z-10">
-                <button type="button" onclick="closeModal('distribuzioneModal')" class="w-full sm:w-auto px-4 py-3 min-h-[44px] text-slate-600 font-medium rounded-lg hover:bg-slate-100 transition-colors">
+            <div class="p-3 sm:p-6 border-t border-slate-100 flex flex-row justify-end gap-2 sticky bottom-0 bg-white z-10">
+                <button type="button" onclick="closeModal('distribuzioneModal')" class="px-3 py-2 sm:px-4 sm:py-2 text-sm sm:text-base text-slate-600 font-medium rounded-lg hover:bg-slate-100 transition-colors">
                     Annulla
                 </button>
-                <button type="button" onclick="confermaDistribuzione()" class="w-full sm:w-auto px-6 py-3 min-h-[44px] bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium">
+                <button type="button" onclick="confermaDistribuzione()" class="px-4 py-2 sm:px-6 sm:py-2 text-sm sm:text-base bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium">
                     Conferma Distribuzione
                 </button>
             </div>

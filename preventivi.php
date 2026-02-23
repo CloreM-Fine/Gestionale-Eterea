@@ -167,10 +167,10 @@ include __DIR__ . '/includes/header.php';
 </div>
 
 <!-- Modal Nuova/Modifica Voce -->
-<div id="voceModal" class="fixed inset-0 z-50 hidden">
+<div id="voceModal" class="fixed inset-0 z-[60] hidden">
     <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeModal('voceModal')"></div>
-    <div class="absolute inset-0 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-hidden flex flex-col">
+    <div class="absolute inset-0 flex items-end sm:items-center justify-center p-0 sm:p-4">
+        <div class="bg-white sm:rounded-2xl rounded-t-2xl shadow-2xl w-full max-w-lg max-h-[85vh] sm:max-h-[90vh] overflow-hidden flex flex-col">
             <div class="p-6 border-b border-slate-100 flex items-center justify-between">
                 <h2 class="text-xl font-bold text-slate-800" id="voceModalTitle">Nuovo Servizio</h2>
                 <button onclick="closeModal('voceModal')" class="text-slate-400 hover:text-slate-600">
@@ -219,13 +219,13 @@ include __DIR__ . '/includes/header.php';
                 </div>
             </form>
             
-            <div class="p-6 border-t border-slate-100 flex justify-end gap-3">
+            <div class="p-4 sm:p-6 border-t border-slate-100 flex flex-row justify-end gap-2 sm:gap-3">
                 <button type="button" onclick="closeModal('voceModal')" 
-                        class="px-4 py-2 text-slate-600 hover:text-slate-800 font-medium">
+                        class="flex-1 sm:flex-none px-4 py-2.5 sm:py-2 text-slate-600 hover:text-slate-800 font-medium min-h-[44px] rounded-lg hover:bg-slate-100 transition-colors text-sm sm:text-base">
                     Annulla
                 </button>
                 <button type="button" onclick="saveVoce()" 
-                        class="px-6 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg font-medium">
+                        class="flex-1 sm:flex-none px-4 sm:px-6 py-2.5 sm:py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg font-medium min-h-[44px] transition-colors text-sm sm:text-base">
                     Salva
                 </button>
             </div>
@@ -234,10 +234,10 @@ include __DIR__ . '/includes/header.php';
 </div>
 
 <!-- Modal Nuova Categoria -->
-<div id="categoriaModal" class="fixed inset-0 z-50 hidden">
+<div id="categoriaModal" class="fixed inset-0 z-[60] hidden">
     <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeModal('categoriaModal')"></div>
-    <div class="absolute inset-0 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+    <div class="absolute inset-0 flex items-end sm:items-center justify-center p-0 sm:p-4">
+        <div class="bg-white sm:rounded-2xl rounded-t-2xl shadow-2xl w-full max-w-md max-h-[85vh] sm:max-h-[90vh] overflow-hidden flex flex-col">
             <div class="p-6 border-b border-slate-100 flex items-center justify-between">
                 <h2 class="text-xl font-bold text-slate-800">Nuova Categoria</h2>
                 <button onclick="closeModal('categoriaModal')" class="text-slate-400 hover:text-slate-600">
@@ -254,13 +254,13 @@ include __DIR__ . '/includes/header.php';
                        placeholder="es. Consulenza">
             </div>
             
-            <div class="p-6 border-t border-slate-100 flex justify-end gap-3">
+            <div class="p-4 sm:p-6 border-t border-slate-100 flex flex-row justify-end gap-2 sm:gap-3">
                 <button onclick="closeModal('categoriaModal')" 
-                        class="px-4 py-2 text-slate-600 hover:text-slate-800 font-medium">
+                        class="flex-1 sm:flex-none px-4 py-2.5 sm:py-2 text-slate-600 hover:text-slate-800 font-medium min-h-[44px] rounded-lg hover:bg-slate-100 transition-colors text-sm sm:text-base">
                     Annulla
                 </button>
                 <button onclick="saveCategoria()" 
-                        class="px-6 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg font-medium">
+                        class="flex-1 sm:flex-none px-4 sm:px-6 py-2.5 sm:py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg font-medium min-h-[44px] transition-colors text-sm sm:text-base">
                     Salva
                 </button>
             </div>
@@ -269,10 +269,10 @@ include __DIR__ . '/includes/header.php';
 </div>
 
 <!-- Modal Crea Preventivo -->
-<div id="preventivoModal" class="fixed inset-0 z-50 hidden">
+<div id="preventivoModal" class="fixed inset-0 z-[60] hidden">
     <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeModal('preventivoModal')"></div>
-    <div class="absolute inset-0 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+    <div class="absolute inset-0 flex items-end sm:items-center justify-center p-0 sm:p-4">
+        <div class="bg-white sm:rounded-2xl rounded-t-2xl shadow-2xl w-full max-w-4xl max-h-[85vh] sm:max-h-[90vh] overflow-hidden flex flex-col">
             <div class="p-6 border-b border-slate-100 flex items-center justify-between">
                 <h2 class="text-xl font-bold text-slate-800">Crea Preventivo</h2>
                 <button onclick="closeModal('preventivoModal')" class="text-slate-400 hover:text-slate-600">
@@ -383,24 +383,26 @@ include __DIR__ . '/includes/header.php';
                 </div>
             </div>
             
-            <div class="p-6 border-t border-slate-100 flex justify-end gap-3">
+            <div class="p-4 sm:p-6 border-t border-slate-100 flex flex-row justify-end gap-2 sm:gap-3">
                 <button onclick="closeModal('preventivoModal')" 
-                        class="px-4 py-2 text-slate-600 hover:text-slate-800 font-medium">
+                        class="flex-1 sm:flex-none px-4 py-2.5 sm:py-2 text-slate-600 hover:text-slate-800 font-medium min-h-[44px] rounded-lg hover:bg-slate-100 transition-colors text-sm sm:text-base">
                     Annulla
                 </button>
                 <button onclick="salvaPreventivoGestionale()" 
-                        class="px-6 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium flex items-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        class="flex-1 sm:flex-none px-4 sm:px-6 py-2.5 sm:py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium flex items-center justify-center gap-2 min-h-[44px] transition-colors text-sm sm:text-base">
+                    <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/>
                     </svg>
-                    Salva nel Gestionale
+                    <span class="hidden sm:inline">Salva nel Gestionale</span>
+                    <span class="sm:hidden">Salva</span>
                 </button>
                 <button onclick="generaPreventivo()" 
-                        class="px-6 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg font-medium flex items-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        class="flex-1 sm:flex-none px-4 sm:px-6 py-2.5 sm:py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg font-medium flex items-center justify-center gap-2 min-h-[44px] transition-colors text-sm sm:text-base">
+                    <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                     </svg>
-                    Scarica PDF
+                    <span class="hidden sm:inline">Scarica PDF</span>
+                    <span class="sm:hidden">PDF</span>
                 </button>
             </div>
         </div>
@@ -572,18 +574,19 @@ async function visualizzaPreventivoSalvato(id) {
                             </div>
                         </div>
                     </div>
-                    <div class="p-5 border-t border-slate-100 flex justify-end gap-3">
-                        <button onclick="this.closest('.fixed').remove()" class="px-4 py-2 text-slate-600 font-medium">
+                    <div class="p-4 sm:p-5 border-t border-slate-100 flex flex-row justify-end gap-2 sm:gap-3">
+                        <button onclick="this.closest('.fixed').remove()" class="flex-1 sm:flex-none px-4 py-2.5 sm:py-2 text-slate-600 hover:text-slate-800 font-medium min-h-[44px] rounded-lg hover:bg-slate-100 transition-colors text-sm sm:text-base">
                             Chiudi
                         </button>
                         ${p.file_path ? `
                         <a href="assets/uploads/preventivi/${p.file_path}" target="_blank"
-                           class="px-6 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg font-medium flex items-center gap-2">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                           class="flex-1 sm:flex-none px-4 sm:px-6 py-2.5 sm:py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg font-medium flex items-center justify-center gap-2 min-h-[44px] transition-colors text-sm sm:text-base">
+                            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                             </svg>
-                            Apri PDF
+                            <span class="hidden sm:inline">Apri PDF</span>
+                            <span class="sm:hidden">PDF</span>
                         </a>
                         ` : ''}
                     </div>
@@ -1373,10 +1376,10 @@ async function salvaPreventivoGestionale() {
 </script>
 
 <!-- Modal Associa a Progetto -->
-<div id="associaProgettoModal" class="fixed inset-0 z-50 hidden">
+<div id="associaProgettoModal" class="fixed inset-0 z-[60] hidden">
     <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeModal('associaProgettoModal')"></div>
-    <div class="absolute inset-0 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg">
+    <div class="absolute inset-0 flex items-end sm:items-center justify-center p-0 sm:p-4">
+        <div class="bg-white sm:rounded-2xl rounded-t-2xl shadow-2xl w-full max-w-lg max-h-[85vh] sm:max-h-[90vh] overflow-hidden flex flex-col">
             <div class="p-5 border-b border-slate-100 flex items-center justify-between">
                 <h3 class="font-bold text-slate-800">Associa a Progetto</h3>
                 <button onclick="closeModal('associaProgettoModal')" class="text-slate-400 hover:text-slate-600">
@@ -1415,11 +1418,11 @@ async function salvaPreventivoGestionale() {
                     <p class="text-xs text-slate-500 mt-1">Verranno mostrati solo i progetti dello stesso cliente</p>
                 </div>
             </div>
-            <div class="p-5 border-t border-slate-100 flex justify-end gap-3">
-                <button onclick="closeModal('associaProgettoModal')" class="px-4 py-2 text-slate-600 font-medium">
+            <div class="p-4 sm:p-6 border-t border-slate-100 flex flex-row justify-end gap-2 sm:gap-3">
+                <button onclick="closeModal('associaProgettoModal')" class="flex-1 sm:flex-none px-4 py-2.5 sm:py-2 text-slate-600 hover:text-slate-800 font-medium min-h-[44px] rounded-lg hover:bg-slate-100 transition-colors text-sm sm:text-base">
                     Annulla
                 </button>
-                <button onclick="salvaAssociazioneProgetto()" class="px-6 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium">
+                <button onclick="salvaAssociazioneProgetto()" class="flex-1 sm:flex-none px-4 sm:px-6 py-2.5 sm:py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium min-h-[44px] transition-colors text-sm sm:text-base">
                     Associa
                 </button>
             </div>

@@ -22,6 +22,8 @@ switch ($method) {
             exportBackup($_GET['tipo'] ?? '');
         } elseif ($action === 'get_logo') {
             getLogo();
+        } elseif ($action === 'get_dati_azienda') {
+            getDatiAzienda();
         } else {
             jsonResponse(false, null, 'Azione non valida');
         }
@@ -38,6 +40,10 @@ switch ($method) {
             uploadAvatar();
         } elseif ($action === 'save_logo') {
             saveLogo();
+        } elseif ($action === 'save_dati_azienda') {
+            saveDatiAzienda();
+        } elseif ($action === 'upload_logo_azienda') {
+            uploadLogoAzienda();
         } else {
             jsonResponse(false, null, 'Azione non valida');
         }
@@ -594,5 +600,272 @@ function saveLogo(): void {
     } catch (Exception $e) {
         error_log("Errore save logo: " . $e->getMessage());
         jsonResponse(false, null, 'Errore durante il salvataggio del logo');
+    }
+}
+
+/**
+ * Ottiene i dati dell'azienda
+ */
+function getDatiAzienda(): void {
+    global $pdo;
+    
+    try {
+        $chiavi = [
+            'azienda_ragione_sociale',
+            'azienda_indirizzo',
+            'azienda_cap',
+            'azienda_citta',
+            'azienda_provincia',
+            'azienda_piva',
+            'azienda_cf',
+            'azienda_email',
+            'azienda_telefono',
+            'azienda_pec',
+            'azienda_sdi',
+            'azienda_logo'
+        ];
+        
+        $dati = [];
+        foreach ($chiavi as $chiave) {
+            $stmt = $pdo->prepare("SELECT valore FROM impostazioni WHERE chiave = ?");
+            $stmt->execute([$chiave]);
+            $dati[str_replace('azienda_', '', $chiave)] = $stmt->fetchColumn() ?: '';
+        }
+        
+        // Aggiungi info sul logo
+        if (!empty($dati['logo'])) {
+            $dati['logo_url'] = 'assets/uploads/logo_azienda/' . $dati['logo'];
+            $dati['logo_path'] = __DIR__ . '/../assets/uploads/logo_azienda/' . $dati['logo'];
+        }
+        
+        jsonResponse(true, $dati);
+    } catch (PDOException $e) {
+        error_log("Errore get dati azienda: " . $e->getMessage());
+        jsonResponse(false, null, 'Errore caricamento dati');
+    }
+}
+
+/**
+ * Salva i dati dell'azienda (protetto da password)
+ */
+function saveDatiAzienda(): void {
+    global $pdo;
+    
+    // Verifica password
+    $password = $_POST['password'] ?? '';
+    $passwordCorretta = 'Tomato2399!?';
+    
+    if ($password !== $passwordCorretta) {
+        jsonResponse(false, null, 'Password errata');
+        return;
+    }
+    
+    $campi = [
+        'ragione_sociale' => 'Ragione Sociale',
+        'indirizzo' => 'Indirizzo',
+        'cap' => 'CAP',
+        'citta' => 'Città',
+        'provincia' => 'Provincia',
+        'piva' => 'Partita IVA',
+        'cf' => 'Codice Fiscale',
+        'email' => 'Email',
+        'telefono' => 'Telefono',
+        'pec' => 'PEC',
+        'sdi' => 'Codice SDI'
+    ];
+    
+    try {
+        foreach ($campi as $campo => $descrizione) {
+            $chiave = 'azienda_' . $campo;
+            $valore = $_POST[$campo] ?? '';
+            
+            $stmt = $pdo->prepare("INSERT INTO impostazioni (chiave, valore, tipo, descrizione) VALUES (?, ?, 'text', ?) ON DUPLICATE KEY UPDATE valore = ?");
+            $stmt->execute([$chiave, $valore, $descrizione, $valore]);
+        }
+        
+        logTimeline($_SESSION['user_id'], 'aggiornati_dati_azienda', 'sistema', '', 'Dati azienda aggiornati');
+        
+        jsonResponse(true, null, 'Dati azienda salvati con successo');
+    } catch (PDOException $e) {
+        error_log("Errore save dati azienda: " . $e->getMessage());
+        jsonResponse(false, null, 'Errore durante il salvataggio');
+    }
+}
+
+/**
+ * Upload logo aziendale per preventivi
+ */
+function uploadLogoAzienda(): void {
+    global $pdo;
+    
+    // Verifica password
+    $password = $_POST['password'] ?? '';
+    $passwordCorretta = 'Tomato2399!?';
+    
+    if ($password !== $passwordCorretta) {
+        jsonResponse(false, null, 'Password errata');
+        return;
+    }
+    
+    // Se è richiesta la rimozione
+    if (!empty($_POST['remove']) && $_POST['remove'] === 'true') {
+        try {
+            $stmt = $pdo->prepare("SELECT valore FROM impostazioni WHERE chiave = 'azienda_logo'");
+            $stmt->execute();
+            $oldLogo = $stmt->fetchColumn();
+            
+            if ($oldLogo) {
+                $uploadDir = __DIR__ . '/../assets/uploads/logo_azienda/';
+                if (file_exists($uploadDir . $oldLogo)) {
+                    unlink($uploadDir . $oldLogo);
+                }
+                
+                $stmt = $pdo->prepare("UPDATE impostazioni SET valore = '' WHERE chiave = 'azienda_logo'");
+                $stmt->execute();
+            }
+            
+            jsonResponse(true, ['logo' => ''], 'Logo rimosso con successo');
+            return;
+        } catch (Exception $e) {
+            error_log("Errore rimozione logo: " . $e->getMessage());
+            jsonResponse(false, null, 'Errore durante la rimozione');
+            return;
+        }
+    }
+    
+    // Verifica file
+    if (empty($_FILES['logo']) || $_FILES['logo']['error'] !== UPLOAD_ERR_OK) {
+        jsonResponse(false, null, 'Nessun file caricato');
+        return;
+    }
+    
+    $file = $_FILES['logo'];
+    
+    // Validazione tipo (immagini + SVG)
+    $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
+    $finfo = finfo_open(FILEINFO_MIME_TYPE);
+    $mimeType = finfo_file($finfo, $file['tmp_name']);
+    finfo_close($finfo);
+    
+    $extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+    $isSvg = ($extension === 'svg') || ($mimeType === 'image/svg+xml');
+    
+    if (!in_array($mimeType, $allowedTypes) && !$isSvg) {
+        jsonResponse(false, null, 'Formato non valido. Usa JPG, PNG, GIF, WEBP o SVG');
+        return;
+    }
+    
+    // Validazione dimensione (max 5MB)
+    if ($file['size'] > 5 * 1024 * 1024) {
+        jsonResponse(false, null, 'File troppo grande. Max 5MB');
+        return;
+    }
+    
+    // Crea directory se non esiste
+    $uploadDir = __DIR__ . '/../assets/uploads/logo_azienda/';
+    if (!is_dir($uploadDir)) {
+        mkdir($uploadDir, 0755, true);
+    }
+    
+    $extension = $isSvg ? 'svg' : match($mimeType) {
+        'image/jpeg' => 'jpg',
+        'image/png' => 'png',
+        'image/gif' => 'gif',
+        'image/webp' => 'webp',
+        default => 'png'
+    };
+    
+    $filename = 'logo_azienda_' . time() . '.' . $extension;
+    $filepath = $uploadDir . $filename;
+    
+    try {
+        // Elimina logo precedente
+        $stmt = $pdo->prepare("SELECT valore FROM impostazioni WHERE chiave = 'azienda_logo'");
+        $stmt->execute();
+        $oldLogo = $stmt->fetchColumn();
+        
+        if ($oldLogo && file_exists($uploadDir . $oldLogo)) {
+            unlink($uploadDir . $oldLogo);
+        }
+        
+        // Se è un'immagine, ridimensionala (max 800px larghezza)
+        if (!$isSvg) {
+            $image = null;
+            switch ($mimeType) {
+                case 'image/jpeg':
+                    $image = imagecreatefromjpeg($file['tmp_name']);
+                    break;
+                case 'image/png':
+                    $image = imagecreatefrompng($file['tmp_name']);
+                    break;
+                case 'image/gif':
+                    $image = imagecreatefromgif($file['tmp_name']);
+                    break;
+                case 'image/webp':
+                    $image = imagecreatefromwebp($file['tmp_name']);
+                    break;
+            }
+            
+            if ($image) {
+                $width = imagesx($image);
+                $height = imagesy($image);
+                $maxWidth = 800;
+                
+                if ($width > $maxWidth) {
+                    $newWidth = $maxWidth;
+                    $newHeight = intval($height * ($maxWidth / $width));
+                    
+                    $newImage = imagecreatetruecolor($newWidth, $newHeight);
+                    
+                    if ($mimeType === 'image/png') {
+                        imagealphablending($newImage, false);
+                        imagesavealpha($newImage, true);
+                    }
+                    
+                    imagecopyresampled($newImage, $image, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
+                    
+                    switch ($extension) {
+                        case 'jpg':
+                            imagejpeg($newImage, $filepath, 90);
+                            break;
+                        case 'png':
+                            imagepng($newImage, $filepath, 8);
+                            break;
+                        case 'gif':
+                            imagegif($newImage, $filepath);
+                            break;
+                        case 'webp':
+                            imagewebp($newImage, $filepath, 90);
+                            break;
+                    }
+                    
+                    imagedestroy($newImage);
+                } else {
+                    move_uploaded_file($file['tmp_name'], $filepath);
+                }
+                
+                imagedestroy($image);
+            } else {
+                move_uploaded_file($file['tmp_name'], $filepath);
+            }
+        } else {
+            move_uploaded_file($file['tmp_name'], $filepath);
+        }
+        
+        // Salva nel database
+        $stmt = $pdo->prepare("INSERT INTO impostazioni (chiave, valore, tipo, descrizione) VALUES ('azienda_logo', ?, 'image', 'Logo aziendale per preventivi') ON DUPLICATE KEY UPDATE valore = ?");
+        $stmt->execute([$filename, $filename]);
+        
+        logTimeline($_SESSION['user_id'], 'aggiornato_logo_azienda', 'sistema', '', 'Logo aziendale aggiornato');
+        
+        jsonResponse(true, [
+            'logo' => $filename,
+            'logo_url' => 'assets/uploads/logo_azienda/' . $filename,
+            'is_svg' => $isSvg
+        ], 'Logo aziendale aggiornato con successo');
+        
+    } catch (Exception $e) {
+        error_log("Errore upload logo azienda: " . $e->getMessage());
+        jsonResponse(false, null, 'Errore durante l\'upload');
     }
 }
