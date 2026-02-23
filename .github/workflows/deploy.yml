@@ -24,7 +24,7 @@ jobs:
         protocol: ftps
         port: 21
         local-dir: ./
-        server-dir: /public_html/gestionale/
+        server-dir: /
         exclude: |
           **/.git*/**
           **/.git*
