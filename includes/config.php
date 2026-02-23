@@ -60,8 +60,9 @@ define('UPLOAD_URL', BASE_URL . '/assets/uploads/');
 // -----------------------------------------------------
 define('SESSION_LIFETIME', env('SESSION_LIFETIME', 7200)); // 2 ore
 define('COOKIE_LIFETIME', env('COOKIE_LIFETIME', 2592000)); // 30 giorni
-define('MAX_LOGIN_ATTEMPTS', env('MAX_LOGIN_ATTEMPTS', 5));
-define('LOGIN_LOCKOUT_MINUTES', env('LOGIN_LOCKOUT_MINUTES', 15));
+// Rate limiting permissivo: 20 tentativi ogni 5 min, blocco di 5 min
+define('MAX_LOGIN_ATTEMPTS', env('MAX_LOGIN_ATTEMPTS', 20));
+define('LOGIN_LOCKOUT_MINUTES', env('LOGIN_LOCKOUT_MINUTES', 5));
 
 // -----------------------------------------------------
 // UPLOAD

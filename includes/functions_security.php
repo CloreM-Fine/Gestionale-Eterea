@@ -11,13 +11,14 @@
 /**
  * Verifica rate limiting per azione specifica
  * Usa file-based locking per compatibilità con hosting condiviso
+ * NOTA: Configurazione permissiva per evitare blocchi fastidiosi
  * 
  * @param string $action Nome dell'azione (es: 'login', 'api_call')
  * @param int $maxAttempts Numero massimo di tentativi
  * @param int $windowMinutes Finestra temporale in minuti
  * @return bool True se consentito, false se limitato
  */
-function checkRateLimit(string $action, int $maxAttempts = 5, int $windowMinutes = 15): bool {
+function checkRateLimit(string $action, int $maxAttempts = 20, int $windowMinutes = 5): bool {
     $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
     $key = md5($ip . '_' . $action);
     $lockDir = sys_get_temp_dir() . '/eterea_ratelimit/';
@@ -56,11 +57,12 @@ function checkRateLimit(string $action, int $maxAttempts = 5, int $windowMinutes
 
 /**
  * Blocca un IP temporaneamente dopo troppi tentativi falliti
+ * NOTA: Blocco breve (5 min) per evitare frustrazione utenti
  * 
  * @param string $ip Indirizzo IP
  * @param int $blockMinutes Durata del blocco in minuti
  */
-function blockIp(string $ip, int $blockMinutes = 60): void {
+function blockIp(string $ip, int $blockMinutes = 5): void {
     $blockDir = sys_get_temp_dir() . '/eterea_blocks/';
     if (!is_dir($blockDir)) {
         mkdir($blockDir, 0750, true);
