@@ -13,14 +13,14 @@ include __DIR__ . '/includes/header.php';
 ?>
 
 <!-- Header -->
-<div class="mb-6">
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+<div class="mb-4 sm:mb-6">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
         <div>
             <h1 class="text-xl sm:text-2xl font-bold text-slate-800">Clienti</h1>
             <p class="text-sm text-slate-500 mt-1">Gestisci la rubrica clienti</p>
         </div>
         <button onclick="openModal('clienteModal'); resetClienteForm();" 
-                class="bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2.5 rounded-lg font-medium flex items-center gap-2 transition-colors">
+                class="w-full sm:w-auto bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-3 sm:py-2.5 rounded-lg font-medium flex items-center justify-center gap-2 transition-colors min-h-[44px]">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
             </svg>
@@ -29,27 +29,43 @@ include __DIR__ . '/includes/header.php';
     </div>
 </div>
 
-<!-- Filtri -->
-<div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 mb-6">
-    <div class="flex flex-col sm:flex-row gap-4">
-        <div class="relative flex-1">
-            <input type="text" id="searchInput" placeholder="Cerca cliente..."
-                   class="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none">
-            <svg class="w-5 h-5 text-slate-400 absolute left-3 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+<!-- Filtri Mobile (Accordion) -->
+<div class="bg-white rounded-xl shadow-sm border border-slate-200 mb-4 sm:mb-6 overflow-hidden">
+    <!-- Mobile Toggle -->
+    <button onclick="toggleFilters()" class="w-full sm:hidden flex items-center justify-between p-4 min-h-[44px]">
+        <div class="flex items-center gap-2 text-slate-700">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
             </svg>
+            <span class="font-medium">Filtri</span>
         </div>
-        <select id="tipoFilter" class="w-full sm:w-48 px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
-            <option value="">Tutti i tipi</option>
-            <option value="Azienda">Azienda</option>
-            <option value="Privato">Privato</option>
-            <option value="Partita IVA">Partita IVA</option>
-        </select>
+        <svg id="filterArrow" class="w-5 h-5 text-slate-400 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+        </svg>
+    </button>
+    
+    <!-- Filters Content -->
+    <div id="filtersContent" class="hidden sm:block p-4 border-t sm:border-t-0 border-slate-200">
+        <div class="flex flex-col sm:flex-row gap-3 sm:gap-4">
+            <div class="relative flex-1">
+                <input type="text" id="searchInput" placeholder="Cerca cliente..."
+                       class="w-full pl-10 pr-4 py-3 sm:py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none min-h-[44px]">
+                <svg class="w-5 h-5 text-slate-400 absolute left-3 top-3.5 sm:top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+            </div>
+            <select id="tipoFilter" class="w-full sm:w-48 px-4 py-3 sm:py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none min-h-[44px]">
+                <option value="">Tutti i tipi</option>
+                <option value="Azienda">Azienda</option>
+                <option value="Privato">Privato</option>
+                <option value="Partita IVA">Partita IVA</option>
+            </select>
+        </div>
     </div>
 </div>
 
 <!-- Lista Clienti -->
-<div id="clientiContainer" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+<div id="clientiContainer" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
     <div class="col-span-full text-center py-12">
         <div class="animate-spin w-8 h-8 border-2 border-cyan-500 border-t-transparent rounded-full mx-auto"></div>
         <p class="text-sm text-slate-500 mt-2">Caricamento clienti...</p>
@@ -59,31 +75,31 @@ include __DIR__ . '/includes/header.php';
 <!-- Modal Cliente -->
 <div id="clienteModal" class="fixed inset-0 z-50 hidden">
     <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeModal('clienteModal')"></div>
-    <div class="absolute inset-0 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
-            <div class="p-6 border-b border-slate-100 flex items-center justify-between">
-                <h2 class="text-xl font-bold text-slate-800" id="modalTitle">Nuovo Cliente</h2>
-                <button onclick="closeModal('clienteModal')" class="text-slate-400 hover:text-slate-600">
+    <div class="absolute inset-x-0 bottom-0 sm:inset-0 sm:flex sm:items-center sm:justify-center sm:p-4">
+        <div class="bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl w-full sm:max-w-2xl sm:max-h-[90vh] h-[85vh] sm:h-auto overflow-hidden flex flex-col">
+            <div class="p-4 sm:p-6 border-b border-slate-100 flex items-center justify-between">
+                <h2 class="text-lg sm:text-xl font-bold text-slate-800" id="modalTitle">Nuovo Cliente</h2>
+                <button onclick="closeModal('clienteModal')" class="p-2 -mr-2 text-slate-400 hover:text-slate-600 min-h-[44px] min-w-[44px] flex items-center justify-center">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                     </svg>
                 </button>
             </div>
             
-            <form id="clienteForm" class="flex-1 overflow-y-auto p-6" enctype="multipart/form-data">
+            <form id="clienteForm" class="flex-1 overflow-y-auto p-4 sm:p-6" enctype="multipart/form-data">
                 <input type="hidden" name="id" id="clienteId">
                 
                 <div class="space-y-5">
                     <!-- Logo Upload -->
                     <div class="flex items-center gap-4 p-4 bg-slate-50 rounded-xl">
-                        <div id="logoPreview" class="w-20 h-20 bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-xl flex items-center justify-center text-white text-2xl font-bold overflow-hidden flex-shrink-0">
+                        <div id="logoPreview" class="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-xl flex items-center justify-center text-white text-xl font-bold overflow-hidden flex-shrink-0">
                             <span id="logoPlaceholder">C</span>
                             <img id="logoImg" src="" alt="Logo" class="w-full h-full object-cover hidden">
                         </div>
-                        <div class="flex-1">
+                        <div class="flex-1 min-w-0">
                             <label class="block text-sm font-medium text-slate-700 mb-2">Logo Cliente</label>
                             <input type="file" name="logo" id="logoInput" accept="image/jpeg,image/png,image/gif,image/webp"
-                                   class="w-full text-sm text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-cyan-50 file:text-cyan-700 hover:file:bg-cyan-100"
+                                   class="w-full text-sm text-slate-600 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-cyan-50 file:text-cyan-700 hover:file:bg-cyan-100 min-h-[44px]"
                                    onchange="previewLogo(this)">
                             <p class="text-xs text-slate-500 mt-1">JPG, PNG o GIF. Max 2MB</p>
                             <input type="hidden" name="logo_existing" id="logoExisting">
@@ -95,12 +111,12 @@ include __DIR__ . '/includes/header.php';
                         <div class="sm:col-span-2">
                             <label class="block text-sm font-medium text-slate-700 mb-2">Ragione Sociale *</label>
                             <input type="text" name="ragione_sociale" id="ragioneSocialeInput" required
-                                   class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none"
+                                   class="w-full px-4 py-3 sm:py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none min-h-[44px]"
                                    oninput="updateLogoPlaceholder()">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-slate-700 mb-2">Tipo</label>
-                            <select name="tipo" class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
+                            <select name="tipo" class="w-full px-4 py-3 sm:py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none min-h-[44px]">
                                 <option value="Azienda">Azienda</option>
                                 <option value="Privato">Privato</option>
                                 <option value="Partita IVA">Partita IVA</option>
@@ -112,7 +128,7 @@ include __DIR__ . '/includes/header.php';
                     <div>
                         <label class="block text-sm font-medium text-slate-700 mb-2">Partita IVA / Codice Fiscale</label>
                         <input type="text" name="piva_cf"
-                               class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
+                               class="w-full px-4 py-3 sm:py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none min-h-[44px]">
                     </div>
                     
                     <!-- Indirizzo -->
@@ -120,23 +136,23 @@ include __DIR__ . '/includes/header.php';
                         <div class="sm:col-span-2">
                             <label class="block text-sm font-medium text-slate-700 mb-2">Indirizzo</label>
                             <input type="text" name="indirizzo"
-                                   class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
+                                   class="w-full px-4 py-3 sm:py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none min-h-[44px]">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-slate-700 mb-2">Città</label>
                             <input type="text" name="citta"
-                                   class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
+                                   class="w-full px-4 py-3 sm:py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none min-h-[44px]">
                         </div>
                         <div class="grid grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-sm font-medium text-slate-700 mb-2">CAP</label>
                                 <input type="text" name="cap"
-                                       class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
+                                       class="w-full px-4 py-3 sm:py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none min-h-[44px]">
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-slate-700 mb-2">Prov.</label>
                                 <input type="text" name="provincia"
-                                       class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
+                                       class="w-full px-4 py-3 sm:py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none min-h-[44px]">
                             </div>
                         </div>
                     </div>
@@ -146,22 +162,22 @@ include __DIR__ . '/includes/header.php';
                         <div>
                             <label class="block text-sm font-medium text-slate-700 mb-2">Telefono</label>
                             <input type="tel" name="telefono"
-                                   class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
+                                   class="w-full px-4 py-3 sm:py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none min-h-[44px]">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-slate-700 mb-2">Cellulare</label>
                             <input type="tel" name="cellulare"
-                                   class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
+                                   class="w-full px-4 py-3 sm:py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none min-h-[44px]">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-slate-700 mb-2">Email</label>
                             <input type="email" name="email"
-                                   class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
+                                   class="w-full px-4 py-3 sm:py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none min-h-[44px]">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-slate-700 mb-2">PEC</label>
                             <input type="email" name="pec"
-                                   class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
+                                   class="w-full px-4 py-3 sm:py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none min-h-[44px]">
                         </div>
                     </div>
                     
@@ -169,7 +185,7 @@ include __DIR__ . '/includes/header.php';
                     <div>
                         <label class="block text-sm font-medium text-slate-700 mb-2">Sito Web</label>
                         <input type="url" name="sito_web"
-                               class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none"
+                               class="w-full px-4 py-3 sm:py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none min-h-[44px]"
                                placeholder="https://...">
                     </div>
                     
@@ -177,18 +193,18 @@ include __DIR__ . '/includes/header.php';
                         <div>
                             <label class="block text-sm font-medium text-slate-700 mb-2">Instagram</label>
                             <input type="text" name="instagram"
-                                   class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none"
+                                   class="w-full px-4 py-3 sm:py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none min-h-[44px]"
                                    placeholder="@username">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-slate-700 mb-2">Facebook</label>
                             <input type="text" name="facebook"
-                                   class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
+                                   class="w-full px-4 py-3 sm:py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none min-h-[44px]">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-slate-700 mb-2">LinkedIn</label>
                             <input type="text" name="linkedin"
-                                   class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
+                                   class="w-full px-4 py-3 sm:py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none min-h-[44px]">
                         </div>
                     </div>
                     
@@ -196,18 +212,18 @@ include __DIR__ . '/includes/header.php';
                     <div>
                         <label class="block text-sm font-medium text-slate-700 mb-2">Note</label>
                         <textarea name="note" rows="3"
-                                  class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none resize-none"></textarea>
+                                  class="w-full px-4 py-3 sm:py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none resize-none min-h-[100px]"></textarea>
                     </div>
                 </div>
             </form>
             
-            <div class="p-6 border-t border-slate-100 flex justify-end gap-3">
+            <div class="p-4 sm:p-6 border-t border-slate-100 flex flex-col sm:flex-row justify-end gap-3">
                 <button type="button" onclick="closeModal('clienteModal')" 
-                        class="px-4 py-2 text-slate-600 hover:text-slate-800 font-medium">
+                        class="w-full sm:w-auto px-4 py-3 sm:py-2 text-slate-600 hover:text-slate-800 font-medium min-h-[44px] rounded-lg hover:bg-slate-100 transition-colors">
                     Annulla
                 </button>
                 <button type="button" onclick="saveCliente()" 
-                        class="px-6 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg font-medium">
+                        class="w-full sm:w-auto px-6 py-3 sm:py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg font-medium min-h-[44px]">
                     Salva
                 </button>
             </div>
@@ -218,28 +234,28 @@ include __DIR__ . '/includes/header.php';
 <!-- Modal Dettaglio Cliente -->
 <div id="dettaglioModal" class="fixed inset-0 z-50 hidden">
     <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeModal('dettaglioModal')"></div>
-    <div class="absolute inset-0 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
-            <div class="p-6 border-b border-slate-100 flex items-center justify-between">
-                <h2 class="text-xl font-bold text-slate-800" id="dettaglioNome">Cliente</h2>
-                <button onclick="closeModal('dettaglioModal')" class="text-slate-400 hover:text-slate-600">
+    <div class="absolute inset-x-0 bottom-0 sm:inset-0 sm:flex sm:items-center sm:justify-center sm:p-4">
+        <div class="bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl w-full sm:max-w-2xl sm:max-h-[90vh] h-[85vh] sm:h-auto overflow-hidden flex flex-col">
+            <div class="p-4 sm:p-6 border-b border-slate-100 flex items-center justify-between">
+                <h2 class="text-lg sm:text-xl font-bold text-slate-800" id="dettaglioNome">Cliente</h2>
+                <button onclick="closeModal('dettaglioModal')" class="p-2 -mr-2 text-slate-400 hover:text-slate-600 min-h-[44px] min-w-[44px] flex items-center justify-center">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                     </svg>
                 </button>
             </div>
             
-            <div id="dettaglioContent" class="flex-1 overflow-y-auto p-6">
+            <div id="dettaglioContent" class="flex-1 overflow-y-auto p-4 sm:p-6">
                 <!-- Popolato via JS -->
             </div>
             
-            <div class="p-6 border-t border-slate-100 flex justify-end gap-3">
+            <div class="p-4 sm:p-6 border-t border-slate-100 flex flex-col sm:flex-row justify-end gap-3">
                 <button type="button" onclick="closeModal('dettaglioModal')" 
-                        class="px-4 py-2 text-slate-600 font-medium">
+                        class="w-full sm:w-auto px-4 py-3 sm:py-2 text-slate-600 font-medium min-h-[44px] rounded-lg hover:bg-slate-100 transition-colors">
                     Chiudi
                 </button>
                 <button type="button" onclick="editClienteFromDetail()" 
-                        class="px-6 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg font-medium">
+                        class="w-full sm:w-auto px-6 py-3 sm:py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg font-medium min-h-[44px]">
                     Modifica
                 </button>
             </div>
@@ -268,6 +284,14 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('searchInput').addEventListener('input', debounce(loadClienti, 300));
     document.getElementById('tipoFilter').addEventListener('change', loadClienti);
 });
+
+// Toggle filtri mobile
+function toggleFilters() {
+    const content = document.getElementById('filtersContent');
+    const arrow = document.getElementById('filterArrow');
+    content.classList.toggle('hidden');
+    arrow.classList.toggle('rotate-180');
+}
 
 async function loadClienti() {
     const search = document.getElementById('searchInput').value;
@@ -369,8 +393,8 @@ function renderClienti(clienti) {
     }
     
     container.innerHTML = clienti.map(c => `
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden card-hover h-full flex flex-col">
-            <div class="p-5 flex-1">
+        <div class="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-slate-200 overflow-hidden card-hover h-full flex flex-col">
+            <div class="p-4 sm:p-5 flex-1">
                 <div class="flex items-start justify-between mb-3">
                     ${c.logo_path ? `
                         <div class="w-12 h-12 rounded-xl overflow-hidden flex-shrink-0 bg-white border border-slate-100">
@@ -386,45 +410,45 @@ function renderClienti(clienti) {
                     </span>
                 </div>
                 
-                <h3 class="font-semibold text-lg text-slate-800 mb-1">${c.ragione_sociale}</h3>
+                <h3 class="font-semibold text-base sm:text-lg text-slate-800 mb-1">${c.ragione_sociale}</h3>
                 <p class="text-sm text-slate-500 mb-3">${c.piva_cf || 'Nessun codice fiscale/partita IVA'}</p>
                 
                 <div class="space-y-2 text-sm">
                     ${c.telefono ? `
                         <div class="flex items-center justify-between">
-                            <p class="flex items-center gap-2 text-slate-600">
-                                <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
-                                ${c.telefono}
+                            <p class="flex items-center gap-2 text-slate-600 truncate pr-2">
+                                <svg class="w-4 h-4 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+                                <span class="truncate">${c.telefono}</span>
                             </p>
-                            <a href="tel:${c.telefono.replace(/\s/g, '')}" class="p-1.5 text-cyan-600 hover:bg-cyan-50 rounded-lg transition-colors" title="Chiama">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+                            <a href="tel:${c.telefono.replace(/\s/g, '')}" class="p-2 text-cyan-600 hover:bg-cyan-50 rounded-lg transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center" title="Chiama">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
                             </a>
                         </div>
                     ` : ''}
                     ${c.cellulare ? `
                         <div class="flex items-center justify-between">
-                            <p class="flex items-center gap-2 text-slate-600">
-                                <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
-                                ${c.cellulare}
+                            <p class="flex items-center gap-2 text-slate-600 truncate pr-2">
+                                <svg class="w-4 h-4 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                                <span class="truncate">${c.cellulare}</span>
                             </p>
                             <div class="flex items-center gap-1">
-                                <a href="tel:${c.cellulare.replace(/\s/g, '')}" class="p-1.5 text-cyan-600 hover:bg-cyan-50 rounded-lg transition-colors" title="Chiama">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+                                <a href="tel:${c.cellulare.replace(/\s/g, '')}" class="p-2 text-cyan-600 hover:bg-cyan-50 rounded-lg transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center" title="Chiama">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
                                 </a>
-                                <a href="https://wa.me/${c.cellulare.replace(/[^0-9]/g, '').replace(/^0/, '39')}" target="_blank" class="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors" title="WhatsApp">
-                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                                <a href="https://wa.me/${c.cellulare.replace(/[^0-9]/g, '').replace(/^0/, '39')}" target="_blank" class="p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center" title="WhatsApp">
+                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
                                 </a>
                             </div>
                         </div>
                     ` : ''}
                     ${c.email ? `
                         <div class="flex items-center justify-between">
-                            <p class="flex items-center gap-2 text-slate-600">
-                                <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-                                ${c.email}
+                            <p class="flex items-center gap-2 text-slate-600 truncate pr-2">
+                                <svg class="w-4 h-4 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                                <span class="truncate">${c.email}</span>
                             </p>
-                            <a href="mailto:${c.email}" class="p-1.5 text-cyan-600 hover:bg-cyan-50 rounded-lg transition-colors" title="Invia email">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+                            <a href="mailto:${c.email}" class="p-2 text-cyan-600 hover:bg-cyan-50 rounded-lg transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center" title="Invia email">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
                             </a>
                         </div>
                     ` : ''}
@@ -436,16 +460,16 @@ function renderClienti(clienti) {
                 </div>
             </div>
             
-            <div class="px-5 py-3 bg-slate-50 border-t border-slate-100 flex gap-2 mt-auto">
-                <button onclick="showDettaglio('${c.id}')" class="flex-1 text-center py-2 bg-white border border-slate-200 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors">
+            <div class="px-4 sm:px-5 py-3 bg-slate-50 border-t border-slate-100 flex gap-2 mt-auto">
+                <button onclick="showDettaglio('${c.id}')" class="flex-1 text-center py-2.5 sm:py-2 bg-white border border-slate-200 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors min-h-[44px]">
                     Dettagli
                 </button>
-                <button onclick="editCliente('${c.id}')" class="p-2 text-slate-400 hover:text-cyan-600 hover:bg-cyan-50 rounded-lg transition-colors">
+                <button onclick="editCliente('${c.id}')" class="p-2.5 sm:p-2 text-slate-400 hover:text-cyan-600 hover:bg-cyan-50 rounded-lg transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                     </svg>
                 </button>
-                <button onclick="deleteCliente('${c.id}', '${c.ragione_sociale.replace(/'/g, "\\'")}')" class="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                <button onclick="deleteCliente('${c.id}', '${c.ragione_sociale.replace(/'/g, "\\'")}')" class="p-2.5 sm:p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                     </svg>
@@ -474,16 +498,16 @@ async function showDettaglio(id) {
                 <!-- Logo e nome -->
                 <div class="flex items-center gap-4">
                     ${c.logo_path ? `
-                        <div class="w-20 h-20 rounded-xl overflow-hidden flex-shrink-0 bg-white border border-slate-200 p-2">
+                        <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden flex-shrink-0 bg-white border border-slate-200 p-2">
                             <img src="assets/uploads/${c.logo_path}" alt="Logo ${c.ragione_sociale}" class="w-full h-full object-contain">
                         </div>
                     ` : `
-                        <div class="w-20 h-20 bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-xl flex items-center justify-center text-white text-2xl font-bold flex-shrink-0">
+                        <div class="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-xl flex items-center justify-center text-white text-xl font-bold flex-shrink-0">
                             ${c.ragione_sociale.charAt(0).toUpperCase()}
                         </div>
                     `}
-                    <div>
-                        <h3 class="text-xl font-bold text-slate-800">${c.ragione_sociale}</h3>
+                    <div class="min-w-0">
+                        <h3 class="text-lg sm:text-xl font-bold text-slate-800 truncate">${c.ragione_sociale}</h3>
                         <p class="text-slate-500">${c.tipo}</p>
                     </div>
                 </div>
@@ -491,11 +515,11 @@ async function showDettaglio(id) {
                 <div class="grid grid-cols-2 gap-4">
                     <div class="p-4 bg-slate-50 rounded-xl">
                         <p class="text-sm text-slate-500 mb-1">P.IVA / CF</p>
-                        <p class="font-medium text-slate-800">${c.piva_cf || '-'}</p>
+                        <p class="font-medium text-slate-800 text-sm sm:text-base">${c.piva_cf || '-'}</p>
                     </div>
                     <div class="p-4 bg-slate-50 rounded-xl">
                         <p class="text-sm text-slate-500 mb-1">Progetti</p>
-                        <p class="font-medium text-slate-800">${c.progetti ? c.progetti.length : 0}</p>
+                        <p class="font-medium text-slate-800 text-sm sm:text-base">${c.progetti ? c.progetti.length : 0}</p>
                     </div>
                 </div>
                 
@@ -511,10 +535,10 @@ async function showDettaglio(id) {
                     ${c.telefono ? `
                         <div class="p-3 bg-slate-50 rounded-xl">
                             <p class="text-sm text-slate-500 mb-1">Telefono</p>
-                            <div class="flex items-center justify-between">
-                                <p class="font-medium">${c.telefono}</p>
-                                <a href="tel:${c.telefono.replace(/\s/g, '')}" class="p-1.5 text-cyan-600 hover:bg-cyan-100 rounded-lg transition-colors" title="Chiama">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+                            <div class="flex items-center justify-between gap-2">
+                                <p class="font-medium text-sm sm:text-base truncate">${c.telefono}</p>
+                                <a href="tel:${c.telefono.replace(/\s/g, '')}" class="p-2 text-cyan-600 hover:bg-cyan-100 rounded-lg transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center flex-shrink-0" title="Chiama">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
                                 </a>
                             </div>
                         </div>
@@ -522,14 +546,14 @@ async function showDettaglio(id) {
                     ${c.cellulare ? `
                         <div class="p-3 bg-slate-50 rounded-xl">
                             <p class="text-sm text-slate-500 mb-1">Cellulare</p>
-                            <div class="flex items-center justify-between">
-                                <p class="font-medium">${c.cellulare}</p>
-                                <div class="flex items-center gap-1">
-                                    <a href="tel:${c.cellulare.replace(/\s/g, '')}" class="p-1.5 text-cyan-600 hover:bg-cyan-100 rounded-lg transition-colors" title="Chiama">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+                            <div class="flex items-center justify-between gap-2">
+                                <p class="font-medium text-sm sm:text-base truncate">${c.cellulare}</p>
+                                <div class="flex items-center gap-1 flex-shrink-0">
+                                    <a href="tel:${c.cellulare.replace(/\s/g, '')}" class="p-2 text-cyan-600 hover:bg-cyan-100 rounded-lg transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center" title="Chiama">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
                                     </a>
-                                    <a href="https://wa.me/${c.cellulare.replace(/[^0-9]/g, '').replace(/^0/, '39')}" target="_blank" class="p-1.5 text-emerald-600 hover:bg-emerald-100 rounded-lg transition-colors" title="WhatsApp">
-                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                                    <a href="https://wa.me/${c.cellulare.replace(/[^0-9]/g, '').replace(/^0/, '39')}" target="_blank" class="p-2 text-emerald-600 hover:bg-emerald-100 rounded-lg transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center" title="WhatsApp">
+                                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
                                     </a>
                                 </div>
                             </div>
@@ -538,10 +562,10 @@ async function showDettaglio(id) {
                     ${c.email ? `
                         <div class="p-3 bg-slate-50 rounded-xl">
                             <p class="text-sm text-slate-500 mb-1">Email</p>
-                            <div class="flex items-center justify-between">
-                                <p class="font-medium">${c.email}</p>
-                                <a href="mailto:${c.email}" class="p-1.5 text-cyan-600 hover:bg-cyan-100 rounded-lg transition-colors" title="Invia email">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+                            <div class="flex items-center justify-between gap-2">
+                                <p class="font-medium text-sm sm:text-base truncate">${c.email}</p>
+                                <a href="mailto:${c.email}" class="p-2 text-cyan-600 hover:bg-cyan-100 rounded-lg transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center flex-shrink-0" title="Invia email">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
                                 </a>
                             </div>
                         </div>
@@ -549,10 +573,10 @@ async function showDettaglio(id) {
                     ${c.pec ? `
                         <div class="p-3 bg-slate-50 rounded-xl">
                             <p class="text-sm text-slate-500 mb-1">PEC</p>
-                            <div class="flex items-center justify-between">
-                                <p class="font-medium">${c.pec}</p>
-                                <a href="mailto:${c.pec}" class="p-1.5 text-cyan-600 hover:bg-cyan-100 rounded-lg transition-colors" title="Invia PEC">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+                            <div class="flex items-center justify-between gap-2">
+                                <p class="font-medium text-sm sm:text-base truncate">${c.pec}</p>
+                                <a href="mailto:${c.pec}" class="p-2 text-cyan-600 hover:bg-cyan-100 rounded-lg transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center flex-shrink-0" title="Invia PEC">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
                                 </a>
                             </div>
                         </div>
@@ -563,10 +587,10 @@ async function showDettaglio(id) {
                 <div>
                     <h4 class="font-medium text-slate-700 mb-2">Web & Social</h4>
                     <div class="flex flex-wrap gap-2">
-                        ${c.sito_web ? `<a href="${c.sito_web}" target="_blank" class="px-3 py-1 bg-cyan-50 text-cyan-700 rounded-lg text-sm hover:bg-cyan-100">🌐 Sito Web</a>` : ''}
-                        ${c.instagram ? `<a href="https://instagram.com/${c.instagram.replace('@', '')}" target="_blank" class="px-3 py-1 bg-pink-50 text-pink-700 rounded-lg text-sm hover:bg-pink-100">📷 Instagram</a>` : ''}
-                        ${c.facebook ? `<span class="px-3 py-1 bg-blue-50 text-blue-700 rounded-lg text-sm">📘 Facebook</span>` : ''}
-                        ${c.linkedin ? `<span class="px-3 py-1 bg-blue-50 text-blue-700 rounded-lg text-sm">💼 LinkedIn</span>` : ''}
+                        ${c.sito_web ? `<a href="${c.sito_web}" target="_blank" class="px-3 py-2 bg-cyan-50 text-cyan-700 rounded-lg text-sm hover:bg-cyan-100 min-h-[44px] flex items-center">🌐 Sito Web</a>` : ''}
+                        ${c.instagram ? `<a href="https://instagram.com/${c.instagram.replace('@', '')}" target="_blank" class="px-3 py-2 bg-pink-50 text-pink-700 rounded-lg text-sm hover:bg-pink-100 min-h-[44px] flex items-center">📷 Instagram</a>` : ''}
+                        ${c.facebook ? `<span class="px-3 py-2 bg-blue-50 text-blue-700 rounded-lg text-sm min-h-[44px] flex items-center">📘 Facebook</span>` : ''}
+                        ${c.linkedin ? `<span class="px-3 py-2 bg-blue-50 text-blue-700 rounded-lg text-sm min-h-[44px] flex items-center">💼 LinkedIn</span>` : ''}
                     </div>
                 </div>
                 ` : ''}
