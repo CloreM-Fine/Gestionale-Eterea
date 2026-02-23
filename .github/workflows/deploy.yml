@@ -34,8 +34,6 @@ jobs:
           **/*.sql
           **/aggiorna_password.php
           **/assets/temp/**
-          **/assets/uploads/clienti/**
-          **/assets/uploads/progetti/**
           **/.DS_Store
         dangerous-clean-slate: false
         timeout: 600000
