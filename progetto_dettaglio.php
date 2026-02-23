@@ -921,6 +921,19 @@ function switchTab(tabName) {
                     </label>
                 </div>
                 
+                <!-- Toggle Quota Passiva -->
+                <div class="mb-4 p-3 bg-slate-50 rounded-xl border border-slate-200">
+                    <label class="flex items-center gap-3 cursor-pointer">
+                        <input type="checkbox" id="includiPassivo" onchange="ricalcolaDistribuzione()"
+                               class="w-5 h-5 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500">
+                        <div class="flex-1">
+                            <span class="font-medium text-slate-800">Includi quota membri non attivi (10%)</span>
+                            <p class="text-xs text-slate-500">Seleziona per dare il 10% anche ai membri non attivi sul progetto</p>
+                        </div>
+                        <span class="text-lg">👤</span>
+                    </label>
+                </div>
+                
                 <!-- Selezione utenti da escludere -->
                 <div class="mb-4 p-3 bg-slate-50 rounded-xl border border-slate-200">
                     <p class="font-medium text-slate-800 mb-2">Membri da includere</p>
@@ -967,18 +980,20 @@ function formatCurrency(val) {
 
 // Variabile globale per memorizzare l'ultima distribuzione calcolata
 let lastDistribuzione = [];
-let lastDistribuzioneConfig = { includiCassa: true, utentiEsclusi: [] };
+let lastDistribuzioneConfig = { includiCassa: true, includiPassivo: false, utentiEsclusi: [] };
 
 function calcolaDistribuzione() {
     const includiCassa = document.getElementById('includiCassa')?.checked ?? true;
+    const includiPassivo = document.getElementById('includiPassivo')?.checked ?? false;
     const utentiEsclusi = getUtentiEsclusi();
     lastDistribuzioneConfig.includiCassa = includiCassa;
+    lastDistribuzioneConfig.includiPassivo = includiPassivo;
     lastDistribuzioneConfig.utentiEsclusi = utentiEsclusi;
     
     // Render lista utenti con checkbox
     renderUtentiDistribuzioneList();
     
-    const result = generaDistribuzione(includiCassa, utentiEsclusi);
+    const result = generaDistribuzione(includiCassa, includiPassivo, utentiEsclusi);
     lastDistribuzione = result.distribuzione;
     
     renderDistribuzione(result.distribuzione, result.totale);
@@ -988,11 +1003,13 @@ function calcolaDistribuzione() {
 
 function ricalcolaDistribuzione() {
     const includiCassa = document.getElementById('includiCassa')?.checked ?? true;
+    const includiPassivo = document.getElementById('includiPassivo')?.checked ?? false;
     const utentiEsclusi = getUtentiEsclusi();
     lastDistribuzioneConfig.includiCassa = includiCassa;
+    lastDistribuzioneConfig.includiPassivo = includiPassivo;
     lastDistribuzioneConfig.utentiEsclusi = utentiEsclusi;
     
-    const result = generaDistribuzione(includiCassa, utentiEsclusi);
+    const result = generaDistribuzione(includiCassa, includiPassivo, utentiEsclusi);
     lastDistribuzione = result.distribuzione;
     
     renderDistribuzione(result.distribuzione, result.totale);
@@ -1040,11 +1057,11 @@ function renderUtentiDistribuzioneList() {
     }).join('');
 }
 
-function generaDistribuzione(includiCassa = true, utentiEsclusi = []) {
+function generaDistribuzione(includiCassa = true, includiPassivo = false, utentiEsclusi = []) {
     const totale = parseFloat(progettoData.prezzo_totale) || 0;
     const partecipanti = progettoData.partecipanti || [];
     
-    // Filtra partecipanti esclusi (esclusione TOTALE: né attivo né passivo)
+    // Filtra partecipanti esclusi
     const partecipantiEffettivi = partecipanti.filter(uid => !utentiEsclusi.includes(uid));
     const count = partecipantiEffettivi.length;
     
@@ -1054,21 +1071,19 @@ function generaDistribuzione(includiCassa = true, utentiEsclusi = []) {
     }
     
     const distribuzione = [];
+    const tuttiUtenti = ['ucwurog3xr8tf', 'ukl9ipuolsebn', 'u3ghz4f2lnpkx'];
     
-    // Calcola percentuali in base a se include o meno la cassa
+    // Calcola percentuali
     const cassaPercent = includiCassa ? 0.10 : 0;
-    // I rimanenti percentuali da distribuire
     const remainingPercent = 1 - cassaPercent;
     
-    // Numero di utenti esclusi (quelli deselezionati)
-    const numEsclusi = utentiEsclusi.length;
-    // Quota da ridistribuire (10% per ogni utente escluso)
-    const quotaRidistribuibile = numEsclusi * 0.10;
+    // Quota passiva da ridistribuire se non includiamo i passivi
+    const quotaPassivaRidistribuibile = !includiPassivo ? 0.10 * (3 - count) : 0;
     
     switch(count) {
         case 3:
-            // 3 partecipanti: dividi equamente il rimanente + la quota degli esclusi
-            const share3 = (remainingPercent + quotaRidistribuibile) / 3;
+            // 3 partecipanti: dividi equamente
+            const share3 = remainingPercent / 3;
             partecipantiEffettivi.forEach(uid => {
                 distribuzione.push({ id: uid, importo: totale * share3, percentuale: Math.round(share3 * 100), tipo: 'attivo' });
             });
@@ -1077,20 +1092,33 @@ function generaDistribuzione(includiCassa = true, utentiEsclusi = []) {
             }
             break;
         case 2:
-            // 2 partecipanti attivi: 40% + quota ridistribuita dagli esclusi
-            // Nessun passivo perché gli esclusi sono completamente esclusi
-            const activeShare2 = includiCassa ? (0.40 + quotaRidistribuibile / 2) : (0.45 + quotaRidistribuibile / 2);
+            // 2 attivi: 40% ciascuno + eventuale quota passiva ridistribuita
+            const inattivi = tuttiUtenti.filter(id => !partecipantiEffettivi.includes(id));
+            const activeShare2 = includiCassa ? (0.40 + quotaPassivaRidistribuibile / 2) : (0.50 + quotaPassivaRidistribuibile / 2);
             partecipantiEffettivi.forEach(uid => {
                 distribuzione.push({ id: uid, importo: totale * activeShare2, percentuale: Math.round(activeShare2 * 100), tipo: 'attivo' });
             });
+            // Passivo solo se includiPassivo è true
+            if (includiPassivo) {
+                inattivi.forEach(uid => {
+                    distribuzione.push({ id: uid, importo: totale * 0.10, percentuale: 10, tipo: 'passivo' });
+                });
+            }
             if (includiCassa) {
                 distribuzione.push({ id: 'cassa', importo: totale * 0.10, percentuale: 10, tipo: 'cassa' });
             }
             break;
         case 1:
-            // 1 partecipante attivo: 70% + quota ridistribuita dagli esclusi
-            const activeShare1 = includiCassa ? (0.70 + quotaRidistribuibile) : (0.80 + quotaRidistribuibile);
+            // 1 attivo: 70% + eventuale quota passiva ridistribuita
+            const inattivi2 = tuttiUtenti.filter(id => !partecipantiEffettivi.includes(id));
+            const activeShare1 = includiCassa ? (0.70 + quotaPassivaRidistribuibile) : (0.80 + quotaPassivaRidistribuibile);
             distribuzione.push({ id: partecipantiEffettivi[0], importo: totale * activeShare1, percentuale: Math.round(activeShare1 * 100), tipo: 'attivo' });
+            // Passivi solo se includiPassivo è true
+            if (includiPassivo) {
+                inattivi2.forEach(uid => {
+                    distribuzione.push({ id: uid, importo: totale * 0.10, percentuale: 10, tipo: 'passivo' });
+                });
+            }
             if (includiCassa) {
                 distribuzione.push({ id: 'cassa', importo: totale * 0.10, percentuale: 10, tipo: 'cassa' });
             }
@@ -1561,12 +1589,13 @@ async function editTask(taskId) {
 async function confermaDistribuzione() {
     try {
         const includiCassa = lastDistribuzioneConfig.includiCassa ?? true;
+        const includiPassivo = lastDistribuzioneConfig.includiPassivo ?? false;
         const utentiEsclusi = lastDistribuzioneConfig.utentiEsclusi ?? [];
         
         const response = await fetch('api/progetti.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `action=distribuisci&id=${progettoId}&includi_cassa=${includiCassa ? 1 : 0}&utenti_esclusi=${encodeURIComponent(JSON.stringify(utentiEsclusi))}`
+            body: `action=distribuisci&id=${progettoId}&includi_cassa=${includiCassa ? 1 : 0}&includi_passivo=${includiPassivo ? 1 : 0}&utenti_esclusi=${encodeURIComponent(JSON.stringify(utentiEsclusi))}`
         });
         
         const data = await response.json();

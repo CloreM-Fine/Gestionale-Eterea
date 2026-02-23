@@ -48,8 +48,9 @@ switch ($method) {
             deleteProgetto($_POST['id']);
         } elseif ($action === 'distribuisci' && isset($_POST['id'])) {
             $includiCassa = isset($_POST['includi_cassa']) ? (bool)$_POST['includi_cassa'] : true;
+            $includiPassivo = isset($_POST['includi_passivo']) ? (bool)$_POST['includi_passivo'] : false;
             $utentiEsclusi = isset($_POST['utenti_esclusi']) ? json_decode($_POST['utenti_esclusi'], true) : [];
-            distribuisciProgetto($_POST['id'], $includiCassa, $utentiEsclusi);
+            distribuisciProgetto($_POST['id'], $includiCassa, $includiPassivo, $utentiEsclusi);
         } elseif ($action === 'revoca_distribuzione' && isset($_POST['id'])) {
             revocaDistribuzione($_POST['id']);
         } elseif ($action === 'upload_documento') {
@@ -502,7 +503,7 @@ function deleteProgetto(string $id): void {
 /**
  * Distribuisci economia progetto
  */
-function distribuisciProgetto(string $id, bool $includiCassa = true, array $utentiEsclusi = []): void {
+function distribuisciProgetto(string $id, bool $includiCassa = true, bool $includiPassivo = false, array $utentiEsclusi = []): void {
     global $pdo;
     
     try {
@@ -537,7 +538,7 @@ function distribuisciProgetto(string $id, bool $includiCassa = true, array $uten
         }
         
         // Esegui distribuzione (senza quota passiva per esclusi)
-        if (eseguiDistribuzione($id, $totale, array_values($partecipantiFiltrati), $includiCassa, $utentiEsclusi)) {
+        if (eseguiDistribuzione($id, $totale, array_values($partecipantiFiltrati), $includiCassa, $includiPassivo, $utentiEsclusi)) {
             logTimeline($_SESSION['user_id'], 'distribuito_economia', 'progetto', $id, "Distribuiti €{$totale}");
             jsonResponse(true, null, 'Distribuzione effettuata con successo');
         } else {

@@ -134,7 +134,7 @@ function pulisciTimeline(): void {
  * @param array $partecipantiIds Array degli ID dei partecipanti attivi
  * @return array Distribuzione calcolata
  */
-function calcolaDistribuzione(float $totale, array $partecipantiIds, bool $includiCassa = true, array $utentiEsclusi = []): array {
+function calcolaDistribuzione(float $totale, array $partecipantiIds, bool $includiCassa = true, bool $includiPassivo = false): array {
     $count = count($partecipantiIds);
     $distribuzione = [];
     
@@ -145,14 +145,14 @@ function calcolaDistribuzione(float $totale, array $partecipantiIds, bool $inclu
     $cassaPercent = $includiCassa ? 0.10 : 0;
     $remainingPercent = 1 - $cassaPercent;
     
-    // Numero di utenti esclusi (per ridistribuire la loro quota)
-    $numEsclusi = count($utentiEsclusi);
-    $quotaRidistribuibile = $numEsclusi * 0.10;
+    // Quota passiva da ridistribuire se non includiamo i passivi
+    $numPassivi = 3 - $count;
+    $quotaPassivaRidistribuibile = !$includiPassivo ? $numPassivi * 0.10 : 0;
     
     switch($count) {
         case 3:
-            // Tutti e 3 attivi: dividi equamente il rimanente + quota esclusi
-            $share = ($remainingPercent + $quotaRidistribuibile) / 3;
+            // Tutti e 3 attivi: dividi equamente
+            $share = $remainingPercent / 3;
             foreach($partecipantiIds as $uid) {
                 $distribuzione[$uid] = [
                     'importo' => round($totale * $share, 2),
@@ -170,15 +170,27 @@ function calcolaDistribuzione(float $totale, array $partecipantiIds, bool $inclu
             break;
             
         case 2:
-            // 2 attivi: dividi equamente il rimanente + quota esclusi
-            // NESSUN passivo - gli esclusi sono completamente esclusi
-            $share = ($remainingPercent + $quotaRidistribuibile) / 2;
+            // 2 attivi: 40% ciascuno + quota passiva ridistribuita (se non includiPassivo)
+            $activeShare = $includiCassa ? 0.40 : 0.45;
+            $bonusShare = $includiPassivo ? 0 : 0.10;
+            $share = $activeShare + $bonusShare;
             foreach($partecipantiIds as $uid) {
                 $distribuzione[$uid] = [
                     'importo' => round($totale * $share, 2),
                     'percentuale' => round($share * 100),
                     'tipo' => 'attivo'
                 ];
+            }
+            // Aggiungi passivo solo se richiesto
+            if ($includiPassivo) {
+                $inattivi = array_diff($tuttiUtenti, $partecipantiIds);
+                foreach($inattivi as $uid) {
+                    $distribuzione[$uid] = [
+                        'importo' => round($totale * 0.10, 2),
+                        'percentuale' => 10,
+                        'tipo' => 'passivo'
+                    ];
+                }
             }
             if ($includiCassa) {
                 $distribuzione['cassa'] = [
@@ -190,14 +202,26 @@ function calcolaDistribuzione(float $totale, array $partecipantiIds, bool $inclu
             break;
             
         case 1:
-            // 1 attivo: prende tutto il rimanente + quota esclusi
-            // NESSUN passivo
-            $share = $remainingPercent + $quotaRidistribuibile;
+            // 1 attivo: 70% + quota passiva ridistribuita (se non includiPassivo)
+            $activeShare = $includiCassa ? 0.70 : 0.80;
+            $bonusShare = $includiPassivo ? 0 : 0.20;
+            $share = $activeShare + $bonusShare;
             $distribuzione[$partecipantiIds[0]] = [
                 'importo' => round($totale * $share, 2),
                 'percentuale' => round($share * 100),
                 'tipo' => 'attivo'
             ];
+            // Aggiungi passivi solo se richiesto
+            if ($includiPassivo) {
+                $inattivi = array_diff($tuttiUtenti, $partecipantiIds);
+                foreach($inattivi as $uid) {
+                    $distribuzione[$uid] = [
+                        'importo' => round($totale * 0.10, 2),
+                        'percentuale' => 10,
+                        'tipo' => 'passivo'
+                    ];
+                }
+            }
             if ($includiCassa) {
                 $distribuzione['cassa'] = [
                     'importo' => round($totale * 0.10, 2),
@@ -224,14 +248,14 @@ function calcolaDistribuzione(float $totale, array $partecipantiIds, bool $inclu
 /**
  * Esegue la distribuzione economica e salva le transazioni
  */
-function eseguiDistribuzione(string $progettoId, float $totale, array $partecipantiIds, bool $includiCassa = true, array $utentiEsclusi = []): bool {
+function eseguiDistribuzione(string $progettoId, float $totale, array $partecipantiIds, bool $includiCassa = true, bool $includiPassivo = false, array $utentiEsclusi = []): bool {
     global $pdo;
     
     try {
         $pdo->beginTransaction();
         
-        // Calcola distribuzione (senza quota passiva per esclusi)
-        $distribuzione = calcolaDistribuzione($totale, $partecipantiIds, $includiCassa, $utentiEsclusi);
+        // Calcola distribuzione (con/senza quota passiva)
+        $distribuzione = calcolaDistribuzione($totale, $partecipantiIds, $includiCassa, $includiPassivo);
         
         // Salva transazioni
         foreach ($distribuzione as $id => $dati) {
