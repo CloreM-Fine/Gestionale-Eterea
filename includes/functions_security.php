@@ -272,7 +272,8 @@ function uploadFileSecure(array $file, string $destinationDir, array $allowedTyp
     finfo_close($finfo);
     
     if (!in_array($mimeType, $allowedTypes)) {
-        error_log("MIME type not allowed: " . $mimeType);
+        error_log("MIME type not allowed: " . $mimeType . " for file: " . $file['name']);
+        error_log("Allowed types: " . implode(', ', $allowedTypes));
         return false;
     }
     
@@ -324,6 +325,7 @@ function uploadFileSecure(array $file, string $destinationDir, array $allowedTyp
         ];
     }
     
+    error_log("Failed to move uploaded file from " . $file['tmp_name'] . " to " . $destination);
     return false;
 }
 
