@@ -33,7 +33,6 @@ jobs:
           **/.gitignore
           **/*.sql
           **/aggiorna_password.php
-          **/setup_security.php
           **/.env
           **/.env.example
           **/assets/temp/**

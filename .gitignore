@@ -55,7 +55,6 @@ aggiorna_password.php
 update_*.php
 install_*.php
 setup.php
-setup_security.php
 
 # File di database
 *.sql
