@@ -18,9 +18,13 @@ try {
     $stmt = $pdo->query("SELECT COALESCE(SUM(importo), 0) FROM transazioni_economiche WHERE tipo = 'cassa'");
     $cassaTotale = (float)$stmt->fetchColumn();
     
-    // Wallet utenti
+    // Wallet utenti (solo i 3 membri del team)
     $stmt = $pdo->query("SELECT id, nome, wallet_saldo, colore FROM utenti ORDER BY nome ASC");
-    $wallets = $stmt->fetchAll();
+    $allWallets = $stmt->fetchAll();
+    // Filtra solo i 3 utenti validi (esclude "User" o altri)
+    $wallets = array_filter($allWallets, function($u) {
+        return isset(USERS[$u['id']]); // Solo utenti definiti in config
+    });
     
     // Progetti consegnati con distribuzione
     $stmt = $pdo->query("
