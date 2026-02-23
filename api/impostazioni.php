@@ -54,6 +54,8 @@ switch ($method) {
             deleteCodiceAteco();
         } elseif ($action === 'save_impostazioni_tasse') {
             saveImpostazioniTasse();
+        } elseif ($action === 'change_password') {
+            changePassword();
         } else {
             jsonResponse(false, null, 'Azione non valida');
         }
@@ -1036,5 +1038,74 @@ function saveImpostazioniTasse(): void {
     } catch (PDOException $e) {
         error_log("Errore save impostazioni tasse: " . $e->getMessage());
         jsonResponse(false, null, 'Errore durante il salvataggio');
+    }
+}
+
+
+/**
+ * Cambia la password dell'utente corrente
+ */
+function changePassword(): void {
+    global $pdo;
+    
+    $userId = $_SESSION['user_id'] ?? '';
+    $currentPassword = $_POST['current_password'] ?? '';
+    $newPassword = $_POST['new_password'] ?? '';
+    
+    if (empty($userId)) {
+        jsonResponse(false, null, 'Utente non autenticato');
+        return;
+    }
+    
+    if (empty($currentPassword) || empty($newPassword)) {
+        jsonResponse(false, null, 'Compila tutti i campi');
+        return;
+    }
+    
+    if (strlen($newPassword) < 6) {
+        jsonResponse(false, null, 'La nuova password deve essere di almeno 6 caratteri');
+        return;
+    }
+    
+    try {
+        // Recupera l'utente
+        $stmt = $pdo->prepare("SELECT id, password FROM utenti WHERE id = ?");
+        $stmt->execute([$userId]);
+        $user = $stmt->fetch();
+        
+        if (!$user) {
+            jsonResponse(false, null, 'Utente non trovato');
+            return;
+        }
+        
+        // Verifica password corrente
+        $passwordValid = false;
+        if (password_verify($currentPassword, $user['password'])) {
+            $passwordValid = true;
+        } elseif ($currentPassword === $user['password']) {
+            // Password in chiaro (vecchio formato)
+            $passwordValid = true;
+        }
+        
+        if (!$passwordValid) {
+            jsonResponse(false, null, 'Password attuale non corretta');
+            return;
+        }
+        
+        // Hash della nuova password
+        $newHash = password_hash($newPassword, PASSWORD_BCRYPT);
+        
+        // Aggiorna password
+        $stmt = $pdo->prepare("UPDATE utenti SET password = ? WHERE id = ?");
+        $stmt->execute([$newHash, $userId]);
+        
+        // Log
+        logTimeline($userId, 'changed_password', 'utente', $userId, 'Password modificata');
+        
+        jsonResponse(true, null, 'Password aggiornata con successo');
+        
+    } catch (PDOException $e) {
+        error_log("Errore cambio password: " . $e->getMessage());
+        jsonResponse(false, null, 'Errore durante il cambio password');
     }
 }
