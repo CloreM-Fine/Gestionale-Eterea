@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Briefing - ciao</title>
+    <style>
+        @page { size: A4; margin: 15mm; }
+        body { font-family: system-ui, -apple-system, sans-serif; font-size: 10.5pt; line-height: 1.6; color: #1e293b; max-width: 180mm; margin: 0 auto; }
+        .header { text-align: center; margin-bottom: 30px; border-bottom: 3px solid #0891B2; padding-bottom: 20px; }
+        .header h1 { color: #0891B2; font-size: 20pt; margin: 0 0 10px 0; font-weight: 700; }
+        .header .cliente { font-size: 13pt; color: #475569; font-weight: 500; }
+        .header .data { font-size: 9pt; color: #94a3b8; margin-top: 5px; }
+        ul, ol { margin: 8px 0; padding-left: 20px; }
+        li { margin-bottom: 4px; }
+        p { margin: 0 0 8px 0; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>BRIEFING PROGETTO</h1>
+        <p class="cliente">ciao</p>
+        <p class="data">Generato il 14/02/2026 alle 22:19</p>
+    </div>
+    
+            <div style="margin-bottom: 20px; page-break-inside: avoid;">
+                <h2 style="font-size: 13pt; color: #0891B2; border-bottom: 2px solid #0891B2; padding-bottom: 6px; margin-bottom: 12px; font-weight: 600;">
+                            1
+                            Cliente
+                        </h2>
+                <div style="background: #f8fafc; padding: 15px; border-radius: 8px; border-left: 3px solid #0891B2;">ciao&nbsp;</div>
+            </div>
+        
+            <div style="margin-bottom: 20px; page-break-inside: avoid;">
+                <h2 style="font-size: 13pt; color: #0891B2; border-bottom: 2px solid #0891B2; padding-bottom: 6px; margin-bottom: 12px; font-weight: 600;">
+                            2
+                            Obiettivo del Sito
+                        </h2>
+                <div style="background: #f8fafc; padding: 15px; border-radius: 8px; border-left: 3px solid #0891B2;">ciao&nbsp;</div>
+            </div>
+        
+            <div style="margin-bottom: 20px; page-break-inside: avoid;">
+                <h2 style="font-size: 13pt; color: #0891B2; border-bottom: 2px solid #0891B2; padding-bottom: 6px; margin-bottom: 12px; font-weight: 600;">
+                            3
+                            Target
+                        </h2>
+                <div style="background: #f8fafc; padding: 15px; border-radius: 8px; border-left: 3px solid #0891B2;"></div>
+            </div>
+        
+            <div style="margin-bottom: 20px; page-break-inside: avoid;">
+                <h2 style="font-size: 13pt; color: #0891B2; border-bottom: 2px solid #0891B2; padding-bottom: 6px; margin-bottom: 12px; font-weight: 600;">
+                            4
+                            Tono di Voce
+                        </h2>
+                <div style="background: #f8fafc; padding: 15px; border-radius: 8px; border-left: 3px solid #0891B2;"></div>
+            </div>
+        
+            <div style="margin-bottom: 20px; page-break-inside: avoid;">
+                <h2 style="font-size: 13pt; color: #0891B2; border-bottom: 2px solid #0891B2; padding-bottom: 6px; margin-bottom: 12px; font-weight: 600;">
+                            5
+                            Struttura del Sito
+                        </h2>
+                <div style="background: #f8fafc; padding: 15px; border-radius: 8px; border-left: 3px solid #0891B2;"></div>
+            </div>
+        
+            <div style="margin-bottom: 20px; page-break-inside: avoid;">
+                <h2 style="font-size: 13pt; color: #0891B2; border-bottom: 2px solid #0891B2; padding-bottom: 6px; margin-bottom: 12px; font-weight: 600;">
+                            6
+                            Funzionalità Richieste
+                        </h2>
+                <div style="background: #f8fafc; padding: 15px; border-radius: 8px; border-left: 3px solid #0891B2;"></div>
+            </div>
+        
+            <div style="margin-bottom: 20px; page-break-inside: avoid;">
+                <h2 style="font-size: 13pt; color: #0891B2; border-bottom: 2px solid #0891B2; padding-bottom: 6px; margin-bottom: 12px; font-weight: 600;">
+                            7
+                            Elementi Distintivi
+                        </h2>
+                <div style="background: #f8fafc; padding: 15px; border-radius: 8px; border-left: 3px solid #0891B2;"></div>
+            </div>
+        
+            <div style="margin-bottom: 20px; page-break-inside: avoid;">
+                <h2 style="font-size: 13pt; color: #0891B2; border-bottom: 2px solid #0891B2; padding-bottom: 6px; margin-bottom: 12px; font-weight: 600;">
+                            8
+                            Design e Stile
+                        </h2>
+                <div style="background: #f8fafc; padding: 15px; border-radius: 8px; border-left: 3px solid #0891B2;"></div>
+            </div>
+        
+            <div style="margin-bottom: 20px; page-break-inside: avoid;">
+                <h2 style="font-size: 13pt; color: #0891B2; border-bottom: 2px solid #0891B2; padding-bottom: 6px; margin-bottom: 12px; font-weight: 600;">
+                            9
+                            Contenuti Sezioni
+                        </h2>
+                <div style="background: #f8fafc; padding: 15px; border-radius: 8px; border-left: 3px solid #0891B2;"><h4 style="font-size: 11pt; color: #334155; margin: 10px 0 5px 0; font-weight: 600;">Sezione</h4><div style="margin-bottom: 15px;"><p style="color: #94a3b8; font-style: italic;">Contenuto da definire...</p></div></div>
+            </div>
+        
+    <script>window.onload = () => setTimeout(() => window.print(), 300);</script>
+</body>
+</html>

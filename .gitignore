@@ -5,13 +5,8 @@ includes/config.php.bak
 assets/temp/*
 !assets/temp/.gitkeep
 
-# Uploads dinamici (da sincronizzare manualmente)
-assets/uploads/clienti/*
-!assets/uploads/clienti/.gitkeep
-assets/uploads/progetti/*
-!assets/uploads/progetti/.gitkeep
-assets/uploads/task_images/*
-!assets/uploads/task_images/.gitkeep
+# Uploads (manteniamo i file esistenti, ignoriamo solo quelli nuovi/futuri)
+# I file già presenti nel repo restano, i nuovi vanno aggiunti manualmente
 
 # File di sistema
 .DS_Store

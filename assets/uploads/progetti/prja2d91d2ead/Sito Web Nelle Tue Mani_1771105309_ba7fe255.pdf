@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Briefing - Nelle Tue ManiMaria RosariaV. Sarzanese, 2413, 55100 Lucca LUTelefono: 392 614 4406</title>
+    <style>
+        @page { size: A4; margin: 15mm; }
+        body { font-family: system-ui, -apple-system, sans-serif; font-size: 10.5pt; line-height: 1.6; color: #1e293b; max-width: 180mm; margin: 0 auto; }
+        .header { text-align: center; margin-bottom: 30px; border-bottom: 3px solid #0891B2; padding-bottom: 20px; }
+        .header h1 { color: #0891B2; font-size: 20pt; margin: 0 0 10px 0; font-weight: 700; }
+        .header .cliente { font-size: 13pt; color: #475569; font-weight: 500; }
+        .header .data { font-size: 9pt; color: #94a3b8; margin-top: 5px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>BRIEFING PROGETTO</h1>
+        <p class="cliente">Nelle Tue ManiMaria RosariaV. Sarzanese, 2413, 55100 Lucca LUTelefono: 392 614 4406</p>
+        <p class="data">14/02/2026</p>
+    </div>
+    
+            <div style="margin-bottom: 20px; page-break-inside: avoid;">
+                <h2 style="font-size: 13pt; color: #0891B2; border-bottom: 2px solid #0891B2; padding-bottom: 6px; margin-bottom: 12px; font-weight: 600;">Cliente</h2>
+                <div style="background: #f8fafc; padding: 15px; border-radius: 8px; border-left: 3px solid #0891B2;"><p>Nelle Tue Mani<br>Maria Rosaria<br>V. Sarzanese, 2413, 55100 Lucca LU<br>Telefono: 392 614 4406</p></div>
+            </div>
+        
+            <div style="margin-bottom: 20px; page-break-inside: avoid;">
+                <h2 style="font-size: 13pt; color: #0891B2; border-bottom: 2px solid #0891B2; padding-bottom: 6px; margin-bottom: 12px; font-weight: 600;">Obiettivo del Sito</h2>
+                <div style="background: #f8fafc; padding: 15px; border-radius: 8px; border-left: 3px solid #0891B2;"><p>Attirare nuovi clienti, gestire prenotazioni e fornire informazioni sui servizi offerti.</p></div>
+            </div>
+        
+            <div style="margin-bottom: 20px; page-break-inside: avoid;">
+                <h2 style="font-size: 13pt; color: #0891B2; border-bottom: 2px solid #0891B2; padding-bottom: 6px; margin-bottom: 12px; font-weight: 600;">Target</h2>
+                <div style="background: #f8fafc; padding: 15px; border-radius: 8px; border-left: 3px solid #0891B2;"><p>Cliente principale: donne tra i 16 e i 70 anni, con un focus particolare su donne giovani e professioniste. Circa l'80% della clientela sarà femminile.</p></div>
+            </div>
+        
+            <div style="margin-bottom: 20px; page-break-inside: avoid;">
+                <h2 style="font-size: 13pt; color: #0891B2; border-bottom: 2px solid #0891B2; padding-bottom: 6px; margin-bottom: 12px; font-weight: 600;">Tono di Voce</h2>
+                <div style="background: #f8fafc; padding: 15px; border-radius: 8px; border-left: 3px solid #0891B2;"><p>Professionale e accogliente, con un tocco femminile e affidabile.</p></div>
+            </div>
+        
+            <div style="margin-bottom: 20px; page-break-inside: avoid;">
+                <h2 style="font-size: 13pt; color: #0891B2; border-bottom: 2px solid #0891B2; padding-bottom: 6px; margin-bottom: 12px; font-weight: 600;">Struttura del Sito</h2>
+                <div style="background: #f8fafc; padding: 15px; border-radius: 8px; border-left: 3px solid #0891B2;"><ul><li>Home</li><li>Chi Siamo</li><li>Servizi</li><li>Contatti</li></ul></div>
+            </div>
+        
+            <div style="margin-bottom: 20px; page-break-inside: avoid;">
+                <h2 style="font-size: 13pt; color: #0891B2; border-bottom: 2px solid #0891B2; padding-bottom: 6px; margin-bottom: 12px; font-weight: 600;">Funzionalità Richieste</h2>
+                <div style="background: #f8fafc; padding: 15px; border-radius: 8px; border-left: 3px solid #0891B2;"><ul><li>Form di prenotazione</li><li>Sezione contatti</li><li>Link rapidi alle diverse sezioni</li></ul></div>
+            </div>
+        
+            <div style="margin-bottom: 20px; page-break-inside: avoid;">
+                <h2 style="font-size: 13pt; color: #0891B2; border-bottom: 2px solid #0891B2; padding-bottom: 6px; margin-bottom: 12px; font-weight: 600;">Elementi Distintivi</h2>
+                <div style="background: #f8fafc; padding: 15px; border-radius: 8px; border-left: 3px solid #0891B2;"><p>Servizi onicotecnici di alta qualità, attenzione ai dettagli e un ambiente accogliente. Maria Rosaria ha una formazione e certificazioni nel settore.</p></div>
+            </div>
+        
+            <div style="margin-bottom: 20px; page-break-inside: avoid;">
+                <h2 style="font-size: 13pt; color: #0891B2; border-bottom: 2px solid #0891B2; padding-bottom: 6px; margin-bottom: 12px; font-weight: 600;">Design e Stile</h2>
+                <div style="background: #f8fafc; padding: 15px; border-radius: 8px; border-left: 3px solid #0891B2;"><p>Colori principali: rosa, oro e verde scuro. Design moderno con immagini del negozio e dei lavori svolti. Scritte verdi su sfondo bianco per una migliore leggibilità.</p></div>
+            </div>
+        
+            <div style="margin-bottom: 20px; page-break-inside: avoid;">
+                <h2 style="font-size: 13pt; color: #0891B2; border-bottom: 2px solid #0891B2; padding-bottom: 6px; margin-bottom: 12px; font-weight: 600;">Contenuti Sezioni</h2>
+                <div style="background: #f8fafc; padding: 15px; border-radius: 8px; border-left: 3px solid #0891B2;"><h4 style="font-size: 11pt; color: #334155; margin: 10px 0 5px 0; font-weight: 600;">Home</h4><div style="margin-bottom: 15px;">Immagine di sfondo del negozio con logo e descrizione. Foto dei lavori con descrizioni a sinistra e a destra.</div><h4 style="font-size: 11pt; color: #334155; margin: 10px 0 5px 0; font-weight: 600;">Chi Siamo</h4><div style="margin-bottom: 15px;">Storia di Maria Rosaria e del suo studio, accompagnata da foto e certificazioni.</div><h4 style="font-size: 11pt; color: #334155; margin: 10px 0 5px 0; font-weight: 600;">Servizi</h4><div style="margin-bottom: 15px;">Elenco dettagliato dei servizi offerti, con immagini e descrizioni.</div></div>
+            </div>
+        
+    <script>window.onload = () => setTimeout(() => window.print(), 300);</script>
+</body>
+</html>
