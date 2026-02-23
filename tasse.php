@@ -1,7 +1,7 @@
 <?php
 /**
  * Eterea Gestionale
- * Calcolatore Tasse
+ * Calcolatore Tasse - Regime Forfettario
  */
 
 require_once __DIR__ . '/includes/functions.php';
@@ -31,13 +31,27 @@ try {
     $accontoPerc = 100;
 }
 
+// Recupera cronologia calcoli utente
+try {
+    $stmt = $pdo->prepare("
+        SELECT * FROM cronologia_calcoli_tasse 
+        WHERE user_id = ? 
+        ORDER BY created_at DESC 
+        LIMIT 50
+    ");
+    $stmt->execute([$_SESSION['user_id']]);
+    $cronologia = $stmt->fetchAll();
+} catch (PDOException $e) {
+    $cronologia = [];
+}
+
 include __DIR__ . '/includes/header.php';
 ?>
 
 <!-- Header -->
 <div class="mb-6">
     <h1 class="text-xl sm:text-2xl font-bold text-slate-800">Calcolo Tasse</h1>
-    <p class="text-slate-500 mt-1">Simulatore fiscale per partita IVA</p>
+    <p class="text-slate-500 mt-1">Simulatore fiscale per regime forfettario</p>
 </div>
 
 <!-- Password Protection -->
@@ -72,38 +86,35 @@ include __DIR__ . '/includes/header.php';
     
     <!-- Input Dati -->
     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
-        <h2 class="font-semibold text-slate-800 mb-4 flex items-center gap-2">
-            <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-            </svg>
-            Dati di Calcolo
-        </h2>
+        <div class="flex items-center gap-2 mb-4">
+            <div class="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center">
+                <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                </svg>
+            </div>
+            <h2 class="font-semibold text-slate-800">Dati di Calcolo</h2>
+        </div>
         
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-                <label class="block text-sm font-medium text-slate-700 mb-1">Fatturato Annuo (€)</label>
+                <label class="block text-sm font-medium text-slate-700 mb-1">Fatturato Annuo (€) *</label>
                 <input type="number" id="fatturato" step="0.01" min="0"
                        class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none"
                        placeholder="es. 50000" onchange="calcolaTasse()">
             </div>
             
             <div>
-                <label class="block text-sm font-medium text-slate-700 mb-1">Costi Deductibili (€)</label>
-                <input type="number" id="costi" step="0.01" min="0"
-                       class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none"
-                       placeholder="es. 10000" onchange="calcolaTasse()">
-            </div>
-            
-            <div>
-                <label class="block text-sm font-medium text-slate-700 mb-1">Codice ATECO</label>
-                <select id="codiceAteco" onchange="calcolaTasse()"
+                <label class="block text-sm font-medium text-slate-700 mb-1">Codice ATECO *</label>
+                <select id="codiceAteco" onchange="onCodiceAtecoChange()"
                         class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none bg-white">
                     <option value="">-- Seleziona --</option>
                     <?php foreach ($codiciAteco as $c): ?>
                     <option value="<?php echo e($c['id']); ?>" 
+                            data-codice="<?php echo e($c['codice']); ?>"
+                            data-descrizione="<?php echo e($c['descrizione']); ?>"
                             data-coefficiente="<?php echo e($c['coefficiente_redditivita']); ?>"
                             data-tassazione="<?php echo e($c['tassazione']); ?>">
-                        <?php echo e($c['codice']); ?> - <?php echo e($c['descrizione'] ?: 'N/A'); ?>
+                        <?php echo e($c['codice']); ?> - <?php echo e($c['descrizione'] ?: 'N/A'); ?> (Coeff: <?php echo e($c['coefficiente_redditivita']); ?>%)
                     </option>
                     <?php endforeach; ?>
                 </select>
@@ -115,12 +126,19 @@ include __DIR__ . '/includes/header.php';
                        class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none"
                        placeholder="es. 15 per flat tax">
             </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-slate-700 mb-1">Note (opzionale)</label>
+                <input type="text" id="noteCalcolo" 
+                       class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none"
+                       placeholder="es. Previsione 2024, Progetto X...">
+            </div>
         </div>
         
         <div class="mt-4 p-4 bg-slate-50 rounded-xl">
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
-                    <label class="block text-xs font-medium text-slate-500 mb-1">INPS (%)</label>
+                    <label class="block text-xs font-medium text-slate-500 mb-1">INPS Gestione Separata (%)</label>
                     <input type="number" id="inpsPerc" step="0.01" value="<?php echo e($inpsPerc); ?>"
                            class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm"
                            onchange="calcolaTasse()">
@@ -131,7 +149,7 @@ include __DIR__ . '/includes/header.php';
                            class="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-100 text-sm">
                 </div>
                 <div>
-                    <label class="block text-xs font-medium text-slate-500 mb-1">Acconti (%)</label>
+                    <label class="block text-xs font-medium text-slate-500 mb-1">Acconti anno successivo (%)</label>
                     <input type="number" id="accontoPerc" step="0.01" value="<?php echo e($accontoPerc); ?>"
                            class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm"
                            onchange="calcolaTasse()">
@@ -139,10 +157,19 @@ include __DIR__ . '/includes/header.php';
             </div>
         </div>
         
-        <button onclick="calcolaTasse()" 
-                class="mt-4 w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-medium transition-colors">
-            Calcola Tasse
-        </button>
+        <div class="mt-4 flex gap-3">
+            <button onclick="calcolaTasse()" 
+                    class="flex-1 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-medium transition-colors">
+                Calcola Tasse
+            </button>
+            <button onclick="salvaCalcolo()" id="btnSalvaCalcolo" disabled
+                    class="px-6 py-3 bg-slate-200 text-slate-400 rounded-xl font-medium transition-colors cursor-not-allowed"
+                    title="Calcola prima per abilitare il salvataggio">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/>
+                </svg>
+            </button>
+        </div>
     </div>
     
     <!-- Risultati -->
@@ -167,45 +194,35 @@ include __DIR__ . '/includes/header.php';
         
         <!-- Dettaglio Tasse -->
         <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
-            <h3 class="font-semibold text-slate-800 mb-4">Dettaglio Imposte</h3>
+            <h3 class="font-semibold text-slate-800 mb-4">Dettaglio Imposte - Regime Forfettario</h3>
             
             <div class="space-y-3">
-                <div class="flex justify-between items-center py-2 border-b border-slate-100">
-                    <span class="text-slate-600">Fatturato Lordo</span>
-                    <span class="font-medium" id="detFatturato">€ 0,00</span>
-                </div>
-                <div class="flex justify-between items-center py-2 border-b border-slate-100">
-                    <span class="text-slate-600">- Costi Deductibili</span>
-                    <span class="font-medium text-slate-500" id="detCosti">€ 0,00</span>
-                </div>
-                <div class="flex justify-between items-center py-2 border-b border-slate-100 bg-slate-50 px-3 rounded-lg">
-                    <span class="font-medium text-slate-700">Reddito Lordo</span>
-                    <span class="font-semibold" id="detLordo">€ 0,00</span>
-                </div>
-                
-                <div class="py-2">
-                    <div class="flex justify-between items-center mb-2">
-                        <span class="text-slate-600">Coefficiente ATECO</span>
-                        <span class="font-medium text-emerald-600" id="detCoeff">0%</span>
-                    </div>
-                </div>
-                
                 <div class="flex justify-between items-center py-2 border-b border-slate-100 bg-emerald-50 px-3 rounded-lg">
-                    <span class="font-medium text-emerald-800">Reddito Imponibile</span>
-                    <span class="font-bold text-emerald-700" id="detImponibile">€ 0,00</span>
+                    <span class="font-medium text-emerald-800">Fatturato Lordo</span>
+                    <span class="font-bold text-emerald-700" id="detFatturato">€ 0,00</span>
+                </div>
+                
+                <div class="flex justify-between items-center py-2">
+                    <span class="text-slate-600">Coefficiente ATECO</span>
+                    <span class="font-medium text-emerald-600" id="detCoeff">0%</span>
+                </div>
+                
+                <div class="flex justify-between items-center py-2 border-b border-slate-100 bg-blue-50 px-3 rounded-lg">
+                    <span class="font-medium text-blue-800">Reddito Imponibile</span>
+                    <span class="font-bold text-blue-700" id="detImponibile">€ 0,00</span>
                 </div>
                 
                 <div class="pt-2 space-y-2">
                     <div class="flex justify-between items-center py-2">
-                        <span class="text-slate-600">Imposta IRPEF</span>
+                        <span class="text-slate-600">Imposta IRPEF <span id="detAliquotaIrpef" class="text-xs text-slate-400">(0%)</span></span>
                         <span class="font-medium text-red-600" id="detIrpef">€ 0,00</span>
                     </div>
                     <div class="flex justify-between items-center py-2">
-                        <span class="text-slate-600">Contributi INPS</span>
+                        <span class="text-slate-600">Contributi INPS <span id="detAliquotaInps" class="text-xs text-slate-400">(0%)</span></span>
                         <span class="font-medium text-orange-600" id="detInps">€ 0,00</span>
                     </div>
                     <div class="flex justify-between items-center py-2 bg-amber-50 px-3 rounded-lg">
-                        <span class="text-amber-800 font-medium">Acconti Tasse (+<span id="detAccontoPerc">100</span>%)</span>
+                        <span class="text-amber-800 font-medium">Acconti anno succ. (+<span id="detAccontoPerc">100</span>%)</span>
                         <span class="font-medium text-amber-700" id="detAcconto">€ 0,00</span>
                     </div>
                 </div>
@@ -222,18 +239,79 @@ include __DIR__ . '/includes/header.php';
             </div>
         </div>
         
-        <!-- Note -->
+        <!-- Note informative -->
         <div class="bg-amber-50 rounded-xl p-4 border border-amber-200">
             <p class="text-sm text-amber-800">
-                <strong>Nota:</strong> Questi calcoli sono indicativi e non sostituiscono la consulenza di un commercialista. 
-                I valori si basano sui coefficienti ATECO e sulle aliquote configurate nelle impostazioni.
+                <strong>Regime Forfettario:</strong> Il reddito imponibile si calcola applicando il coefficiente ATECO al fatturato. 
+                Non si detraggono i costi. I contributi INPS sono deducibili dall'imponibile.<br>
+                <strong>Acconti:</strong> Si pagano in base alle imposte dell'anno precedente (100% di solito).
             </p>
         </div>
+    </div>
+    
+    <!-- Cronologia Calcoli -->
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
+        <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-2">
+                <div class="w-10 h-10 bg-cyan-100 rounded-xl flex items-center justify-center">
+                    <svg class="w-5 h-5 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+                <h2 class="font-semibold text-slate-800">Cronologia Calcoli</h2>
+            </div>
+            <?php if (count($cronologia) > 0): ?>
+            <span class="text-sm text-slate-500"><?php echo count($cronologia); ?> calcoli salvati</span>
+            <?php endif; ?>
+        </div>
+        
+        <?php if (count($cronologia) > 0): ?>
+        <div class="space-y-3 max-h-96 overflow-y-auto">
+            <?php foreach ($cronologia as $calc): ?>
+            <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 hover:border-emerald-300 transition-colors">
+                <div class="flex items-start justify-between">
+                    <div>
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="font-semibold text-slate-800">€ <?php echo number_format($calc['fatturato'], 2, ',', '.'); ?></span>
+                            <span class="text-xs px-2 py-1 bg-emerald-100 text-emerald-700 rounded-full">
+                                Coeff: <?php echo $calc['coefficiente']; ?>%
+                            </span>
+                        </div>
+                        <p class="text-sm text-slate-600"><?php echo e($calc['codice_ateco']); ?> - <?php echo e($calc['descrizione_ateco'] ?: ''); ?></p>
+                        <?php if ($calc['note']): ?>
+                        <p class="text-xs text-slate-500 mt-1">📝 <?php echo e($calc['note']); ?></p>
+                        <?php endif; ?>
+                        <p class="text-xs text-slate-400 mt-2">
+                            IRPEF: € <?php echo number_format($calc['imposta_irpef'], 2, ',', '.'); ?> | 
+                            INPS: € <?php echo number_format($calc['contributi_inps'], 2, ',', '.'); ?> | 
+                            Netto: € <?php echo number_format($calc['netto'], 2, ',', '.'); ?>
+                        </p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-lg font-bold text-emerald-700">€ <?php echo number_format($calc['netto'], 2, ',', '.'); ?></p>
+                        <p class="text-xs text-slate-400"><?php echo date('d/m/Y H:i', strtotime($calc['created_at'])); ?></p>
+                    </div>
+                </div>
+            </div>
+            <?php endforeach; ?>
+        </div>
+        <?php else: ?>
+        <div class="text-center py-8">
+            <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                <svg class="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                </svg>
+            </div>
+            <p class="text-slate-500">Nessun calcolo salvato</p>
+            <p class="text-sm text-slate-400 mt-1">I tuoi calcoli appariranno qui</p>
+        </div>
+        <?php endif; ?>
     </div>
 </div>
 
 <script>
 const PASSWORD_CORRETTA = 'Tomato2399!?';
+let ultimoCalcolo = null;
 
 function verificaPassword() {
     const pwd = document.getElementById('accessPassword').value;
@@ -258,22 +336,42 @@ function formatCurrency(value) {
     });
 }
 
+function onCodiceAtecoChange() {
+    const select = document.getElementById('codiceAteco');
+    const option = select.options[select.selectedIndex];
+    
+    if (option && option.value) {
+        const coeff = option.dataset.coefficiente;
+        const tax = option.dataset.tassazione;
+        document.getElementById('coeffAteco').value = coeff;
+        document.getElementById('aliquotaIrpef').value = tax;
+    } else {
+        document.getElementById('coeffAteco').value = '';
+        document.getElementById('aliquotaIrpef').value = '';
+    }
+    
+    calcolaTasse();
+}
+
 function calcolaTasse() {
     const fatturato = parseFloat(document.getElementById('fatturato').value) || 0;
-    const costi = parseFloat(document.getElementById('costi').value) || 0;
     const inpsPerc = parseFloat(document.getElementById('inpsPerc').value) || 0;
     const accontoPerc = parseFloat(document.getElementById('accontoPerc').value) || 0;
     
-    // Recupera dati dal codice ATECO selezionato
+    // Recupera dati dal codice ATECO
     const selectAteco = document.getElementById('codiceAteco');
     const option = selectAteco.options[selectAteco.selectedIndex];
     
     let coefficiente = 0;
     let aliquotaIrpef = 0;
+    let codiceAtecoVal = '';
+    let descAteco = '';
     
     if (option && option.value) {
         coefficiente = parseFloat(option.dataset.coefficiente) || 0;
         aliquotaIrpef = parseFloat(option.dataset.tassazione) || 0;
+        codiceAtecoVal = option.dataset.codice;
+        descAteco = option.dataset.descrizione;
         document.getElementById('coeffAteco').value = coefficiente;
         document.getElementById('aliquotaIrpef').value = aliquotaIrpef;
     } else {
@@ -281,32 +379,63 @@ function calcolaTasse() {
         aliquotaIrpef = parseFloat(document.getElementById('aliquotaIrpef').value) || 0;
     }
     
-    if (fatturato <= 0) {
+    if (fatturato <= 0 || coefficiente <= 0) {
         document.getElementById('risultatiCalcolo').classList.add('hidden');
+        document.getElementById('btnSalvaCalcolo').disabled = true;
+        document.getElementById('btnSalvaCalcolo').classList.add('bg-slate-200', 'text-slate-400', 'cursor-not-allowed');
+        document.getElementById('btnSalvaCalcolo').classList.remove('bg-emerald-600', 'text-white', 'hover:bg-emerald-700');
         return;
     }
     
-    // Calcoli
-    const lordo = fatturato - costi;
-    const imponibile = lordo * (coefficiente / 100);
-    const irpef = imponibile * (aliquotaIrpef / 100);
-    const inps = imponibile * (inpsPerc / 100);
+    // Calcoli Regime Forfettario
+    // Reddito Imponibile = Fatturato × Coefficiente
+    // Contributi INPS sono deducibili, quindi calcoliamo prima l'INPS approssimativo
+    
+    const redditoImponibile = fatturato * (coefficiente / 100);
+    
+    // Contributi INPS (deducibili, quindi riducono l'imponibile IRPEF)
+    const inps = redditoImponibile * (inpsPerc / 100);
+    
+    // IRPEF sul reddito imponibile (i contributi INPS sono deducibili)
+    const imponibileIrpef = Math.max(0, redditoImponibile - inps);
+    const irpef = imponibileIrpef * (aliquotaIrpef / 100);
+    
+    // Acconti (da pagare l'anno dopo, pari alle imposte dell'anno corrente)
     const acconto = (irpef + inps) * (accontoPerc / 100);
+    
     const totaleTasse = irpef + inps + acconto;
     const netto = fatturato - totaleTasse;
     
+    // Salva per il salvataggio
+    ultimoCalcolo = {
+        fatturato: fatturato,
+        codice_ateco: codiceAtecoVal,
+        descrizione_ateco: descAteco,
+        coefficiente: coefficiente,
+        reddito_imponibile: redditoImponibile,
+        aliquota_irpef: aliquotaIrpef,
+        imposta_irpef: irpef,
+        inps_percentuale: inpsPerc,
+        contributi_inps: inps,
+        acconto_percentuale: accontoPerc,
+        acconti: acconto,
+        totale_tasse: totaleTasse,
+        netto: netto,
+        note: document.getElementById('noteCalcolo').value
+    };
+    
     // Aggiorna UI
     document.getElementById('resFatturato').textContent = formatCurrency(fatturato);
-    document.getElementById('resImponibile').textContent = formatCurrency(imponibile);
+    document.getElementById('resImponibile').textContent = formatCurrency(redditoImponibile);
     document.getElementById('resCoeffText').textContent = `Coefficiente: ${coefficiente}%`;
     document.getElementById('resNetto').textContent = formatCurrency(netto);
     
     document.getElementById('detFatturato').textContent = formatCurrency(fatturato);
-    document.getElementById('detCosti').textContent = formatCurrency(costi);
-    document.getElementById('detLordo').textContent = formatCurrency(lordo);
     document.getElementById('detCoeff').textContent = coefficiente + '%';
-    document.getElementById('detImponibile').textContent = formatCurrency(imponibile);
+    document.getElementById('detImponibile').textContent = formatCurrency(redditoImponibile);
+    document.getElementById('detAliquotaIrpef').textContent = `(${aliquotaIrpef}%)`;
     document.getElementById('detIrpef').textContent = formatCurrency(irpef);
+    document.getElementById('detAliquotaInps').textContent = `(${inpsPerc}%)`;
     document.getElementById('detInps').textContent = formatCurrency(inps);
     document.getElementById('detAccontoPerc').textContent = accontoPerc;
     document.getElementById('detAcconto').textContent = formatCurrency(acconto);
@@ -314,6 +443,45 @@ function calcolaTasse() {
     document.getElementById('detNetto').textContent = formatCurrency(netto);
     
     document.getElementById('risultatiCalcolo').classList.remove('hidden');
+    
+    // Abilita bottone salva
+    document.getElementById('btnSalvaCalcolo').disabled = false;
+    document.getElementById('btnSalvaCalcolo').classList.remove('bg-slate-200', 'text-slate-400', 'cursor-not-allowed');
+    document.getElementById('btnSalvaCalcolo').classList.add('bg-emerald-600', 'text-white', 'hover:bg-emerald-700');
+    document.getElementById('btnSalvaCalcolo').title = 'Salva questo calcolo';
+}
+
+async function salvaCalcolo() {
+    if (!ultimoCalcolo) {
+        showToast('Calcola prima le tasse', 'error');
+        return;
+    }
+    
+    try {
+        const formData = new FormData();
+        formData.append('action', 'salva_calcolo_tasse');
+        Object.keys(ultimoCalcolo).forEach(key => {
+            formData.append(key, ultimoCalcolo[key]);
+        });
+        
+        const response = await fetch('api/tasse.php', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showToast('Calcolo salvato!', 'success');
+            // Ricarica la pagina per vedere la cronologia aggiornata
+            setTimeout(() => window.location.reload(), 500);
+        } else {
+            showToast(data.message || 'Errore durante il salvataggio', 'error');
+        }
+    } catch (error) {
+        console.error('Errore:', error);
+        showToast('Errore di connessione', 'error');
+    }
 }
 </script>
 
