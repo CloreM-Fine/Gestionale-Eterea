@@ -338,6 +338,7 @@ function getMimeFromExtension(string $extension): ?string {
         'pdf' => 'application/pdf',
         'jpg' => 'image/jpeg',
         'jpeg' => 'image/jpeg',
+        'jpe' => 'image/jpeg',
         'png' => 'image/png',
         'gif' => 'image/gif',
         'webp' => 'image/webp',
