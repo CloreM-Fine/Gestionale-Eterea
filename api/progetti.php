@@ -663,13 +663,14 @@ function uploadDocumento(): void {
     
     $file = $_FILES['documento'];
     
-    // Verifica tipo
+    // Verifica tipo (PDF o ZIP)
     $finfo = finfo_open(FILEINFO_MIME_TYPE);
     $mimeType = finfo_file($finfo, $file['tmp_name']);
     finfo_close($finfo);
     
-    if ($mimeType !== 'application/pdf') {
-        jsonResponse(false, null, 'Il file deve essere un PDF');
+    $allowedMimeTypes = ['application/pdf', 'application/zip', 'application/x-zip-compressed'];
+    if (!in_array($mimeType, $allowedMimeTypes)) {
+        jsonResponse(false, null, 'Il file deve essere PDF o ZIP');
         return;
     }
     

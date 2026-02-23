@@ -570,12 +570,12 @@ function switchTab(tabName) {
                         <input type="hidden" name="progetto_id" value="<?php echo $progettoId; ?>">
                         
                         <div>
-                            <label class="block text-sm font-medium text-slate-700 mb-2">File PDF (max 5MB)</label>
-                            <input type="file" name="documento" id="documentoInput" accept=".pdf" 
+                            <label class="block text-sm font-medium text-slate-700 mb-2">File PDF o ZIP (max 5MB)</label>
+                            <input type="file" name="documento" id="documentoInput" accept=".pdf,.zip,application/zip" 
                                    class="w-full text-base text-slate-600 file:mr-4 file:py-3 file:px-4 file:rounded-lg file:border-0 file:font-medium file:bg-cyan-50 file:text-cyan-700 hover:file:bg-cyan-100"
                                    onchange="validateDocumento(this)">
                             <p class="text-xs text-slate-500 mt-2">
-                                Massimo 5 documenti per progetto. Formato: PDF
+                                Massimo 5 documenti per progetto. Formato: PDF o ZIP
                             </p>
                             <p id="documentoError" class="text-xs text-red-500 mt-1 hidden"></p>
                         </div>
@@ -619,7 +619,7 @@ function switchTab(tabName) {
                             <p class="font-medium text-amber-800 text-sm">Limiti Upload</p>
                             <ul class="text-sm text-amber-700 mt-1 space-y-1">
                                 <li>• Massimo 5 documenti per progetto</li>
-                                <li>• Formato accettato: PDF</li>
+                                <li>• Formato accettato: PDF o ZIP</li>
                                 <li>• Dimensione massima: 5MB per file</li>
                             </ul>
                         </div>
@@ -1619,9 +1619,10 @@ function validateDocumento(input) {
     if (input.files && input.files[0]) {
         const file = input.files[0];
         
-        // Verifica tipo
-        if (file.type !== 'application/pdf') {
-            errorEl.textContent = 'Il file deve essere un PDF';
+        // Verifica tipo (PDF o ZIP)
+        const allowedTypes = ['application/pdf', 'application/zip', 'application/x-zip-compressed'];
+        if (!allowedTypes.includes(file.type) && !file.name.toLowerCase().endsWith('.zip')) {
+            errorEl.textContent = 'Il file deve essere PDF o ZIP';
             errorEl.classList.remove('hidden');
             input.value = '';
             previewEl.classList.add('hidden');
@@ -1716,7 +1717,7 @@ async function uploadDocumento() {
     const formData = new FormData(form);
     
     if (!formData.get('documento') || formData.get('documento').size === 0) {
-        showToast('Seleziona un file PDF', 'error');
+        showToast('Seleziona un file PDF o ZIP', 'error');
         return;
     }
     
