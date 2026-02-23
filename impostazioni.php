@@ -435,6 +435,178 @@ include __DIR__ . '/includes/header.php';
         </div>
     </div>
     
+    <!-- Sezione: Impostazioni Tasse -->
+    <div class="md:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="p-5 border-b border-slate-100">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center">
+                    <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-slate-800">Impostazioni Tasse</h3>
+                    <p class="text-xs sm:text-sm text-slate-500">Codici ATECO e parametri fiscali</p>
+                </div>
+                <div class="ml-auto">
+                    <span class="px-2 py-1 bg-amber-100 text-amber-700 text-xs rounded-lg font-medium">
+                        <svg class="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                        </svg>
+                        Protetto
+                    </span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="p-5">
+            <!-- Stato -->
+            <div id="tasseStatus" class="mb-5 p-4 bg-slate-50 rounded-xl flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div id="tasseStatusIcon" class="w-10 h-10 bg-slate-200 rounded-full flex items-center justify-center">
+                        <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <p id="tasseStatusText" class="font-medium text-slate-700">Impostazioni tasse</p>
+                        <p class="text-xs text-slate-500">Configura codici ATECO e aliquote</p>
+                    </div>
+                </div>
+                <button onclick="toggleTasseForm()" 
+                        class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium transition-colors text-sm">
+                    Configura
+                </button>
+            </div>
+            
+            <!-- Form Impostazioni Tasse (inizialmente nascosto) -->
+            <div id="tasseForm" class="hidden">
+                <!-- Password Protection -->
+                <div class="mb-5 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+                    <label class="block text-sm font-medium text-amber-800 mb-2">
+                        <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                        </svg>
+                        Password di modifica
+                    </label>
+                    <input type="password" id="tassePassword" 
+                           class="w-full px-4 py-2.5 border border-amber-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none bg-white"
+                           placeholder="Inserisci la password...">
+                </div>
+                
+                <!-- Aliquote Generali -->
+                <div class="mb-6 p-4 bg-slate-50 rounded-xl">
+                    <h4 class="font-medium text-slate-800 mb-4">Aliquote Generali</h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1">INPS (%)</label>
+                            <input type="number" id="tassaInps" step="0.01" min="0" max="100"
+                                   class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+                                   placeholder="es. 25.72">
+                            <p class="text-xs text-slate-500 mt-1">Contributi INPS gestione separata</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1">Acconto Tasse (%)</label>
+                            <input type="number" id="tassaAcconto" step="0.01" min="0" max="100"
+                                   class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+                                   placeholder="es. 100">
+                            <p class="text-xs text-slate-500 mt-1">Percentuale acconto sul netto</p>
+                        </div>
+                    </div>
+                    <button type="button" onclick="salvaImpostazioniTasse()" 
+                            class="mt-4 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium transition-colors text-sm">
+                        Salva Aliquote
+                    </button>
+                </div>
+                
+                <!-- Codici ATECO -->
+                <div class="mb-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h4 class="font-medium text-slate-800">Codici ATECO</h4>
+                        <button type="button" onclick="apriModalCodiceAteco()" 
+                                class="px-3 py-1.5 bg-emerald-100 hover:bg-emerald-200 text-emerald-700 rounded-lg text-sm font-medium transition-colors">
+                            + Aggiungi Codice
+                        </button>
+                    </div>
+                    
+                    <div id="listaCodiciAteco" class="space-y-2">
+                        <p class="text-slate-400 text-center py-4">Nessun codice ATECO configurato</p>
+                    </div>
+                </div>
+                
+                <!-- Actions -->
+                <div class="flex flex-row justify-end gap-2">
+                    <button type="button" onclick="toggleTasseForm()" 
+                            class="flex-1 sm:flex-none px-4 py-2.5 text-slate-600 hover:text-slate-800 font-medium min-h-[44px] rounded-lg hover:bg-slate-100 transition-colors text-sm sm:text-base">
+                        Chiudi
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal Aggiungi/Modifica Codice ATECO -->
+    <div id="modalCodiceAteco" class="fixed inset-0 z-[60] hidden">
+        <div class="absolute inset-0 bg-black/50" onclick="chiudiModalCodiceAteco()"></div>
+        <div class="absolute inset-0 flex items-end sm:items-center justify-center p-0 sm:p-4">
+            <div class="bg-white w-full max-w-lg sm:rounded-2xl rounded-t-2xl shadow-2xl max-h-[85vh] sm:max-h-[90vh] overflow-hidden flex flex-col">
+                <div class="p-4 sm:p-6 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white z-10">
+                    <h3 class="text-lg sm:text-xl font-bold text-slate-800" id="titoloModalAteco">Nuovo Codice ATECO</h3>
+                    <button onclick="chiudiModalCodiceAteco()" class="p-2 -mr-2 text-slate-400 hover:text-slate-600 min-h-[44px] min-w-[44px] flex items-center justify-center">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+                
+                <div class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
+                    <input type="hidden" id="atecoId">
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Codice ATECO *</label>
+                        <input type="text" id="atecoCodice" 
+                               class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+                               placeholder="es. 73.11.02">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Descrizione Attività</label>
+                        <input type="text" id="atecoDescrizione" 
+                               class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+                               placeholder="es. Attività degli studi di progettazione">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Coefficiente di Redditività (%)</label>
+                        <input type="number" id="atecoCoefficiente" step="0.01" min="0" max="100"
+                               class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+                               placeholder="es. 78">
+                        <p class="text-xs text-slate-500 mt-1">Percentuale del fatturato considerata reddito imponibile</p>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Tassazione IRPEF (%)</label>
+                        <input type="number" id="atecoTassazione" step="0.01" min="0" max="100"
+                               class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+                               placeholder="es. 15">
+                        <p class="text-xs text-slate-500 mt-1">Aliquota fiscale applicata (flat tax o ordinaria)</p>
+                    </div>
+                </div>
+                
+                <div class="p-4 sm:p-6 border-t border-slate-100 flex flex-row justify-end gap-2 sm:gap-3">
+                    <button type="button" onclick="chiudiModalCodiceAteco()" 
+                            class="flex-1 sm:flex-none px-4 py-2.5 sm:py-2 text-slate-600 hover:text-slate-800 font-medium min-h-[44px] rounded-lg hover:bg-slate-100 transition-colors text-sm sm:text-base">
+                        Annulla
+                    </button>
+                    <button type="button" onclick="salvaCodiceAteco()" 
+                            class="flex-1 sm:flex-none px-4 sm:px-6 py-2.5 sm:py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium min-h-[44px] transition-colors text-sm sm:text-base">
+                        Salva
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <!-- Sezione: ELIMINA TUTTO (Pericolo Estremo) -->
     <div class="md:col-span-2 bg-gradient-to-r from-red-50 to-red-100 rounded-2xl shadow-sm border border-red-200 overflow-hidden">
         <div class="p-5 border-b border-red-200">
@@ -1153,6 +1325,252 @@ async function salvaDatiAzienda() {
             } else {
                 showToast(data.message || 'Errore durante il salvataggio', 'error');
             }
+        }
+    } catch (error) {
+        console.error('Errore:', error);
+        showToast('Errore durante il salvataggio', 'error');
+    }
+}
+
+// ==================== IMPOSTAZIONI TASSE ====================
+
+let codiciAteco = [];
+let impostazioniTasse = {};
+
+// Carica dati all'avvio
+document.addEventListener('DOMContentLoaded', function() {
+    caricaCodiciAteco();
+    caricaImpostazioniTasse();
+});
+
+async function caricaCodiciAteco() {
+    try {
+        const response = await fetch('api/impostazioni.php?action=get_codici_ateco');
+        const data = await response.json();
+        
+        if (data.success) {
+            codiciAteco = data.data;
+            renderizzaCodiciAteco();
+        }
+    } catch (error) {
+        console.error('Errore caricamento codici ATECO:', error);
+    }
+}
+
+async function caricaImpostazioniTasse() {
+    try {
+        const response = await fetch('api/impostazioni.php?action=get_impostazioni_tasse');
+        const data = await response.json();
+        
+        if (data.success) {
+            impostazioniTasse = data.data;
+            document.getElementById('tassaInps').value = impostazioniTasse.inps_percentuale || '';
+            document.getElementById('tassaAcconto').value = impostazioniTasse.acconto_percentuale || '';
+        }
+    } catch (error) {
+        console.error('Errore caricamento impostazioni tasse:', error);
+    }
+}
+
+function toggleTasseForm() {
+    const form = document.getElementById('tasseForm');
+    const status = document.getElementById('tasseStatus');
+    
+    if (form.classList.contains('hidden')) {
+        form.classList.remove('hidden');
+        status.classList.add('hidden');
+    } else {
+        form.classList.add('hidden');
+        status.classList.remove('hidden');
+        document.getElementById('tassePassword').value = '';
+    }
+}
+
+function renderizzaCodiciAteco() {
+    const container = document.getElementById('listaCodiciAteco');
+    
+    if (codiciAteco.length === 0) {
+        container.innerHTML = '<p class="text-slate-400 text-center py-4">Nessun codice ATECO configurato</p>';
+        return;
+    }
+    
+    container.innerHTML = codiciAteco.map(c => `
+        <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 flex items-center justify-between">
+            <div>
+                <p class="font-medium text-slate-800">${escapeHtml(c.codice)}</p>
+                <p class="text-sm text-slate-600">${escapeHtml(c.descrizione || '')}</p>
+                <p class="text-xs text-slate-500 mt-1">
+                    Coeff: ${c.coefficiente_redditivita}% | Tax: ${c.tassazione}%
+                </p>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="modificaCodiceAteco(${c.id})" 
+                        class="p-2 text-slate-400 hover:text-emerald-600 transition-colors" title="Modifica">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                    </svg>
+                </button>
+                <button onclick="eliminaCodiceAteco(${c.id})" 
+                        class="p-2 text-slate-400 hover:text-red-600 transition-colors" title="Elimina">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    `).join('');
+}
+
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function apriModalCodiceAteco(id = null) {
+    const password = document.getElementById('tassePassword').value;
+    if (!password) {
+        showToast('Inserisci prima la password', 'error');
+        document.getElementById('tassePassword').focus();
+        return;
+    }
+    
+    document.getElementById('atecoId').value = id || '';
+    document.getElementById('atecoCodice').value = '';
+    document.getElementById('atecoDescrizione').value = '';
+    document.getElementById('atecoCoefficiente').value = '';
+    document.getElementById('atecoTassazione').value = '';
+    
+    if (id) {
+        const codice = codiciAteco.find(c => c.id == id);
+        if (codice) {
+            document.getElementById('titoloModalAteco').textContent = 'Modifica Codice ATECO';
+            document.getElementById('atecoCodice').value = codice.codice;
+            document.getElementById('atecoDescrizione').value = codice.descrizione || '';
+            document.getElementById('atecoCoefficiente').value = codice.coefficiente_redditivita;
+            document.getElementById('atecoTassazione').value = codice.tassazione;
+        }
+    } else {
+        document.getElementById('titoloModalAteco').textContent = 'Nuovo Codice ATECO';
+    }
+    
+    openModal('modalCodiceAteco');
+}
+
+function modificaCodiceAteco(id) {
+    apriModalCodiceAteco(id);
+}
+
+function chiudiModalCodiceAteco() {
+    closeModal('modalCodiceAteco');
+}
+
+async function salvaCodiceAteco() {
+    const password = document.getElementById('tassePassword').value;
+    const id = document.getElementById('atecoId').value;
+    const codice = document.getElementById('atecoCodice').value.trim();
+    
+    if (!codice) {
+        showToast('Il codice ATECO è obbligatorio', 'error');
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('action', 'save_codice_ateco');
+    formData.append('password', password);
+    formData.append('id', id);
+    formData.append('codice', codice);
+    formData.append('descrizione', document.getElementById('atecoDescrizione').value.trim());
+    formData.append('coefficiente_redditivita', document.getElementById('atecoCoefficiente').value || 0);
+    formData.append('tassazione', document.getElementById('atecoTassazione').value || 0);
+    
+    try {
+        showToast('Salvataggio...', 'info');
+        
+        const response = await fetch('api/impostazioni.php', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showToast('Codice ATECO salvato', 'success');
+            chiudiModalCodiceAteco();
+            await caricaCodiciAteco();
+        } else {
+            showToast(data.message || 'Errore', 'error');
+        }
+    } catch (error) {
+        console.error('Errore:', error);
+        showToast('Errore durante il salvataggio', 'error');
+    }
+}
+
+async function eliminaCodiceAteco(id) {
+    const password = document.getElementById('tassePassword').value;
+    if (!password) {
+        showToast('Inserisci la password', 'error');
+        return;
+    }
+    
+    if (!confirm('Sei sicuro di voler eliminare questo codice ATECO?')) return;
+    
+    try {
+        const formData = new FormData();
+        formData.append('action', 'delete_codice_ateco');
+        formData.append('password', password);
+        formData.append('id', id);
+        
+        const response = await fetch('api/impostazioni.php', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showToast('Codice eliminato', 'success');
+            await caricaCodiciAteco();
+        } else {
+            showToast(data.message || 'Errore', 'error');
+        }
+    } catch (error) {
+        console.error('Errore:', error);
+        showToast('Errore durante l\'eliminazione', 'error');
+    }
+}
+
+async function salvaImpostazioniTasse() {
+    const password = document.getElementById('tassePassword').value;
+    if (!password) {
+        showToast('Inserisci la password', 'error');
+        document.getElementById('tassePassword').focus();
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('action', 'save_impostazioni_tasse');
+    formData.append('password', password);
+    formData.append('inps_percentuale', document.getElementById('tassaInps').value || 0);
+    formData.append('acconto_percentuale', document.getElementById('tassaAcconto').value || 0);
+    
+    try {
+        showToast('Salvataggio...', 'info');
+        
+        const response = await fetch('api/impostazioni.php', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showToast('Impostazioni salvate', 'success');
+            await caricaImpostazioniTasse();
+        } else {
+            showToast(data.message || 'Errore', 'error');
         }
     } catch (error) {
         console.error('Errore:', error);

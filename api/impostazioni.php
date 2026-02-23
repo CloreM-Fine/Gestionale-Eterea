@@ -24,6 +24,10 @@ switch ($method) {
             getLogo();
         } elseif ($action === 'get_dati_azienda') {
             getDatiAzienda();
+        } elseif ($action === 'get_codici_ateco') {
+            getCodiciAteco();
+        } elseif ($action === 'get_impostazioni_tasse') {
+            getImpostazioniTasse();
         } else {
             jsonResponse(false, null, 'Azione non valida');
         }
@@ -44,6 +48,12 @@ switch ($method) {
             saveDatiAzienda();
         } elseif ($action === 'upload_logo_azienda') {
             uploadLogoAzienda();
+        } elseif ($action === 'save_codice_ateco') {
+            saveCodiceAteco();
+        } elseif ($action === 'delete_codice_ateco') {
+            deleteCodiceAteco();
+        } elseif ($action === 'save_impostazioni_tasse') {
+            saveImpostazioniTasse();
         } else {
             jsonResponse(false, null, 'Azione non valida');
         }
@@ -867,5 +877,164 @@ function uploadLogoAzienda(): void {
     } catch (Exception $e) {
         error_log("Errore upload logo azienda: " . $e->getMessage());
         jsonResponse(false, null, 'Errore durante l\'upload');
+    }
+}
+
+
+/**
+ * Ottiene i codici ATECO salvati
+ */
+function getCodiciAteco(): void {
+    global $pdo;
+    
+    try {
+        $stmt = $pdo->query("SELECT * FROM codici_ateco ORDER BY codice ASC");
+        $codici = $stmt->fetchAll();
+        jsonResponse(true, $codici);
+    } catch (PDOException $e) {
+        error_log("Errore get codici ateco: " . $e->getMessage());
+        jsonResponse(false, null, 'Errore caricamento codici ATECO');
+    }
+}
+
+/**
+ * Ottiene le impostazioni tasse (INPS, ecc.)
+ */
+function getImpostazioniTasse(): void {
+    global $pdo;
+    
+    try {
+        $impostazioni = [];
+        $chiavi = ['tassa_inps_percentuale', 'tassa_acconto_percentuale'];
+        
+        foreach ($chiavi as $chiave) {
+            $stmt = $pdo->prepare("SELECT valore FROM impostazioni WHERE chiave = ?");
+            $stmt->execute([$chiave]);
+            $impostazioni[str_replace('tassa_', '', $chiave)] = floatval($stmt->fetchColumn() ?: 0);
+        }
+        
+        jsonResponse(true, $impostazioni);
+    } catch (PDOException $e) {
+        error_log("Errore get impostazioni tasse: " . $e->getMessage());
+        jsonResponse(false, null, 'Errore caricamento impostazioni');
+    }
+}
+
+/**
+ * Salva un codice ATECO (crea o aggiorna)
+ */
+function saveCodiceAteco(): void {
+    global $pdo;
+    
+    // Verifica password
+    $password = $_POST['password'] ?? '';
+    if ($password !== 'Tomato2399!?') {
+        jsonResponse(false, null, 'Password errata');
+        return;
+    }
+    
+    $id = $_POST['id'] ?? null;
+    $codice = trim($_POST['codice'] ?? '');
+    $descrizione = trim($_POST['descrizione'] ?? '');
+    $coefficiente = floatval($_POST['coefficiente_redditivita'] ?? 0);
+    $tassazione = floatval($_POST['tassazione'] ?? 0);
+    
+    if (empty($codice)) {
+        jsonResponse(false, null, 'Il codice ATECO è obbligatorio');
+        return;
+    }
+    
+    try {
+        if ($id) {
+            // Update
+            $stmt = $pdo->prepare("
+                UPDATE codici_ateco 
+                SET codice = ?, descrizione = ?, coefficiente_redditivita = ?, tassazione = ?
+                WHERE id = ?
+            ");
+            $stmt->execute([$codice, $descrizione, $coefficiente, $tassazione, $id]);
+        } else {
+            // Insert
+            $stmt = $pdo->prepare("
+                INSERT INTO codici_ateco (codice, descrizione, coefficiente_redditivita, tassazione)
+                VALUES (?, ?, ?, ?)
+            ");
+            $stmt->execute([$codice, $descrizione, $coefficiente, $tassazione]);
+            $id = $pdo->lastInsertId();
+        }
+        
+        jsonResponse(true, ['id' => $id], 'Codice ATECO salvato con successo');
+    } catch (PDOException $e) {
+        error_log("Errore save codice ateco: " . $e->getMessage());
+        jsonResponse(false, null, 'Errore durante il salvataggio');
+    }
+}
+
+/**
+ * Elimina un codice ATECO
+ */
+function deleteCodiceAteco(): void {
+    global $pdo;
+    
+    // Verifica password
+    $password = $_POST['password'] ?? '';
+    if ($password !== 'Tomato2399!?') {
+        jsonResponse(false, null, 'Password errata');
+        return;
+    }
+    
+    $id = $_POST['id'] ?? null;
+    if (!$id) {
+        jsonResponse(false, null, 'ID codice richiesto');
+        return;
+    }
+    
+    try {
+        $stmt = $pdo->prepare("DELETE FROM codici_ateco WHERE id = ?");
+        $stmt->execute([$id]);
+        jsonResponse(true, null, 'Codice ATECO eliminato');
+    } catch (PDOException $e) {
+        error_log("Errore delete codice ateco: " . $e->getMessage());
+        jsonResponse(false, null, 'Errore durante l\'eliminazione');
+    }
+}
+
+/**
+ * Salva le impostazioni tasse generali
+ */
+function saveImpostazioniTasse(): void {
+    global $pdo;
+    
+    // Verifica password
+    $password = $_POST['password'] ?? '';
+    if ($password !== 'Tomato2399!?') {
+        jsonResponse(false, null, 'Password errata');
+        return;
+    }
+    
+    $inps = floatval($_POST['inps_percentuale'] ?? 0);
+    $acconto = floatval($_POST['acconto_percentuale'] ?? 0);
+    
+    try {
+        // Salva INPS
+        $stmt = $pdo->prepare("
+            INSERT INTO impostazioni (chiave, valore, tipo, descrizione) 
+            VALUES ('tassa_inps_percentuale', ?, 'number', 'Percentuale INPS')
+            ON DUPLICATE KEY UPDATE valore = ?
+        ");
+        $stmt->execute([$inps, $inps]);
+        
+        // Salva acconto
+        $stmt = $pdo->prepare("
+            INSERT INTO impostazioni (chiave, valore, tipo, descrizione) 
+            VALUES ('tassa_acconto_percentuale', ?, 'number', 'Percentuale acconto tasse')
+            ON DUPLICATE KEY UPDATE valore = ?
+        ");
+        $stmt->execute([$acconto, $acconto]);
+        
+        jsonResponse(true, null, 'Impostazioni tasse salvate');
+    } catch (PDOException $e) {
+        error_log("Errore save impostazioni tasse: " . $e->getMessage());
+        jsonResponse(false, null, 'Errore durante il salvataggio');
     }
 }
