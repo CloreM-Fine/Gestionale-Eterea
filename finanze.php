@@ -57,6 +57,7 @@ try {
     $progettiDistribuiti = [];
     $progettiCAT = ['count' => 0, 'totale' => 0];
     $totaleMovimentato = 0;
+    $dbError = $e->getMessage();
 }
 
 include __DIR__ . '/includes/header.php';
@@ -67,6 +68,13 @@ include __DIR__ . '/includes/header.php';
     <h1 class="text-xl sm:text-2xl font-bold text-slate-800">Finanze</h1>
     <p class="text-slate-500 mt-1">Riepilogo economico e distribuzioni</p>
 </div>
+
+<?php if (isset($dbError)): ?>
+<div class="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700">
+    <p class="font-medium">Errore database:</p>
+    <p class="text-sm"><?php echo e($dbError); ?></p>
+</div>
+<?php endif; ?>
 
 <!-- Statistiche -->
 <div class="space-y-4 md:space-y-6 mb-8">
@@ -152,6 +160,12 @@ include __DIR__ . '/includes/header.php';
             </div>
             
             <div class="divide-y divide-slate-100">
+                <?php if (empty($wallets)): ?>
+                <div class="p-8 text-center text-slate-400">
+                    <p>Nessun wallet disponibile</p>
+                    <p class="text-xs mt-2">Controlla la connessione al database</p>
+                </div>
+                <?php endif; ?>
                 <?php foreach ($wallets as $w): 
                     $percentuale = $totaleMovimentato > 0 ? ($w['wallet_saldo'] / $totaleMovimentato) * 100 : 0;
                 ?>
