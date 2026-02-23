@@ -133,83 +133,100 @@ function pulisciTimeline(): void {
  * @param array $partecipantiIds Array degli ID dei partecipanti attivi
  * @return array Distribuzione calcolata
  */
-function calcolaDistribuzione(float $totale, array $partecipantiIds): array {
+function calcolaDistribuzione(float $totale, array $partecipantiIds, bool $includiCassa = true): array {
     $count = count($partecipantiIds);
     $distribuzione = [];
     
     // Tutti gli utenti possibili
     $tuttiUtenti = ['ucwurog3xr8tf', 'ukl9ipuolsebn', 'u3ghz4f2lnpkx'];
     
+    // Percentuale cassa e rimanente
+    $cassaPercent = $includiCassa ? 0.10 : 0;
+    $remainingPercent = 1 - $cassaPercent;
+    
     switch($count) {
         case 3:
-            // Tutti e 3 attivi: 30% ciascuno + 10% azienda
+            // Tutti e 3 attivi: dividi equamente il rimanente
+            $share = $remainingPercent / 3;
             foreach($partecipantiIds as $uid) {
                 $distribuzione[$uid] = [
-                    'importo' => round($totale * 0.30, 2),
-                    'percentuale' => 30,
+                    'importo' => round($totale * $share, 2),
+                    'percentuale' => round($share * 100),
                     'tipo' => 'attivo'
                 ];
             }
-            $distribuzione['cassa'] = [
-                'importo' => round($totale * 0.10, 2),
-                'percentuale' => 10,
-                'tipo' => 'cassa'
-            ];
+            if ($includiCassa) {
+                $distribuzione['cassa'] = [
+                    'importo' => round($totale * 0.10, 2),
+                    'percentuale' => 10,
+                    'tipo' => 'cassa'
+                ];
+            }
             break;
             
         case 2:
-            // 2 attivi: 40% ciascuno attivo, 10% al terzo, 10% azienda
+            // 2 attivi: 40% ciascuno (o 45% senza cassa), 10% al terzo, 10% azienda (se inclusa)
             $inattivi = array_diff($tuttiUtenti, $partecipantiIds);
+            $activeShare = $includiCassa ? 0.40 : 0.45;
+            $passiveShare = 0.10;
             foreach($partecipantiIds as $uid) {
                 $distribuzione[$uid] = [
-                    'importo' => round($totale * 0.40, 2),
-                    'percentuale' => 40,
+                    'importo' => round($totale * $activeShare, 2),
+                    'percentuale' => round($activeShare * 100),
                     'tipo' => 'attivo'
                 ];
             }
             foreach($inattivi as $uid) {
                 $distribuzione[$uid] = [
-                    'importo' => round($totale * 0.10, 2),
-                    'percentuale' => 10,
+                    'importo' => round($totale * $passiveShare, 2),
+                    'percentuale' => round($passiveShare * 100),
                     'tipo' => 'passivo'
                 ];
             }
-            $distribuzione['cassa'] = [
-                'importo' => round($totale * 0.10, 2),
-                'percentuale' => 10,
-                'tipo' => 'cassa'
-            ];
+            if ($includiCassa) {
+                $distribuzione['cassa'] = [
+                    'importo' => round($totale * 0.10, 2),
+                    'percentuale' => 10,
+                    'tipo' => 'cassa'
+                ];
+            }
             break;
             
         case 1:
-            // 1 attivo: 70% attivo, 10% ciascuno altri, 10% azienda
+            // 1 attivo: 70% (o 80% senza cassa), 10% ciascuno altri, 10% azienda (se inclusa)
             $inattivi = array_diff($tuttiUtenti, $partecipantiIds);
+            $activeShare = $includiCassa ? 0.70 : 0.80;
+            $passiveShare = 0.10;
             $distribuzione[$partecipantiIds[0]] = [
-                'importo' => round($totale * 0.70, 2),
-                'percentuale' => 70,
+                'importo' => round($totale * $activeShare, 2),
+                'percentuale' => round($activeShare * 100),
                 'tipo' => 'attivo'
             ];
             foreach($inattivi as $uid) {
                 $distribuzione[$uid] = [
-                    'importo' => round($totale * 0.10, 2),
-                    'percentuale' => 10,
+                    'importo' => round($totale * $passiveShare, 2),
+                    'percentuale' => round($passiveShare * 100),
                     'tipo' => 'passivo'
                 ];
             }
-            $distribuzione['cassa'] = [
-                'importo' => round($totale * 0.10, 2),
-                'percentuale' => 10,
-                'tipo' => 'cassa'
-            ];
+            if ($includiCassa) {
+                $distribuzione['cassa'] = [
+                    'importo' => round($totale * 0.10, 2),
+                    'percentuale' => 10,
+                    'tipo' => 'cassa'
+                ];
+            }
             break;
             
         default:
-            // Caso non previsto: tutto in cassa
-            $distribuzione['cassa'] = [
-                'importo' => $totale,
-                'percentuale' => 100,
-                'tipo' => 'cassa'
-            ];
+            // Caso non previsto: tutto in cassa (o errore se non si può mettere in cassa)
+            if ($includiCassa) {
+                $distribuzione['cassa'] = [
+                    'importo' => $totale,
+                    'percentuale' => 100,
+                    'tipo' => 'cassa'
+                ];
+            }
     }
     
     return $distribuzione;
@@ -218,14 +235,14 @@ function calcolaDistribuzione(float $totale, array $partecipantiIds): array {
 /**
  * Esegue la distribuzione economica e salva le transazioni
  */
-function eseguiDistribuzione(string $progettoId, float $totale, array $partecipantiIds): bool {
+function eseguiDistribuzione(string $progettoId, float $totale, array $partecipantiIds, bool $includiCassa = true): bool {
     global $pdo;
     
     try {
         $pdo->beginTransaction();
         
         // Calcola distribuzione
-        $distribuzione = calcolaDistribuzione($totale, $partecipantiIds);
+        $distribuzione = calcolaDistribuzione($totale, $partecipantiIds, $includiCassa);
         
         // Salva transazioni
         foreach ($distribuzione as $id => $dati) {

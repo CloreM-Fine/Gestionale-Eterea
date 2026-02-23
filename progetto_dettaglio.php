@@ -907,8 +907,22 @@ function switchTab(tabName) {
             </div>
             
             <!-- Body -->
-            <div id="distribuzionePreview" class="p-6 overflow-y-auto flex-1">
-                <!-- Popolato via JS -->
+            <div class="p-6 overflow-y-auto flex-1">
+                <!-- Toggle Cassa -->
+                <div class="mb-4 p-3 bg-slate-50 rounded-xl border border-slate-200">
+                    <label class="flex items-center gap-3 cursor-pointer">
+                        <input type="checkbox" id="includiCassa" checked onchange="ricalcolaDistribuzione()"
+                               class="w-5 h-5 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500">
+                        <div class="flex-1">
+                            <span class="font-medium text-slate-800">Includi Cassa Aziendale (10%)</span>
+                            <p class="text-xs text-slate-500">Deseleziona per distribuire solo ai membri</p>
+                        </div>
+                        <span class="text-lg">💰</span>
+                    </label>
+                </div>
+                <div id="distribuzionePreview">
+                    <!-- Popolato via JS -->
+                </div>
             </div>
             
             <!-- Footer -->
@@ -941,47 +955,95 @@ function formatCurrency(val) {
     return new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(val);
 }
 
+// Variabile globale per memorizzare l'ultima distribuzione calcolata
+let lastDistribuzione = [];
+let lastDistribuzioneConfig = { includiCassa: true };
+
 function calcolaDistribuzione() {
+    const includiCassa = document.getElementById('includiCassa')?.checked ?? true;
+    lastDistribuzioneConfig.includiCassa = includiCassa;
+    
+    const result = generaDistribuzione(includiCassa);
+    lastDistribuzione = result.distribuzione;
+    
+    renderDistribuzione(result.distribuzione, result.totale);
+    
+    openModal('distribuzioneModal');
+}
+
+function ricalcolaDistribuzione() {
+    const includiCassa = document.getElementById('includiCassa')?.checked ?? true;
+    lastDistribuzioneConfig.includiCassa = includiCassa;
+    
+    const result = generaDistribuzione(includiCassa);
+    lastDistribuzione = result.distribuzione;
+    
+    renderDistribuzione(result.distribuzione, result.totale);
+}
+
+function generaDistribuzione(includiCassa = true) {
     const totale = parseFloat(progettoData.prezzo_totale) || 0;
     const partecipanti = progettoData.partecipanti || [];
     const count = partecipanti.length;
     
     if (count === 0) {
         showToast('Nessun partecipante', 'error');
-        return;
+        return { distribuzione: [], totale: 0 };
     }
     
     const distribuzione = [];
     
+    // Calcola percentuali in base a se include o meno la cassa
+    const cassaPercent = includiCassa ? 0.10 : 0;
+    const remainingPercent = 1 - cassaPercent;
+    
     switch(count) {
         case 3:
+            // 3 partecipanti: dividi equamente il rimanente
+            const share3 = remainingPercent / 3;
             partecipanti.forEach(uid => {
-                distribuzione.push({ id: uid, importo: totale * 0.30, percentuale: 30, tipo: 'attivo' });
+                distribuzione.push({ id: uid, importo: totale * share3, percentuale: Math.round(share3 * 100), tipo: 'attivo' });
             });
-            distribuzione.push({ id: 'cassa', importo: totale * 0.10, percentuale: 10, tipo: 'cassa' });
+            if (includiCassa) {
+                distribuzione.push({ id: 'cassa', importo: totale * 0.10, percentuale: 10, tipo: 'cassa' });
+            }
             break;
         case 2:
             const tutti = ['ucwurog3xr8tf', 'ukl9ipuolsebn', 'u3ghz4f2lnpkx'];
             const inattivi = tutti.filter(id => !partecipanti.includes(id));
+            // 2 partecipanti attivi: 40% ciascuno (o 45% senza cassa), 1 inattivo: 10% (o 10% senza cassa)
+            const activeShare2 = includiCassa ? 0.40 : 0.45;
+            const passiveShare2 = 0.10;
             partecipanti.forEach(uid => {
-                distribuzione.push({ id: uid, importo: totale * 0.40, percentuale: 40, tipo: 'attivo' });
+                distribuzione.push({ id: uid, importo: totale * activeShare2, percentuale: Math.round(activeShare2 * 100), tipo: 'attivo' });
             });
             inattivi.forEach(uid => {
-                distribuzione.push({ id: uid, importo: totale * 0.10, percentuale: 10, tipo: 'passivo' });
+                distribuzione.push({ id: uid, importo: totale * passiveShare2, percentuale: Math.round(passiveShare2 * 100), tipo: 'passivo' });
             });
-            distribuzione.push({ id: 'cassa', importo: totale * 0.10, percentuale: 10, tipo: 'cassa' });
+            if (includiCassa) {
+                distribuzione.push({ id: 'cassa', importo: totale * 0.10, percentuale: 10, tipo: 'cassa' });
+            }
             break;
         case 1:
             const tutti2 = ['ucwurog3xr8tf', 'ukl9ipuolsebn', 'u3ghz4f2lnpkx'];
             const inattivi2 = tutti2.filter(id => !partecipanti.includes(id));
-            distribuzione.push({ id: partecipanti[0], importo: totale * 0.70, percentuale: 70, tipo: 'attivo' });
+            // 1 partecipante attivo: 70% (o 80% senza cassa), 2 inattivi: 10% ciascuno
+            const activeShare1 = includiCassa ? 0.70 : 0.80;
+            const passiveShare1 = 0.10;
+            distribuzione.push({ id: partecipanti[0], importo: totale * activeShare1, percentuale: Math.round(activeShare1 * 100), tipo: 'attivo' });
             inattivi2.forEach(uid => {
-                distribuzione.push({ id: uid, importo: totale * 0.10, percentuale: 10, tipo: 'passivo' });
+                distribuzione.push({ id: uid, importo: totale * passiveShare1, percentuale: Math.round(passiveShare1 * 100), tipo: 'passivo' });
             });
-            distribuzione.push({ id: 'cassa', importo: totale * 0.10, percentuale: 10, tipo: 'cassa' });
+            if (includiCassa) {
+                distribuzione.push({ id: 'cassa', importo: totale * 0.10, percentuale: 10, tipo: 'cassa' });
+            }
             break;
     }
     
+    return { distribuzione, totale };
+}
+
+function renderDistribuzione(distribuzione, totale) {
     const users = <?php echo json_encode(USERS); ?>;
     
     document.getElementById('distribuzionePreview').innerHTML = `
@@ -1441,10 +1503,11 @@ async function editTask(taskId) {
 
 async function confermaDistribuzione() {
     try {
+        const includiCassa = lastDistribuzioneConfig.includiCassa ?? true;
         const response = await fetch('api/progetti.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `action=distribuisci&id=${progettoId}`
+            body: `action=distribuisci&id=${progettoId}&includi_cassa=${includiCassa ? 1 : 0}`
         });
         
         const data = await response.json();

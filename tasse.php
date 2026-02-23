@@ -45,6 +45,36 @@ try {
     $cronologia = [];
 }
 
+// Recupera totali per card riepilogative
+try {
+    // Totale progetti CAT (consegnati/archiviati con pagamento CAT)
+    $stmt = $pdo->query("
+        SELECT COALESCE(SUM(prezzo_totale), 0) as totale
+        FROM progetti 
+        WHERE stato_progetto IN ('consegnato', 'archiviato') 
+        AND stato_pagamento = 'cat'
+    ");
+    $totaleCAT = floatval($stmt->fetchColumn());
+    
+    // Totale progetti SENZA CAT (consegnati/archiviati con altro pagamento)
+    $stmt = $pdo->query("
+        SELECT COALESCE(SUM(prezzo_totale), 0) as totale
+        FROM progetti 
+        WHERE stato_progetto IN ('consegnato', 'archiviato') 
+        AND stato_pagamento != 'cat'
+    ");
+    $totaleSenzaCAT = floatval($stmt->fetchColumn());
+    
+    // Cassa aziendale
+    $stmt = $pdo->query("SELECT COALESCE(SUM(importo), 0) FROM transazioni_economiche WHERE tipo = 'cassa'");
+    $cassaAziendale = floatval($stmt->fetchColumn());
+    
+} catch (PDOException $e) {
+    $totaleCAT = 0;
+    $totaleSenzaCAT = 0;
+    $cassaAziendale = 0;
+}
+
 include __DIR__ . '/includes/header.php';
 ?>
 
@@ -83,6 +113,45 @@ include __DIR__ . '/includes/header.php';
 
 <!-- Calcolatore (nascosto finché non si inserisce la password) -->
 <div id="calcolatoreSection" class="hidden space-y-6">
+    
+    <!-- Card Totali - Cliccabili per inserire nel fatturato -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <button onclick="inserisciFatturato(<?php echo $totaleCAT; ?>)" 
+                class="group text-left bg-gradient-to-br from-purple-50 to-purple-100 hover:from-purple-100 hover:to-purple-200 rounded-2xl p-4 border border-purple-200 transition-all hover:shadow-md hover:-translate-y-0.5">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-medium text-purple-600 uppercase tracking-wide">Totale CAT</span>
+                <svg class="w-4 h-4 text-purple-400 opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                </svg>
+            </div>
+            <p class="text-xl font-bold text-purple-800">€ <?php echo number_format($totaleCAT, 2, ',', '.'); ?></p>
+            <p class="text-xs text-purple-500 mt-1">Clicca per usare</p>
+        </button>
+        
+        <button onclick="inserisciFatturato(<?php echo $totaleSenzaCAT; ?>)" 
+                class="group text-left bg-gradient-to-br from-emerald-50 to-emerald-100 hover:from-emerald-100 hover:to-emerald-200 rounded-2xl p-4 border border-emerald-200 transition-all hover:shadow-md hover:-translate-y-0.5">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-medium text-emerald-600 uppercase tracking-wide">Totale senza CAT</span>
+                <svg class="w-4 h-4 text-emerald-400 opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                </svg>
+            </div>
+            <p class="text-xl font-bold text-emerald-800">€ <?php echo number_format($totaleSenzaCAT, 2, ',', '.'); ?></p>
+            <p class="text-xs text-emerald-500 mt-1">Clicca per usare</p>
+        </button>
+        
+        <button onclick="inserisciFatturato(<?php echo $cassaAziendale; ?>)" 
+                class="group text-left bg-gradient-to-br from-blue-50 to-blue-100 hover:from-blue-100 hover:to-blue-200 rounded-2xl p-4 border border-blue-200 transition-all hover:shadow-md hover:-translate-y-0.5">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-medium text-blue-600 uppercase tracking-wide">Cassa Aziendale</span>
+                <svg class="w-4 h-4 text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                </svg>
+            </div>
+            <p class="text-xl font-bold text-blue-800">€ <?php echo number_format($cassaAziendale, 2, ',', '.'); ?></p>
+            <p class="text-xs text-blue-500 mt-1">Clicca per usare</p>
+        </button>
+    </div>
     
     <!-- Input Dati -->
     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
@@ -351,6 +420,18 @@ function onCodiceAtecoChange() {
     }
     
     calcolaTasse();
+}
+
+function inserisciFatturato(valore) {
+    document.getElementById('fatturato').value = valore.toFixed(2);
+    calcolaTasse();
+    
+    // Feedback visivo - scrolla al campo
+    document.getElementById('fatturato').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    document.getElementById('fatturato').classList.add('ring-2', 'ring-emerald-500');
+    setTimeout(() => {
+        document.getElementById('fatturato').classList.remove('ring-2', 'ring-emerald-500');
+    }, 1000);
 }
 
 function calcolaTasse() {

@@ -47,7 +47,8 @@ switch ($method) {
         } elseif ($action === 'delete' && isset($_POST['id'])) {
             deleteProgetto($_POST['id']);
         } elseif ($action === 'distribuisci' && isset($_POST['id'])) {
-            distribuisciProgetto($_POST['id']);
+            $includiCassa = isset($_POST['includi_cassa']) ? (bool)$_POST['includi_cassa'] : true;
+            distribuisciProgetto($_POST['id'], $includiCassa);
         } elseif ($action === 'revoca_distribuzione' && isset($_POST['id'])) {
             revocaDistribuzione($_POST['id']);
         } elseif ($action === 'upload_documento') {
@@ -500,7 +501,7 @@ function deleteProgetto(string $id): void {
 /**
  * Distribuisci economia progetto
  */
-function distribuisciProgetto(string $id): void {
+function distribuisciProgetto(string $id, bool $includiCassa = true): void {
     global $pdo;
     
     try {
@@ -528,7 +529,7 @@ function distribuisciProgetto(string $id): void {
         $totale = floatval($progetto['prezzo_totale']);
         
         // Esegui distribuzione
-        if (eseguiDistribuzione($id, $totale, $partecipanti)) {
+        if (eseguiDistribuzione($id, $totale, $partecipanti, $includiCassa)) {
             logTimeline($_SESSION['user_id'], 'distribuito_economia', 'progetto', $id, "Distribuiti €{$totale}");
             jsonResponse(true, null, 'Distribuzione effettuata con successo');
         } else {
