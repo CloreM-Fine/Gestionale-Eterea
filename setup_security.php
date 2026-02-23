@@ -163,10 +163,12 @@ ENV;
                 require_once __DIR__ . '/includes/env_loader.php';
                 loadEnv($envPath);
                 
-                if (env('DB_PASS') === $dbPass) {
+                // Test semplice del caricamento env
+                $testValue = getenv('DB_NAME');
+                if ($testValue === $dbName) {
                     $messages[] = "Test caricamento .env: OK";
                 } else {
-                    $errors[] = "Test caricamento .env: FALLITO";
+                    $errors[] = "Test caricamento .env: FALLITO (DB_NAME non caricato)";
                 }
                 ?>
 
@@ -214,6 +216,9 @@ ENV;
                 require_once __DIR__ . '/includes/env_loader.php';
                 loadEnv(__DIR__ . '/.env');
                 
+                // Non caricare config.php che richiede autenticazione
+                // Verifichiamo solo che le variabili siano settate
+                
                 $checks = [];
                 
                 // Check 1: .env esiste
@@ -250,22 +255,6 @@ ENV;
                     'status' => is_dir(__DIR__ . '/logs') && file_exists(__DIR__ . '/logs/.htaccess'),
                     'message' => is_dir(__DIR__ . '/logs') ? 'OK' : 'Directory mancante'
                 ];
-                
-                // Check 6: Test connessione DB
-                try {
-                    require_once __DIR__ . '/includes/config.php';
-                    $checks[] = [
-                        'name' => 'Connessione Database',
-                        'status' => true,
-                        'message' => 'OK - Connesso a ' . DB_NAME
-                    ];
-                } catch (Exception $e) {
-                    $checks[] = [
-                        'name' => 'Connessione Database',
-                        'status' => false,
-                        'message' => 'Errore: ' . $e->getMessage()
-                    ];
-                }
                 
                 $allOk = array_reduce($checks, function($carry, $check) {
                     return $carry && $check['status'];
