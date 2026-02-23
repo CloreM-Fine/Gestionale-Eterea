@@ -115,43 +115,29 @@ include __DIR__ . '/includes/header.php';
             </select>
             
             <!-- Filtro Colore -->
-            <div class="relative">
-                <label class="block text-xs font-medium text-slate-600 mb-1">Filtra per colore</label>
-                <div class="flex flex-wrap gap-2" id="coloreFilterContainer">
-                    <button type="button" onclick="filtraPerColore('')" 
-                            class="colore-filter-btn w-8 h-8 rounded-lg border-2 border-slate-300 bg-white hover:border-cyan-500 transition-all flex items-center justify-center text-slate-400"
-                            title="Tutti i colori">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
-                        </svg>
-                    </button>
-                    <?php
-                    $coloriTag = [
-                        '#FFFFFF' => ['nome' => 'Bianco'],
-                        '#BAE6FD' => ['nome' => 'Ciano'],
-                        '#BFDBFE' => ['nome' => 'Blu'],
-                        '#BBF7D0' => ['nome' => 'Verde'],
-                        '#D9F99D' => ['nome' => 'Lime'],
-                        '#FDE68A' => ['nome' => 'Giallo'],
-                        '#FED7AA' => ['nome' => 'Arancione'],
-                        '#FECACA' => ['nome' => 'Rosso'],
-                        '#FBCFE8' => ['nome' => 'Rosa'],
-                        '#E9D5FF' => ['nome' => 'Viola'],
-                        '#C4B5FD' => ['nome' => 'Indaco'],
-                        '#CBD5E1' => ['nome' => 'Grigio'],
-                        '#99F6E4' => ['nome' => 'Turchese'],
-                        '#F5D0FE' => ['nome' => 'Fucsia'],
-                    ];
-                    foreach ($coloriTag as $hex => $info): ?>
-                    <button type="button" onclick="filtraPerColore('<?php echo $hex; ?>')" 
-                            class="colore-filter-btn w-8 h-8 rounded-lg border-2 border-transparent hover:scale-110 transition-all"
-                            style="background-color: <?php echo $hex; ?>;"
-                            title="<?php echo $info['nome']; ?>"
-                            data-colore="<?php echo $hex; ?>">
-                    </button>
-                    <?php endforeach; ?>
-                </div>
-                <input type="hidden" id="coloreFilter" value="">
+            <select id="coloreFilter" onchange="loadProgetti()" class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none min-h-[44px] bg-white">
+                <option value="">Tutti i colori</option>
+                <?php
+                $coloriTag = [
+                    '#FFFFFF' => ['nome' => 'Bianco', 'emoji' => '⬜'],
+                    '#BAE6FD' => ['nome' => 'Ciano', 'emoji' => '🟦'],
+                    '#BFDBFE' => ['nome' => 'Blu', 'emoji' => '🔵'],
+                    '#BBF7D0' => ['nome' => 'Verde', 'emoji' => '🟩'],
+                    '#D9F99D' => ['nome' => 'Lime', 'emoji' => '🟢'],
+                    '#FDE68A' => ['nome' => 'Giallo', 'emoji' => '🟨'],
+                    '#FED7AA' => ['nome' => 'Arancione', 'emoji' => '🟧'],
+                    '#FECACA' => ['nome' => 'Rosso', 'emoji' => '🟥'],
+                    '#FBCFE8' => ['nome' => 'Rosa', 'emoji' => '🩷'],
+                    '#E9D5FF' => ['nome' => 'Viola', 'emoji' => '🟪'],
+                    '#C4B5FD' => ['nome' => 'Indaco', 'emoji' => '🔷'],
+                    '#CBD5E1' => ['nome' => 'Grigio', 'emoji' => '⬜'],
+                    '#99F6E4' => ['nome' => 'Turchese', 'emoji' => '🔹'],
+                    '#F5D0FE' => ['nome' => 'Fucsia', 'emoji' => '💜'],
+                ];
+                foreach ($coloriTag as $hex => $info): ?>
+                <option value="<?php echo $hex; ?>"><?php echo $info['emoji']; ?> <?php echo $info['nome']; ?></option>
+                <?php endforeach; ?>
+            </select>
             </div>
                 <option value="#A78BFA">💜 Indaco</option>
                 <option value="#94A3B8">⚪ Grigio</option>
@@ -564,32 +550,6 @@ function toggleArchiviati() {
         btn.classList.add('bg-slate-200', 'text-slate-700');
         txt.textContent = 'Mostra Archiviati';
     }
-    
-    loadProgetti();
-}
-
-// Filtra per colore
-let coloreSelezionato = '';
-function filtraPerColore(colore) {
-    coloreSelezionato = colore;
-    document.getElementById('coloreFilter').value = colore;
-    
-    // Aggiorna UI bottoni
-    document.querySelectorAll('.colore-filter-btn').forEach(btn => {
-        const btnColore = btn.dataset.colore;
-        if (colore === '' && !btnColore) {
-            // Bottoncino "tutti"
-            btn.classList.add('ring-2', 'ring-cyan-500', 'border-cyan-500');
-            btn.classList.remove('border-slate-300');
-        } else if (btnColore === colore) {
-            btn.classList.add('ring-2', 'ring-cyan-500');
-            btn.style.borderColor = '#0891b2';
-        } else {
-            btn.classList.remove('ring-2', 'ring-cyan-500');
-            btn.style.borderColor = btnColore ? 'transparent' : '#cbd5e1';
-            if (!btnColore) btn.classList.add('border-slate-300');
-        }
-    });
     
     loadProgetti();
 }
