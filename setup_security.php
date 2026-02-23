@@ -6,6 +6,26 @@
  * URL: https://gestionale.etereastudio.it/setup_security.php
  */
 
+// Sblocca IP corrente (permette setup anche dopo tentativi falliti)
+$currentIp = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+$lockDir = sys_get_temp_dir() . '/eterea_blocks/';
+$rateLimitDir = sys_get_temp_dir() . '/eterea_ratelimit/';
+
+// Rimuovi blocco IP se esiste
+$blockFile = $lockDir . md5($currentIp) . '.block';
+if (file_exists($blockFile)) {
+    @unlink($blockFile);
+}
+
+// Rimuovi file rate limiting per questo IP
+if (is_dir($rateLimitDir)) {
+    foreach (glob($rateLimitDir . '*.json') as $file) {
+        if (strpos($file, md5($currentIp)) !== false) {
+            @unlink($file);
+        }
+    }
+}
+
 // Impedisci esecuzione se già configurato
 if (file_exists(__DIR__ . '/.env') && !isset($_GET['force'])) {
     die('<h2>✅ Setup già completato!</h2><p>Il file .env esiste già.</p><p>Per forzare la riconfigurazione aggiungi ?force=1 all\'URL</p>');
