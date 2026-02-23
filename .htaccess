@@ -117,8 +117,8 @@ RewriteRule ^\. - [F,L]
 # Proteggi cartella includes
 RewriteRule ^includes/ - [F,L]
 
-# Proteggi cartella assets/uploads da listing
-RewriteRule ^assets/uploads/ - [F,L]
+# Proteggi SOLO directory logs (uploads deve essere accessibile per file caricati)
+RewriteRule ^logs/ - [F,L]
 
 # Proteggi file sensibili
 <FilesMatch "\.(sql|log|ini|json|md|gitignore|env)$">
