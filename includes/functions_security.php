@@ -138,34 +138,26 @@ function cleanRateLimitFiles(): void {
 // =====================================================
 
 /**
- * Genera token CSRF con timestamp per scadenza
+ * Genera token CSRF semplice (senza scadenza per robustezza)
  * 
  * @return string Token CSRF
  */
 function generateCsrfTokenSecure(): string {
-    $token = bin2hex(random_bytes(32));
-    $expires = time() + 3600; // 1 ora
-    
-    $_SESSION['csrf_token'] = $token;
-    $_SESSION['csrf_token_expires'] = $expires;
-    
-    return $token;
+    if (empty($_SESSION['csrf_token'])) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+    return $_SESSION['csrf_token'];
 }
 
 /**
- * Verifica token CSRF con scadenza
+ * Verifica token CSRF
  * 
  * @param string $token Token da verificare
  * @param bool $regenerate Se rigenerare il token dopo verifica
  * @return bool
  */
 function verifyCsrfTokenSecure(string $token, bool $regenerate = false): bool {
-    if (empty($_SESSION['csrf_token']) || empty($_SESSION['csrf_token_expires'])) {
-        return false;
-    }
-    
-    // Verifica scadenza
-    if (time() > $_SESSION['csrf_token_expires']) {
+    if (empty($_SESSION['csrf_token'])) {
         return false;
     }
     
@@ -175,7 +167,7 @@ function verifyCsrfTokenSecure(string $token, bool $regenerate = false): bool {
     }
     
     if ($regenerate) {
-        generateCsrfTokenSecure();
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
     }
     
     return true;

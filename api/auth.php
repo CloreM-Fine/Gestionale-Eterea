@@ -20,6 +20,9 @@ ini_set('session.cookie_secure', $isHttps ? 1 : 0);
 ini_set('session.cookie_lifetime', 2592000); // 30 giorni
 ini_set('session.gc_maxlifetime', 2592000);
 
+// AVVIA SESSIONE SUBITO per CSRF
+session_start();
+
 try {
     require_once __DIR__ . '/../includes/functions.php';
 } catch (Throwable $e) {
