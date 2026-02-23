@@ -276,13 +276,13 @@ function uploadFileSecure(array $file, string $destinationDir, array $allowedTyp
         return false;
     }
     
-    // Verifica estensione vs MIME type
+    // Verifica estensione vs MIME type (solo warning, non blocca)
     $extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
     $expectedMime = getMimeFromExtension($extension);
     
     if ($expectedMime && $mimeType !== $expectedMime) {
-        error_log("MIME/Extension mismatch: {$mimeType} vs {$expectedMime}");
-        return false;
+        error_log("MIME/Extension mismatch: {$mimeType} vs {$expectedMime} for {$file['name']}");
+        // Non blocchiamo, solo logghiamo il warning
     }
     
     // Crea directory se non esiste
