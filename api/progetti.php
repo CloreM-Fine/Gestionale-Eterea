@@ -536,8 +536,8 @@ function distribuisciProgetto(string $id, bool $includiCassa = true, array $uten
             jsonResponse(false, null, 'Nessun partecipante selezionato per la distribuzione');
         }
         
-        // Esegui distribuzione
-        if (eseguiDistribuzione($id, $totale, array_values($partecipantiFiltrati), $includiCassa)) {
+        // Esegui distribuzione (senza quota passiva per esclusi)
+        if (eseguiDistribuzione($id, $totale, array_values($partecipantiFiltrati), $includiCassa, $utentiEsclusi)) {
             logTimeline($_SESSION['user_id'], 'distribuito_economia', 'progetto', $id, "Distribuiti €{$totale}");
             jsonResponse(true, null, 'Distribuzione effettuata con successo');
         } else {
