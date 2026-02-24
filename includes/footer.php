@@ -304,7 +304,45 @@
                 notificheAperte = false;
             }
         });
+        
+        // Carica conteggio scadenze
+        updateScadenzeBadge();
     });
+    
+    // =====================================================
+    // NOTIFICHE SCADENZE
+    // =====================================================
+    async function updateScadenzeBadge() {
+        try {
+            const response = await fetch('api/scadenze.php?action=count_oggi');
+            const data = await response.json();
+            
+            if (data.success) {
+                const count = data.count;
+                const badgeSidebar = document.getElementById('scadenzeBadgeSidebar');
+                const badgeMobile = document.getElementById('scadenzeBadgeMobile');
+                
+                if (count > 0) {
+                    if (badgeSidebar) {
+                        badgeSidebar.textContent = count > 99 ? '99+' : count;
+                        badgeSidebar.classList.remove('hidden');
+                    }
+                    if (badgeMobile) {
+                        badgeMobile.textContent = count > 99 ? '99+' : count;
+                        badgeMobile.classList.remove('hidden');
+                    }
+                } else {
+                    if (badgeSidebar) badgeSidebar.classList.add('hidden');
+                    if (badgeMobile) badgeMobile.classList.add('hidden');
+                }
+            }
+        } catch (error) {
+            console.error('Errore caricamento scadenze:', error);
+        }
+    }
+    
+    // Espone la funzione globalmente per essere chiamata da altre pagine
+    window.updateScadenzeBadge = updateScadenzeBadge;
     </script>
 </body>
 </html>

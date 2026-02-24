@@ -439,6 +439,16 @@ try {
                     </a>
                 </li>
                 <li>
+                    <a href="scadenze.php" 
+                       class="flex items-center gap-3 px-3 py-3 rounded-lg transition-colors <?php echo $currentPage === 'scadenze' ? 'bg-rose-600 text-white' : 'text-slate-300 hover:bg-slate-700 hover:text-white'; ?> relative">
+                        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span class="sidebar-text">Scadenze</span>
+                        <span id="scadenzeBadgeSidebar" class="hidden absolute right-2 top-1/2 -translate-y-1/2 min-w-[20px] h-5 px-1.5 bg-rose-500 text-white text-xs font-bold rounded-full flex items-center justify-center">0</span>
+                    </a>
+                </li>
+                <li>
                     <a href="preventivi.php" 
                        class="flex items-center gap-3 px-3 py-3 rounded-lg transition-colors <?php echo $currentPage === 'preventivi' ? 'bg-cyan-600 text-white' : 'text-slate-300 hover:bg-slate-700 hover:text-white'; ?>">
                         <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -682,6 +692,15 @@ try {
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
             </svg>
             <span>Clienti</span>
+        </a>
+        
+        <!-- Scadenze -->
+        <a href="scadenze.php" class="mobile-menu-item <?php echo $currentPage === 'scadenze' ? 'active' : ''; ?> relative">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <span>Scadenze</span>
+            <span id="scadenzeBadgeMobile" class="hidden absolute top-1 right-1 w-5 h-5 bg-rose-500 text-white text-xs font-bold rounded-full flex items-center justify-center">0</span>
         </a>
         
         <!-- Preventivi -->
