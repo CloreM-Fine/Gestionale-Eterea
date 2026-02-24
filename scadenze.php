@@ -258,15 +258,18 @@ let scadenzeCache = [];
 
 // Carica scadenze al caricamento della pagina
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM loaded, avvio caricamento...');
     caricaTipologie();
     caricaScadenze();
+    console.log('Caricamento avviato');
 });
 
 async function caricaScadenze() {
-    const stato = document.getElementById('filtroStato').value;
-    const tipologia = document.getElementById('filtroTipologia').value;
-    const mese = document.getElementById('filtroMese').value;
-    const anno = document.getElementById('filtroAnno').value;
+    console.log('caricaScadenze() avviato');
+    const stato = document.getElementById('filtroStato')?.value || '';
+    const tipologia = document.getElementById('filtroTipologia')?.value || '';
+    const mese = document.getElementById('filtroMese')?.value || '';
+    const anno = document.getElementById('filtroAnno')?.value || '';
     
     let url = 'api/scadenze.php?action=list';
     if (stato) url += '&stato=' + stato;
@@ -276,10 +279,17 @@ async function caricaScadenze() {
     }
     
     try {
+        console.log('Fetch scadenze URL:', url);
         const response = await fetch(url, { credentials: 'same-origin' });
+        console.log('Risposta scadenze:', response.status);
         const data = await response.json();
+        console.log('Dati scadenze:', data);
         
         const container = document.getElementById('scadenzeContainer');
+        if (!container) {
+            console.error('Container scadenze non trovato');
+            return;
+        }
         
         if (!data.success) {
             container.innerHTML = '<div class="text-center py-8 text-red-500">Errore caricamento scadenze</div>';
@@ -573,16 +583,27 @@ async function eliminaScadenza(id) {
 
 async function caricaTipologie() {
     try {
+        console.log('Caricamento tipologie...');
         const response = await fetch('api/scadenze.php?action=tipologie', { credentials: 'same-origin' });
+        console.log('Risposta tipologie:', response.status);
         const data = await response.json();
+        console.log('Dati tipologie:', data);
         
-        if (!data.success) return;
+        if (!data.success) {
+            console.error('Errore API tipologie:', data.message);
+            return;
+        }
         
-        tipologieCache = data.data;
+        tipologieCache = data.data || [];
         
         // Popola select nel form
         const selectForm = document.getElementById('scadenzaTipologia');
         const selectFiltro = document.getElementById('filtroTipologia');
+        
+        if (!selectForm || !selectFiltro) {
+            console.error('Select tipologie non trovati');
+            return;
+        }
         
         let options = '<option value="">Seleziona tipologia</option>';
         let optionsFiltro = '<option value="">Tutte le tipologie</option>';
