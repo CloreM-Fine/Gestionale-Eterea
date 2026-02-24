@@ -22,7 +22,7 @@ try {
 // Carica clienti per select
 $clienti = [];
 try {
-    $stmt = $pdo->query("SELECT id, nome FROM clienti ORDER BY nome ASC");
+    $stmt = $pdo->query("SELECT id, ragione_sociale as nome FROM clienti ORDER BY ragione_sociale ASC");
     $clienti = $stmt->fetchAll();
 } catch (PDOException $e) {
     error_log("Errore caricamento clienti: " . $e->getMessage());
