@@ -232,6 +232,111 @@ include __DIR__ . '/includes/header.php';
         </div>
     </div>
     
+    <!-- Sezione: Impostazioni Contabilità -->
+    <div class="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="p-4 sm:p-6">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-slate-800">Impostazioni Contabilità</h3>
+                        <p class="text-sm text-slate-500">Configura il periodo di riepilogo</p>
+                    </div>
+                </div>
+                <button type="button" onclick="toggleContabilitaForm()" id="btnToggleContabilita"
+                        class="px-4 py-2 bg-amber-100 hover:bg-amber-200 text-amber-700 rounded-lg text-sm font-medium transition-colors">
+                    Modifica
+                </button>
+            </div>
+            
+            <!-- Preview Impostazioni Contabilità -->
+            <div id="contabilitaPreview" class="space-y-2">
+                <div class="flex items-center justify-between py-2 px-3 bg-slate-50 rounded-lg">
+                    <span class="text-sm text-slate-600">Periodo di riepilogo</span>
+                    <span class="text-sm font-medium text-slate-800 capitalize" id="previewPeriodo">Mensile</span>
+                </div>
+                <div class="flex items-center justify-between py-2 px-3 bg-slate-50 rounded-lg">
+                    <span class="text-sm text-slate-600">Giorno di inizio periodo</span>
+                    <span class="text-sm font-medium text-slate-800" id="previewGiornoInizio">1</span>
+                </div>
+                <div class="flex items-center justify-between py-2 px-3 bg-slate-50 rounded-lg">
+                    <span class="text-sm text-slate-600">Mese inizio anno fiscale</span>
+                    <span class="text-sm font-medium text-slate-800" id="previewMeseFiscale">Gennaio</span>
+                </div>
+            </div>
+            
+            <!-- Form Impostazioni Contabilità (inizialmente nascosto) -->
+            <div id="contabilitaForm" class="hidden">
+                <div class="mb-5 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+                    <label class="block text-sm font-medium text-amber-800 mb-2">
+                        <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                        </svg>
+                        Password di modifica
+                    </label>
+                    <input type="password" id="contabilitaPassword" 
+                           class="w-full px-4 py-2.5 border border-amber-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none bg-white"
+                           placeholder="Inserisci la password...">
+                </div>
+                
+                <div class="mb-6 space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Periodo di riepilogo</label>
+                        <select id="contabilitaPeriodo" 
+                                class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none bg-white">
+                            <option value="giornaliero">Giornaliero</option>
+                            <option value="settimanale">Settimanale</option>
+                            <option value="mensile" selected>Mensile</option>
+                        </select>
+                        <p class="text-xs text-slate-500 mt-1">Frequenza di calcolo del riepilogo</p>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Giorno di inizio periodo</label>
+                        <input type="number" id="contabilitaGiornoInizio" min="1" max="31" value="1"
+                               class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none">
+                        <p class="text-xs text-slate-500 mt-1">Giorno del mese in cui inizia il periodo (1-31)</p>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Mese inizio anno fiscale</label>
+                        <select id="contabilitaMeseFiscale" 
+                                class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none bg-white">
+                            <option value="1" selected>Gennaio</option>
+                            <option value="2">Febbraio</option>
+                            <option value="3">Marzo</option>
+                            <option value="4">Aprile</option>
+                            <option value="5">Maggio</option>
+                            <option value="6">Giugno</option>
+                            <option value="7">Luglio</option>
+                            <option value="8">Agosto</option>
+                            <option value="9">Settembre</option>
+                            <option value="10">Ottobre</option>
+                            <option value="11">Novembre</option>
+                            <option value="12">Dicembre</option>
+                        </select>
+                        <p class="text-xs text-slate-500 mt-1">Mese di inizio dell'anno fiscale</p>
+                    </div>
+                </div>
+                
+                <div class="flex flex-row justify-end gap-2">
+                    <button type="button" onclick="salvaImpostazioniContabilita()" 
+                            class="flex-1 sm:flex-none px-4 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-medium rounded-lg transition-colors text-sm sm:text-base">
+                        Salva Impostazioni
+                    </button>
+                    <button type="button" onclick="toggleContabilitaForm()" 
+                            class="flex-1 sm:flex-none px-4 py-2.5 text-slate-600 hover:text-slate-800 font-medium min-h-[44px] rounded-lg hover:bg-slate-100 transition-colors text-sm sm:text-base">
+                        Chiudi
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <!-- Sezione: Personalizzazione -->
     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
         <div class="p-5 border-b border-slate-100">
@@ -585,111 +690,6 @@ include __DIR__ . '/includes/header.php';
                 <!-- Actions -->
                 <div class="flex flex-row justify-end gap-2">
                     <button type="button" onclick="toggleTasseForm()" 
-                            class="flex-1 sm:flex-none px-4 py-2.5 text-slate-600 hover:text-slate-800 font-medium min-h-[44px] rounded-lg hover:bg-slate-100 transition-colors text-sm sm:text-base">
-                        Chiudi
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Sezione: Impostazioni Contabilità -->
-    <div class="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-        <div class="p-4 sm:p-6">
-            <div class="flex items-center justify-between mb-4">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                        <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-                        </svg>
-                    </div>
-                    <div>
-                        <h3 class="font-semibold text-slate-800">Impostazioni Contabilità</h3>
-                        <p class="text-sm text-slate-500">Configura il periodo di riepilogo</p>
-                    </div>
-                </div>
-                <button type="button" onclick="toggleContabilitaForm()" id="btnToggleContabilita"
-                        class="px-4 py-2 bg-amber-100 hover:bg-amber-200 text-amber-700 rounded-lg text-sm font-medium transition-colors">
-                    Modifica
-                </button>
-            </div>
-            
-            <!-- Preview Impostazioni Contabilità -->
-            <div id="contabilitaPreview" class="space-y-2">
-                <div class="flex items-center justify-between py-2 px-3 bg-slate-50 rounded-lg">
-                    <span class="text-sm text-slate-600">Periodo di riepilogo</span>
-                    <span class="text-sm font-medium text-slate-800 capitalize" id="previewPeriodo">Mensile</span>
-                </div>
-                <div class="flex items-center justify-between py-2 px-3 bg-slate-50 rounded-lg">
-                    <span class="text-sm text-slate-600">Giorno di inizio periodo</span>
-                    <span class="text-sm font-medium text-slate-800" id="previewGiornoInizio">1</span>
-                </div>
-                <div class="flex items-center justify-between py-2 px-3 bg-slate-50 rounded-lg">
-                    <span class="text-sm text-slate-600">Mese inizio anno fiscale</span>
-                    <span class="text-sm font-medium text-slate-800" id="previewMeseFiscale">Gennaio</span>
-                </div>
-            </div>
-            
-            <!-- Form Impostazioni Contabilità (inizialmente nascosto) -->
-            <div id="contabilitaForm" class="hidden">
-                <div class="mb-5 p-4 bg-amber-50 border border-amber-200 rounded-xl">
-                    <label class="block text-sm font-medium text-amber-800 mb-2">
-                        <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                        </svg>
-                        Password di modifica
-                    </label>
-                    <input type="password" id="contabilitaPassword" 
-                           class="w-full px-4 py-2.5 border border-amber-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none bg-white"
-                           placeholder="Inserisci la password...">
-                </div>
-                
-                <div class="mb-6 space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Periodo di riepilogo</label>
-                        <select id="contabilitaPeriodo" 
-                                class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none bg-white">
-                            <option value="giornaliero">Giornaliero</option>
-                            <option value="settimanale">Settimanale</option>
-                            <option value="mensile" selected>Mensile</option>
-                        </select>
-                        <p class="text-xs text-slate-500 mt-1">Frequenza di calcolo del riepilogo</p>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Giorno di inizio periodo</label>
-                        <input type="number" id="contabilitaGiornoInizio" min="1" max="31" value="1"
-                               class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none">
-                        <p class="text-xs text-slate-500 mt-1">Giorno del mese in cui inizia il periodo (1-31)</p>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Mese inizio anno fiscale</label>
-                        <select id="contabilitaMeseFiscale" 
-                                class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none bg-white">
-                            <option value="1" selected>Gennaio</option>
-                            <option value="2">Febbraio</option>
-                            <option value="3">Marzo</option>
-                            <option value="4">Aprile</option>
-                            <option value="5">Maggio</option>
-                            <option value="6">Giugno</option>
-                            <option value="7">Luglio</option>
-                            <option value="8">Agosto</option>
-                            <option value="9">Settembre</option>
-                            <option value="10">Ottobre</option>
-                            <option value="11">Novembre</option>
-                            <option value="12">Dicembre</option>
-                        </select>
-                        <p class="text-xs text-slate-500 mt-1">Mese di inizio dell'anno fiscale</p>
-                    </div>
-                </div>
-                
-                <div class="flex flex-row justify-end gap-2">
-                    <button type="button" onclick="salvaImpostazioniContabilita()" 
-                            class="flex-1 sm:flex-none px-4 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-medium rounded-lg transition-colors text-sm sm:text-base">
-                        Salva Impostazioni
-                    </button>
-                    <button type="button" onclick="toggleContabilitaForm()" 
                             class="flex-1 sm:flex-none px-4 py-2.5 text-slate-600 hover:text-slate-800 font-medium min-h-[44px] rounded-lg hover:bg-slate-100 transition-colors text-sm sm:text-base">
                         Chiudi
                     </button>
