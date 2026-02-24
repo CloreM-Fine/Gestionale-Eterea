@@ -13,6 +13,7 @@ header('Content-Type: application/json; charset=utf-8');
 // Configurazione sessione PRIMA di session_start
 ini_set('session.cookie_httponly', 1);
 ini_set('session.use_only_cookies', 1);
+ini_set('session.cookie_samesite', 'Lax');
 $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || 
            (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https');
 ini_set('session.cookie_secure', $isHttps ? 1 : 0);
