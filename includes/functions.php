@@ -24,6 +24,21 @@ function isLoggedIn(): bool {
 }
 
 /**
+ * Verifica se l'utente è admin
+ */
+function isAdmin(): bool {
+    // Per ora consideriamo admin l'utente con ID specifico
+    // Puoi modificare questa logica in base alle tue esigenze
+    if (!isLoggedIn()) {
+        return false;
+    }
+    
+    // Admin sono: Lorenzo (ucwurog3xr8tf) e eventuali altri
+    $adminIds = ['ucwurog3xr8tf'];
+    return in_array($_SESSION['user_id'], $adminIds);
+}
+
+/**
  * Verifica che l'utente sia autenticato (per API)
  */
 function requireAuth(): void {
