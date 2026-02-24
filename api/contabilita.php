@@ -3,16 +3,24 @@
  * API Contabilità Mensile
  */
 
-// AVVIA SESSIONE PRIMA DI TUTTO
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
-// Abilita error reporting per debug
+// Abilita error reporting
 error_reporting(E_ALL);
 ini_set('display_errors', 0);
 
+// Header JSON
 header('Content-Type: application/json; charset=utf-8');
+
+// Configurazione sessione PRIMA di session_start
+ini_set('session.cookie_httponly', 1);
+ini_set('session.use_only_cookies', 1);
+$isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || 
+           (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https');
+ini_set('session.cookie_secure', $isHttps ? 1 : 0);
+
+// AVVIA SESSIONE
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/functions.php';
