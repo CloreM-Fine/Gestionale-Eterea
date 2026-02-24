@@ -276,7 +276,7 @@ async function caricaScadenze() {
     }
     
     try {
-        const response = await fetch(url);
+        const response = await fetch(url, { credentials: 'same-origin' });
         const data = await response.json();
         
         const container = document.getElementById('scadenzeContainer');
@@ -441,7 +441,7 @@ function closeScadenzaModal() {
 
 async function modificaScadenza(id) {
     try {
-        const response = await fetch(`api/scadenze.php?action=detail&id=${id}`);
+        const response = await fetch(`api/scadenze.php?action=detail&id=${id}`, { credentials: 'same-origin' });
         const data = await response.json();
         
         if (!data.success) {
@@ -493,7 +493,8 @@ async function salvaScadenza() {
         
         const response = await fetch('api/scadenze.php', {
             method: 'POST',
-            body: formData
+            body: formData,
+            credentials: 'same-origin'
         });
         
         const data = await response.json();
@@ -572,7 +573,7 @@ async function eliminaScadenza(id) {
 
 async function caricaTipologie() {
     try {
-        const response = await fetch('api/scadenze.php?action=tipologie');
+        const response = await fetch('api/scadenze.php?action=tipologie', { credentials: 'same-origin' });
         const data = await response.json();
         
         if (!data.success) return;
@@ -652,7 +653,8 @@ async function salvaTipologia() {
         
         const response = await fetch('api/scadenze.php', {
             method: 'POST',
-            body: formData
+            body: formData,
+            credentials: 'same-origin'
         });
         
         const data = await response.json();

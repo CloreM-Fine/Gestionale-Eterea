@@ -314,7 +314,7 @@
     // =====================================================
     async function updateScadenzeBadge() {
         try {
-            const response = await fetch('api/scadenze.php?action=count_oggi');
+            const response = await fetch('api/scadenze.php?action=count_oggi', { credentials: 'same-origin' });
             const data = await response.json();
             
             if (data.success) {

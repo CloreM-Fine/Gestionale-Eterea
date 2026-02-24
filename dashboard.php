@@ -964,7 +964,7 @@ async function caricaContabilitaMensile() {
     document.getElementById('contabilitaContent').classList.add('hidden');
     
     try {
-        const response = await fetch(`api/contabilita.php?action=riepilogo&mese=${mese}&anno=${anno}`);
+        const response = await fetch(`api/contabilita.php?action=riepilogo&mese=${mese}&anno=${anno}`, { credentials: 'same-origin' });
         const data = await response.json();
         
         if (data.success) {
