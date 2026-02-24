@@ -10,15 +10,11 @@ header('Content-Type: application/json; charset=utf-8');
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/functions.php';
 
-
 // Verifica autenticazione
 if (!isLoggedIn()) {
     echo json_encode(['success' => false, 'message' => 'Non autenticato']);
     exit;
 }
-
-// Crea tabella se non esiste
-garantisciTabellaContabilita();
 
 $action = $_GET['action'] ?? '';
 
@@ -91,7 +87,10 @@ function getRiepilogoMensile() {
         
     } catch (PDOException $e) {
         error_log("Errore contabilità mensile: " . $e->getMessage());
-        echo json_encode(['success' => false, 'message' => 'Errore database']);
+        echo json_encode(['success' => false, 'message' => 'Errore database: ' . $e->getMessage()]);
+    } catch (Throwable $e) {
+        error_log("Errore generico contabilità: " . $e->getMessage());
+        echo json_encode(['success' => false, 'message' => 'Errore: ' . $e->getMessage()]);
     }
 }
 
@@ -103,29 +102,33 @@ function getRiepilogoMensile() {
 function getSaldoIniziale($mese, $anno) {
     global $pdo;
     
-    // Calcola mese precedente
-    $mesePrecedente = $mese - 1;
-    $annoPrecedente = $anno;
-    if ($mesePrecedente < 1) {
-        $mesePrecedente = 12;
-        $annoPrecedente--;
+    try {
+        // Calcola mese precedente
+        $mesePrecedente = $mese - 1;
+        $annoPrecedente = $anno;
+        if ($mesePrecedente < 1) {
+            $mesePrecedente = 12;
+            $annoPrecedente--;
+        }
+        
+        // Cerca saldo finale del mese precedente
+        $stmt = $pdo->prepare("
+            SELECT saldo_finale 
+            FROM contabilita_mensile 
+            WHERE mese = :mese AND anno = :anno 
+            LIMIT 1
+        ");
+        $stmt->execute([':mese' => $mesePrecedente, ':anno' => $annoPrecedente]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($result && $result['saldo_finale'] !== null) {
+            return floatval($result['saldo_finale']);
+        }
+    } catch (PDOException $e) {
+        error_log("Errore getSaldoIniziale: " . $e->getMessage());
     }
     
-    // Cerca saldo finale del mese precedente
-    $stmt = $pdo->prepare("
-        SELECT saldo_finale 
-        FROM contabilita_mensile 
-        WHERE mese = :mese AND anno = :anno 
-        LIMIT 1
-    ");
-    $stmt->execute([':mese' => $mesePrecedente, ':anno' => $annoPrecedente]);
-    $result = $stmt->fetch(PDO::FETCH_ASSOC);
-    
-    if ($result && $result['saldo_finale'] !== null) {
-        return floatval($result['saldo_finale']);
-    }
-    
-    // Se non c'è storico, usa il saldo della cassa aziendale
+    // Se non c'è storico o c'è errore, usa il saldo della cassa aziendale
     return getSaldoCassaAziendale();
 }
 
@@ -135,28 +138,33 @@ function getSaldoIniziale($mese, $anno) {
 function getSaldoCassaAziendale() {
     global $pdo;
     
-    // Cerca wallet "cassa" o simile
-    $stmt = $pdo->query("
-        SELECT COALESCE(SUM(saldo), 0) as saldo 
-        FROM wallets 
-        WHERE nome LIKE '%cassa%' OR nome LIKE '%aziendale%' OR nome LIKE '%generale%'
-        LIMIT 1
-    ");
-    $result = $stmt->fetch(PDO::FETCH_ASSOC);
-    
-    if ($result && $result['saldo'] > 0) {
-        return floatval($result['saldo']);
+    try {
+        // Cerca wallet "cassa" o simile
+        $stmt = $pdo->query("
+            SELECT COALESCE(SUM(saldo), 0) as saldo 
+            FROM wallets 
+            WHERE nome LIKE '%cassa%' OR nome LIKE '%aziendale%' OR nome LIKE '%generale%'
+            LIMIT 1
+        ");
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($result && $result['saldo'] > 0) {
+            return floatval($result['saldo']);
+        }
+        
+        // Altrimenti somma tutti i wallet degli utenti
+        $stmt = $pdo->query("
+            SELECT COALESCE(SUM(saldo), 0) as saldo_totale 
+            FROM wallets w
+            JOIN utenti u ON w.user_id = u.id
+        ");
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        return floatval($result['saldo_totale'] ?? 0);
+    } catch (PDOException $e) {
+        error_log("Errore getSaldoCassaAziendale: " . $e->getMessage());
+        return 0;
     }
-    
-    // Altrimenti somma tutti i wallet degli utenti
-    $stmt = $pdo->query("
-        SELECT COALESCE(SUM(saldo), 0) as saldo_totale 
-        FROM wallets w
-        JOIN users u ON w.user_id = u.id
-    ");
-    $result = $stmt->fetch(PDO::FETCH_ASSOC);
-    
-    return floatval($result['saldo_totale'] ?? 0);
 }
 
 /**
@@ -165,31 +173,36 @@ function getSaldoCassaAziendale() {
 function getCronologiaProgetti($dataInizio, $dataFine) {
     global $pdo;
     
-    $stmt = $pdo->prepare("
-        SELECT 
-            id, 
-            nome, 
-            prezzo_totale as importo, 
-            data_consegna as data
-        FROM progetti 
-        WHERE stato = 'consegnato' 
-        AND DATE(data_consegna) BETWEEN :inizio AND :fine
-        ORDER BY data_consegna DESC
-    ");
-    $stmt->execute([':inizio' => $dataInizio, ':fine' => $dataFine]);
-    $progetti = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
-    $cronologia = [];
-    foreach ($progetti as $progetto) {
-        $cronologia[] = [
-            'id' => $progetto['id'],
-            'tipo' => 'Progetto: ' . $progetto['nome'],
-            'importo' => floatval($progetto['importo']),
-            'data' => $progetto['data']
-        ];
+    try {
+        $stmt = $pdo->prepare("
+            SELECT 
+                id, 
+                nome, 
+                prezzo_totale as importo, 
+                data_consegna as data
+            FROM progetti 
+            WHERE stato = 'consegnato' 
+            AND DATE(data_consegna) BETWEEN :inizio AND :fine
+            ORDER BY data_consegna DESC
+        ");
+        $stmt->execute([':inizio' => $dataInizio, ':fine' => $dataFine]);
+        $progetti = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        $cronologia = [];
+        foreach ($progetti as $progetto) {
+            $cronologia[] = [
+                'id' => $progetto['id'],
+                'tipo' => 'Progetto: ' . $progetto['nome'],
+                'importo' => floatval($progetto['importo']),
+                'data' => $progetto['data']
+            ];
+        }
+        
+        return $cronologia;
+    } catch (PDOException $e) {
+        error_log("Errore getCronologiaProgetti: " . $e->getMessage());
+        return [];
     }
-    
-    return $cronologia;
 }
 
 /**
@@ -215,8 +228,7 @@ function salvaRiepilogoAutomatico($mese, $anno, $saldoIniziale, $totaleEntrate, 
                 SET saldo_iniziale = :saldo_iniziale,
                     totale_entrate = :totale_entrate,
                     saldo_finale = :saldo_finale,
-                    numero_progetti = :numero_progetti,
-                    aggiornato_il = NOW()
+                    numero_progetti = :numero_progetti
                 WHERE id = :id
             ");
             $stmt->execute([
@@ -321,30 +333,3 @@ function getCronologiaMensile() {
     }
 }
 
-/**
- * Garantisce che la tabella contabilita_mensile esista
- */
-function garantisciTabellaContabilita() {
-    global $pdo;
-    
-    try {
-        $pdo->query("
-            CREATE TABLE IF NOT EXISTS contabilita_mensile (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                mese INT NOT NULL,
-                anno INT NOT NULL,
-                saldo_iniziale DECIMAL(12,2) NOT NULL DEFAULT 0,
-                totale_entrate DECIMAL(12,2) NOT NULL DEFAULT 0,
-                saldo_finale DECIMAL(12,2) NOT NULL DEFAULT 0,
-                numero_progetti INT NOT NULL DEFAULT 0,
-                note TEXT,
-                creato_il TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                aggiornato_il TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                UNIQUE KEY unique_mese_anno (mese, anno),
-                INDEX idx_anno_mese (anno, mese)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-        ");
-    } catch (PDOException $e) {
-        error_log("Errore creazione tabella contabilita: " . $e->getMessage());
-    }
-}
