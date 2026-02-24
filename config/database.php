@@ -2,6 +2,7 @@
 /**
  * Configurazione Database
  * Carica le variabili d'ambiente da .env
+ * Versione: 1.0.1
  */
 
 // Carica il loader delle variabili d'ambiente
