@@ -63,7 +63,7 @@ function getRiepilogoMensile() {
             SELECT SUM(prezzo_totale) as totale, COUNT(*) as numero
             FROM progetti 
             WHERE stato_progetto = 'completato' 
-            AND DATE(data_consegna) BETWEEN :inizio AND :fine
+            AND DATE(data_consegna_effettiva) BETWEEN :inizio AND :fine
         ");
         $stmt->execute([':inizio' => $dataInizio, ':fine' => $dataFine]);
         $risultato = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -134,11 +134,11 @@ function getCronologiaProgetti($dataInizio, $dataFine) {
     
     try {
         $stmt = $pdo->prepare("
-            SELECT id, nome, prezzo_totale as importo, data_consegna as data
+            SELECT id, titolo as nome, prezzo_totale as importo, data_consegna_effettiva as data
             FROM progetti 
             WHERE stato_progetto = 'completato' 
-            AND DATE(data_consegna) BETWEEN :inizio AND :fine
-            ORDER BY data_consegna DESC
+            AND DATE(data_consegna_effettiva) BETWEEN :inizio AND :fine
+            ORDER BY data_consegna_effettiva DESC
         ");
         $stmt->execute([':inizio' => $dataInizio, ':fine' => $dataFine]);
         $progetti = $stmt->fetchAll(PDO::FETCH_ASSOC);
