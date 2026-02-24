@@ -15,8 +15,11 @@ date_default_timezone_set('Europe/Rome');
  */
 function isLoggedIn(): bool {
     if (session_status() === PHP_SESSION_NONE) {
-        ini_set('session.cookie_httponly', 1);
-        ini_set('session.use_only_cookies', 1);
+        // Se headers già inviati, non possiamo settare ini
+        if (!headers_sent()) {
+            ini_set('session.cookie_httponly', 1);
+            ini_set('session.use_only_cookies', 1);
+        }
         session_start();
     }
     
