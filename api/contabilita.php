@@ -1,8 +1,12 @@
 <?php
 /**
  * API Contabilità Mensile
- * Gestisce riepilogo, cronologia e rollover mensile
  */
+
+// AVVIA SESSIONE PRIMA DI TUTTO
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 // Abilita error reporting per debug
 error_reporting(E_ALL);
@@ -35,24 +39,18 @@ switch ($action) {
         echo json_encode(['success' => false, 'message' => 'Azione non valida']);
 }
 
-/**
- * Ottiene il riepilogo mensile con saldo iniziale, entrate e saldo finale
- */
 function getRiepilogoMensile() {
     global $pdo;
     
     $mese = intval($_GET['mese'] ?? date('n'));
     $anno = intval($_GET['anno'] ?? date('Y'));
     
-    // Calcola date inizio/fine mese
     $dataInizio = sprintf('%04d-%02d-01', $anno, $mese);
     $dataFine = date('Y-m-t', strtotime($dataInizio));
     
     try {
-        // 1. Saldo iniziale = saldo finale mese precedente (o cassa aziendale se primo mese)
         $saldoIniziale = getSaldoIniziale($mese, $anno);
         
-        // 2. Entrate del mese: somma degli importi dei progetti consegnati
         $stmt = $pdo->prepare("
             SELECT SUM(prezzo_totale) as totale, COUNT(*) as numero
             FROM progetti 
@@ -64,14 +62,10 @@ function getRiepilogoMensile() {
         
         $totaleEntrate = floatval($risultato['totale'] ?? 0);
         $numeroProgetti = intval($risultato['numero'] ?? 0);
-        
-        // 3. Saldo finale = saldo iniziale + entrate
         $saldoFinale = $saldoIniziale + $totaleEntrate;
         
-        // 4. Cronologia del mese (progetti consegnati)
         $cronologia = getCronologiaProgetti($dataInizio, $dataFine);
         
-        // Salva automaticamente il riepilogo per lo storico
         salvaRiepilogoAutomatico($mese, $anno, $saldoIniziale, $totaleEntrate, $saldoFinale, $numeroProgetti);
         
         echo json_encode([
@@ -89,22 +83,18 @@ function getRiepilogoMensile() {
         ]);
         
     } catch (PDOException $e) {
-        error_log("Errore contabilità mensile PDO: " . $e->getMessage());
-        echo json_encode(['success' => false, 'message' => 'Errore database: ' . $e->getMessage()]);
+        error_log("Errore contabilità: " . $e->getMessage());
+        echo json_encode(['success' => false, 'message' => 'Errore database']);
     } catch (Throwable $e) {
-        error_log("Errore generico contabilità: " . $e->getMessage());
+        error_log("Errore generico: " . $e->getMessage());
         echo json_encode(['success' => false, 'message' => 'Errore: ' . $e->getMessage()]);
     }
 }
 
-/**
- * Ottiene il saldo iniziale per un mese
- */
 function getSaldoIniziale($mese, $anno) {
     global $pdo;
     
     try {
-        // Calcola mese precedente
         $mesePrecedente = $mese - 1;
         $annoPrecedente = $anno;
         if ($mesePrecedente < 1) {
@@ -112,7 +102,6 @@ function getSaldoIniziale($mese, $anno) {
             $annoPrecedente--;
         }
         
-        // Cerca saldo finale del mese precedente
         $stmt = $pdo->prepare("
             SELECT saldo_finale 
             FROM contabilita_mensile 
@@ -129,23 +118,15 @@ function getSaldoIniziale($mese, $anno) {
         error_log("Errore getSaldoIniziale: " . $e->getMessage());
     }
     
-    // Se non c'è storico o c'è errore, ritorna 0
     return 0;
 }
 
-/**
- * Ottiene la cronologia dei progetti consegnati nel periodo
- */
 function getCronologiaProgetti($dataInizio, $dataFine) {
     global $pdo;
     
     try {
         $stmt = $pdo->prepare("
-            SELECT 
-                id, 
-                nome, 
-                prezzo_totale as importo, 
-                data_consegna as data
+            SELECT id, nome, prezzo_totale as importo, data_consegna as data
             FROM progetti 
             WHERE stato_progetto = 'completato' 
             AND DATE(data_consegna) BETWEEN :inizio AND :fine
@@ -171,14 +152,10 @@ function getCronologiaProgetti($dataInizio, $dataFine) {
     }
 }
 
-/**
- * Salva automaticamente il riepilogo mensile per lo storico
- */
 function salvaRiepilogoAutomatico($mese, $anno, $saldoIniziale, $totaleEntrate, $saldoFinale, $numeroProgetti) {
     global $pdo;
     
     try {
-        // Verifica se esiste già un record per questo mese
         $stmt = $pdo->prepare("
             SELECT id FROM contabilita_mensile 
             WHERE mese = :mese AND anno = :anno 
@@ -188,7 +165,6 @@ function salvaRiepilogoAutomatico($mese, $anno, $saldoIniziale, $totaleEntrate, 
         $esistente = $stmt->fetch(PDO::FETCH_ASSOC);
         
         if ($esistente) {
-            // Aggiorna record esistente
             $stmt = $pdo->prepare("
                 UPDATE contabilita_mensile 
                 SET saldo_iniziale = :saldo_iniziale,
@@ -205,7 +181,6 @@ function salvaRiepilogoAutomatico($mese, $anno, $saldoIniziale, $totaleEntrate, 
                 ':numero_progetti' => $numeroProgetti
             ]);
         } else {
-            // Crea nuovo record
             $stmt = $pdo->prepare("
                 INSERT INTO contabilita_mensile 
                 (mese, anno, saldo_iniziale, totale_entrate, saldo_finale, numero_progetti, creato_il)
@@ -221,17 +196,13 @@ function salvaRiepilogoAutomatico($mese, $anno, $saldoIniziale, $totaleEntrate, 
             ]);
         }
     } catch (PDOException $e) {
-        error_log("Errore salvataggio contabilità: " . $e->getMessage());
+        error_log("Errore salvataggio: " . $e->getMessage());
     }
 }
 
-/**
- * Salva manualmente un riepilogo mensile
- */
 function salvaRiepilogoMensile() {
     global $pdo;
     
-    // Solo admin possono salvare manualmente
     if (!isAdmin()) {
         echo json_encode(['success' => false, 'message' => 'Permesso negato']);
         return;
@@ -273,14 +244,11 @@ function salvaRiepilogoMensile() {
         echo json_encode(['success' => true, 'message' => 'Riepilogo salvato']);
         
     } catch (PDOException $e) {
-        error_log("Errore salvataggio manuale: " . $e->getMessage());
-        echo json_encode(['success' => false, 'message' => 'Errore database: ' . $e->getMessage()]);
+        error_log("Errore salvataggio: " . $e->getMessage());
+        echo json_encode(['success' => false, 'message' => 'Errore database']);
     }
 }
 
-/**
- * Ottiene la cronologia storica di tutti i mesi
- */
 function getCronologiaMensile() {
     global $pdo;
     
@@ -294,7 +262,7 @@ function getCronologiaMensile() {
         echo json_encode(['success' => true, 'data' => $records]);
         
     } catch (PDOException $e) {
-        error_log("Errore get cronologia: " . $e->getMessage());
-        echo json_encode(['success' => false, 'message' => 'Errore database: ' . $e->getMessage()]);
+        error_log("Errore cronologia: " . $e->getMessage());
+        echo json_encode(['success' => false, 'message' => 'Errore database']);
     }
 }

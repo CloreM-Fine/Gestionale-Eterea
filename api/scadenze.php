@@ -1,10 +1,14 @@
 <?php
 /**
  * API Scadenze
- * Gestisce CRUD scadenze e tipologie
  */
 
-// Abilita error reporting per debug
+// AVVIA SESSIONE PRIMA DI TUTTO
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Abilita error reporting
 error_reporting(E_ALL);
 ini_set('display_errors', 0);
 
@@ -74,16 +78,12 @@ switch ($method) {
         echo json_encode(['success' => false, 'message' => 'Metodo non consentito']);
 }
 
-/**
- * Ottiene tutte le scadenze con filtri
- */
 function getScadenze() {
     global $pdo;
     
     $userId = $_SESSION['user_id'] ?? '';
     $isAdmin = isAdmin();
     
-    // Filtri
     $stato = $_GET['stato'] ?? '';
     $tipologia = $_GET['tipologia'] ?? '';
     $mese = $_GET['mese'] ?? '';
@@ -105,7 +105,6 @@ function getScadenze() {
         ";
         $params = [];
         
-        // Non admin vedono solo le proprie scadenze
         if (!$isAdmin) {
             $sql .= " AND (s.user_id = ? OR s.user_id IS NULL)";
             $params[] = $userId;
@@ -138,7 +137,6 @@ function getScadenze() {
         $stmt->execute($params);
         $scadenze = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
-        // Aggiorna stato a "scaduta" se necessario
         $oggi = date('Y-m-d');
         foreach ($scadenze as &$scadenza) {
             if ($scadenza['data_scadenza'] < $oggi && $scadenza['stato'] === 'aperta') {
@@ -150,16 +148,13 @@ function getScadenze() {
         
     } catch (PDOException $e) {
         error_log("Errore get scadenze: " . $e->getMessage());
-        echo json_encode(['success' => false, 'message' => 'Errore database: ' . $e->getMessage()]);
+        echo json_encode(['success' => false, 'message' => 'Errore database']);
     } catch (Throwable $e) {
-        error_log("Errore generico get scadenze: " . $e->getMessage());
-        echo json_encode(['success' => false, 'message' => 'Errore: ' . $e->getMessage()]);
+        error_log("Errore generico: " . $e->getMessage());
+        echo json_encode(['success' => false, 'message' => 'Errore']);
     }
 }
 
-/**
- * Conta scadenze per oggi (per notifica sidebar)
- */
 function countScadenzeOggi() {
     global $pdo;
     
@@ -167,12 +162,7 @@ function countScadenzeOggi() {
     $isAdmin = isAdmin();
     
     try {
-        $sql = "
-            SELECT COUNT(*) as count 
-            FROM scadenze 
-            WHERE data_scadenza = CURDATE() 
-            AND stato = 'aperta'
-        ";
+        $sql = "SELECT COUNT(*) as count FROM scadenze WHERE data_scadenza = CURDATE() AND stato = 'aperta'";
         $params = [];
         
         if (!$isAdmin) {
@@ -187,17 +177,14 @@ function countScadenzeOggi() {
         echo json_encode(['success' => true, 'count' => intval($count)]);
         
     } catch (PDOException $e) {
-        error_log("Errore count scadenze: " . $e->getMessage());
-        echo json_encode(['success' => false, 'count' => 0, 'message' => $e->getMessage()]);
+        error_log("Errore count: " . $e->getMessage());
+        echo json_encode(['success' => false, 'count' => 0]);
     } catch (Throwable $e) {
-        error_log("Errore generico count scadenze: " . $e->getMessage());
-        echo json_encode(['success' => false, 'count' => 0, 'message' => $e->getMessage()]);
+        error_log("Errore generico: " . $e->getMessage());
+        echo json_encode(['success' => false, 'count' => 0]);
     }
 }
 
-/**
- * Ottiene una singola scadenza
- */
 function getScadenzaDetail($id) {
     global $pdo;
     
@@ -208,11 +195,8 @@ function getScadenzaDetail($id) {
     
     try {
         $stmt = $pdo->prepare("
-            SELECT s.*, 
-                   st.nome as tipologia_nome, 
-                   st.colore as tipologia_colore,
-                   c.nome as cliente_nome,
-                   u.nome as user_nome
+            SELECT s.*, st.nome as tipologia_nome, st.colore as tipologia_colore,
+                   c.nome as cliente_nome, u.nome as user_nome
             FROM scadenze s
             LEFT JOIN scadenze_tipologie st ON s.tipologia_id = st.id
             LEFT JOIN clienti c ON s.cliente_id = c.id
@@ -235,9 +219,6 @@ function getScadenzaDetail($id) {
     }
 }
 
-/**
- * Crea una nuova scadenza
- */
 function createScadenza() {
     global $pdo;
     
@@ -256,37 +237,27 @@ function createScadenza() {
     
     try {
         $stmt = $pdo->prepare("
-            INSERT INTO scadenze 
-            (titolo, data_scadenza, tipologia_id, descrizione, user_id, cliente_id, link, stato)
+            INSERT INTO scadenze (titolo, data_scadenza, tipologia_id, descrizione, user_id, cliente_id, link, stato)
             VALUES (?, ?, ?, ?, ?, ?, ?, 'aperta')
         ");
         
         $stmt->execute([
-            $titolo,
-            $dataScadenza,
-            $tipologiaId ?: null,
-            $descrizione,
-            $userId,
-            $clienteId,
-            $link
+            $titolo, $dataScadenza, $tipologiaId ?: null, $descrizione,
+            $userId, $clienteId, $link
         ]);
         
         $id = $pdo->lastInsertId();
         
-        // Log
         logTimeline($_SESSION['user_id'], 'create', 'scadenza', $id, "Creata scadenza: {$titolo}");
         
         echo json_encode(['success' => true, 'message' => 'Scadenza creata', 'id' => $id]);
         
     } catch (PDOException $e) {
-        error_log("Errore create scadenza: " . $e->getMessage());
-        echo json_encode(['success' => false, 'message' => 'Errore durante la creazione: ' . $e->getMessage()]);
+        error_log("Errore create: " . $e->getMessage());
+        echo json_encode(['success' => false, 'message' => 'Errore creazione']);
     }
 }
 
-/**
- * Aggiorna una scadenza
- */
 function updateScadenza() {
     global $pdo;
     
@@ -307,41 +278,26 @@ function updateScadenza() {
     try {
         $stmt = $pdo->prepare("
             UPDATE scadenze 
-            SET titolo = ?, 
-                data_scadenza = ?, 
-                tipologia_id = ?, 
-                descrizione = ?, 
-                user_id = ?, 
-                cliente_id = ?, 
-                link = ?
+            SET titolo = ?, data_scadenza = ?, tipologia_id = ?, descrizione = ?, 
+                user_id = ?, cliente_id = ?, link = ?
             WHERE id = ?
         ");
         
         $stmt->execute([
-            $titolo,
-            $dataScadenza,
-            $tipologiaId ?: null,
-            $descrizione,
-            $userId,
-            $clienteId,
-            $link,
-            $id
+            $titolo, $dataScadenza, $tipologiaId ?: null, $descrizione,
+            $userId, $clienteId, $link, $id
         ]);
         
-        // Log
         logTimeline($_SESSION['user_id'], 'update', 'scadenza', $id, "Aggiornata scadenza: {$titolo}");
         
         echo json_encode(['success' => true, 'message' => 'Scadenza aggiornata']);
         
     } catch (PDOException $e) {
-        error_log("Errore update scadenza: " . $e->getMessage());
-        echo json_encode(['success' => false, 'message' => 'Errore durante aggiornamento']);
+        error_log("Errore update: " . $e->getMessage());
+        echo json_encode(['success' => false, 'message' => 'Errore aggiornamento']);
     }
 }
 
-/**
- * Elimina una scadenza
- */
 function deleteScadenza() {
     global $pdo;
     
@@ -356,20 +312,16 @@ function deleteScadenza() {
         $stmt = $pdo->prepare("DELETE FROM scadenze WHERE id = ?");
         $stmt->execute([$id]);
         
-        // Log
         logTimeline($_SESSION['user_id'], 'delete', 'scadenza', $id, "Eliminata scadenza #{$id}");
         
         echo json_encode(['success' => true, 'message' => 'Scadenza eliminata']);
         
     } catch (PDOException $e) {
-        error_log("Errore delete scadenza: " . $e->getMessage());
-        echo json_encode(['success' => false, 'message' => 'Errore durante eliminazione']);
+        error_log("Errore delete: " . $e->getMessage());
+        echo json_encode(['success' => false, 'message' => 'Errore eliminazione']);
     }
 }
 
-/**
- * Marca una scadenza come completata
- */
 function completeScadenza() {
     global $pdo;
     
@@ -384,24 +336,17 @@ function completeScadenza() {
         $stmt = $pdo->prepare("UPDATE scadenze SET stato = 'completata' WHERE id = ?");
         $stmt->execute([$id]);
         
-        // Log
         logTimeline($_SESSION['user_id'], 'complete', 'scadenza', $id, "Completata scadenza #{$id}");
         
         echo json_encode(['success' => true, 'message' => 'Scadenza completata']);
         
     } catch (PDOException $e) {
-        error_log("Errore complete scadenza: " . $e->getMessage());
+        error_log("Errore complete: " . $e->getMessage());
         echo json_encode(['success' => false, 'message' => 'Errore']);
     }
 }
 
-// ============================================
 // TIPOLOGIE
-// ============================================
-
-/**
- * Ottiene tutte le tipologie
- */
 function getTipologie() {
     global $pdo;
     
@@ -417,9 +362,6 @@ function getTipologie() {
     }
 }
 
-/**
- * Crea una nuova tipologia
- */
 function createTipologia() {
     global $pdo;
     
@@ -443,14 +385,11 @@ function createTipologia() {
             echo json_encode(['success' => false, 'message' => 'Tipologia già esistente']);
         } else {
             error_log("Errore create tipologia: " . $e->getMessage());
-            echo json_encode(['success' => false, 'message' => 'Errore durante la creazione']);
+            echo json_encode(['success' => false, 'message' => 'Errore creazione']);
         }
     }
 }
 
-/**
- * Aggiorna una tipologia
- */
 function updateTipologia() {
     global $pdo;
     
@@ -471,13 +410,10 @@ function updateTipologia() {
         
     } catch (PDOException $e) {
         error_log("Errore update tipologia: " . $e->getMessage());
-        echo json_encode(['success' => false, 'message' => 'Errore durante aggiornamento']);
+        echo json_encode(['success' => false, 'message' => 'Errore aggiornamento']);
     }
 }
 
-/**
- * Elimina una tipologia
- */
 function deleteTipologia() {
     global $pdo;
     
@@ -496,6 +432,6 @@ function deleteTipologia() {
         
     } catch (PDOException $e) {
         error_log("Errore delete tipologia: " . $e->getMessage());
-        echo json_encode(['success' => false, 'message' => 'Errore durante eliminazione']);
+        echo json_encode(['success' => false, 'message' => 'Errore eliminazione']);
     }
 }
