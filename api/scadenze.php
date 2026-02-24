@@ -103,7 +103,7 @@ function getScadenze() {
             SELECT s.*, 
                    st.nome as tipologia_nome, 
                    st.colore as tipologia_colore,
-                   c.nome as cliente_nome,
+                   c.ragione_sociale as cliente_nome,
                    u.nome as user_nome
             FROM scadenze s
             LEFT JOIN scadenze_tipologie st ON s.tipologia_id = st.id
