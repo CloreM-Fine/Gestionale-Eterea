@@ -6,7 +6,6 @@
 
 header('Content-Type: application/json; charset=utf-8');
 
-// Include config
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/functions.php';
 
@@ -86,7 +85,7 @@ function getRiepilogoMensile() {
         ]);
         
     } catch (PDOException $e) {
-        error_log("Errore contabilità mensile: " . $e->getMessage());
+        error_log("Errore contabilità mensile PDO: " . $e->getMessage());
         echo json_encode(['success' => false, 'message' => 'Errore database: ' . $e->getMessage()]);
     } catch (Throwable $e) {
         error_log("Errore generico contabilità: " . $e->getMessage());
@@ -96,8 +95,6 @@ function getRiepilogoMensile() {
 
 /**
  * Ottiene il saldo iniziale per un mese
- * - Se esiste storico del mese precedente, usa il saldo finale
- * - Altrimenti usa il saldo della cassa aziendale
  */
 function getSaldoIniziale($mese, $anno) {
     global $pdo;
@@ -128,43 +125,8 @@ function getSaldoIniziale($mese, $anno) {
         error_log("Errore getSaldoIniziale: " . $e->getMessage());
     }
     
-    // Se non c'è storico o c'è errore, usa il saldo della cassa aziendale
-    return getSaldoCassaAziendale();
-}
-
-/**
- * Ottiene il saldo attuale della cassa aziendale
- */
-function getSaldoCassaAziendale() {
-    global $pdo;
-    
-    try {
-        // Cerca wallet "cassa" o simile
-        $stmt = $pdo->query("
-            SELECT COALESCE(SUM(saldo), 0) as saldo 
-            FROM wallets 
-            WHERE nome LIKE '%cassa%' OR nome LIKE '%aziendale%' OR nome LIKE '%generale%'
-            LIMIT 1
-        ");
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
-        
-        if ($result && $result['saldo'] > 0) {
-            return floatval($result['saldo']);
-        }
-        
-        // Altrimenti somma tutti i wallet degli utenti
-        $stmt = $pdo->query("
-            SELECT COALESCE(SUM(saldo), 0) as saldo_totale 
-            FROM wallets w
-            JOIN utenti u ON w.user_id = u.id
-        ");
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
-        
-        return floatval($result['saldo_totale'] ?? 0);
-    } catch (PDOException $e) {
-        error_log("Errore getSaldoCassaAziendale: " . $e->getMessage());
-        return 0;
-    }
+    // Se non c'è storico o c'è errore, ritorna 0
+    return 0;
 }
 
 /**
@@ -263,6 +225,8 @@ function salvaRiepilogoAutomatico($mese, $anno, $saldoIniziale, $totaleEntrate, 
  * Salva manualmente un riepilogo mensile
  */
 function salvaRiepilogoMensile() {
+    global $pdo;
+    
     // Solo admin possono salvare manualmente
     if (!isAdmin()) {
         echo json_encode(['success' => false, 'message' => 'Permesso negato']);
@@ -282,18 +246,15 @@ function salvaRiepilogoMensile() {
     }
     
     try {
-        global $pdo;
-        
         $stmt = $pdo->prepare("
             INSERT INTO contabilita_mensile 
-            (mese, anno, saldo_iniziale, totale_entrate, saldo_finale, numero_progetti, creato_il, aggiornato_il)
-            VALUES (:mese, :anno, :saldo_iniziale, :totale_entrate, :saldo_finale, :numero_progetti, NOW(), NOW())
+            (mese, anno, saldo_iniziale, totale_entrate, saldo_finale, numero_progetti, creato_il)
+            VALUES (:mese, :anno, :saldo_iniziale, :totale_entrate, :saldo_finale, :numero_progetti, NOW())
             ON DUPLICATE KEY UPDATE
                 saldo_iniziale = :saldo_iniziale,
                 totale_entrate = :totale_entrate,
                 saldo_finale = :saldo_finale,
-                numero_progetti = :numero_progetti,
-                aggiornato_il = NOW()
+                numero_progetti = :numero_progetti
         ");
         
         $stmt->execute([
@@ -309,7 +270,7 @@ function salvaRiepilogoMensile() {
         
     } catch (PDOException $e) {
         error_log("Errore salvataggio manuale: " . $e->getMessage());
-        echo json_encode(['success' => false, 'message' => 'Errore database']);
+        echo json_encode(['success' => false, 'message' => 'Errore database: ' . $e->getMessage()]);
     }
 }
 
@@ -329,7 +290,7 @@ function getCronologiaMensile() {
         echo json_encode(['success' => true, 'data' => $records]);
         
     } catch (PDOException $e) {
-        echo json_encode(['success' => false, 'message' => 'Errore database']);
+        error_log("Errore get cronologia: " . $e->getMessage());
+        echo json_encode(['success' => false, 'message' => 'Errore database: ' . $e->getMessage()]);
     }
 }
-

@@ -15,9 +15,6 @@ if (!isLoggedIn()) {
     exit;
 }
 
-// Crea tabelle se non esistono
-garantisciTabelleScadenze();
-
 $method = $_SERVER['REQUEST_METHOD'];
 $action = $_GET['action'] ?? $_POST['action'] ?? '';
 
@@ -74,74 +71,12 @@ switch ($method) {
 }
 
 /**
- * Crea le tabelle scadenze e scadenze_tipologie
- */
-function garantisciTabelleScadenze() {
-    global $pdo;
-    
-    try {
-        // Tabella tipologie
-        $pdo->query("
-            CREATE TABLE IF NOT EXISTS scadenze_tipologie (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                nome VARCHAR(100) NOT NULL,
-                colore VARCHAR(7) DEFAULT '#64748b',
-                creato_il TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                UNIQUE KEY unique_nome (nome)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-        ");
-        
-        // Tabella scadenze
-        $pdo->query("
-            CREATE TABLE IF NOT EXISTS scadenze (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                titolo VARCHAR(255) NOT NULL,
-                data_scadenza DATE NOT NULL,
-                tipologia_id INT,
-                descrizione TEXT,
-                user_id VARCHAR(50),
-                cliente_id INT,
-                link VARCHAR(500),
-                stato ENUM('aperta', 'completata', 'scaduta') DEFAULT 'aperta',
-                creato_il TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                aggiornato_il TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                INDEX idx_data_scadenza (data_scadenza),
-                INDEX idx_user_id (user_id),
-                INDEX idx_stato (stato),
-                FOREIGN KEY (tipologia_id) REFERENCES scadenze_tipologie(id) ON DELETE SET NULL,
-                FOREIGN KEY (cliente_id) REFERENCES clienti(id) ON DELETE SET NULL,
-                FOREIGN KEY (user_id) REFERENCES utenti(id) ON DELETE SET NULL
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-        ");
-        
-        // Inserisci tipologie di default se non esistono
-        $defaultTipologie = [
-            ['nome' => 'Pagamento', 'colore' => '#ef4444'],
-            ['nome' => 'Consegna Progetto', 'colore' => '#3b82f6'],
-            ['nome' => 'Scadenza Fiscale', 'colore' => '#f59e0b'],
-            ['nome' => 'Appuntamento', 'colore' => '#10b981'],
-            ['nome' => 'Altro', 'colore' => '#64748b']
-        ];
-        
-        foreach ($defaultTipologie as $tipo) {
-            $stmt = $pdo->prepare("
-                INSERT IGNORE INTO scadenze_tipologie (nome, colore) VALUES (?, ?)
-            ");
-            $stmt->execute([$tipo['nome'], $tipo['colore']]);
-        }
-        
-    } catch (PDOException $e) {
-        error_log("Errore creazione tabelle scadenze: " . $e->getMessage());
-    }
-}
-
-/**
  * Ottiene tutte le scadenze con filtri
  */
 function getScadenze() {
     global $pdo;
     
-    $userId = $_SESSION['user_id'];
+    $userId = $_SESSION['user_id'] ?? '';
     $isAdmin = isAdmin();
     
     // Filtri
@@ -211,7 +146,10 @@ function getScadenze() {
         
     } catch (PDOException $e) {
         error_log("Errore get scadenze: " . $e->getMessage());
-        echo json_encode(['success' => false, 'message' => 'Errore database']);
+        echo json_encode(['success' => false, 'message' => 'Errore database: ' . $e->getMessage()]);
+    } catch (Throwable $e) {
+        error_log("Errore generico get scadenze: " . $e->getMessage());
+        echo json_encode(['success' => false, 'message' => 'Errore: ' . $e->getMessage()]);
     }
 }
 
@@ -221,7 +159,7 @@ function getScadenze() {
 function countScadenzeOggi() {
     global $pdo;
     
-    $userId = $_SESSION['user_id'];
+    $userId = $_SESSION['user_id'] ?? '';
     $isAdmin = isAdmin();
     
     try {
@@ -246,7 +184,10 @@ function countScadenzeOggi() {
         
     } catch (PDOException $e) {
         error_log("Errore count scadenze: " . $e->getMessage());
-        echo json_encode(['success' => false, 'count' => 0]);
+        echo json_encode(['success' => false, 'count' => 0, 'message' => $e->getMessage()]);
+    } catch (Throwable $e) {
+        error_log("Errore generico count scadenze: " . $e->getMessage());
+        echo json_encode(['success' => false, 'count' => 0, 'message' => $e->getMessage()]);
     }
 }
 
@@ -335,7 +276,7 @@ function createScadenza() {
         
     } catch (PDOException $e) {
         error_log("Errore create scadenza: " . $e->getMessage());
-        echo json_encode(['success' => false, 'message' => 'Errore durante la creazione']);
+        echo json_encode(['success' => false, 'message' => 'Errore durante la creazione: ' . $e->getMessage()]);
     }
 }
 
@@ -390,7 +331,7 @@ function updateScadenza() {
         
     } catch (PDOException $e) {
         error_log("Errore update scadenza: " . $e->getMessage());
-        echo json_encode(['success' => false, 'message' => 'Errore durante l\'aggiornamento']);
+        echo json_encode(['success' => false, 'message' => 'Errore durante aggiornamento']);
     }
 }
 
@@ -418,7 +359,7 @@ function deleteScadenza() {
         
     } catch (PDOException $e) {
         error_log("Errore delete scadenza: " . $e->getMessage());
-        echo json_encode(['success' => false, 'message' => 'Errore durante l\'eliminazione']);
+        echo json_encode(['success' => false, 'message' => 'Errore durante eliminazione']);
     }
 }
 
@@ -446,7 +387,7 @@ function completeScadenza() {
         
     } catch (PDOException $e) {
         error_log("Errore complete scadenza: " . $e->getMessage());
-        echo json_encode(['success' => false, 'message' => 'Errore durante il completamento']);
+        echo json_encode(['success' => false, 'message' => 'Errore']);
     }
 }
 
@@ -526,7 +467,7 @@ function updateTipologia() {
         
     } catch (PDOException $e) {
         error_log("Errore update tipologia: " . $e->getMessage());
-        echo json_encode(['success' => false, 'message' => 'Errore durante l\'aggiornamento']);
+        echo json_encode(['success' => false, 'message' => 'Errore durante aggiornamento']);
     }
 }
 
@@ -551,6 +492,6 @@ function deleteTipologia() {
         
     } catch (PDOException $e) {
         error_log("Errore delete tipologia: " . $e->getMessage());
-        echo json_encode(['success' => false, 'message' => 'Errore durante l\'eliminazione']);
+        echo json_encode(['success' => false, 'message' => 'Errore durante eliminazione']);
     }
 }
