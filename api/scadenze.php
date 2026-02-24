@@ -4,6 +4,10 @@
  * Gestisce CRUD scadenze e tipologie
  */
 
+// Abilita error reporting per debug
+error_reporting(E_ALL);
+ini_set('display_errors', 0);
+
 header('Content-Type: application/json; charset=utf-8');
 
 require_once __DIR__ . '/../config/database.php';
