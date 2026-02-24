@@ -21,8 +21,8 @@ $cookieLifetime = defined('COOKIE_LIFETIME') ? COOKIE_LIFETIME : 2592000;
 ini_set('session.cookie_lifetime', $cookieLifetime);
 ini_set('session.gc_maxlifetime', $cookieLifetime);
 
-// SameSite Strict per prevenire CSRF cross-origin
-ini_set('session.cookie_samesite', 'Strict');
+// SameSite Lax per permettere chiamate API fetch
+ini_set('session.cookie_samesite', 'Lax');
 
 session_start();
 
