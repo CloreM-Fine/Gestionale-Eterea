@@ -456,7 +456,87 @@ unset($member);
     </div>
 </div>
 
-<!-- Row 3: Timeline -->
+<!-- Row 3: Contabilità Mensile -->
+<div id="contabilitaMensileSection" class="mb-6">
+    <div class="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="p-3 sm:p-5 border-b border-slate-100">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2 sm:gap-3">
+                    <div class="w-8 h-8 sm:w-10 sm:h-10 bg-amber-100 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0">
+                        <svg class="w-4 h-4 sm:w-5 sm:h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-sm sm:text-base font-semibold text-slate-800">Riepilogo Mensile</h3>
+                        <p class="text-xs sm:text-sm text-slate-500" id="periodoLabel">Caricamento...</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <select id="meseSelect" onchange="caricaContabilitaMensile()" class="px-3 py-1.5 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
+                        <option value="1">Gennaio</option>
+                        <option value="2">Febbraio</option>
+                        <option value="3">Marzo</option>
+                        <option value="4">Aprile</option>
+                        <option value="5">Maggio</option>
+                        <option value="6">Giugno</option>
+                        <option value="7">Luglio</option>
+                        <option value="8">Agosto</option>
+                        <option value="9">Settembre</option>
+                        <option value="10">Ottobre</option>
+                        <option value="11">Novembre</option>
+                        <option value="12">Dicembre</option>
+                    </select>
+                    <select id="annoSelect" onchange="caricaContabilitaMensile()" class="px-3 py-1.5 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
+                        <option value="2024">2024</option>
+                        <option value="2025">2025</option>
+                        <option value="2026">2026</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+        <div class="p-4 sm:p-6">
+            <!-- Loading State -->
+            <div id="contabilitaLoading" class="text-center py-8">
+                <div class="w-8 h-8 border-2 border-amber-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+                <p class="text-sm text-slate-500 mt-2">Caricamento dati...</p>
+            </div>
+            
+            <!-- Content -->
+            <div id="contabilitaContent" class="hidden">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                    <div class="bg-slate-50 rounded-xl p-4">
+                        <p class="text-xs text-slate-500 mb-1">Saldo Iniziale</p>
+                        <p class="text-lg font-bold text-slate-800" id="saldoIniziale">€ 0,00</p>
+                    </div>
+                    <div class="bg-emerald-50 rounded-xl p-4">
+                        <p class="text-xs text-emerald-600 mb-1">Entrate Mese</p>
+                        <p class="text-lg font-bold text-emerald-700" id="totaleEntrate">€ 0,00</p>
+                    </div>
+                    <div class="bg-blue-50 rounded-xl p-4">
+                        <p class="text-xs text-blue-600 mb-1">Progetti Consegnati</p>
+                        <p class="text-lg font-bold text-blue-700" id="numeroProgetti">0</p>
+                    </div>
+                    <div class="bg-amber-50 rounded-xl p-4">
+                        <p class="text-xs text-amber-600 mb-1">Saldo Finale</p>
+                        <p class="text-lg font-bold text-amber-700" id="saldoFinale">€ 0,00</p>
+                    </div>
+                </div>
+                
+                <!-- Cronologia Mensile -->
+                <div class="border-t border-slate-100 pt-4">
+                    <h4 class="text-sm font-semibold text-slate-800 mb-3">Cronologia Mensile</h4>
+                    <div id="cronologiaMensileList" class="space-y-2 max-h-48 overflow-y-auto">
+                        <!-- Popolato via JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Row 4: Timeline -->
 <div class="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
     <div class="p-3 sm:p-5 border-b border-slate-100">
         <div class="flex items-center gap-2 sm:gap-3">
@@ -853,6 +933,84 @@ async function deleteEventFromDashboard() {
             showToast('Errore di connessione', 'error');
         }
     });
+}
+
+// ======================================
+// CONTABILITA' MENSILE
+// ======================================
+
+// Inizializza sezione contabilità mensile
+document.addEventListener('DOMContentLoaded', function() {
+    // Imposta mese e anno correnti
+    const today = new Date();
+    document.getElementById('meseSelect').value = today.getMonth() + 1;
+    document.getElementById('annoSelect').value = today.getFullYear();
+    
+    // Carica dati contabilità
+    caricaContabilitaMensile();
+});
+
+async function caricaContabilitaMensile() {
+    const mese = document.getElementById('meseSelect').value;
+    const anno = document.getElementById('annoSelect').value;
+    
+    // Aggiorna label periodo
+    const mesi = ['', 'Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 
+                  'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
+    document.getElementById('periodoLabel').textContent = `${mesi[mese]} ${anno}`;
+    
+    // Mostra loading
+    document.getElementById('contabilitaLoading').classList.remove('hidden');
+    document.getElementById('contabilitaContent').classList.add('hidden');
+    
+    try {
+        const response = await fetch(`api/contabilita.php?action=riepilogo&mese=${mese}&anno=${anno}`);
+        const data = await response.json();
+        
+        if (data.success) {
+            // Aggiorna valori
+            document.getElementById('saldoIniziale').textContent = formatCurrency(data.data.saldo_iniziale);
+            document.getElementById('totaleEntrate').textContent = formatCurrency(data.data.totale_entrate);
+            document.getElementById('numeroProgetti').textContent = data.data.numero_progetti;
+            document.getElementById('saldoFinale').textContent = formatCurrency(data.data.saldo_finale);
+            
+            // Popola cronologia
+            const cronologiaList = document.getElementById('cronologiaMensileList');
+            if (data.data.cronologia && data.data.cronologia.length > 0) {
+                cronologiaList.innerHTML = data.data.cronologia.map(item => {
+                    const date = new Date(item.data);
+                    const dateStr = date.toLocaleDateString('it-IT', { day: 'numeric', month: 'short' });
+                    return `
+                        <div class="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                            <div class="flex items-center gap-3">
+                                <span class="text-xs text-slate-500">${dateStr}</span>
+                                <span class="text-sm font-medium text-slate-800">${item.tipo}</span>
+                            </div>
+                            <span class="text-sm font-bold ${item.importo >= 0 ? 'text-emerald-600' : 'text-red-600'}">
+                                ${formatCurrency(item.importo)}
+                            </span>
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                cronologiaList.innerHTML = '<p class="text-center text-slate-400 text-sm py-4">Nessuna transazione questo mese</p>';
+            }
+            
+            document.getElementById('contabilitaLoading').classList.add('hidden');
+            document.getElementById('contabilitaContent').classList.remove('hidden');
+        } else {
+            showToast(data.message || 'Errore caricamento contabilità', 'error');
+            document.getElementById('contabilitaLoading').classList.add('hidden');
+        }
+    } catch (error) {
+        console.error('Errore:', error);
+        showToast('Errore di connessione', 'error');
+        document.getElementById('contabilitaLoading').classList.add('hidden');
+    }
+}
+
+function formatCurrency(value) {
+    return new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(value);
 }
 </script>
 

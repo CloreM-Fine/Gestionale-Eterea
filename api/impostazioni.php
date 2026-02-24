@@ -28,6 +28,8 @@ switch ($method) {
             getCodiciAteco();
         } elseif ($action === 'get_impostazioni_tasse') {
             getImpostazioniTasse();
+        } elseif ($action === 'get_impostazioni_contabilita') {
+            getImpostazioniContabilita();
         } else {
             jsonResponse(false, null, 'Azione non valida');
         }
@@ -54,6 +56,8 @@ switch ($method) {
             deleteCodiceAteco();
         } elseif ($action === 'save_impostazioni_tasse') {
             saveImpostazioniTasse();
+        } elseif ($action === 'save_impostazioni_contabilita') {
+            saveImpostazioniContabilita();
         } elseif ($action === 'change_password') {
             changePassword();
         } else {
@@ -83,7 +87,7 @@ function deleteCronologia(): void {
         jsonResponse(true, null, 'Cronologia eliminata con successo');
     } catch (PDOException $e) {
         error_log("Errore eliminazione cronologia: " . $e->getMessage());
-        jsonResponse(false, null, 'Errore durante l\'eliminazione');
+        jsonResponse(false, null, 'Errore durante eliminazione');
     }
 }
 
@@ -98,212 +102,169 @@ function resetSaldi(): void {
         
         // 1. Salva i saldi precedenti per log
         $stmt = $pdo->query("SELECT id, nome, wallet_saldo FROM utenti WHERE wallet_saldo > 0");
-        $utentiConSaldo = $stmt->fetchAll();
+        $utenti = $stmt->fetchAll();
         
-        // 2. Elimina prima tutte le transazioni economiche (per evitare FK constraint)
-        $stmt = $pdo->prepare("DELETE FROM transazioni_economiche");
-        $stmt->execute();
+        // 2. Azzera tutti i saldi
+        $pdo->exec("UPDATE utenti SET wallet_saldo = 0");
         
-        // 3. Azzera tutti i saldi utenti
-        $stmt = $pdo->prepare("UPDATE utenti SET wallet_saldo = 0");
-        $stmt->execute();
+        // 3. Elimina tutte le transazioni wallet
+        $pdo->exec("DELETE FROM wallet_transactions");
+        $pdo->exec("ALTER TABLE wallet_transactions AUTO_INCREMENT = 1");
         
-        // 4. Log dell'operazione (dopo il commit per sicurezza)
         $pdo->commit();
         
-        // Log fuori dalla transazione
-        foreach ($utentiConSaldo as $u) {
-            logTimeline($_SESSION['user_id'], 'reset_saldo', 'utente', $u['id'], 
-                "Azzerato saldo di {$u['nome']} (era: €{$u['wallet_saldo']})");
-        }
+        // Log
+        $totale = array_sum(array_column($utenti, 'wallet_saldo'));
+        logTimeline($_SESSION['user_id'], 'pulizia_dati', 'sistema', '', "Azzerati saldi per " . count($utenti) . " utenti (totale €{$totale})");
         
-        logTimeline($_SESSION['user_id'], 'reset_cassa', 'sistema', '', 
-            "Azzerata cassa aziendale da impostazioni");
-        
-        jsonResponse(true, null, 'Saldi e cassa aziendale azzerati con successo');
+        jsonResponse(true, null, 'Saldi azzerati con successo');
     } catch (PDOException $e) {
-        if ($pdo->inTransaction()) {
-            $pdo->rollBack();
-        }
+        $pdo->rollBack();
         error_log("Errore reset saldi: " . $e->getMessage());
-        jsonResponse(false, null, 'Errore durante l\'azzeramento: ' . $e->getMessage());
+        jsonResponse(false, null, 'Errore durante il reset');
     }
 }
 
 /**
- * Elimina TUTTI i dati (operazione distruttiva)
+ * Elimina TUTTI i dati del sistema
  */
 function deleteAll(string $keyword): void {
     global $pdo;
     
-    // Verifica parola chiave
-    $keywordCorretta = 'Tomato2399Andromeda2399!?';
-    if ($keyword !== $keywordCorretta) {
-        jsonResponse(false, null, 'Parola chiave errata');
+    if ($keyword !== 'CANCELLA TUTTO') {
+        jsonResponse(false, null, 'Keyword non valida');
         return;
     }
     
     try {
         $pdo->beginTransaction();
         
-        // Disabilita foreign key checks temporaneamente
-        $pdo->exec("SET FOREIGN_KEY_CHECKS = 0");
+        // Elimina in ordine corretto (dalle tabelle figlie alle padri)
+        $tables = [
+            'timeline',
+            'wallet_transactions', 
+            'tasks',
+            'progetto_allegati',
+            'progetti',
+            'clienti',
+            'eventi_calendario'
+        ];
         
-        // Elimina tutti i dati (ordine non importante con FK disabilitati)
-        $pdo->exec("DELETE FROM timeline");
-        $pdo->exec("DELETE FROM transazioni_economiche");
-        $pdo->exec("DELETE FROM task_allegati");
-        $pdo->exec("DELETE FROM task");
-        $pdo->exec("DELETE FROM appuntamenti");
-        $pdo->exec("DELETE FROM progetti");
-        $pdo->exec("DELETE FROM clienti");
-        
-        // Azzera saldi utenti (ma lascia gli utenti)
-        $pdo->exec("UPDATE utenti SET wallet_saldo = 0");
-        
-        // Riabilita foreign key checks
-        $pdo->exec("SET FOREIGN_KEY_CHECKS = 1");
+        foreach ($tables as $table) {
+            $pdo->exec("DELETE FROM {$table}");
+            $pdo->exec("ALTER TABLE {$table} AUTO_INCREMENT = 1");
+        }
         
         $pdo->commit();
         
-        // Log fuori dalla transazione
-        logTimeline($_SESSION['user_id'], 'delete_all', 'sistema', '', 
-            "ELIMINAZIONE TOTALE DATI eseguita da impostazioni");
+        logTimeline($_SESSION['user_id'], 'pulizia_dati', 'sistema', '', "Eliminazione completa di tutti i dati");
         
         jsonResponse(true, null, 'Tutti i dati sono stati eliminati');
     } catch (PDOException $e) {
-        if ($pdo->inTransaction()) {
-            $pdo->rollBack();
-        }
-        // Assicurati di riabilitare FK anche in caso di errore
-        try {
-            $pdo->exec("SET FOREIGN_KEY_CHECKS = 1");
-        } catch (PDOException $e2) {
-            // Ignora
-        }
-        error_log("Errore eliminazione totale: " . $e->getMessage());
-        jsonResponse(false, null, 'Errore durante l\'eliminazione: ' . $e->getMessage());
+        $pdo->rollBack();
+        error_log("Errore eliminazione completa: " . $e->getMessage());
+        jsonResponse(false, null, 'Errore durante eliminazione');
     }
 }
 
 /**
- * Esporta backup in CSV
+ * Esporta backup CSV
  */
 function exportBackup(string $tipo): void {
     global $pdo;
     
-    $filename = '';
-    $headers = [];
-    $data = [];
+    $filename = "backup_{$tipo}_" . date('Y-m-d_H-i-s') . ".csv";
+    header('Content-Type: text/csv; charset=utf-8');
+    header('Content-Disposition: attachment; filename="' . $filename . '"');
     
-    try {
-        switch ($tipo) {
-            case 'clienti':
-                $filename = 'backup_clienti_' . date('Y-m-d') . '.csv';
-                $stmt = $pdo->query("SELECT * FROM clienti ORDER BY ragione_sociale ASC");
-                $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
-                break;
-                
-            case 'progetti':
-                $filename = 'backup_progetti_' . date('Y-m-d') . '.csv';
-                $stmt = $pdo->query("
-                    SELECT p.*, c.ragione_sociale as cliente_nome 
-                    FROM progetti p 
-                    LEFT JOIN clienti c ON p.cliente_id = c.id 
-                    ORDER BY p.created_at DESC
-                ");
-                $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
-                break;
-                
-            case 'finanze':
-                $filename = 'backup_finanze_' . date('Y-m-d') . '.csv';
-                $stmt = $pdo->query("
-                    SELECT t.*, u.nome as utente_nome 
-                    FROM transazioni_economiche t 
-                    LEFT JOIN utenti u ON t.utente_id = u.id 
-                    ORDER BY t.created_at DESC
-                ");
-                $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
-                break;
-                
-            case 'appuntamenti':
-                $filename = 'backup_appuntamenti_' . date('Y-m-d') . '.csv';
-                $stmt = $pdo->query("
-                    SELECT a.*, p.titolo as progetto_titolo, u.nome as utente_nome 
-                    FROM appuntamenti a 
-                    LEFT JOIN progetti p ON a.progetto_id = p.id 
-                    LEFT JOIN utenti u ON a.utente_id = u.id 
-                    ORDER BY a.data_inizio DESC
-                ");
-                $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
-                break;
-                
-            default:
-                jsonResponse(false, null, 'Tipo di backup non valido');
-                return;
-        }
-        
-        if (empty($data)) {
-            jsonResponse(false, null, 'Nessun dato da esportare');
-            return;
-        }
-        
-        // Headers
-        header('Content-Type: text/csv; charset=utf-8');
-        header('Content-Disposition: attachment; filename="' . $filename . '"');
-        header('Pragma: no-cache');
-        header('Expires: 0');
-        
-        $output = fopen('php://output', 'w');
-        
-        // BOM per Excel
-        fprintf($output, chr(0xEF).chr(0xBB).chr(0xBF));
-        
-        // Header
-        fputcsv($output, array_keys($data[0]), ';');
-        
-        // Dati
-        foreach ($data as $row) {
-            fputcsv($output, $row, ';');
-        }
-        
-        fclose($output);
-        exit;
-        
-    } catch (PDOException $e) {
-        error_log("Errore backup: " . $e->getMessage());
-        jsonResponse(false, null, 'Errore durante l\'esportazione');
+    $output = fopen('php://output', 'w');
+    
+    switch ($tipo) {
+        case 'clienti':
+            fprintf($output, chr(0xEF).chr(0xBB).chr(0xBF)); // BOM per Excel
+            fputcsv($output, ['ID', 'Nome', 'Email', 'Telefono', 'Indirizzo', 'Data Creazione']);
+            $stmt = $pdo->query("SELECT * FROM clienti ORDER BY data_creazione DESC");
+            while ($row = $stmt->fetch()) {
+                fputcsv($output, [
+                    $row['id'], $row['nome'], $row['email'], 
+                    $row['telefono'], $row['indirizzo'], $row['data_creazione']
+                ]);
+            }
+            break;
+            
+        case 'progetti':
+            fprintf($output, chr(0xEF).chr(0xBB).chr(0xBF));
+            fputcsv($output, ['ID', 'Nome', 'Cliente', 'Stato', 'Prezzo', 'Data Creazione']);
+            $stmt = $pdo->query("
+                SELECT p.*, c.nome as cliente_nome 
+                FROM progetti p 
+                LEFT JOIN clienti c ON p.cliente_id = c.id 
+                ORDER BY p.data_creazione DESC
+            ");
+            while ($row = $stmt->fetch()) {
+                fputcsv($output, [
+                    $row['id'], $row['nome'], $row['cliente_nome'],
+                    $row['stato'], $row['prezzo_totale'], $row['data_creazione']
+                ]);
+            }
+            break;
+            
+        case 'finanze':
+            fprintf($output, chr(0xEF).chr(0xBB).chr(0xBF));
+            fputcsv($output, ['Data', 'Tipo', 'Importo', 'Wallet', 'Descrizione', 'Progetto']);
+            $stmt = $pdo->query("
+                SELECT t.*, w.nome as wallet_nome, p.nome as progetto_nome
+                FROM wallet_transactions t
+                JOIN wallets w ON t.wallet_id = w.id
+                LEFT JOIN progetti p ON t.progetto_id = p.id
+                ORDER BY t.data DESC
+            ");
+            while ($row = $stmt->fetch()) {
+                fputcsv($output, [
+                    $row['data'], $row['tipo'], $row['importo'],
+                    $row['wallet_nome'], $row['descrizione'], $row['progetto_nome']
+                ]);
+            }
+            break;
+            
+        case 'appuntamenti':
+            fprintf($output, chr(0xEF).chr(0xBB).chr(0xBF));
+            fputcsv($output, ['ID', 'Titolo', 'Data Inizio', 'Data Fine', 'Tipo', 'Descrizione']);
+            $stmt = $pdo->query("SELECT * FROM eventi_calendario ORDER BY data_inizio DESC");
+            while ($row = $stmt->fetch()) {
+                fputcsv($output, [
+                    $row['id'], $row['titolo'], $row['data_inizio'],
+                    $row['data_fine'], $row['tipo'], $row['descrizione']
+                ]);
+            }
+            break;
     }
+    
+    fclose($output);
+    exit;
 }
 
 /**
  * Upload avatar utente
  */
 function uploadAvatar(): void {
-    global $pdo;
-    
-    // Verifica file
-    if (empty($_FILES['avatar']) || $_FILES['avatar']['error'] !== UPLOAD_ERR_OK) {
+    if (!isset($_FILES['avatar'])) {
         jsonResponse(false, null, 'Nessun file caricato');
         return;
     }
     
     $file = $_FILES['avatar'];
+    $userId = $_SESSION['user_id'];
     
-    // Validazione tipo
+    // Validazione
     $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-    $finfo = finfo_open(FILEINFO_MIME_TYPE);
-    $mimeType = finfo_file($finfo, $file['tmp_name']);
-    finfo_close($finfo);
-    
-    if (!in_array($mimeType, $allowedTypes)) {
+    if (!in_array($file['type'], $allowedTypes)) {
         jsonResponse(false, null, 'Formato non valido. Usa JPG, PNG, GIF o WEBP');
         return;
     }
     
-    // Validazione dimensione (max 2MB)
     if ($file['size'] > 2 * 1024 * 1024) {
-        jsonResponse(false, null, 'File troppo grande. Max 2MB');
+        jsonResponse(false, null, 'File troppo grande (max 2MB)');
         return;
     }
     
@@ -313,391 +274,140 @@ function uploadAvatar(): void {
         mkdir($uploadDir, 0755, true);
     }
     
-    // Genera nome file univoco
-    $extension = match($mimeType) {
-        'image/jpeg' => 'jpg',
-        'image/png' => 'png',
-        'image/gif' => 'gif',
-        'image/webp' => 'webp',
-        default => 'jpg'
-    };
-    
-    $userId = $_SESSION['user_id'];
-    $filename = $userId . '_' . time() . '.' . $extension;
+    // Nome file
+    $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
+    $filename = $userId . '_' . time() . '.' . $ext;
     $filepath = $uploadDir . $filename;
     
-    try {
-        // Elimina avatar precedente se esiste
-        $stmt = $pdo->prepare("SELECT avatar FROM utenti WHERE id = ?");
-        $stmt->execute([$userId]);
-        $oldAvatar = $stmt->fetchColumn();
-        
-        if ($oldAvatar && file_exists($uploadDir . $oldAvatar)) {
-            unlink($uploadDir . $oldAvatar);
-        }
-        
-        // Ridimensiona e comprimi l'immagine
-        $image = null;
-        switch ($mimeType) {
-            case 'image/jpeg':
-                $image = imagecreatefromjpeg($file['tmp_name']);
-                break;
-            case 'image/png':
-                $image = imagecreatefrompng($file['tmp_name']);
-                break;
-            case 'image/gif':
-                $image = imagecreatefromgif($file['tmp_name']);
-                break;
-            case 'image/webp':
-                $image = imagecreatefromwebp($file['tmp_name']);
-                break;
-        }
-        
-        if (!$image) {
-            jsonResponse(false, null, 'Errore elaborazione immagine');
-            return;
-        }
-        
-        // Ridimensiona a 400x400 mantenendo proporzioni
-        $width = imagesx($image);
-        $height = imagesy($image);
-        $size = min($width, $height);
-        $newSize = 400;
-        
-        $newImage = imagecreatetruecolor($newSize, $newSize);
-        
-        // Preserva trasparenza per PNG
-        if ($mimeType === 'image/png') {
-            imagealphablending($newImage, false);
-            imagesavealpha($newImage, true);
-        }
-        
-        // Ritaglia quadrato centrato
-        $srcX = ($width - $size) / 2;
-        $srcY = ($height - $size) / 2;
-        
-        imagecopyresampled($newImage, $image, 0, 0, $srcX, $srcY, $newSize, $newSize, $size, $size);
-        
-        // Salva l'immagine
-        switch ($extension) {
-            case 'jpg':
-                imagejpeg($newImage, $filepath, 85);
-                break;
-            case 'png':
-                imagepng($newImage, $filepath, 8);
-                break;
-            case 'gif':
-                imagegif($newImage, $filepath);
-                break;
-            case 'webp':
-                imagewebp($newImage, $filepath, 85);
-                break;
-        }
-        
-        imagedestroy($image);
-        imagedestroy($newImage);
-        
-        // Aggiorna database
+    if (move_uploaded_file($file['tmp_name'], $filepath)) {
+        // Aggiorna DB
+        global $pdo;
+        $avatarUrl = 'assets/uploads/avatars/' . $filename;
         $stmt = $pdo->prepare("UPDATE utenti SET avatar = ? WHERE id = ?");
-        $result = $stmt->execute([$filename, $userId]);
-        error_log("Avatar update result: " . ($result ? 'success' : 'failed') . " - rows affected: " . $stmt->rowCount());
+        $stmt->execute([$avatarUrl, $userId]);
         
-        // Aggiorna sessione
-        $_SESSION['user_avatar'] = $filename;
-        
-        jsonResponse(true, ['avatar' => $filename], 'Avatar aggiornato con successo');
-        
-    } catch (Exception $e) {
-        error_log("Errore upload avatar: " . $e->getMessage());
-        jsonResponse(false, null, 'Errore durante l\'upload');
-    }
-}
-
-
-/**
- * Ottieni il logo del gestionale
- */
-function getLogo(): void {
-    global $pdo;
-    
-    try {
-        $stmt = $pdo->prepare("SELECT valore FROM impostazioni WHERE chiave = 'logo_gestionale'");
-        $stmt->execute();
-        $logo = $stmt->fetchColumn() ?: '';
-        
-        // Verifica se è un SVG
-        $isSvg = false;
-        if ($logo && str_ends_with(strtolower($logo), '.svg')) {
-            $isSvg = true;
-        }
-        
-        jsonResponse(true, [
-            'logo' => $logo,
-            'is_svg' => $isSvg,
-            'full_path' => $logo ? 'assets/uploads/logo/' . $logo : ''
-        ]);
-    } catch (PDOException $e) {
-        error_log("Errore get logo: " . $e->getMessage());
-        jsonResponse(false, null, 'Errore caricamento logo');
+        jsonResponse(true, ['avatar_url' => $avatarUrl], 'Avatar aggiornato');
+    } else {
+        jsonResponse(false, null, 'Errore durante il salvataggio');
     }
 }
 
 /**
- * Salva il logo del gestionale
+ * Salva il logo azienda (base64)
  */
 function saveLogo(): void {
-    global $pdo;
+    $logoData = $_POST['logo'] ?? '';
     
-    // Se è richiesta la rimozione
-    if (!empty($_POST['remove']) && $_POST['remove'] === 'true') {
-        try {
-            $stmt = $pdo->prepare("SELECT valore FROM impostazioni WHERE chiave = 'logo_gestionale'");
-            $stmt->execute();
-            $oldLogo = $stmt->fetchColumn();
-            
-            if ($oldLogo) {
-                $uploadDir = __DIR__ . '/../assets/uploads/logo/';
-                if (file_exists($uploadDir . $oldLogo)) {
-                    unlink($uploadDir . $oldLogo);
-                }
-                
-                $stmt = $pdo->prepare("UPDATE impostazioni SET valore = '' WHERE chiave = 'logo_gestionale'");
-                $stmt->execute();
-            }
-            
-            jsonResponse(true, ['logo' => ''], 'Logo rimosso con successo');
-            return;
-        } catch (Exception $e) {
-            error_log("Errore rimozione logo: " . $e->getMessage());
-            jsonResponse(false, null, 'Errore durante la rimozione');
-            return;
-        }
-    }
-    
-    // Verifica file
-    if (empty($_FILES['logo']) || $_FILES['logo']['error'] !== UPLOAD_ERR_OK) {
-        jsonResponse(false, null, 'Nessun file caricato');
+    if (empty($logoData)) {
+        jsonResponse(false, null, 'Nessun logo fornito');
         return;
     }
     
-    $file = $_FILES['logo'];
-    
-    // Validazione tipo (immagini + SVG)
-    $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
-    $finfo = finfo_open(FILEINFO_MIME_TYPE);
-    $mimeType = finfo_file($finfo, $file['tmp_name']);
-    finfo_close($finfo);
-    
-    // Per SVG, finfo potrebbe non riconoscerlo correttamente, quindi controlliamo anche l'estensione
-    $extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-    $isSvg = ($extension === 'svg') || ($mimeType === 'image/svg+xml');
-    
-    if (!in_array($mimeType, $allowedTypes) && !$isSvg) {
-        jsonResponse(false, null, 'Formato non valido. Usa JPG, PNG, GIF, WEBP o SVG');
+    // Estrai dati base64
+    if (!preg_match('/^data:image\/(\w+);base64,/', $logoData, $matches)) {
+        jsonResponse(false, null, 'Formato immagine non valido');
         return;
     }
     
-    // Validazione dimensione (max 5MB per SVG, 2MB per immagini)
-    $maxSize = $isSvg ? 5 * 1024 * 1024 : 2 * 1024 * 1024;
-    if ($file['size'] > $maxSize) {
-        jsonResponse(false, null, 'File troppo grande. Max ' . ($isSvg ? '5MB' : '2MB'));
+    $imageType = $matches[1];
+    $imageData = base64_decode(preg_replace('/^data:image\/\w+;base64,/', '', $logoData));
+    
+    if ($imageData === false) {
+        jsonResponse(false, null, 'Errore decodifica immagine');
         return;
     }
     
-    // Crea directory se non esiste
-    $uploadDir = __DIR__ . '/../assets/uploads/logo/';
+    // Crea directory
+    $uploadDir = __DIR__ . '/../assets/uploads/';
     if (!is_dir($uploadDir)) {
         mkdir($uploadDir, 0755, true);
     }
     
-    // Genera nome file univoco
-    $extension = $isSvg ? 'svg' : match($mimeType) {
-        'image/jpeg' => 'jpg',
-        'image/png' => 'png',
-        'image/gif' => 'gif',
-        'image/webp' => 'webp',
-        default => 'png'
-    };
-    
-    $filename = 'logo_' . time() . '.' . $extension;
+    // Salva file
+    $filename = 'logo_azienda_' . time() . '.' . $imageType;
     $filepath = $uploadDir . $filename;
     
-    try {
-        // Elimina logo precedente se esiste
-        $stmt = $pdo->prepare("SELECT valore FROM impostazioni WHERE chiave = 'logo_gestionale'");
-        $stmt->execute();
-        $oldLogo = $stmt->fetchColumn();
+    if (file_put_contents($filepath, $imageData)) {
+        // Salva path nel database
+        global $pdo;
+        $logoUrl = 'assets/uploads/' . $filename;
         
-        if ($oldLogo && file_exists($uploadDir . $oldLogo)) {
-            unlink($uploadDir . $oldLogo);
-        }
+        $stmt = $pdo->prepare("
+            INSERT INTO impostazioni (chiave, valore) 
+            VALUES ('logo_azienda', ?)
+            ON DUPLICATE KEY UPDATE valore = ?
+        ");
+        $stmt->execute([$logoUrl, $logoUrl]);
         
-        // Se è un'immagine (non SVG), ridimensionala
-        if (!$isSvg) {
-            $image = null;
-            switch ($mimeType) {
-                case 'image/jpeg':
-                    $image = imagecreatefromjpeg($file['tmp_name']);
-                    break;
-                case 'image/png':
-                    $image = imagecreatefrompng($file['tmp_name']);
-                    break;
-                case 'image/gif':
-                    $image = imagecreatefromgif($file['tmp_name']);
-                    break;
-                case 'image/webp':
-                    $image = imagecreatefromwebp($file['tmp_name']);
-                    break;
-            }
-            
-            if ($image) {
-                // Ridimensiona mantenendo proporzioni (max 400px altezza)
-                $width = imagesx($image);
-                $height = imagesy($image);
-                $maxHeight = 400;
-                
-                if ($height > $maxHeight) {
-                    $newHeight = $maxHeight;
-                    $newWidth = intval($width * ($maxHeight / $height));
-                    
-                    $newImage = imagecreatetruecolor($newWidth, $newHeight);
-                    
-                    // Preserva trasparenza per PNG
-                    if ($mimeType === 'image/png') {
-                        imagealphablending($newImage, false);
-                        imagesavealpha($newImage, true);
-                    }
-                    
-                    imagecopyresampled($newImage, $image, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
-                    
-                    // Salva l'immagine
-                    switch ($extension) {
-                        case 'jpg':
-                            imagejpeg($newImage, $filepath, 90);
-                            break;
-                        case 'png':
-                            imagepng($newImage, $filepath, 8);
-                            break;
-                        case 'gif':
-                            imagegif($newImage, $filepath);
-                            break;
-                        case 'webp':
-                            imagewebp($newImage, $filepath, 90);
-                            break;
-                    }
-                    
-                    imagedestroy($newImage);
-                } else {
-                    // Nessun ridimensionamento necessario
-                    move_uploaded_file($file['tmp_name'], $filepath);
-                }
-                
-                imagedestroy($image);
-            } else {
-                move_uploaded_file($file['tmp_name'], $filepath);
-            }
-        } else {
-            // Per SVG, salva direttamente
-            move_uploaded_file($file['tmp_name'], $filepath);
-        }
-        
-        // Salva nel database
-        $stmt = $pdo->prepare("INSERT INTO impostazioni (chiave, valore, tipo, descrizione) VALUES ('logo_gestionale', ?, 'image', 'Logo del gestionale') ON DUPLICATE KEY UPDATE valore = ?");
-        $stmt->execute([$filename, $filename]);
-        
-        logTimeline($_SESSION['user_id'], 'aggiornato_logo', 'sistema', '', 'Logo gestionale aggiornato');
-        
-        jsonResponse(true, ['logo' => $filename, 'is_svg' => $isSvg], 'Logo aggiornato con successo');
-        
-    } catch (Exception $e) {
-        error_log("Errore save logo: " . $e->getMessage());
-        jsonResponse(false, null, 'Errore durante il salvataggio del logo');
+        jsonResponse(true, ['logo_url' => $logoUrl], 'Logo salvato con successo');
+    } else {
+        jsonResponse(false, null, 'Errore durante il salvataggio');
     }
 }
 
 /**
- * Ottiene i dati dell'azienda
+ * Ottiene il logo azienda
+ */
+function getLogo(): void {
+    global $pdo;
+    
+    $stmt = $pdo->prepare("SELECT valore FROM impostazioni WHERE chiave = 'logo_azienda'");
+    $stmt->execute();
+    $logo = $stmt->fetchColumn();
+    
+    jsonResponse(true, ['logo_url' => $logo ?: null]);
+}
+
+/**
+ * Ottiene i dati azienda
  */
 function getDatiAzienda(): void {
     global $pdo;
     
-    try {
-        $chiavi = [
-            'azienda_ragione_sociale',
-            'azienda_indirizzo',
-            'azienda_cap',
-            'azienda_citta',
-            'azienda_provincia',
-            'azienda_piva',
-            'azienda_cf',
-            'azienda_email',
-            'azienda_telefono',
-            'azienda_pec',
-            'azienda_sdi',
-            'azienda_logo'
-        ];
-        
-        $dati = [];
-        foreach ($chiavi as $chiave) {
-            $stmt = $pdo->prepare("SELECT valore FROM impostazioni WHERE chiave = ?");
-            $stmt->execute([$chiave]);
-            $dati[str_replace('azienda_', '', $chiave)] = $stmt->fetchColumn() ?: '';
-        }
-        
-        // Aggiungi info sul logo
-        if (!empty($dati['logo'])) {
-            $dati['logo_url'] = 'assets/uploads/logo_azienda/' . $dati['logo'];
-            $dati['logo_path'] = __DIR__ . '/../assets/uploads/logo_azienda/' . $dati['logo'];
-        }
-        
-        jsonResponse(true, $dati);
-    } catch (PDOException $e) {
-        error_log("Errore get dati azienda: " . $e->getMessage());
-        jsonResponse(false, null, 'Errore caricamento dati');
+    $chiavi = ['azienda_nome', 'azienda_indirizzo', 'azienda_email', 'azienda_telefono', 'azienda_piva', 'azienda_ateco_id'];
+    $dati = [];
+    
+    foreach ($chiavi as $chiave) {
+        $stmt = $pdo->prepare("SELECT valore FROM impostazioni WHERE chiave = ?");
+        $stmt->execute([$chiave]);
+        $dati[str_replace('azienda_', '', $chiave)] = $stmt->fetchColumn() ?: '';
     }
+    
+    // Carica anche il logo
+    $stmt = $pdo->prepare("SELECT valore FROM impostazioni WHERE chiave = 'logo_azienda'");
+    $stmt->execute();
+    $dati['logo'] = $stmt->fetchColumn() ?: '';
+    
+    jsonResponse(true, $dati);
 }
 
 /**
- * Salva i dati dell'azienda (protetto da password)
+ * Salva i dati azienda
  */
 function saveDatiAzienda(): void {
     global $pdo;
     
-    // Verifica password
-    $password = $_POST['password'] ?? '';
-    $passwordCorretta = 'Tomato2399!?';
-    
-    if ($password !== $passwordCorretta) {
-        jsonResponse(false, null, 'Password errata');
-        return;
-    }
-    
     $campi = [
-        'ragione_sociale' => 'Ragione Sociale',
-        'indirizzo' => 'Indirizzo',
-        'cap' => 'CAP',
-        'citta' => 'Città',
-        'provincia' => 'Provincia',
-        'piva' => 'Partita IVA',
-        'cf' => 'Codice Fiscale',
-        'email' => 'Email',
-        'telefono' => 'Telefono',
-        'pec' => 'PEC',
-        'sdi' => 'Codice SDI'
+        'azienda_nome' => $_POST['nome'] ?? '',
+        'azienda_indirizzo' => $_POST['indirizzo'] ?? '',
+        'azienda_email' => $_POST['email'] ?? '',
+        'azienda_telefono' => $_POST['telefono'] ?? '',
+        'azienda_piva' => $_POST['piva'] ?? '',
+        'azienda_ateco_id' => $_POST['ateco_id'] ?? ''
     ];
     
     try {
-        foreach ($campi as $campo => $descrizione) {
-            $chiave = 'azienda_' . $campo;
-            $valore = $_POST[$campo] ?? '';
-            
-            $stmt = $pdo->prepare("INSERT INTO impostazioni (chiave, valore, tipo, descrizione) VALUES (?, ?, 'text', ?) ON DUPLICATE KEY UPDATE valore = ?");
-            $stmt->execute([$chiave, $valore, $descrizione, $valore]);
+        foreach ($campi as $chiave => $valore) {
+            $stmt = $pdo->prepare("
+                INSERT INTO impostazioni (chiave, valore, tipo, descrizione) 
+                VALUES (?, ?, 'text', ?)
+                ON DUPLICATE KEY UPDATE valore = ?
+            ");
+            $desc = str_replace(['azienda_', '_'], ['', ' '], $chiave);
+            $stmt->execute([$chiave, $valore, $desc, $valore]);
         }
         
-        logTimeline($_SESSION['user_id'], 'aggiornati_dati_azienda', 'sistema', '', 'Dati azienda aggiornati');
-        
-        jsonResponse(true, null, 'Dati azienda salvati con successo');
+        jsonResponse(true, null, 'Dati azienda salvati');
     } catch (PDOException $e) {
         error_log("Errore save dati azienda: " . $e->getMessage());
         jsonResponse(false, null, 'Errore durante il salvataggio');
@@ -705,186 +415,58 @@ function saveDatiAzienda(): void {
 }
 
 /**
- * Upload logo aziendale per preventivi
+ * Upload logo azienda da file
  */
 function uploadLogoAzienda(): void {
-    global $pdo;
-    
-    // Verifica password
-    $password = $_POST['password'] ?? '';
-    $passwordCorretta = 'Tomato2399!?';
-    
-    if ($password !== $passwordCorretta) {
-        jsonResponse(false, null, 'Password errata');
-        return;
-    }
-    
-    // Se è richiesta la rimozione
-    if (!empty($_POST['remove']) && $_POST['remove'] === 'true') {
-        try {
-            $stmt = $pdo->prepare("SELECT valore FROM impostazioni WHERE chiave = 'azienda_logo'");
-            $stmt->execute();
-            $oldLogo = $stmt->fetchColumn();
-            
-            if ($oldLogo) {
-                $uploadDir = __DIR__ . '/../assets/uploads/logo_azienda/';
-                if (file_exists($uploadDir . $oldLogo)) {
-                    unlink($uploadDir . $oldLogo);
-                }
-                
-                $stmt = $pdo->prepare("UPDATE impostazioni SET valore = '' WHERE chiave = 'azienda_logo'");
-                $stmt->execute();
-            }
-            
-            jsonResponse(true, ['logo' => ''], 'Logo rimosso con successo');
-            return;
-        } catch (Exception $e) {
-            error_log("Errore rimozione logo: " . $e->getMessage());
-            jsonResponse(false, null, 'Errore durante la rimozione');
-            return;
-        }
-    }
-    
-    // Verifica file
-    if (empty($_FILES['logo']) || $_FILES['logo']['error'] !== UPLOAD_ERR_OK) {
+    if (!isset($_FILES['logo_file'])) {
         jsonResponse(false, null, 'Nessun file caricato');
         return;
     }
     
-    $file = $_FILES['logo'];
+    $file = $_FILES['logo_file'];
     
-    // Validazione tipo (immagini + SVG)
+    // Validazione
     $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
-    $finfo = finfo_open(FILEINFO_MIME_TYPE);
-    $mimeType = finfo_file($finfo, $file['tmp_name']);
-    finfo_close($finfo);
-    
-    $extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-    $isSvg = ($extension === 'svg') || ($mimeType === 'image/svg+xml');
-    
-    if (!in_array($mimeType, $allowedTypes) && !$isSvg) {
+    if (!in_array($file['type'], $allowedTypes)) {
         jsonResponse(false, null, 'Formato non valido. Usa JPG, PNG, GIF, WEBP o SVG');
         return;
     }
     
-    // Validazione dimensione (max 5MB)
     if ($file['size'] > 5 * 1024 * 1024) {
-        jsonResponse(false, null, 'File troppo grande. Max 5MB');
+        jsonResponse(false, null, 'File troppo grande (max 5MB)');
         return;
     }
     
-    // Crea directory se non esiste
-    $uploadDir = __DIR__ . '/../assets/uploads/logo_azienda/';
+    // Crea directory
+    $uploadDir = __DIR__ . '/../assets/uploads/';
     if (!is_dir($uploadDir)) {
         mkdir($uploadDir, 0755, true);
     }
     
-    $extension = $isSvg ? 'svg' : match($mimeType) {
-        'image/jpeg' => 'jpg',
-        'image/png' => 'png',
-        'image/gif' => 'gif',
-        'image/webp' => 'webp',
-        default => 'png'
-    };
-    
-    $filename = 'logo_azienda_' . time() . '.' . $extension;
+    // Nome file
+    $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
+    $filename = 'logo_azienda_' . time() . '.' . $ext;
     $filepath = $uploadDir . $filename;
     
-    try {
-        // Elimina logo precedente
-        $stmt = $pdo->prepare("SELECT valore FROM impostazioni WHERE chiave = 'azienda_logo'");
-        $stmt->execute();
-        $oldLogo = $stmt->fetchColumn();
+    if (move_uploaded_file($file['tmp_name'], $filepath)) {
+        global $pdo;
+        $logoUrl = 'assets/uploads/' . $filename;
         
-        if ($oldLogo && file_exists($uploadDir . $oldLogo)) {
-            unlink($uploadDir . $oldLogo);
-        }
+        $stmt = $pdo->prepare("
+            INSERT INTO impostazioni (chiave, valore) 
+            VALUES ('logo_azienda', ?)
+            ON DUPLICATE KEY UPDATE valore = ?
+        ");
+        $stmt->execute([$logoUrl, $logoUrl]);
         
-        // Se è un'immagine, ridimensionala (max 800px larghezza)
-        if (!$isSvg) {
-            $image = null;
-            switch ($mimeType) {
-                case 'image/jpeg':
-                    $image = imagecreatefromjpeg($file['tmp_name']);
-                    break;
-                case 'image/png':
-                    $image = imagecreatefrompng($file['tmp_name']);
-                    break;
-                case 'image/gif':
-                    $image = imagecreatefromgif($file['tmp_name']);
-                    break;
-                case 'image/webp':
-                    $image = imagecreatefromwebp($file['tmp_name']);
-                    break;
-            }
-            
-            if ($image) {
-                $width = imagesx($image);
-                $height = imagesy($image);
-                $maxWidth = 800;
-                
-                if ($width > $maxWidth) {
-                    $newWidth = $maxWidth;
-                    $newHeight = intval($height * ($maxWidth / $width));
-                    
-                    $newImage = imagecreatetruecolor($newWidth, $newHeight);
-                    
-                    if ($mimeType === 'image/png') {
-                        imagealphablending($newImage, false);
-                        imagesavealpha($newImage, true);
-                    }
-                    
-                    imagecopyresampled($newImage, $image, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
-                    
-                    switch ($extension) {
-                        case 'jpg':
-                            imagejpeg($newImage, $filepath, 90);
-                            break;
-                        case 'png':
-                            imagepng($newImage, $filepath, 8);
-                            break;
-                        case 'gif':
-                            imagegif($newImage, $filepath);
-                            break;
-                        case 'webp':
-                            imagewebp($newImage, $filepath, 90);
-                            break;
-                    }
-                    
-                    imagedestroy($newImage);
-                } else {
-                    move_uploaded_file($file['tmp_name'], $filepath);
-                }
-                
-                imagedestroy($image);
-            } else {
-                move_uploaded_file($file['tmp_name'], $filepath);
-            }
-        } else {
-            move_uploaded_file($file['tmp_name'], $filepath);
-        }
-        
-        // Salva nel database
-        $stmt = $pdo->prepare("INSERT INTO impostazioni (chiave, valore, tipo, descrizione) VALUES ('azienda_logo', ?, 'image', 'Logo aziendale per preventivi') ON DUPLICATE KEY UPDATE valore = ?");
-        $stmt->execute([$filename, $filename]);
-        
-        logTimeline($_SESSION['user_id'], 'aggiornato_logo_azienda', 'sistema', '', 'Logo aziendale aggiornato');
-        
-        jsonResponse(true, [
-            'logo' => $filename,
-            'logo_url' => 'assets/uploads/logo_azienda/' . $filename,
-            'is_svg' => $isSvg
-        ], 'Logo aziendale aggiornato con successo');
-        
-    } catch (Exception $e) {
-        error_log("Errore upload logo azienda: " . $e->getMessage());
-        jsonResponse(false, null, 'Errore durante l\'upload');
+        jsonResponse(true, ['logo_url' => $logoUrl], 'Logo caricato con successo');
+    } else {
+        jsonResponse(false, null, 'Errore durante il caricamento');
     }
 }
 
-
 /**
- * Ottiene i codici ATECO salvati
+ * Ottiene i codici ATECO
  */
 function getCodiciAteco(): void {
     global $pdo;
@@ -895,12 +477,12 @@ function getCodiciAteco(): void {
         jsonResponse(true, $codici);
     } catch (PDOException $e) {
         error_log("Errore get codici ateco: " . $e->getMessage());
-        jsonResponse(false, null, 'Errore caricamento codici ATECO');
+        jsonResponse(false, null, 'Errore caricamento codici');
     }
 }
 
 /**
- * Ottiene le impostazioni tasse (INPS, ecc.)
+ * Ottiene le impostazioni tasse
  */
 function getImpostazioniTasse(): void {
     global $pdo;
@@ -918,6 +500,34 @@ function getImpostazioniTasse(): void {
         jsonResponse(true, $impostazioni);
     } catch (PDOException $e) {
         error_log("Errore get impostazioni tasse: " . $e->getMessage());
+        jsonResponse(false, null, 'Errore caricamento impostazioni');
+    }
+}
+
+/**
+ * Ottiene le impostazioni contabilita (periodo: mensile/settimanale/giornaliero)
+ */
+function getImpostazioniContabilita(): void {
+    global $pdo;
+    
+    try {
+        $impostazioni = [];
+        $chiavi = [
+            'contabilita_periodo' => 'mensile',
+            'contabilita_giorno_inizio' => '1',
+            'contabilita_mese_fiscale' => '1'
+        ];
+        
+        foreach ($chiavi as $chiave => $default) {
+            $stmt = $pdo->prepare("SELECT valore FROM impostazioni WHERE chiave = ?");
+            $stmt->execute([$chiave]);
+            $valore = $stmt->fetchColumn();
+            $impostazioni[str_replace('contabilita_', '', $chiave)] = $valore ?: $default;
+        }
+        
+        jsonResponse(true, $impostazioni);
+    } catch (PDOException $e) {
+        error_log("Errore get impostazioni contabilita: " . $e->getMessage());
         jsonResponse(false, null, 'Errore caricamento impostazioni');
     }
 }
@@ -997,7 +607,7 @@ function deleteCodiceAteco(): void {
         jsonResponse(true, null, 'Codice ATECO eliminato');
     } catch (PDOException $e) {
         error_log("Errore delete codice ateco: " . $e->getMessage());
-        jsonResponse(false, null, 'Errore durante l\'eliminazione');
+        jsonResponse(false, null, 'Errore durante eliminazione');
     }
 }
 
@@ -1041,6 +651,63 @@ function saveImpostazioniTasse(): void {
     }
 }
 
+/**
+ * Salva le impostazioni contabilita (periodo, giorno inizio, etc.)
+ */
+function saveImpostazioniContabilita(): void {
+    global $pdo;
+    
+    $periodo = $_POST['periodo'] ?? 'mensile';
+    $giornoInizio = intval($_POST['giorno_inizio'] ?? 1);
+    $meseFiscale = intval($_POST['mese_fiscale'] ?? 1);
+    
+    // Validazione
+    $periodiValidi = ['giornaliero', 'settimanale', 'mensile'];
+    if (!in_array($periodo, $periodiValidi)) {
+        jsonResponse(false, null, 'Periodo non valido');
+        return;
+    }
+    
+    if ($giornoInizio < 1 || $giornoInizio > 31) {
+        $giornoInizio = 1;
+    }
+    
+    if ($meseFiscale < 1 || $meseFiscale > 12) {
+        $meseFiscale = 1;
+    }
+    
+    try {
+        // Salva periodo
+        $stmt = $pdo->prepare("
+            INSERT INTO impostazioni (chiave, valore, tipo, descrizione) 
+            VALUES ('contabilita_periodo', ?, 'text', 'Periodo contabilita')
+            ON DUPLICATE KEY UPDATE valore = ?
+        ");
+        $stmt->execute([$periodo, $periodo]);
+        
+        // Salva giorno inizio
+        $stmt = $pdo->prepare("
+            INSERT INTO impostazioni (chiave, valore, tipo, descrizione) 
+            VALUES ('contabilita_giorno_inizio', ?, 'number', 'Giorno inizio periodo')
+            ON DUPLICATE KEY UPDATE valore = ?
+        ");
+        $stmt->execute([$giornoInizio, $giornoInizio]);
+        
+        // Salva mese fiscale
+        $stmt = $pdo->prepare("
+            INSERT INTO impostazioni (chiave, valore, tipo, descrizione) 
+            VALUES ('contabilita_mese_fiscale', ?, 'number', 'Mese inizio anno fiscale')
+            ON DUPLICATE KEY UPDATE valore = ?
+        ");
+        $stmt->execute([$meseFiscale, $meseFiscale]);
+        
+        jsonResponse(true, null, 'Impostazioni contabilita salvate');
+    } catch (PDOException $e) {
+        error_log("Errore save impostazioni contabilita: " . $e->getMessage());
+        jsonResponse(false, null, 'Errore durante il salvataggio');
+    }
+}
+
 
 /**
  * Cambia la password dell'utente corrente
@@ -1078,21 +745,13 @@ function changePassword(): void {
             return;
         }
         
-        // Verifica password corrente
-        $passwordValid = false;
-        if (password_verify($currentPassword, $user['password'])) {
-            $passwordValid = true;
-        } elseif ($currentPassword === $user['password']) {
-            // Password in chiaro (vecchio formato)
-            $passwordValid = true;
-        }
-        
-        if (!$passwordValid) {
-            jsonResponse(false, null, 'Password attuale non corretta');
+        // Verifica password attuale
+        if (!password_verify($currentPassword, $user['password'])) {
+            jsonResponse(false, null, 'Password attuale errata');
             return;
         }
         
-        // Hash della nuova password
+        // Hash nuova password
         $newHash = password_hash($newPassword, PASSWORD_BCRYPT);
         
         // Aggiorna password
