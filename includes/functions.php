@@ -11,16 +11,23 @@ require_once __DIR__ . '/functions_security.php';
 date_default_timezone_set('Europe/Rome');
 
 /**
- * Verifica che l'utente sia autenticato (per API)
+ * Verifica se l'utente è autenticato
  */
-function requireAuth(): void {
+function isLoggedIn(): bool {
     if (session_status() === PHP_SESSION_NONE) {
         ini_set('session.cookie_httponly', 1);
         ini_set('session.use_only_cookies', 1);
         session_start();
     }
     
-    if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
+    return isset($_SESSION['user_id']) && !empty($_SESSION['user_id']);
+}
+
+/**
+ * Verifica che l'utente sia autenticato (per API)
+ */
+function requireAuth(): void {
+    if (!isLoggedIn()) {
         header('Content-Type: application/json');
         http_response_code(401);
         echo json_encode(['success' => false, 'error' => 'Non autenticato']);
