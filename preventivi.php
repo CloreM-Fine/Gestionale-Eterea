@@ -783,12 +783,12 @@ function renderPreventivi() {
                 <table class="w-full">
                     <thead>
                         <tr class="bg-slate-50 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                            <th class="px-5 py-3">Servizio</th>
-                            <th class="px-5 py-3">Descrizione</th>
-                            <th class="px-5 py-3 text-right">Prezzo</th>
-                            <th class="px-5 py-3 text-center">Sconto</th>
-                            <th class="px-5 py-3 text-right">Prezzo Finale</th>
-                            <th class="px-5 py-3 text-center">Azioni</th>
+                            <th class="px-5 py-3 w-[22%]">Servizio</th>
+                            <th class="px-5 py-3 w-[38%]">Descrizione</th>
+                            <th class="px-5 py-3 text-right w-[12%]">Prezzo</th>
+                            <th class="px-5 py-3 text-center w-[10%]">Sconto</th>
+                            <th class="px-5 py-3 text-right w-[12%]">Prezzo Finale</th>
+                            <th class="px-5 py-3 text-center w-[6%]">Azioni</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
