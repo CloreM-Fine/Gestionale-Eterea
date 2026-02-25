@@ -228,11 +228,11 @@ include __DIR__ . '/includes/header.php';
                     <select name="frequenza" id="voceFrequenza"
                             class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none bg-white">
                         <option value="1">Una tantum</option>
-                        <option value="1">Settimanale</option>
-                        <option value="4">Mensile</option>
-                        <option value="12">Trimestrale (3 mesi)</option>
-                        <option value="6">Semestrale (6 mesi)</option>
-                        <option value="1">Annuale</option>
+                        <option value="2">Settimanale</option>
+                        <option value="3">Mensile</option>
+                        <option value="4">Trimestrale (3 mesi)</option>
+                        <option value="5">Semestrale (6 mesi)</option>
+                        <option value="6">Annuale</option>
                     </select>
                     <p class="text-xs text-slate-500 mt-1">Il prezzo verrà moltiplicato in base alla frequenza</p>
                 </div>
@@ -365,11 +365,11 @@ include __DIR__ . '/includes/header.php';
                     <select id="prevFrequenza" onchange="updatePreventivoPreview()"
                             class="w-full px-4 py-2.5 border border-amber-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none bg-white">
                         <option value="1">Una tantum (unico pagamento)</option>
-                        <option value="1">Settimanale</option>
-                        <option value="4">Mensile</option>
-                        <option value="12">Trimestrale (3 mesi)</option>
-                        <option value="6">Semestrale (6 mesi)</option>
-                        <option value="1">Annuale</option>
+                        <option value="2">Settimanale</option>
+                        <option value="3">Mensile</option>
+                        <option value="4">Trimestrale (3 mesi)</option>
+                        <option value="5">Semestrale (6 mesi)</option>
+                        <option value="6">Annuale</option>
                     </select>
                     <p class="text-xs text-amber-600 mt-1">Il prezzo verrà moltiplicato in base alla frequenza selezionata</p>
                 </div>
@@ -814,12 +814,13 @@ function renderPreventivi() {
                     <tbody class="divide-y divide-slate-100">
                         ${cat.voci.map(v => {
                             const prezzoFinale = v.prezzo * (1 - v.sconto_percentuale / 100);
-                            const moltiplicatore = parseInt(v.frequenza) || 1;
-                            const freqText = moltiplicatore === 1 ? 'Una tantum' : 
-                                            moltiplicatore === 4 ? 'Mensile' :
-                                            moltiplicatore === 12 ? 'Trimestrale' :
-                                            moltiplicatore === 6 ? 'Semestrale' :
-                                            moltiplicatore === 52 ? 'Settimanale' : 'Annuale';
+                            const freqVal = parseInt(v.frequenza) || 1;
+                            const freqText = freqVal === 1 ? 'Una tantum' : 
+                                            freqVal === 2 ? 'Settimanale' :
+                                            freqVal === 3 ? 'Mensile' :
+                                            freqVal === 4 ? 'Trimestrale' :
+                                            freqVal === 5 ? 'Semestrale' :
+                                            freqVal === 6 ? 'Annuale' : 'Una tantum';
                             return `
                             <tr class="hover:bg-slate-50">
                                 <td class="px-5 py-4 font-medium text-slate-800">${v.tipo_servizio}</td>
