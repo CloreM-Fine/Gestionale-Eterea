@@ -802,17 +802,24 @@ function renderPreventivi() {
                 <table class="w-full">
                     <thead>
                         <tr class="bg-slate-50 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                            <th class="px-5 py-3 w-[22%]">Servizio</th>
-                            <th class="px-5 py-3 w-[38%]">Descrizione</th>
-                            <th class="px-5 py-3 text-right w-[12%]">Prezzo</th>
-                            <th class="px-5 py-3 text-center w-[10%]">Sconto</th>
-                            <th class="px-5 py-3 text-right w-[12%]">Prezzo Finale</th>
-                            <th class="px-5 py-3 text-center w-[6%]">Azioni</th>
+                            <th class="px-5 py-3 w-[20%]">Servizio</th>
+                            <th class="px-5 py-3 w-[32%]">Descrizione</th>
+                            <th class="px-5 py-3 text-right w-[10%]">Prezzo</th>
+                            <th class="px-5 py-3 text-center w-[8%]">Sconto</th>
+                            <th class="px-5 py-3 text-center w-[10%]">Frequenza</th>
+                            <th class="px-5 py-3 text-right w-[10%]">Prezzo Finale</th>
+                            <th class="px-5 py-3 text-center w-[10%]">Azioni</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
                         ${cat.voci.map(v => {
                             const prezzoFinale = v.prezzo * (1 - v.sconto_percentuale / 100);
+                            const moltiplicatore = parseInt(v.frequenza) || 1;
+                            const freqText = moltiplicatore === 1 ? 'Una tantum' : 
+                                            moltiplicatore === 4 ? 'Mensile' :
+                                            moltiplicatore === 12 ? 'Trimestrale' :
+                                            moltiplicatore === 6 ? 'Semestrale' :
+                                            moltiplicatore === 52 ? 'Settimanale' : 'Annuale';
                             return `
                             <tr class="hover:bg-slate-50">
                                 <td class="px-5 py-4 font-medium text-slate-800">${v.tipo_servizio}</td>
@@ -820,6 +827,9 @@ function renderPreventivi() {
                                 <td class="px-5 py-4 text-right font-medium">€ ${parseFloat(v.prezzo).toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
                                 <td class="px-5 py-4 text-center">
                                     ${v.sconto_percentuale > 0 ? `<span class="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">-${v.sconto_percentuale}%</span>` : '-'}
+                                </td>
+                                <td class="px-5 py-4 text-center">
+                                    <span class="px-2 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-medium">${freqText}</span>
                                 </td>
                                 <td class="px-5 py-4 text-right font-bold text-cyan-600">€ ${prezzoFinale.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
                                 <td class="px-5 py-4 text-center">
@@ -839,7 +849,7 @@ function renderPreventivi() {
                             </tr>
                             `;
                         }).join('')}
-                        ${cat.voci.length === 0 ? '<tr><td colspan="6" class="px-5 py-8 text-center text-slate-400">Nessun servizio in questa categoria</td></tr>' : ''}
+                        ${cat.voci.length === 0 ? '<tr><td colspan="7" class="px-5 py-8 text-center text-slate-400">Nessun servizio in questa categoria</td></tr>' : ''}
                     </tbody>
                 </table>
             </div>
