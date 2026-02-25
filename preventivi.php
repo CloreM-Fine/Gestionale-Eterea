@@ -335,11 +335,35 @@ include __DIR__ . '/includes/header.php';
                     <p class="text-slate-400 text-center py-4">Caricamento servizi...</p>
                 </div>
                 
+                <!-- Frequenza Prezzo -->
+                <div class="mb-4 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+                    <label class="block text-sm font-medium text-amber-800 mb-2">
+                        <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        Frequenza di fatturazione
+                    </label>
+                    <select id="prevFrequenza" onchange="updatePreventivoPreview()"
+                            class="w-full px-4 py-2.5 border border-amber-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none bg-white">
+                        <option value="1">Una tantum (unico pagamento)</option>
+                        <option value="1">Settimanale</option>
+                        <option value="4">Mensile</option>
+                        <option value="12">Trimestrale (3 mesi)</option>
+                        <option value="6">Semestrale (6 mesi)</option>
+                        <option value="1">Annuale</option>
+                    </select>
+                    <p class="text-xs text-amber-600 mt-1">Il prezzo verrà moltiplicato in base alla frequenza selezionata</p>
+                </div>
+                
                 <!-- Riepilogo -->
                 <div class="mt-6 p-4 bg-slate-50 rounded-xl">
                     <div class="flex items-center justify-between mb-2">
                         <span class="text-slate-600">Subtotale:</span>
                         <span class="font-semibold" id="prevSubtotale">€ 0,00</span>
+                    </div>
+                    <div class="flex items-center justify-between mb-2" id="prevFrequenzaRow" style="display:none">
+                        <span class="text-slate-600" id="prevFrequenzaLabel">Moltiplicatore:</span>
+                        <span class="font-semibold text-amber-600" id="prevFrequenzaVal">x1</span>
                     </div>
                     <div class="flex items-center justify-between mb-2" id="prevScontoRow" style="display:none">
                         <span class="text-slate-600">Sconto globale:</span>
@@ -1329,9 +1353,26 @@ function updatePreventivoPreview() {
     
     const scontoGlobale = parseFloat(document.getElementById('prevScontoGlobale').value) || 0;
     const scontoImporto = subtotale * (scontoGlobale / 100);
-    const totale = subtotale - scontoImporto;
+    
+    // Gestione frequenza
+    const freqSelect = document.getElementById('prevFrequenza');
+    const moltiplicatore = freqSelect ? parseInt(freqSelect.value) || 1 : 1;
+    const freqText = freqSelect ? freqSelect.options[freqSelect.selectedIndex].text.split(' (')[0] : 'Una tantum';
+    
+    const subtotaleFreq = subtotale * moltiplicatore;
+    const totale = subtotaleFreq - scontoImporto;
     
     document.getElementById('prevSubtotale').textContent = '€ ' + subtotale.toLocaleString('it-IT', {minimumFractionDigits: 2});
+    
+    // Mostra riga frequenza se > 1
+    const freqRow = document.getElementById('prevFrequenzaRow');
+    if (moltiplicatore > 1) {
+        freqRow.style.display = 'flex';
+        document.getElementById('prevFrequenzaLabel').textContent = freqText + ':';
+        document.getElementById('prevFrequenzaVal').textContent = 'x' + moltiplicatore;
+    } else {
+        freqRow.style.display = 'none';
+    }
     
     const scontoRow = document.getElementById('prevScontoRow');
     if (scontoGlobale > 0) {
@@ -1362,6 +1403,11 @@ async function generaPreventivo() {
         return;
     }
     
+    // Ottieni frequenza
+    const freqSelect = document.getElementById('prevFrequenza');
+    const freqValue = freqSelect ? freqSelect.value : '1';
+    const freqText = freqSelect ? freqSelect.options[freqSelect.selectedIndex].text.split(' (')[0] : 'Una tantum';
+    
     try {
         const response = await fetch('api/preventivi.php', {
             method: 'POST',
@@ -1373,7 +1419,9 @@ async function generaPreventivo() {
                 preventivo_num: document.getElementById('prevNumero').value,
                 note: document.getElementById('prevNote').value,
                 sconto_globale: document.getElementById('prevScontoGlobale').value,
-                data_scadenza: document.getElementById('prevScadenza').value
+                data_scadenza: document.getElementById('prevScadenza').value,
+                frequenza: freqValue,
+                frequenza_testo: freqText
             })
         });
         
@@ -1416,13 +1464,19 @@ async function salvaPreventivoGestionale() {
     const sconto = document.getElementById('prevScontoGlobale').value;
     const note = document.getElementById('prevNote').value;
     
+    // Ottieni frequenza
+    const freqSelect = document.getElementById('prevFrequenza');
+    const freqValue = freqSelect ? parseInt(freqSelect.value) || 1 : 1;
+    const freqText = freqSelect ? freqSelect.options[freqSelect.selectedIndex].text.split(' (')[0] : 'Una tantum';
+    
     // Calcola totali
     let subtotale = 0;
     preventivoVoci.forEach(v => {
         const prezzoFinale = v.prezzo * (1 - (v.sconto_percentuale || 0) / 100);
         subtotale += prezzoFinale;
     });
-    const totale = subtotale * (1 - parseFloat(sconto || 0) / 100);
+    const subtotaleFreq = subtotale * freqValue;
+    const totale = subtotaleFreq * (1 - parseFloat(sconto || 0) / 100);
     
     const formData = new FormData();
     formData.append('action', 'salva_preventivo');
@@ -1435,6 +1489,8 @@ async function salvaPreventivoGestionale() {
     formData.append('servizi', JSON.stringify(preventivoVoci));
     formData.append('subtotale', subtotale.toFixed(2));
     formData.append('totale', totale.toFixed(2));
+    formData.append('frequenza', freqValue);
+    formData.append('frequenza_testo', freqText);
     
     try {
         const response = await fetch('api/preventivi.php', {
