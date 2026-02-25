@@ -108,6 +108,7 @@ function saveVoce(): void {
     $descrizione = trim($_POST['descrizione'] ?? '');
     $prezzo = floatval($_POST['prezzo'] ?? 0);
     $sconto = intval($_POST['sconto_percentuale'] ?? 0);
+    $frequenza = intval($_POST['frequenza'] ?? 1);
     
     if (empty($categoriaId) || empty($tipoServizio)) {
         jsonResponse(false, null, 'Categoria e tipo servizio sono obbligatori');
@@ -120,18 +121,18 @@ function saveVoce(): void {
             $stmt = $pdo->prepare("
                 UPDATE listino_voci 
                 SET categoria_id = ?, tipo_servizio = ?, descrizione = ?, 
-                    prezzo = ?, sconto_percentuale = ?
+                    prezzo = ?, sconto_percentuale = ?, frequenza = ?
                 WHERE id = ?
             ");
-            $stmt->execute([$categoriaId, $tipoServizio, $descrizione, $prezzo, $sconto, $id]);
+            $stmt->execute([$categoriaId, $tipoServizio, $descrizione, $prezzo, $sconto, $frequenza, $id]);
             jsonResponse(true, ['id' => $id], 'Voce aggiornata');
         } else {
             // Crea nuova
             $stmt = $pdo->prepare("
-                INSERT INTO listino_voci (categoria_id, tipo_servizio, descrizione, prezzo, sconto_percentuale, ordine)
-                VALUES (?, ?, ?, ?, ?, 999)
+                INSERT INTO listino_voci (categoria_id, tipo_servizio, descrizione, prezzo, sconto_percentuale, frequenza, ordine)
+                VALUES (?, ?, ?, ?, ?, ?, 999)
             ");
-            $stmt->execute([$categoriaId, $tipoServizio, $descrizione, $prezzo, $sconto]);
+            $stmt->execute([$categoriaId, $tipoServizio, $descrizione, $prezzo, $sconto, $frequenza]);
             jsonResponse(true, ['id' => $pdo->lastInsertId()], 'Voce creata');
         }
     } catch (PDOException $e) {
