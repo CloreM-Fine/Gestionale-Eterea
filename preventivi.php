@@ -217,6 +217,25 @@ include __DIR__ . '/includes/header.php';
                                class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
                     </div>
                 </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-2">
+                        <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        Frequenza di pagamento
+                    </label>
+                    <select name="frequenza" id="voceFrequenza"
+                            class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none bg-white">
+                        <option value="1">Una tantum</option>
+                        <option value="1">Settimanale</option>
+                        <option value="4">Mensile</option>
+                        <option value="12">Trimestrale (3 mesi)</option>
+                        <option value="6">Semestrale (6 mesi)</option>
+                        <option value="1">Annuale</option>
+                    </select>
+                    <p class="text-xs text-slate-500 mt-1">Il prezzo verrà moltiplicato in base alla frequenza</p>
+                </div>
             </form>
             
             <div class="p-4 sm:p-6 border-t border-slate-100 flex flex-row justify-end gap-2 sm:gap-3">
@@ -847,6 +866,7 @@ function openVoceModal(categoriaId, voceId = null) {
                 document.getElementById('voceDescrizione').value = voce.descrizione || '';
                 document.getElementById('vocePrezzo').value = voce.prezzo;
                 document.getElementById('voceSconto').value = voce.sconto_percentuale;
+                document.getElementById('voceFrequenza').value = voce.frequenza || '1';
                 break;
             }
         }
