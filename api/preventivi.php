@@ -339,15 +339,23 @@ function getDatiAzienda(): array {
             'azienda_email',
             'azienda_telefono',
             'azienda_pec',
-            'azienda_sdi',
-            'azienda_logo'
+            'azienda_sdi'
         ];
+        
+        // Logo ha chiave diversa
+        $chiavi[] = 'logo_azienda';
         
         $dati = [];
         foreach ($chiavi as $chiave) {
             $stmt = $pdo->prepare("SELECT valore FROM impostazioni WHERE chiave = ?");
             $stmt->execute([$chiave]);
-            $dati[str_replace('azienda_', '', $chiave)] = $stmt->fetchColumn() ?: '';
+            $valore = $stmt->fetchColumn() ?: '';
+            // Gestione chiave logo che ha nome diverso
+            if ($chiave === 'logo_azienda') {
+                $dati['logo'] = $valore;
+            } else {
+                $dati[str_replace('azienda_', '', $chiave)] = $valore;
+            }
         }
         
         // Default se non configurati
