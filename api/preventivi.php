@@ -236,11 +236,13 @@ function generaPreventivo(): void {
         $stmt->execute($ids);
         $voci = $stmt->fetchAll();
         
-        // Mappa le quantità e sconti personalizzati
+        // Mappa le quantità, prezzi e sconti personalizzati
         $quantitaMap = [];
+        $prezzoMap = [];
         $scontoSingoloMap = [];
         foreach ($vociSelezionate as $v) {
             $quantitaMap[$v['id']] = $v['quantita'] ?? 1;
+            $prezzoMap[$v['id']] = $v['prezzo'] ?? null;
             $scontoSingoloMap[$v['id']] = $v['sconto_singolo'] ?? 0;
         }
         
@@ -249,7 +251,8 @@ function generaPreventivo(): void {
         foreach ($voci as &$voce) {
             $qty = $quantitaMap[$voce['id']] ?? 1;
             $scontoSingolo = floatval($scontoSingoloMap[$voce['id']] ?? 0);
-            $prezzoUnitario = floatval($voce['prezzo']);
+            // Usa il prezzo modificato se presente, altrimenti quello del database
+            $prezzoUnitario = isset($prezzoMap[$voce['id']]) ? floatval($prezzoMap[$voce['id']]) : floatval($voce['prezzo']);
             $scontoListino = intval($voce['sconto_percentuale']);
             
             // Applica prima lo sconto del listino, poi quello singolo

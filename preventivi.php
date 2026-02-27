@@ -1146,11 +1146,17 @@ function renderPreventivoServiziFromListino(categorie) {
                                     </div>
                                 </div>
                                 
-                                <!-- Controlli Quantità e Sconto (nascosti finché non selezionato) -->
+                                <!-- Controlli Prezzo, Quantità e Sconto (nascosti finché non selezionato) -->
                                 <div id="controls-${v.id}" class="hidden mt-3 pt-3 border-t border-slate-100">
-                                    <div class="flex items-center gap-4 flex-wrap">
-                                        <div class="flex items-center gap-2">
-                                            <span class="text-xs text-slate-600">Quantità:</span>
+                                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                        <div>
+                                            <span class="text-xs text-slate-600 block mb-1">Prezzo €:</span>
+                                            <input type="number" id="prezzo-${v.id}" value="${v.prezzo}" min="0" step="0.01"
+                                                   class="w-full px-2 py-1 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                                                   onchange="updatePreventivoPreview()">
+                                        </div>
+                                        <div>
+                                            <span class="text-xs text-slate-600 block mb-1">Quantità:</span>
                                             <div class="flex items-center border border-slate-200 rounded-lg">
                                                 <button type="button" onclick="updateQty('${v.id}', -1)" 
                                                         class="px-3 py-1 text-slate-600 hover:bg-slate-100 rounded-l-lg transition-colors">-</button>
@@ -1161,14 +1167,15 @@ function renderPreventivoServiziFromListino(categorie) {
                                                         class="px-3 py-1 text-slate-600 hover:bg-slate-100 rounded-r-lg transition-colors">+</button>
                                             </div>
                                         </div>
-                                        <div class="flex items-center gap-2">
-                                            <span class="text-xs text-slate-600">Sconto %:</span>
+                                        <div>
+                                            <span class="text-xs text-slate-600 block mb-1">Sconto %:</span>
                                             <input type="number" id="sconto-${v.id}" value="0" min="0" max="100" 
-                                                   class="w-16 px-2 py-1 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                                                   class="w-full px-2 py-1 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
                                                    onchange="updatePreventivoPreview()">
                                         </div>
-                                        <div class="text-sm text-slate-600">
-                                            Totale: <span id="totale-${v.id}" class="font-semibold text-slate-800">€ ${prezzoFinale.toLocaleString('it-IT', {minimumFractionDigits: 2})}</span>
+                                        <div>
+                                            <span class="text-xs text-slate-600 block mb-1">Totale:</span>
+                                            <span id="totale-${v.id}" class="font-semibold text-cyan-600 text-sm">€ ${prezzoFinale.toLocaleString('it-IT', {minimumFractionDigits: 2})}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -1367,9 +1374,13 @@ function updatePreventivoPreview() {
     
     checkboxes.forEach(checkbox => {
         const id = checkbox.value;
-        const prezzo = parseFloat(checkbox.dataset.prezzo) || 0;
+        const prezzoOriginale = parseFloat(checkbox.dataset.prezzo) || 0;
+        const prezzoInput = document.getElementById(`prezzo-${id}`);
         const qtyInput = document.getElementById(`qty-${id}`);
         const scontoInput = document.getElementById(`sconto-${id}`);
+        
+        // Usa il prezzo modificato se presente, altrimenti quello originale
+        const prezzo = prezzoInput ? (parseFloat(prezzoInput.value) || prezzoOriginale) : prezzoOriginale;
         const qty = qtyInput ? (parseInt(qtyInput.value) || 1) : 1;
         const scontoSingolo = scontoInput ? (parseFloat(scontoInput.value) || 0) : 0;
         
@@ -1381,6 +1392,7 @@ function updatePreventivoPreview() {
             id: id,
             quantita: qty,
             prezzo: prezzo,
+            prezzo_originale: prezzoOriginale,
             prezzo_scontato: prezzoScontato,
             sconto_singolo: scontoSingolo,
             nome: checkbox.dataset.nome || ''
