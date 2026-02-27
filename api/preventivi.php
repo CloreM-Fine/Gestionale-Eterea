@@ -448,14 +448,14 @@ function generaHTMLPreventivo(array $voci, string $cliente, string $numero, stri
                 $sconto = '-';
             }
             
-            $totaleForm = number_format($item['totale'], 2, ',', '.');
+            $totaleRigaForm = number_format($item['totale'], 2, ',', '.');
             
-            $righe .= "<tr><td>{$tipoEsc}</td><td>{$descEsc}</td><td style='text-align:center'>{$qty}</td><td style='text-align:right'>€ {$prezzoForm}</td><td style='text-align:center'>{$sconto}</td><td style='text-align:right'><strong>€ {$totaleForm}</strong></td></tr>";
+            $righe .= "<tr><td>{$tipoEsc}</td><td>{$descEsc}</td><td style='text-align:center'>{$qty}</td><td style='text-align:right'>€ {$prezzoForm}</td><td style='text-align:center'>{$sconto}</td><td style='text-align:right'><strong>€ {$totaleRigaForm}</strong></td></tr>";
         }
     }
     
     $subtotaleForm = number_format($subtotale, 2, ',', '.');
-    $totaleFormStr = number_format($totale, 2, ',', '.');
+    $totaleForm = number_format($totale, 2, ',', '.');
     
     // Riga frequenza se > 1
     $frequenzaTxt = '';

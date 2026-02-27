@@ -364,7 +364,19 @@ function getLogo(): void {
 function getDatiAzienda(): void {
     global $pdo;
     
-    $chiavi = ['azienda_nome', 'azienda_indirizzo', 'azienda_email', 'azienda_telefono', 'azienda_piva', 'azienda_ateco_id'];
+    $chiavi = [
+        'azienda_ragione_sociale',
+        'azienda_indirizzo',
+        'azienda_cap',
+        'azienda_citta',
+        'azienda_provincia',
+        'azienda_piva',
+        'azienda_cf',
+        'azienda_email',
+        'azienda_telefono',
+        'azienda_pec',
+        'azienda_sdi'
+    ];
     $dati = [];
     
     foreach ($chiavi as $chiave) {
