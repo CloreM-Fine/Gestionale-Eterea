@@ -30,6 +30,10 @@ switch ($method) {
             getImpostazioniTasse();
         } elseif ($action === 'get_impostazioni_contabilita') {
             getImpostazioniContabilita();
+        } elseif ($action === 'get_template_condizioni') {
+            getTemplateCondizioni();
+        } elseif ($action === 'get_template_condizione' && !empty($_GET['id'])) {
+            getTemplateCondizione($_GET['id']);
         } else {
             jsonResponse(false, null, 'Azione non valida');
         }
@@ -60,6 +64,12 @@ switch ($method) {
             saveImpostazioniContabilita();
         } elseif ($action === 'change_password') {
             changePassword();
+        } elseif ($action === 'save_template_condizioni') {
+            saveTemplateCondizioni();
+        } elseif ($action === 'delete_template_condizioni' && !empty($_POST['id'])) {
+            deleteTemplateCondizioni($_POST['id']);
+        } elseif ($action === 'set_template_default' && !empty($_POST['id'])) {
+            setTemplateDefault($_POST['id']);
         } else {
             jsonResponse(false, null, 'Azione non valida');
         }
@@ -784,4 +794,201 @@ function changePassword(): void {
         error_log("Errore cambio password: " . $e->getMessage());
         jsonResponse(false, null, 'Errore durante il cambio password');
     }
+}
+
+
+/**
+ * ============================================================================
+ * GESTIONE TEMPLATE CONDIZIONI PREVENTIVO
+ * ============================================================================
+ */
+
+/**
+ * Recupera tutti i template delle condizioni
+ */
+function getTemplateCondizioni(): void {
+    global $pdo;
+    
+    try {
+        $stmt = $pdo->query("SELECT * FROM preventivo_template_condizioni ORDER BY nome ASC");
+        $templates = $stmt->fetchAll();
+        
+        // Recupera anche il template di default dalle impostazioni
+        $stmt = $pdo->prepare("SELECT valore FROM impostazioni WHERE chiave = 'preventivo_template_default'");
+        $stmt->execute();
+        $defaultId = $stmt->fetchColumn() ?: null;
+        
+        jsonResponse(true, [
+            'templates' => $templates,
+            'default_id' => $defaultId
+        ]);
+    } catch (PDOException $e) {
+        error_log("Errore get template condizioni: " . $e->getMessage());
+        jsonResponse(false, null, 'Errore caricamento template');
+    }
+}
+
+/**
+ * Recupera un singolo template
+ */
+function getTemplateCondizione(int $id): void {
+    global $pdo;
+    
+    try {
+        $stmt = $pdo->prepare("SELECT * FROM preventivo_template_condizioni WHERE id = ?");
+        $stmt->execute([$id]);
+        $template = $stmt->fetch();
+        
+        if (!$template) {
+            jsonResponse(false, null, 'Template non trovato');
+            return;
+        }
+        
+        jsonResponse(true, $template);
+    } catch (PDOException $e) {
+        error_log("Errore get template condizione: " . $e->getMessage());
+        jsonResponse(false, null, 'Errore caricamento template');
+    }
+}
+
+/**
+ * Salva un template condizioni (crea o aggiorna)
+ */
+function saveTemplateCondizioni(): void {
+    global $pdo;
+    
+    // Verifica password
+    $password = $_POST['password'] ?? '';
+    if ($password !== 'Tomato2399!?') {
+        jsonResponse(false, null, 'Password errata');
+        return;
+    }
+    
+    $id = $_POST['id'] ?? null;
+    $nome = trim($_POST['nome'] ?? '');
+    $contenuto = trim($_POST['contenuto'] ?? '');
+    
+    if (empty($nome)) {
+        jsonResponse(false, null, 'Il nome del template è obbligatorio');
+        return;
+    }
+    
+    try {
+        if ($id) {
+            // Update
+            $stmt = $pdo->prepare("
+                UPDATE preventivo_template_condizioni 
+                SET nome = ?, contenuto = ?
+                WHERE id = ?
+            ");
+            $stmt->execute([$nome, $contenuto, $id]);
+        } else {
+            // Insert
+            $stmt = $pdo->prepare("
+                INSERT INTO preventivo_template_condizioni (nome, contenuto, created_by)
+                VALUES (?, ?, ?)
+            ");
+            $stmt->execute([$nome, $contenuto, $_SESSION['user_id']]);
+            $id = $pdo->lastInsertId();
+        }
+        
+        jsonResponse(true, ['id' => $id], 'Template salvato con successo');
+    } catch (PDOException $e) {
+        error_log("Errore save template condizioni: " . $e->getMessage());
+        jsonResponse(false, null, 'Errore durante il salvataggio');
+    }
+}
+
+/**
+ * Elimina un template condizioni
+ */
+function deleteTemplateCondizioni(int $id): void {
+    global $pdo;
+    
+    // Verifica password
+    $password = $_POST['password'] ?? '';
+    if ($password !== 'Tomato2399!?') {
+        jsonResponse(false, null, 'Password errata');
+        return;
+    }
+    
+    try {
+        // Verifica che non sia l'unico template
+        $stmt = $pdo->query("SELECT COUNT(*) FROM preventivo_template_condizioni");
+        $count = $stmt->fetchColumn();
+        
+        if ($count <= 1) {
+            jsonResponse(false, null, 'Deve esistere almeno un template');
+            return;
+        }
+        
+        // Se stiamo eliminando il default, rimuovi il default
+        $stmt = $pdo->prepare("SELECT is_default FROM preventivo_template_condizioni WHERE id = ?");
+        $stmt->execute([$id]);
+        $isDefault = $stmt->fetchColumn();
+        
+        // Elimina il template
+        $stmt = $pdo->prepare("DELETE FROM preventivo_template_condizioni WHERE id = ?");
+        $stmt->execute([$id]);
+        
+        // Se era il default, imposta il primo disponibile come default
+        if ($isDefault) {
+            $stmt = $pdo->query("SELECT id FROM preventivo_template_condizioni LIMIT 1");
+            $newDefault = $stmt->fetchColumn();
+            
+            if ($newDefault) {
+                setTemplateDefaultInternal($newDefault);
+            }
+        }
+        
+        jsonResponse(true, null, 'Template eliminato con successo');
+    } catch (PDOException $e) {
+        error_log("Errore delete template condizioni: " . $e->getMessage());
+        jsonResponse(false, null, 'Errore durante l\'eliminazione');
+    }
+}
+
+/**
+ * Imposta un template come default
+ */
+function setTemplateDefault(int $id): void {
+    global $pdo;
+    
+    // Verifica password
+    $password = $_POST['password'] ?? '';
+    if ($password !== 'Tomato2399!?') {
+        jsonResponse(false, null, 'Password errata');
+        return;
+    }
+    
+    try {
+        setTemplateDefaultInternal($id);
+        jsonResponse(true, null, 'Template impostato come default');
+    } catch (PDOException $e) {
+        error_log("Errore set template default: " . $e->getMessage());
+        jsonResponse(false, null, 'Errore durante l\'impostazione');
+    }
+}
+
+/**
+ * Funzione interna per impostare il template default (senza verifica password)
+ */
+function setTemplateDefaultInternal(int $id): void {
+    global $pdo;
+    
+    // Rimuovi default da tutti
+    $stmt = $pdo->prepare("UPDATE preventivo_template_condizioni SET is_default = FALSE");
+    $stmt->execute();
+    
+    // Imposta nuovo default
+    $stmt = $pdo->prepare("UPDATE preventivo_template_condizioni SET is_default = TRUE WHERE id = ?");
+    $stmt->execute([$id]);
+    
+    // Salva anche nelle impostazioni
+    $stmt = $pdo->prepare("
+        INSERT INTO impostazioni (chiave, valore, tipo, descrizione) 
+        VALUES ('preventivo_template_default', ?, 'text', 'ID template condizioni default')
+        ON DUPLICATE KEY UPDATE valore = ?
+    ");
+    $stmt->execute([$id, $id]);
 }

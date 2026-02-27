@@ -337,6 +337,34 @@ include __DIR__ . '/includes/header.php';
         </div>
     </div>
     
+    <!-- Sezione: Template Condizioni Preventivo -->
+    <div class="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="p-4 sm:p-6">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-indigo-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-slate-800">Template Condizioni</h3>
+                        <p class="text-sm text-slate-500">Gestisci le condizioni generali dei preventivi</p>
+                    </div>
+                </div>
+                <button type="button" onclick="openTemplateModal()"
+                        class="px-4 py-2 bg-indigo-100 hover:bg-indigo-200 text-indigo-700 rounded-lg text-sm font-medium transition-colors">
+                    + Nuovo Template
+                </button>
+            </div>
+            
+            <!-- Lista Template -->
+            <div id="templateList" class="space-y-2">
+                <p class="text-slate-400 text-sm text-center py-4">Caricamento template...</p>
+            </div>
+        </div>
+    </div>
+    
     <!-- Sezione: Personalizzazione -->
     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
         <div class="p-5 border-b border-slate-100">
@@ -955,6 +983,69 @@ include __DIR__ . '/includes/header.php';
             <div class="p-4 sm:p-5 border-t border-slate-100 flex flex-row justify-end gap-2 sm:gap-3">
                 <button onclick="closeModal('deleteAllModal3')" class="flex-1 sm:flex-none px-4 py-2.5 sm:py-2 text-slate-600 hover:text-slate-800 font-medium min-h-[44px] rounded-lg hover:bg-slate-100 transition-colors text-sm sm:text-base">Annulla</button>
                 <button onclick="executeDeleteAll()" class="flex-1 sm:flex-none px-4 sm:px-6 py-2.5 sm:py-2 bg-red-700 hover:bg-red-800 text-white rounded-lg font-medium min-h-[44px] transition-colors text-sm sm:text-base"><span class="hidden sm:inline">ELIMINA TUTTO</span><span class="sm:hidden">Elimina</span></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Template Condizioni -->
+<div id="templateModal" class="fixed inset-0 z-50 hidden">
+    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeTemplateModal()"></div>
+    <div class="absolute inset-0 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
+            <div class="p-5 border-b border-slate-100 flex items-center justify-between">
+                <h3 class="font-bold text-slate-800" id="templateModalTitle">Nuovo Template</h3>
+                <button onclick="closeTemplateModal()" class="text-slate-400 hover:text-slate-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="p-5 overflow-y-auto">
+                <input type="hidden" id="templateId">
+                
+                <!-- Password -->
+                <div class="mb-4 p-4 bg-indigo-50 border border-indigo-200 rounded-xl">
+                    <label class="block text-sm font-medium text-indigo-800 mb-2">
+                        <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                        </svg>
+                        Password di modifica
+                    </label>
+                    <input type="password" id="templatePassword" 
+                           class="w-full px-4 py-2.5 border border-indigo-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none bg-white"
+                           placeholder="Inserisci la password...">
+                </div>
+                
+                <!-- Nome Template -->
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Nome Template *</label>
+                    <input type="text" id="templateNome" 
+                           class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+                           placeholder="Es: Standard, Premium, Base...">
+                </div>
+                
+                <!-- Contenuto -->
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Condizioni Generali *</label>
+                    <textarea id="templateContenuto" rows="10"
+                              class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none resize-none"
+                              placeholder="Inserisci qui le condizioni generali del preventivo...
+- I prezzi indicati sono da intendersi IVA esclusa
+- Validità del preventivo: 30 giorni
+- Termini di pagamento: ..."></textarea>
+                    <p class="text-xs text-slate-500 mt-1">Ogni riga verrà visualizzata come un punto elenco nel preventivo</p>
+                </div>
+            </div>
+            <div class="p-5 border-t border-slate-100 flex flex-row justify-end gap-2">
+                <button onclick="closeTemplateModal()" 
+                        class="px-4 py-2.5 text-slate-600 hover:text-slate-800 font-medium rounded-lg hover:bg-slate-100 transition-colors">
+                    Annulla
+                </button>
+                <button onclick="salvaTemplate()" 
+                        class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors">
+                    Salva Template
+                </button>
             </div>
         </div>
     </div>
@@ -1867,6 +1958,203 @@ async function salvaImpostazioniContabilita() {
 document.addEventListener('DOMContentLoaded', function() {
     caricaImpostazioniContabilita();
 });
+
+// ============================================================================
+// GESTIONE TEMPLATE CONDIZIONI PREVENTIVO
+// ============================================================================
+
+let templatesData = [];
+let templateDefaultId = null;
+
+// Carica template all'avvio
+document.addEventListener('DOMContentLoaded', caricaTemplateCondizioni);
+
+async function caricaTemplateCondizioni() {
+    try {
+        const response = await fetch('api/impostazioni.php?action=get_template_condizioni');
+        const data = await response.json();
+        
+        if (data.success) {
+            templatesData = data.data.templates || [];
+            templateDefaultId = data.data.default_id;
+            renderTemplateList();
+        }
+    } catch (error) {
+        console.error('Errore caricamento template:', error);
+        document.getElementById('templateList').innerHTML = 
+            '<p class="text-red-500 text-sm text-center py-4">Errore caricamento template</p>';
+    }
+}
+
+function renderTemplateList() {
+    const container = document.getElementById('templateList');
+    
+    if (templatesData.length === 0) {
+        container.innerHTML = '<p class="text-slate-400 text-sm text-center py-4">Nessun template creato</p>';
+        return;
+    }
+    
+    container.innerHTML = templatesData.map(t => `
+        <div class="flex items-center justify-between p-3 bg-slate-50 rounded-lg border ${t.id == templateDefaultId ? 'border-indigo-300 bg-indigo-50/50' : 'border-slate-200'}">
+            <div class="flex items-center gap-3">
+                ${t.id == templateDefaultId ? 
+                    '<span class="px-2 py-0.5 bg-indigo-600 text-white text-xs rounded font-medium">Default</span>' : 
+                    '<button onclick="setTemplateDefault(' + t.id + ')" class="text-xs text-slate-400 hover:text-indigo-600 underline">Imposta default</button>'
+                }
+                <span class="font-medium text-slate-800">${escapeHtml(t.nome)}</span>
+            </div>
+            <div class="flex items-center gap-1">
+                <button onclick="editTemplate(${t.id})" class="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded" title="Modifica">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                    </svg>
+                </button>
+                <button onclick="eliminaTemplate(${t.id})" class="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded" title="Elimina">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    `).join('');
+}
+
+function openTemplateModal() {
+    document.getElementById('templateModalTitle').textContent = 'Nuovo Template';
+    document.getElementById('templateId').value = '';
+    document.getElementById('templateNome').value = '';
+    document.getElementById('templateContenuto').value = '';
+    document.getElementById('templatePassword').value = '';
+    openModal('templateModal');
+}
+
+function closeTemplateModal() {
+    closeModal('templateModal');
+}
+
+async function editTemplate(id) {
+    const template = templatesData.find(t => t.id == id);
+    if (!template) return;
+    
+    document.getElementById('templateModalTitle').textContent = 'Modifica Template';
+    document.getElementById('templateId').value = template.id;
+    document.getElementById('templateNome').value = template.nome;
+    document.getElementById('templateContenuto').value = template.contenuto;
+    document.getElementById('templatePassword').value = '';
+    openModal('templateModal');
+}
+
+async function salvaTemplate() {
+    const id = document.getElementById('templateId').value;
+    const nome = document.getElementById('templateNome').value.trim();
+    const contenuto = document.getElementById('templateContenuto').value.trim();
+    const password = document.getElementById('templatePassword').value;
+    
+    if (!password) {
+        showToast('Inserisci la password di modifica', 'error');
+        return;
+    }
+    
+    if (!nome) {
+        showToast('Il nome del template è obbligatorio', 'error');
+        return;
+    }
+    
+    if (!contenuto) {
+        showToast('Il contenuto è obbligatorio', 'error');
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('action', 'save_template_condizioni');
+    formData.append('id', id);
+    formData.append('nome', nome);
+    formData.append('contenuto', contenuto);
+    formData.append('password', password);
+    
+    try {
+        const response = await fetch('api/impostazioni.php', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showToast('Template salvato con successo', 'success');
+            closeTemplateModal();
+            await caricaTemplateCondizioni();
+        } else {
+            showToast(data.message || 'Errore durante il salvataggio', 'error');
+        }
+    } catch (error) {
+        showToast('Errore di connessione', 'error');
+    }
+}
+
+async function eliminaTemplate(id) {
+    if (!confirm('Sei sicuro di voler eliminare questo template?')) return;
+    
+    const password = prompt('Inserisci la password di modifica:');
+    if (!password) return;
+    
+    const formData = new FormData();
+    formData.append('action', 'delete_template_condizioni');
+    formData.append('id', id);
+    formData.append('password', password);
+    
+    try {
+        const response = await fetch('api/impostazioni.php', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showToast('Template eliminato', 'success');
+            await caricaTemplateCondizioni();
+        } else {
+            showToast(data.message || 'Errore durante l\'eliminazione', 'error');
+        }
+    } catch (error) {
+        showToast('Errore di connessione', 'error');
+    }
+}
+
+async function setTemplateDefault(id) {
+    const password = prompt('Inserisci la password di modifica per impostare il default:');
+    if (!password) return;
+    
+    const formData = new FormData();
+    formData.append('action', 'set_template_default');
+    formData.append('id', id);
+    formData.append('password', password);
+    
+    try {
+        const response = await fetch('api/impostazioni.php', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showToast('Template impostato come default', 'success');
+            await caricaTemplateCondizioni();
+        } else {
+            showToast(data.message || 'Errore', 'error');
+        }
+    } catch (error) {
+        showToast('Errore di connessione', 'error');
+    }
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
 
 </script>
 

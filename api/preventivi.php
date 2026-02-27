@@ -362,6 +362,38 @@ function getDatiAzienda(): array {
 }
 
 /**
+ * Recupera il template condizioni di default
+ */
+function getTemplateCondizioniDefault(): string {
+    global $pdo;
+    
+    try {
+        // Recupera ID template default
+        $stmt = $pdo->prepare("SELECT valore FROM impostazioni WHERE chiave = 'preventivo_template_default'");
+        $stmt->execute();
+        $templateId = $stmt->fetchColumn();
+        
+        if ($templateId) {
+            $stmt = $pdo->prepare("SELECT contenuto FROM preventivo_template_condizioni WHERE id = ?");
+            $stmt->execute([$templateId]);
+            $contenuto = $stmt->fetchColumn();
+            if ($contenuto) return $contenuto;
+        }
+        
+        // Fallback: prendi il primo template disponibile
+        $stmt = $pdo->query("SELECT contenuto FROM preventivo_template_condizioni LIMIT 1");
+        $contenuto = $stmt->fetchColumn();
+        if ($contenuto) return $contenuto;
+        
+        // Fallback finale: condizioni standard
+        return "- Le modalità di pagamento saranno concordate in fase di accettazione del preventivo\n- I tempi di consegna indicati sono da intendersi a partire dalla ricezione di tutti i materiali necessari\n- Eventuali modifiche successive all'approvazione del progetto finale potrebbero comportare costi aggiuntivi\n- I prezzi indicati sono da intendersi IVA esclusa";
+    } catch (PDOException $e) {
+        error_log("Errore get template condizioni: " . $e->getMessage());
+        return "- Le modalità di pagamento saranno concordate in fase di accettazione del preventivo\n- I tempi di consegna indicati sono da intendersi a partire dalla ricezione di tutti i materiali necessari\n- Eventuali modifiche successive all'approvazione del progetto finale potrebbero comportare costi aggiuntivi\n- I prezzi indicati sono da intendersi IVA esclusa";
+    }
+}
+
+/**
  * Genera HTML del preventivo
  */
 function generaHTMLPreventivo(array $voci, string $cliente, string $numero, string $note, float $scontoGlobale, float $subtotale, float $totale, string $dataScadenza = '', int $frequenza = 1): string {
@@ -373,6 +405,23 @@ function generaHTMLPreventivo(array $voci, string $cliente, string $numero, stri
     
     // Recupera dati azienda
     $datiAzienda = getDatiAzienda();
+    
+    // Recupera template condizioni
+    $templateContenuto = getTemplateCondizioniDefault();
+    $condizioniHtml = '';
+    if ($templateContenuto) {
+        $righe = explode("\n", $templateContenuto);
+        foreach ($righe as $riga) {
+            $riga = trim($riga);
+            if (!empty($riga)) {
+                // Se inizia con - o •, rimuovilo e crea li
+                if (strpos($riga, '-') === 0 || strpos($riga, '•') === 0) {
+                    $riga = trim(substr($riga, 1));
+                }
+                $condizioniHtml .= '<li>' . htmlspecialchars($riga) . '</li>';
+            }
+        }
+    }
     
     // Costruisci indirizzo completo
     $indirizzoCompleto = '';
@@ -494,10 +543,10 @@ function generaHTMLPreventivo(array $voci, string $cliente, string $numero, stri
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            font-size: 12px; 
-            line-height: 1.5; 
+            font-size: 10px; 
+            line-height: 1.4; 
             color: #1e293b;
-            padding: 40px;
+            padding: 30px;
         }
         .header { 
             display: flex; 
@@ -513,133 +562,133 @@ function generaHTMLPreventivo(array $voci, string $cliente, string $numero, stri
             gap: 12px;
         }
         .logo-icon {
-            width: 50px;
-            height: 50px;
+            width: 40px;
+            height: 40px;
             background: linear-gradient(135deg, #151e26, #151e26);
-            border-radius: 10px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 20px;
+            font-size: 16px;
             font-weight: 700;
         }
-        .logo-text h1 { font-size: 24px; font-weight: 700; color: #151e26; }
-        .logo-text p { font-size: 11px; color: #64748b; }
+        .logo-text h1 { font-size: 18px; font-weight: 700; color: #151e26; }
+        .logo-text p { font-size: 9px; color: #64748b; }
         .doc-info { text-align: right; }
         .doc-info h2 { 
-            font-size: 18px; 
+            font-size: 14px; 
             color: #151e26; 
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
-        .doc-info p { color: #64748b; font-size: 11px; margin: 2px 0; }
+        .doc-info p { color: #64748b; font-size: 9px; margin: 2px 0; }
         
         .client-section {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 30px;
-            gap: 30px;
+            margin-bottom: 20px;
+            gap: 20px;
         }
         .client-box, .validita-box {
             flex: 1;
-            padding: 20px;
+            padding: 15px;
             background: #f8fafc;
             border-radius: 8px;
         }
         .client-box h3, .validita-box h3 {
-            font-size: 11px;
+            font-size: 9px;
             text-transform: uppercase;
             color: #64748b;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             letter-spacing: 0.5px;
         }
-        .client-box .nome { font-size: 16px; font-weight: 600; color: #1e293b; }
-        .validita-box p { color: #475569; font-size: 12px; }
+        .client-box .nome { font-size: 13px; font-weight: 600; color: #1e293b; }
+        .validita-box p { color: #475569; font-size: 10px; }
         
         table { 
             width: 100%; 
             border-collapse: collapse; 
-            margin: 20px 0;
-            font-size: 11px;
+            margin: 15px 0;
+            font-size: 9px;
         }
         th { 
             background: #f1f5f9; 
-            padding: 12px 8px; 
+            padding: 8px 6px; 
             text-align: left; 
             font-weight: 600;
             color: #475569;
             text-transform: uppercase;
-            font-size: 10px;
+            font-size: 8px;
             letter-spacing: 0.5px;
             border-bottom: 2px solid #cbd5e1;
         }
         td { 
-            padding: 12px 8px; 
+            padding: 8px 6px; 
             border-bottom: 1px solid #e2e8f0;
             vertical-align: top;
         }
         tr.categoria td {
             background: #f8fafc;
-            padding-top: 16px;
+            padding-top: 12px;
             border-bottom: 1px solid #cbd5e1;
         }
         tr.categoria td strong {
             color: #151e26;
-            font-size: 12px;
+            font-size: 10px;
         }
         
         .totals { 
-            margin-top: 20px;
+            margin-top: 15px;
             margin-left: auto;
-            width: 350px;
+            width: 280px;
         }
         .totals table { margin: 0; }
-        .totals td { padding: 8px; border: none; }
+        .totals td { padding: 6px; border: none; }
         .totals tr:last-child { 
             background: linear-gradient(135deg, #151e26, #151e26);
             color: white;
-            font-size: 14px;
+            font-size: 12px;
             font-weight: 700;
         }
-        .totals tr:last-child td { padding: 15px 12px; }
+        .totals tr:last-child td { padding: 10px 8px; }
         
         .note {
-            margin-top: 30px;
-            padding: 15px;
+            margin-top: 20px;
+            padding: 12px;
             background: #fef3c7;
             border-left: 4px solid #f59e0b;
             border-radius: 0 8px 8px 0;
-            font-size: 11px;
+            font-size: 9px;
             color: #92400e;
         }
         
         .footer {
-            margin-top: 50px;
-            padding-top: 20px;
+            margin-top: 30px;
+            padding-top: 15px;
             border-top: 1px solid #e2e8f0;
             text-align: center;
             color: #94a3b8;
-            font-size: 10px;
+            font-size: 8px;
         }
         .footer strong { color: #64748b; }
         
         .condizioni {
-            margin-top: 30px;
-            padding: 20px;
+            margin-top: 20px;
+            padding: 15px;
             background: #f8fafc;
             border-radius: 8px;
-            font-size: 10px;
+            font-size: 8px;
             color: #64748b;
         }
         .condizioni h4 {
             color: #475569;
-            margin-bottom: 10px;
-            font-size: 11px;
+            margin-bottom: 8px;
+            font-size: 9px;
         }
-        .condizioni ul { margin-left: 15px; }
-        .condizioni li { margin: 5px 0; }
+        .condizioni ul { margin-left: 12px; }
+        .condizioni li { margin: 3px 0; }
         
         @media print {
             body { padding: 20px; }
@@ -710,10 +759,7 @@ function generaHTMLPreventivo(array $voci, string $cliente, string $numero, stri
     <div class="condizioni">
         <h4>Condizioni Generali</h4>
         <ul>
-            <li>Le modalità di pagamento saranno concordate in fase di accettazione del preventivo</li>
-            <li>I tempi di consegna indicati sono da intendersi a partire dalla ricezione di tutti i materiali necessari</li>
-            <li>Eventuali modifiche successive all'approvazione del progetto finale potrebbero comportare costi aggiuntivi</li>
-            <li>I prezzi indicati sono da intendersi IVA esclusa</li>
+            {$condizioniHtml}
         </ul>
     </div>
     
