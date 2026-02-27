@@ -365,6 +365,34 @@ include __DIR__ . '/includes/header.php';
         </div>
     </div>
     
+    <!-- Sezione: Template Privacy e Termini -->
+    <div class="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="p-4 sm:p-6">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-rose-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <svg class="w-5 h-5 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-slate-800">Template Privacy & Termini</h3>
+                        <p class="text-sm text-slate-500">Gestisci privacy, termini legali e informative</p>
+                    </div>
+                </div>
+                <button type="button" onclick="openBurocraziaModal()"
+                        class="px-4 py-2 bg-rose-100 hover:bg-rose-200 text-rose-700 rounded-lg text-sm font-medium transition-colors">
+                    + Nuovo Template
+                </button>
+            </div>
+            
+            <!-- Lista Template Burocrazia -->
+            <div id="templateBurocraziaList" class="space-y-2">
+                <p class="text-slate-400 text-sm text-center py-4">Caricamento template...</p>
+            </div>
+        </div>
+    </div>
+    
     <!-- Sezione: Personalizzazione -->
     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
         <div class="p-5 border-b border-slate-100">
@@ -1044,6 +1072,88 @@ include __DIR__ . '/includes/header.php';
                 </button>
                 <button onclick="salvaTemplate()" 
                         class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors">
+                    Salva Template
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Template Burocrazia -->
+<div id="burocraziaModal" class="fixed inset-0 z-50 hidden">
+    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeBurocraziaModal()"></div>
+    <div class="absolute inset-0 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
+            <div class="p-5 border-b border-slate-100 flex items-center justify-between">
+                <h3 class="font-bold text-slate-800" id="burocraziaModalTitle">Nuovo Template Privacy/Termini</h3>
+                <button onclick="closeBurocraziaModal()" class="text-slate-400 hover:text-slate-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="p-5 overflow-y-auto">
+                <input type="hidden" id="burocraziaId">
+                
+                <!-- Password -->
+                <div class="mb-4 p-4 bg-rose-50 border border-rose-200 rounded-xl">
+                    <label class="block text-sm font-medium text-rose-800 mb-2">
+                        <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                        </svg>
+                        Password di modifica
+                    </label>
+                    <input type="password" id="burocraziaPassword" 
+                           class="w-full px-4 py-2.5 border border-rose-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none bg-white"
+                           placeholder="Inserisci la password...">
+                </div>
+                
+                <!-- Tipo Template -->
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Tipo Template *</label>
+                    <select id="burocraziaTipo" 
+                            class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-rose-500 outline-none bg-white">
+                        <option value="privacy">Privacy e GDPR</option>
+                        <option value="termini">Termini e Condizioni</option>
+                        <option value="generale">Informativa Generale</option>
+                    </select>
+                </div>
+                
+                <!-- Nome Template -->
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Nome Template *</label>
+                    <input type="text" id="burocraziaNome" 
+                           class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-rose-500 outline-none"
+                           placeholder="Es: Informativa Privacy, Termini e Condizioni...">
+                </div>
+                
+                <!-- Contenuto -->
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Contenuto *</label>
+                    <textarea id="burocraziaContenuto" rows="10"
+                              class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-rose-500 outline-none resize-none"
+                              placeholder="Inserisci qui il testo legale/burocratico...
+
+Ai sensi del Regolamento UE 2016/679 (GDPR)... 
+
+oppure
+
+TERMINI E CONDIZIONI
+
+1. Oggetto del contratto
+2. Modalità di pagamento
+3. Responsabilità
+..."></textarea>
+                    <p class="text-xs text-slate-500 mt-1">Questo testo apparirà nel PDF del preventivo nella sezione dedicata</p>
+                </div>
+            </div>
+            <div class="p-5 border-t border-slate-100 flex flex-row justify-end gap-2">
+                <button onclick="closeBurocraziaModal()" 
+                        class="px-4 py-2.5 text-slate-600 hover:text-slate-800 font-medium rounded-lg hover:bg-slate-100 transition-colors">
+                    Annulla
+                </button>
+                <button onclick="salvaTemplateBurocrazia()" 
+                        class="px-6 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-lg font-medium transition-colors">
                     Salva Template
                 </button>
             </div>
@@ -2154,6 +2264,209 @@ function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+}
+
+// ============================================================================
+// GESTIONE TEMPLATE BUROCRAZIA/PRIVACY
+// ============================================================================
+
+let templatesBurocraziaData = [];
+let templateBurocraziaDefaultId = null;
+
+// Carica template burocrazia all'avvio
+document.addEventListener('DOMContentLoaded', caricaTemplateBurocrazia);
+
+async function caricaTemplateBurocrazia() {
+    try {
+        const response = await fetch('api/impostazioni.php?action=get_template_burocrazia');
+        const data = await response.json();
+        
+        if (data.success) {
+            templatesBurocraziaData = data.data.templates || [];
+            templateBurocraziaDefaultId = data.data.default_id;
+            renderTemplateBurocraziaList();
+        }
+    } catch (error) {
+        console.error('Errore caricamento template burocrazia:', error);
+        document.getElementById('templateBurocraziaList').innerHTML = 
+            '<p class="text-red-500 text-sm text-center py-4">Errore caricamento template</p>';
+    }
+}
+
+function renderTemplateBurocraziaList() {
+    const container = document.getElementById('templateBurocraziaList');
+    
+    if (templatesBurocraziaData.length === 0) {
+        container.innerHTML = '<p class="text-slate-400 text-sm text-center py-4">Nessun template creato</p>';
+        return;
+    }
+    
+    // Icone per tipo
+    const tipoIcone = {
+        'privacy': '<span class="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded font-medium">Privacy</span>',
+        'termini': '<span class="px-2 py-0.5 bg-amber-100 text-amber-700 text-xs rounded font-medium">Termini</span>',
+        'generale': '<span class="px-2 py-0.5 bg-slate-100 text-slate-700 text-xs rounded font-medium">Generale</span>'
+    };
+    
+    container.innerHTML = templatesBurocraziaData.map(t => `
+        <div class="flex items-center justify-between p-3 bg-slate-50 rounded-lg border ${t.id == templateBurocraziaDefaultId ? 'border-rose-300 bg-rose-50/50' : 'border-slate-200'}">
+            <div class="flex items-center gap-3">
+                ${t.id == templateBurocraziaDefaultId ? 
+                    '<span class="px-2 py-0.5 bg-rose-600 text-white text-xs rounded font-medium">Default</span>' : 
+                    '<button onclick="setTemplateBurocraziaDefault(' + t.id + ')" class="text-xs text-slate-400 hover:text-rose-600 underline">Imposta default</button>'
+                }
+                ${tipoIcone[t.tipo] || tipoIcone['generale']}
+                <span class="font-medium text-slate-800">${escapeHtml(t.nome)}</span>
+            </div>
+            <div class="flex items-center gap-1">
+                <button onclick="editTemplateBurocrazia(${t.id})" class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded" title="Modifica">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                    </svg>
+                </button>
+                <button onclick="eliminaTemplateBurocrazia(${t.id})" class="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded" title="Elimina">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    `).join('');
+}
+
+function openBurocraziaModal() {
+    document.getElementById('burocraziaModalTitle').textContent = 'Nuovo Template Privacy/Termini';
+    document.getElementById('burocraziaId').value = '';
+    document.getElementById('burocraziaTipo').value = 'privacy';
+    document.getElementById('burocraziaNome').value = '';
+    document.getElementById('burocraziaContenuto').value = '';
+    document.getElementById('burocraziaPassword').value = '';
+    openModal('burocraziaModal');
+}
+
+function closeBurocraziaModal() {
+    closeModal('burocraziaModal');
+}
+
+async function editTemplateBurocrazia(id) {
+    const template = templatesBurocraziaData.find(t => t.id == id);
+    if (!template) return;
+    
+    document.getElementById('burocraziaModalTitle').textContent = 'Modifica Template';
+    document.getElementById('burocraziaId').value = template.id;
+    document.getElementById('burocraziaTipo').value = template.tipo || 'generale';
+    document.getElementById('burocraziaNome').value = template.nome;
+    document.getElementById('burocraziaContenuto').value = template.contenuto;
+    document.getElementById('burocraziaPassword').value = '';
+    openModal('burocraziaModal');
+}
+
+async function salvaTemplateBurocrazia() {
+    const id = document.getElementById('burocraziaId').value;
+    const tipo = document.getElementById('burocraziaTipo').value;
+    const nome = document.getElementById('burocraziaNome').value.trim();
+    const contenuto = document.getElementById('burocraziaContenuto').value.trim();
+    const password = document.getElementById('burocraziaPassword').value;
+    
+    if (!password) {
+        showToast('Inserisci la password di modifica', 'error');
+        return;
+    }
+    
+    if (!nome) {
+        showToast('Il nome del template è obbligatorio', 'error');
+        return;
+    }
+    
+    if (!contenuto) {
+        showToast('Il contenuto è obbligatorio', 'error');
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('action', 'save_template_burocrazia');
+    formData.append('id', id);
+    formData.append('tipo', tipo);
+    formData.append('nome', nome);
+    formData.append('contenuto', contenuto);
+    formData.append('password', password);
+    
+    try {
+        const response = await fetch('api/impostazioni.php', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showToast('Template salvato con successo', 'success');
+            closeBurocraziaModal();
+            await caricaTemplateBurocrazia();
+        } else {
+            showToast(data.message || 'Errore durante il salvataggio', 'error');
+        }
+    } catch (error) {
+        showToast('Errore di connessione', 'error');
+    }
+}
+
+async function eliminaTemplateBurocrazia(id) {
+    if (!confirm('Sei sicuro di voler eliminare questo template?')) return;
+    
+    const password = prompt('Inserisci la password di modifica:');
+    if (!password) return;
+    
+    const formData = new FormData();
+    formData.append('action', 'delete_template_burocrazia');
+    formData.append('id', id);
+    formData.append('password', password);
+    
+    try {
+        const response = await fetch('api/impostazioni.php', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showToast('Template eliminato', 'success');
+            await caricaTemplateBurocrazia();
+        } else {
+            showToast(data.message || 'Errore durante l\'eliminazione', 'error');
+        }
+    } catch (error) {
+        showToast('Errore di connessione', 'error');
+    }
+}
+
+async function setTemplateBurocraziaDefault(id) {
+    const password = prompt('Inserisci la password di modifica per impostare il default:');
+    if (!password) return;
+    
+    const formData = new FormData();
+    formData.append('action', 'set_template_burocrazia_default');
+    formData.append('id', id);
+    formData.append('password', password);
+    
+    try {
+        const response = await fetch('api/impostazioni.php', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showToast('Template impostato come default', 'success');
+            await caricaTemplateBurocrazia();
+        } else {
+            showToast(data.message || 'Errore', 'error');
+        }
+    } catch (error) {
+        showToast('Errore di connessione', 'error');
+    }
 }
 
 </script>

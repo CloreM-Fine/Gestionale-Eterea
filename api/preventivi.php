@@ -217,6 +217,7 @@ function generaPreventivo(): void {
     $scontoGlobale = floatval($_POST['sconto_globale'] ?? 0);
     $dataScadenza = trim($_POST['data_scadenza'] ?? '');
     $frequenza = intval($_POST['frequenza'] ?? 1);
+    $mostraBurocrazia = filter_var($_POST['mostra_burocrazia'] ?? 'true', FILTER_VALIDATE_BOOLEAN);
     
     if (empty($vociSelezionate)) {
         jsonResponse(false, null, 'Nessuna voce selezionata');
@@ -297,7 +298,7 @@ function generaPreventivo(): void {
         $totaleScontato = $subtotaleConFrequenza * (1 - $scontoGlobale / 100);
         
         // Genera HTML per PDF
-        $html = generaHTMLPreventivo($voci, $clienteNome, $preventivoNum, $note, $scontoGlobale, $subtotaleConFrequenza, $totaleScontato, $dataScadenza, $frequenza);
+        $html = generaHTMLPreventivo($voci, $clienteNome, $preventivoNum, $note, $scontoGlobale, $subtotaleConFrequenza, $totaleScontato, $dataScadenza, $frequenza, $mostraBurocrazia);
         
         // Salva HTML temporaneo
         $filename = 'preventivo_' . time() . '.html';
@@ -362,6 +363,46 @@ function getDatiAzienda(): array {
 }
 
 /**
+ * Recupera il template burocratico di default
+ */
+function getTemplateBurocraziaDefault(): array {
+    global $pdo;
+    
+    try {
+        // Recupera ID template default
+        $stmt = $pdo->prepare("SELECT valore FROM impostazioni WHERE chiave = 'preventivo_template_burocrazia_default'");
+        $stmt->execute();
+        $templateId = $stmt->fetchColumn();
+        
+        if ($templateId) {
+            $stmt = $pdo->prepare("SELECT nome, tipo, contenuto FROM preventivo_template_burocrazia WHERE id = ?");
+            $stmt->execute([$templateId]);
+            $template = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($template) return $template;
+        }
+        
+        // Fallback: prendi il primo template disponibile
+        $stmt = $pdo->query("SELECT nome, tipo, contenuto FROM preventivo_template_burocrazia LIMIT 1");
+        $template = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($template) return $template;
+        
+        // Fallback finale
+        return [
+            'nome' => 'Termini e Condizioni',
+            'tipo' => 'generale',
+            'contenuto' => 'Ai sensi del D.Lgs. 206/2005 (Codice del Consumo), il cliente viene informato che i prezzi sono espressi in Euro e sono da intendersi IVA esclusa. I pagamenti dovranno essere effettuati secondo le modalità indicate nel presente documento.'
+        ];
+    } catch (PDOException $e) {
+        error_log("Errore get template burocrazia: " . $e->getMessage());
+        return [
+            'nome' => 'Termini e Condizioni',
+            'tipo' => 'generale',
+            'contenuto' => 'Ai sensi del D.Lgs. 206/2005 (Codice del Consumo), il cliente viene informato che i prezzi sono espressi in Euro e sono da intendersi IVA esclusa.'
+        ];
+    }
+}
+
+/**
  * Recupera il template condizioni di default
  */
 function getTemplateCondizioniDefault(): string {
@@ -396,7 +437,7 @@ function getTemplateCondizioniDefault(): string {
 /**
  * Genera HTML del preventivo
  */
-function generaHTMLPreventivo(array $voci, string $cliente, string $numero, string $note, float $scontoGlobale, float $subtotale, float $totale, string $dataScadenza = '', int $frequenza = 1): string {
+function generaHTMLPreventivo(array $voci, string $cliente, string $numero, string $note, float $scontoGlobale, float $subtotale, float $totale, string $dataScadenza = '', int $frequenza = 1, bool $mostraBurocrazia = true): string {
     $data = date('d/m/Y');
     $validita = $dataScadenza ? date('d/m/Y', strtotime($dataScadenza)) : date('d/m/Y', strtotime('+30 days'));
     $clienteEsc = htmlspecialchars($cliente);
@@ -420,6 +461,22 @@ function generaHTMLPreventivo(array $voci, string $cliente, string $numero, stri
                 }
                 $condizioniHtml .= '<li>' . htmlspecialchars($riga) . '</li>';
             }
+        }
+    }
+    
+    // Recupera template burocratico (privacy, termini, ecc.)
+    $burocraziaHtml = '';
+    if ($mostraBurocrazia) {
+        $templateBurocrazia = getTemplateBurocraziaDefault();
+        if ($templateBurocrazia && !empty($templateBurocrazia['contenuto'])) {
+            $titoloBurocrazia = htmlspecialchars($templateBurocrazia['nome']);
+            $contenutoBurocrazia = nl2br(htmlspecialchars($templateBurocrazia['contenuto']));
+            $burocraziaHtml = <<<BUROCRAZIA
+    <div class="burocrazia">
+        <h4>{$titoloBurocrazia}</h4>
+        <div class="burocrazia-content">{$contenutoBurocrazia}</div>
+    </div>
+BUROCRAZIA;
         }
     }
     
@@ -690,6 +747,32 @@ function generaHTMLPreventivo(array $voci, string $cliente, string $numero, stri
         .condizioni ul { margin-left: 12px; }
         .condizioni li { margin: 3px 0; }
         
+        .burocrazia {
+            margin-top: 15px;
+            padding: 12px;
+            background: #f1f5f9;
+            border-radius: 8px;
+            font-size: 7px;
+            color: #64748b;
+            border: 1px solid #e2e8f0;
+        }
+        .burocrazia h4 {
+            color: #475569;
+            margin-bottom: 6px;
+            font-size: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .burocrazia-content {
+            line-height: 1.4;
+            text-align: justify;
+        }
+        .burocrazia-content br {
+            margin-bottom: 4px;
+            display: block;
+            content: "";
+        }
+        
         @media print {
             body { padding: 20px; }
             .no-print { display: none; }
@@ -763,6 +846,8 @@ function generaHTMLPreventivo(array $voci, string $cliente, string $numero, stri
         </ul>
     </div>
     
+    {$burocraziaHtml}
+    
     <div class="footer">
         <p><strong>{$ragioneSociale}</strong> | {$indirizzoCompleto} | {$piva} {$cf}</p>
         <p>{$contattiStr}</p>
@@ -801,6 +886,7 @@ function salvaPreventivoGestionale(): void {
     $totale = floatval($_POST['totale'] ?? 0);
     $frequenza = intval($_POST['frequenza'] ?? 1);
     $frequenzaTesto = $_POST['frequenza_testo'] ?? 'Una tantum';
+    $mostraBurocrazia = filter_var($_POST['mostra_burocrazia'] ?? 'true', FILTER_VALIDATE_BOOLEAN);
     
     if (empty($clienteNome)) {
         jsonResponse(false, null, 'Il nome cliente è obbligatorio');
@@ -813,8 +899,8 @@ function salvaPreventivoGestionale(): void {
         // Salva nel database
         $stmt = $pdo->prepare("
             INSERT INTO preventivi_salvati 
-            (numero, cliente_id, cliente_nome, data_validita, sconto_globale, note, servizi_json, subtotale, totale, frequenza, frequenza_testo, created_by)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            (numero, cliente_id, cliente_nome, data_validita, sconto_globale, note, servizi_json, subtotale, totale, frequenza, frequenza_testo, mostra_burocrazia, created_by)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
         
         $stmt->execute([
@@ -829,6 +915,7 @@ function salvaPreventivoGestionale(): void {
             $totale,
             $frequenza,
             $frequenzaTesto,
+            $mostraBurocrazia ? 1 : 0,
             $_SESSION['user_id']
         ]);
         
@@ -836,7 +923,7 @@ function salvaPreventivoGestionale(): void {
         
         // Genera il file HTML del preventivo
         $servizi = json_decode($serviziJson, true);
-        $html = generaHTMLPreventivoSalvato($servizi, $clienteNome, $numero, $note, $scontoGlobale, $subtotale, $totale, $dataScadenza, $frequenza);
+        $html = generaHTMLPreventivoSalvato($servizi, $clienteNome, $numero, $note, $scontoGlobale, $subtotale, $totale, $dataScadenza, $frequenza, $mostraBurocrazia);
         
         // Salva il file
         $filename = 'preventivo_' . $preventivoId . '_' . time() . '.html';
@@ -876,7 +963,7 @@ function salvaPreventivoGestionale(): void {
 /**
  * Genera HTML del preventivo salvato (usa stessa impaginazione del PDF)
  */
-function generaHTMLPreventivoSalvato(array $voci, string $cliente, string $numero, string $note, float $scontoGlobale, float $subtotale, float $totale, string $dataScadenza = '', int $frequenza = 1): string {
+function generaHTMLPreventivoSalvato(array $voci, string $cliente, string $numero, string $note, float $scontoGlobale, float $subtotale, float $totale, string $dataScadenza = '', int $frequenza = 1, bool $mostraBurocrazia = true): string {
     // Converte il formato dati salvati nel formato usato da generaHTMLPreventivo
     $vociFormattate = [];
     foreach ($voci as $v) {
@@ -892,7 +979,9 @@ function generaHTMLPreventivoSalvato(array $voci, string $cliente, string $numer
     }
     
     // Usa la stessa funzione di generazione HTML del PDF
-    return generaHTMLPreventivo($vociFormattate, $cliente, $numero, $note, $scontoGlobale, $subtotale, $totale, $dataScadenza, $frequenza);
+    // Per i preventivi salvati, usiamo sempre il valore salvato
+    $mostraBurocrazia = true; // Default per preventivi salvati
+    return generaHTMLPreventivo($vociFormattate, $cliente, $numero, $note, $scontoGlobale, $subtotale, $totale, $dataScadenza, $frequenza, $mostraBurocrazia);
 }
 
 

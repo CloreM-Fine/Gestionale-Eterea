@@ -343,6 +343,18 @@ include __DIR__ . '/includes/header.php';
                               placeholder="Note aggiuntive per il cliente..."></textarea>
                 </div>
                 
+                <!-- Checkbox Sezione Burocratica -->
+                <div class="mb-6 p-4 bg-slate-50 border border-slate-200 rounded-xl">
+                    <label class="flex items-center gap-3 cursor-pointer">
+                        <input type="checkbox" id="prevMostraBurocrazia" checked
+                               class="w-5 h-5 text-cyan-600 rounded border-slate-300 focus:ring-cyan-500">
+                        <div>
+                            <span class="font-medium text-slate-800">Includi sezione Privacy, Termini e Condizioni</span>
+                            <p class="text-xs text-slate-500">Aggiunge al PDF la sezione con informativa privacy, termini legali e condizioni precontrattuali</p>
+                        </div>
+                    </label>
+                </div>
+                
                 <!-- Selezione Servizi -->
                 <h3 class="font-semibold text-slate-800 mb-3 flex items-center gap-2">
                     <svg class="w-5 h-5 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1200,6 +1212,7 @@ function openPreventivoModal() {
     document.getElementById('prevNumero').value = 'PREV-' + new Date().getFullYear() + '-' + String(Math.floor(Math.random() * 900) + 100);
     document.getElementById('prevScontoGlobale').value = '0';
     document.getElementById('prevNote').value = '';
+    document.getElementById('prevMostraBurocrazia').checked = true;
     
     // Carica i servizi dal listino prezzi
     loadPreventivi().then(() => {
@@ -1417,6 +1430,8 @@ async function generaPreventivo() {
     }
     
     try {
+        const mostraBurocrazia = document.getElementById('prevMostraBurocrazia').checked;
+        
         const response = await fetch('api/preventivi.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -1427,7 +1442,8 @@ async function generaPreventivo() {
                 preventivo_num: document.getElementById('prevNumero').value,
                 note: document.getElementById('prevNote').value,
                 sconto_globale: document.getElementById('prevScontoGlobale').value,
-                data_scadenza: document.getElementById('prevScadenza').value
+                data_scadenza: document.getElementById('prevScadenza').value,
+                mostra_burocrazia: mostraBurocrazia
             })
         });
         
@@ -1482,6 +1498,7 @@ async function salvaPreventivoGestionale() {
         subtotale += prezzoScontato * qty;
     });
     const totale = subtotale * (1 - parseFloat(sconto || 0) / 100);
+    const mostraBurocrazia = document.getElementById('prevMostraBurocrazia').checked;
     
     const formData = new FormData();
     formData.append('action', 'salva_preventivo');
@@ -1494,6 +1511,7 @@ async function salvaPreventivoGestionale() {
     formData.append('servizi', JSON.stringify(preventivoVoci));
     formData.append('subtotale', subtotale.toFixed(2));
     formData.append('totale', totale.toFixed(2));
+    formData.append('mostra_burocrazia', mostraBurocrazia);
     
     try {
         const response = await fetch('api/preventivi.php', {
