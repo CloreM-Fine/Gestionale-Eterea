@@ -243,10 +243,13 @@ function generaPreventivo(): void {
         $scontoSingoloMap = [];
         foreach ($vociSelezionate as $v) {
             $quantitaMap[$v['id']] = $v['quantita'] ?? 1;
-            // Converte il prezzo in float (gestisce sia . che ,)
+            // Converte il prezzo in float (il frontend invia già un numero o stringa con . come decimale)
             $prezzoRaw = $v['prezzo'] ?? null;
             if ($prezzoRaw !== null) {
-                $prezzoRaw = str_replace(',', '.', str_replace('.', '', $prezzoRaw));
+                // Se è una stringa con virgola (formato italiano), converti in punto
+                if (is_string($prezzoRaw) && strpos($prezzoRaw, ',') !== false) {
+                    $prezzoRaw = str_replace(',', '.', $prezzoRaw);
+                }
                 $prezzoMap[$v['id']] = floatval($prezzoRaw);
             } else {
                 $prezzoMap[$v['id']] = null;
