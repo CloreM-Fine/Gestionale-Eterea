@@ -975,20 +975,28 @@ function generaHTMLPreventivoSalvato(array $voci, string $cliente, string $numer
     // Converte il formato dati salvati nel formato usato da generaHTMLPreventivo
     $vociFormattate = [];
     foreach ($voci as $v) {
+        $prezzo = floatval($v['prezzo'] ?? 0);
+        $qty = intval($v['quantita'] ?? 1);
+        $scontoSingolo = floatval($v['sconto_singolo'] ?? 0);
+        $scontoListino = intval($v['sconto_percentuale'] ?? 0);
+        
+        // Calcola il totale riga
+        $prezzoScontato = $prezzo * (1 - $scontoSingolo / 100);
+        $totaleRiga = $prezzoScontato * $qty;
+        
         $vociFormattate[] = [
             'tipo_servizio' => $v['tipo_servizio'] ?? $v['nome'] ?? 'Servizio',
             'descrizione' => $v['descrizione'] ?? '',
-            'prezzo' => $v['prezzo'] ?? 0,
+            'prezzo' => $prezzo,
             'categoria_nome' => $v['categoria_nome'] ?? 'Servizi',
-            'quantita' => $v['quantita'] ?? 1,
-            'sconto_percentuale' => $v['sconto_percentuale'] ?? 0,
-            'sconto_singolo' => $v['sconto_singolo'] ?? 0
+            'quantita' => $qty,
+            'sconto_percentuale' => $scontoListino,
+            'sconto_singolo' => $scontoSingolo,
+            'totale' => $totaleRiga
         ];
     }
     
     // Usa la stessa funzione di generazione HTML del PDF
-    // Per i preventivi salvati, usiamo sempre il valore salvato
-    $mostraBurocrazia = true; // Default per preventivi salvati
     return generaHTMLPreventivo($vociFormattate, $cliente, $numero, $note, $scontoGlobale, $subtotale, $totale, $dataScadenza, $frequenza, $mostraBurocrazia);
 }
 
