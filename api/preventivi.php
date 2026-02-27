@@ -216,6 +216,7 @@ function generaPreventivo(): void {
     $note = trim($_POST['note'] ?? '');
     $scontoGlobale = floatval($_POST['sconto_globale'] ?? 0);
     $dataScadenza = trim($_POST['data_scadenza'] ?? '');
+    $frequenza = intval($_POST['frequenza'] ?? 1);
     
     if (empty($vociSelezionate)) {
         jsonResponse(false, null, 'Nessuna voce selezionata');
@@ -242,7 +243,14 @@ function generaPreventivo(): void {
         $scontoSingoloMap = [];
         foreach ($vociSelezionate as $v) {
             $quantitaMap[$v['id']] = $v['quantita'] ?? 1;
-            $prezzoMap[$v['id']] = $v['prezzo'] ?? null;
+            // Converte il prezzo in float (gestisce sia . che ,)
+            $prezzoRaw = $v['prezzo'] ?? null;
+            if ($prezzoRaw !== null) {
+                $prezzoRaw = str_replace(',', '.', str_replace('.', '', $prezzoRaw));
+                $prezzoMap[$v['id']] = floatval($prezzoRaw);
+            } else {
+                $prezzoMap[$v['id']] = null;
+            }
             $scontoSingoloMap[$v['id']] = $v['sconto_singolo'] ?? 0;
         }
         
@@ -251,13 +259,24 @@ function generaPreventivo(): void {
         foreach ($voci as &$voce) {
             $qty = $quantitaMap[$voce['id']] ?? 1;
             $scontoSingolo = floatval($scontoSingoloMap[$voce['id']] ?? 0);
-            // Usa il prezzo modificato se presente, altrimenti quello del database
-            $prezzoUnitario = isset($prezzoMap[$voce['id']]) ? floatval($prezzoMap[$voce['id']]) : floatval($voce['prezzo']);
+            $prezzoDatabase = floatval($voce['prezzo']);
             $scontoListino = intval($voce['sconto_percentuale']);
             
-            // Applica prima lo sconto del listino, poi quello singolo
-            $prezzoConScontoListino = $prezzoUnitario * (1 - $scontoListino / 100);
-            $prezzoScontato = $prezzoConScontoListino * (1 - $scontoSingolo / 100);
+            // Verifica se il prezzo è stato modificato dall'utente
+            $prezzoModificato = isset($prezzoMap[$voce['id']]) && $prezzoMap[$voce['id']] !== null;
+            
+            if ($prezzoModificato) {
+                // Se il prezzo è stato modificato, usa quel prezzo direttamente 
+                // (l'utente ha già considerato eventuali sconti listino)
+                $prezzoUnitario = $prezzoMap[$voce['id']];
+                $prezzoScontato = $prezzoUnitario * (1 - $scontoSingolo / 100);
+            } else {
+                // Se il prezzo NON è stato modificato, applica lo sconto listino
+                $prezzoUnitario = $prezzoDatabase;
+                $prezzoConScontoListino = $prezzoUnitario * (1 - $scontoListino / 100);
+                $prezzoScontato = $prezzoConScontoListino * (1 - $scontoSingolo / 100);
+            }
+            
             $totaleVoce = $prezzoScontato * $qty;
             
             $voce['quantita'] = $qty;
@@ -268,11 +287,14 @@ function generaPreventivo(): void {
             $subtotale += $totaleVoce;
         }
         
-        // Applica sconto globale
-        $totaleScontato = $subtotale * (1 - $scontoGlobale / 100);
+        // Applica frequenza al subtotale
+        $subtotaleConFrequenza = $subtotale * $frequenza;
+        
+        // Applica sconto globale sul subtotale con frequenza
+        $totaleScontato = $subtotaleConFrequenza * (1 - $scontoGlobale / 100);
         
         // Genera HTML per PDF
-        $html = generaHTMLPreventivo($voci, $clienteNome, $preventivoNum, $note, $scontoGlobale, $subtotale, $totaleScontato, $dataScadenza);
+        $html = generaHTMLPreventivo($voci, $clienteNome, $preventivoNum, $note, $scontoGlobale, $subtotaleConFrequenza, $totaleScontato, $dataScadenza, $frequenza);
         
         // Salva HTML temporaneo
         $filename = 'preventivo_' . time() . '.html';
@@ -339,7 +361,7 @@ function getDatiAzienda(): array {
 /**
  * Genera HTML del preventivo
  */
-function generaHTMLPreventivo(array $voci, string $cliente, string $numero, string $note, float $scontoGlobale, float $subtotale, float $totale, string $dataScadenza = ''): string {
+function generaHTMLPreventivo(array $voci, string $cliente, string $numero, string $note, float $scontoGlobale, float $subtotale, float $totale, string $dataScadenza = '', int $frequenza = 1): string {
     $data = date('d/m/Y');
     $validita = $dataScadenza ? date('d/m/Y', strtotime($dataScadenza)) : date('d/m/Y', strtotime('+30 days'));
     $clienteEsc = htmlspecialchars($cliente);
@@ -431,10 +453,29 @@ function generaHTMLPreventivo(array $voci, string $cliente, string $numero, stri
     
     $subtotaleForm = number_format($subtotale, 2, ',', '.');
     $totaleFormStr = number_format($totale, 2, ',', '.');
+    
+    // Riga frequenza se > 1
+    $frequenzaTxt = '';
+    if ($frequenza > 1) {
+        $frequenzaNomi = [
+            1 => 'Una tantum',
+            2 => 'Settimanale',
+            3 => 'Mensile',
+            4 => 'Trimestrale',
+            5 => 'Semestrale',
+            6 => 'Annuale'
+        ];
+        $freqNome = $frequenzaNomi[$frequenza] ?? 'x' . $frequenza;
+        // Calcola il subtotale base (prima della frequenza)
+        $subtotaleBase = $subtotale / $frequenza;
+        $subtotaleBaseForm = number_format($subtotaleBase, 2, ',', '.');
+        $frequenzaTxt = "<tr><td style='text-align:right'>{$freqNome}:</td><td style='text-align:right'>x{$frequenza}</td></tr>";
+    }
+    
     $scontoGlobaleTxt = '';
     if ($scontoGlobale > 0) {
-        $scontoVal = number_format($subtotale - $totale, 2, ',', '.');
-        $scontoGlobaleTxt = "<tr><td colspan='5' style='text-align:right'>Sconto globale: -{$scontoGlobale}%</td><td style='text-align:right'>-€ {$scontoVal}</td></tr>";
+        $scontoVal = number_format($subtotale * ($scontoGlobale / 100), 2, ',', '.');
+        $scontoGlobaleTxt = "<tr><td style='text-align:right'>Sconto globale ({$scontoGlobale}%):</td><td style='text-align:right'>-€ {$scontoVal}</td></tr>";
     }
     
     $noteHtml = $noteEsc ? "<div class='note'><strong>Note:</strong><br>{$noteEsc}</div>" : '';
@@ -652,6 +693,7 @@ function generaHTMLPreventivo(array $voci, string $cliente, string $numero, stri
                 <td style="text-align:right"><strong>Subtotale:</strong></td>
                 <td style="text-align:right;width:120px">€ {$subtotaleForm}</td>
             </tr>
+            {$frequenzaTxt}
             {$scontoGlobaleTxt}
             <tr>
                 <td style="text-align:right"><strong>TOTALE:</strong></td>
@@ -708,6 +750,8 @@ function salvaPreventivoGestionale(): void {
     $serviziJson = $_POST['servizi'] ?? '[]';
     $subtotale = floatval($_POST['subtotale'] ?? 0);
     $totale = floatval($_POST['totale'] ?? 0);
+    $frequenza = intval($_POST['frequenza'] ?? 1);
+    $frequenzaTesto = $_POST['frequenza_testo'] ?? 'Una tantum';
     
     if (empty($clienteNome)) {
         jsonResponse(false, null, 'Il nome cliente è obbligatorio');
@@ -720,8 +764,8 @@ function salvaPreventivoGestionale(): void {
         // Salva nel database
         $stmt = $pdo->prepare("
             INSERT INTO preventivi_salvati 
-            (numero, cliente_id, cliente_nome, data_validita, sconto_globale, note, servizi_json, subtotale, totale, created_by)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            (numero, cliente_id, cliente_nome, data_validita, sconto_globale, note, servizi_json, subtotale, totale, frequenza, frequenza_testo, created_by)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
         
         $stmt->execute([
@@ -734,6 +778,8 @@ function salvaPreventivoGestionale(): void {
             $serviziJson,
             $subtotale,
             $totale,
+            $frequenza,
+            $frequenzaTesto,
             $_SESSION['user_id']
         ]);
         
@@ -741,7 +787,7 @@ function salvaPreventivoGestionale(): void {
         
         // Genera il file HTML del preventivo
         $servizi = json_decode($serviziJson, true);
-        $html = generaHTMLPreventivoSalvato($servizi, $clienteNome, $numero, $note, $scontoGlobale, $subtotale, $totale, $dataScadenza);
+        $html = generaHTMLPreventivoSalvato($servizi, $clienteNome, $numero, $note, $scontoGlobale, $subtotale, $totale, $dataScadenza, $frequenza);
         
         // Salva il file
         $filename = 'preventivo_' . $preventivoId . '_' . time() . '.html';
@@ -781,7 +827,7 @@ function salvaPreventivoGestionale(): void {
 /**
  * Genera HTML del preventivo salvato (usa stessa impaginazione del PDF)
  */
-function generaHTMLPreventivoSalvato(array $voci, string $cliente, string $numero, string $note, float $scontoGlobale, float $subtotale, float $totale, string $dataScadenza = ''): string {
+function generaHTMLPreventivoSalvato(array $voci, string $cliente, string $numero, string $note, float $scontoGlobale, float $subtotale, float $totale, string $dataScadenza = '', int $frequenza = 1): string {
     // Converte il formato dati salvati nel formato usato da generaHTMLPreventivo
     $vociFormattate = [];
     foreach ($voci as $v) {
@@ -797,7 +843,7 @@ function generaHTMLPreventivoSalvato(array $voci, string $cliente, string $numer
     }
     
     // Usa la stessa funzione di generazione HTML del PDF
-    return generaHTMLPreventivo($vociFormattate, $cliente, $numero, $note, $scontoGlobale, $subtotale, $totale, $dataScadenza);
+    return generaHTMLPreventivo($vociFormattate, $cliente, $numero, $note, $scontoGlobale, $subtotale, $totale, $dataScadenza, $frequenza);
 }
 
 

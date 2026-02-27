@@ -388,12 +388,17 @@ function saveDatiAzienda(): void {
     global $pdo;
     
     $campi = [
-        'azienda_nome' => $_POST['nome'] ?? '',
+        'azienda_ragione_sociale' => $_POST['ragione_sociale'] ?? '',
         'azienda_indirizzo' => $_POST['indirizzo'] ?? '',
+        'azienda_cap' => $_POST['cap'] ?? '',
+        'azienda_citta' => $_POST['citta'] ?? '',
+        'azienda_provincia' => $_POST['provincia'] ?? '',
+        'azienda_piva' => $_POST['piva'] ?? '',
+        'azienda_cf' => $_POST['cf'] ?? '',
         'azienda_email' => $_POST['email'] ?? '',
         'azienda_telefono' => $_POST['telefono'] ?? '',
-        'azienda_piva' => $_POST['piva'] ?? '',
-        'azienda_ateco_id' => $_POST['ateco_id'] ?? ''
+        'azienda_pec' => $_POST['pec'] ?? '',
+        'azienda_sdi' => $_POST['sdi'] ?? ''
     ];
     
     try {
@@ -418,12 +423,12 @@ function saveDatiAzienda(): void {
  * Upload logo azienda da file
  */
 function uploadLogoAzienda(): void {
-    if (!isset($_FILES['logo_file'])) {
+    if (!isset($_FILES['logo'])) {
         jsonResponse(false, null, 'Nessun file caricato');
         return;
     }
     
-    $file = $_FILES['logo_file'];
+    $file = $_FILES['logo'];
     
     // Validazione
     $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
@@ -438,7 +443,7 @@ function uploadLogoAzienda(): void {
     }
     
     // Crea directory
-    $uploadDir = __DIR__ . '/../assets/uploads/';
+    $uploadDir = __DIR__ . '/../assets/uploads/logo_azienda/';
     if (!is_dir($uploadDir)) {
         mkdir($uploadDir, 0755, true);
     }
@@ -450,7 +455,7 @@ function uploadLogoAzienda(): void {
     
     if (move_uploaded_file($file['tmp_name'], $filepath)) {
         global $pdo;
-        $logoUrl = 'assets/uploads/' . $filename;
+        $logoUrl = $filename;
         
         $stmt = $pdo->prepare("
             INSERT INTO impostazioni (chiave, valore) 

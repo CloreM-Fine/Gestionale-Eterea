@@ -59,7 +59,7 @@ include __DIR__ . '/includes/header.php';
                 Nuova Categoria
             </button>
             <button onclick="openPreventivoModal()" 
-                    class="px-4 py-2 bg-[#151e26] hover:bg-[#0d1117] text-white rounded-lg font-medium flex items-center gap-2 transition-colors">
+                    class="px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg font-medium flex items-center gap-2 transition-colors">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                 </svg>
@@ -186,21 +186,21 @@ include __DIR__ . '/includes/header.php';
                 <div>
                     <label class="block text-sm font-medium text-slate-700 mb-2">Categoria *</label>
                     <select name="categoria_id" id="voceCategoria" required
-                            class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#151e26] outline-none">
+                            class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
                     </select>
                 </div>
                 
                 <div>
                     <label class="block text-sm font-medium text-slate-700 mb-2">Tipo Servizio *</label>
                     <input type="text" name="tipo_servizio" id="voceTipo" required
-                           class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#151e26] outline-none"
+                           class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none"
                            placeholder="es. Sito Web Vetrina">
                 </div>
                 
                 <div>
                     <label class="block text-sm font-medium text-slate-700 mb-2">Descrizione</label>
                     <textarea name="descrizione" id="voceDescrizione" rows="3"
-                              class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#151e26] outline-none resize-none"
+                              class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none resize-none"
                               placeholder="Descrivi il servizio..."></textarea>
                 </div>
                 
@@ -208,13 +208,13 @@ include __DIR__ . '/includes/header.php';
                     <div>
                         <label class="block text-sm font-medium text-slate-700 mb-2">Prezzo (€) *</label>
                         <input type="number" name="prezzo" id="vocePrezzo" required min="0" step="0.01"
-                               class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#151e26] outline-none"
+                               class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none"
                                placeholder="0.00">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-slate-700 mb-2">Sconto %</label>
                         <input type="number" name="sconto_percentuale" id="voceSconto" min="0" max="100" value="0"
-                               class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#151e26] outline-none">
+                               class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
                     </div>
                 </div>
                 
@@ -226,7 +226,7 @@ include __DIR__ . '/includes/header.php';
                         Frequenza di pagamento
                     </label>
                     <select name="frequenza" id="voceFrequenza"
-                            class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#151e26] outline-none bg-white">
+                            class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none bg-white">
                         <option value="1">Una tantum</option>
                         <option value="2">Settimanale</option>
                         <option value="3">Mensile</option>
@@ -244,7 +244,7 @@ include __DIR__ . '/includes/header.php';
                     Annulla
                 </button>
                 <button type="button" onclick="saveVoce()" 
-                        class="flex-1 sm:flex-none px-4 sm:px-6 py-2.5 sm:py-2 bg-[#151e26] hover:bg-[#0d1117] text-white rounded-lg font-medium min-h-[44px] transition-colors text-sm sm:text-base">
+                        class="flex-1 sm:flex-none px-4 sm:px-6 py-2.5 sm:py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg font-medium min-h-[44px] transition-colors text-sm sm:text-base">
                     Salva
                 </button>
             </div>
@@ -269,7 +269,7 @@ include __DIR__ . '/includes/header.php';
             <div class="p-6">
                 <label class="block text-sm font-medium text-slate-700 mb-2">Nome Categoria *</label>
                 <input type="text" id="categoriaNome" 
-                       class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#151e26] outline-none"
+                       class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none"
                        placeholder="es. Consulenza">
             </div>
             
@@ -279,7 +279,7 @@ include __DIR__ . '/includes/header.php';
                     Annulla
                 </button>
                 <button onclick="saveCategoria()" 
-                        class="flex-1 sm:flex-none px-4 sm:px-6 py-2.5 sm:py-2 bg-[#151e26] hover:bg-[#0d1117] text-white rounded-lg font-medium min-h-[44px] transition-colors text-sm sm:text-base">
+                        class="flex-1 sm:flex-none px-4 sm:px-6 py-2.5 sm:py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg font-medium min-h-[44px] transition-colors text-sm sm:text-base">
                     Salva
                 </button>
             </div>
@@ -307,17 +307,17 @@ include __DIR__ . '/includes/header.php';
                     <div>
                         <label class="block text-sm font-medium text-slate-700 mb-2">Cliente *</label>
                         <select id="prevClienteSelect" onchange="updateClienteInput()"
-                                class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#151e26] outline-none mb-2">
+                                class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none mb-2">
                             <option value="">-- Seleziona cliente --</option>
                         </select>
                         <input type="text" id="prevCliente" 
-                               class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#151e26] outline-none"
+                               class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none"
                                placeholder="Oppure scrivi nome cliente manualmente">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-slate-700 mb-2">N. Preventivo</label>
                         <input type="text" id="prevNumero" 
-                               class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#151e26] outline-none"
+                               class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none"
                                placeholder="PREV-2024-001">
                     </div>
                 </div>
@@ -326,12 +326,12 @@ include __DIR__ . '/includes/header.php';
                     <div>
                         <label class="block text-sm font-medium text-slate-700 mb-2">Valido fino al *</label>
                         <input type="date" id="prevScadenza" 
-                               class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#151e26] outline-none">
+                               class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-slate-700 mb-2">Sconto Globale %</label>
                         <input type="number" id="prevScontoGlobale" min="0" max="100" value="0"
-                               class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#151e26] outline-none"
+                               class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none"
                                onchange="updatePreventivoPreview()">
                     </div>
                 </div>
@@ -339,7 +339,7 @@ include __DIR__ . '/includes/header.php';
                 <div class="mb-6">
                     <label class="block text-sm font-medium text-slate-700 mb-2">Note</label>
                     <textarea id="prevNote" rows="2"
-                              class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#151e26] outline-none resize-none"
+                              class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none resize-none"
                               placeholder="Note aggiuntive per il cliente..."></textarea>
                 </div>
                 
@@ -354,35 +354,11 @@ include __DIR__ . '/includes/header.php';
                     <p class="text-slate-400 text-center py-4">Caricamento servizi...</p>
                 </div>
                 
-                <!-- Frequenza Prezzo -->
-                <div class="mb-4 p-4 bg-amber-50 border border-amber-200 rounded-xl">
-                    <label class="block text-sm font-medium text-amber-800 mb-2">
-                        <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                        Frequenza di fatturazione
-                    </label>
-                    <select id="prevFrequenza" onchange="updatePreventivoPreview()"
-                            class="w-full px-4 py-2.5 border border-amber-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none bg-white">
-                        <option value="1">Una tantum (unico pagamento)</option>
-                        <option value="2">Settimanale</option>
-                        <option value="3">Mensile</option>
-                        <option value="4">Trimestrale (3 mesi)</option>
-                        <option value="5">Semestrale (6 mesi)</option>
-                        <option value="6">Annuale</option>
-                    </select>
-                    <p class="text-xs text-amber-600 mt-1">Il prezzo verrà moltiplicato in base alla frequenza selezionata</p>
-                </div>
-                
                 <!-- Riepilogo -->
                 <div class="mt-6 p-4 bg-slate-50 rounded-xl">
                     <div class="flex items-center justify-between mb-2">
                         <span class="text-slate-600">Subtotale:</span>
                         <span class="font-semibold" id="prevSubtotale">€ 0,00</span>
-                    </div>
-                    <div class="flex items-center justify-between mb-2" id="prevFrequenzaRow" style="display:none">
-                        <span class="text-slate-600" id="prevFrequenzaLabel">Moltiplicatore:</span>
-                        <span class="font-semibold text-amber-600" id="prevFrequenzaVal">x1</span>
                     </div>
                     <div class="flex items-center justify-between mb-2" id="prevScontoRow" style="display:none">
                         <span class="text-slate-600">Sconto globale:</span>
@@ -390,7 +366,7 @@ include __DIR__ . '/includes/header.php';
                     </div>
                     <div class="flex items-center justify-between pt-2 border-t border-slate-200">
                         <span class="text-lg font-bold text-slate-800">TOTALE:</span>
-                        <span class="text-2xl font-bold" id="prevTotale" style="color:#151e26">€ 0,00</span>
+                        <span class="text-2xl font-bold" id="prevTotale" class="text-cyan-600">€ 0,00</span>
                     </div>
                 </div>
             </div>
@@ -409,7 +385,7 @@ include __DIR__ . '/includes/header.php';
                     <span class="sm:hidden">Salva</span>
                 </button>
                 <button onclick="generaPreventivo()" 
-                        class="flex-1 sm:flex-none px-4 sm:px-6 py-2.5 sm:py-2 bg-[#151e26] hover:bg-[#0d1117] text-white rounded-lg font-medium flex items-center justify-center gap-2 min-h-[44px] transition-colors text-sm sm:text-base">
+                        class="flex-1 sm:flex-none px-4 sm:px-6 py-2.5 sm:py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg font-medium flex items-center justify-center gap-2 min-h-[44px] transition-colors text-sm sm:text-base">
                     <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                     </svg>
@@ -513,7 +489,7 @@ function renderPreventiviSalvati(preventivi) {
                 
                 <div class="flex gap-2">
                     <button onclick="visualizzaPreventivoSalvato(${p.id})" 
-                            class="flex-1 px-3 py-2 bg-cyan-50 hover:bg-cyan-100 text-cyan-700 rounded-lg text-sm font-medium transition-colors">
+                            class="flex-1 px-3 py-2 bg-cyan-600/5 hover:bg-cyan-600/10 text-cyan-600 rounded-lg text-sm font-medium transition-colors">
                         Visualizza
                     </button>
                     ${p.file_path ? `
@@ -582,7 +558,7 @@ async function visualizzaPreventivoSalvato(id) {
                             ` : ''}
                             <div class="flex justify-between text-lg font-bold mt-3">
                                 <span>Totale:</span>
-                                <span class="" style="color:#151e26">€${parseFloat(p.totale).toFixed(2)}</span>
+                                <span class="" class="text-cyan-600">€${parseFloat(p.totale).toFixed(2)}</span>
                             </div>
                         </div>
                     </div>
@@ -592,7 +568,7 @@ async function visualizzaPreventivoSalvato(id) {
                         </button>
                         ${p.file_path ? `
                         <a href="assets/uploads/preventivi/${p.file_path}" target="_blank"
-                           class="flex-1 sm:flex-none px-4 sm:px-6 py-2.5 sm:py-2 bg-[#151e26] hover:bg-[#0d1117] text-white rounded-lg font-medium flex items-center justify-center gap-2 min-h-[44px] transition-colors text-sm sm:text-base">
+                           class="flex-1 sm:flex-none px-4 sm:px-6 py-2.5 sm:py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg font-medium flex items-center justify-center gap-2 min-h-[44px] transition-colors text-sm sm:text-base">
                             <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
@@ -783,7 +759,7 @@ function renderPreventivi() {
                 </div>
                 <div class="flex items-center gap-2">
                     <button onclick="openVoceModal(${cat.id})" 
-                            class="px-3 py-1.5 bg-[#151e26] hover:bg-[#0d1117] text-white rounded-lg text-sm font-medium flex items-center gap-1">
+                            class="px-3 py-1.5 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg text-sm font-medium flex items-center gap-1">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                         </svg>
@@ -835,7 +811,7 @@ function renderPreventivi() {
                                 <td class="px-5 py-4 text-right font-bold text-cyan-600">€ ${prezzoFinale.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
                                 <td class="px-5 py-4 text-center">
                                     <div class="flex items-center justify-center gap-1">
-                                        <button onclick="editVoce(${v.id})" class="p-1.5 text-slate-400 hover:text-cyan-600 hover:bg-cyan-50 rounded">
+                                        <button onclick="editVoce(${v.id})" class="p-1.5 text-slate-400 hover:text-cyan-600 hover:bg-cyan-600/5 rounded">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                                             </svg>
@@ -1122,7 +1098,7 @@ function renderPreventivoServiziFromListino(categorie) {
                                 <input type="checkbox" id="prev-voce-${v.id}" value="${v.id}" 
                                        data-prezzo="${v.prezzo}"
                                        data-nome="${escapeHtml(v.tipo_servizio)}"
-                                       class="w-5 h-5 text-cyan-600 rounded border-slate-300 focus:ring-[#151e26] cursor-pointer"
+                                       class="w-5 h-5 text-cyan-600 rounded border-slate-300 focus:ring-cyan-500 cursor-pointer"
                                        onchange="toggleServizio('${v.id}')">
                             </div>
                             
@@ -1138,10 +1114,10 @@ function renderPreventivoServiziFromListino(categorie) {
                                     <div class="text-right flex-shrink-0">
                                         ${hasSconto ? `
                                             <p class="text-xs text-slate-400 line-through">€ ${v.prezzo.toLocaleString('it-IT', {minimumFractionDigits: 2})}</p>
-                                            <p class="font-bold" style="color:#151e26">€ ${prezzoFinale.toLocaleString('it-IT', {minimumFractionDigits: 2})}</p>
+                                            <p class="font-bold" class="text-cyan-600">€ ${prezzoFinale.toLocaleString('it-IT', {minimumFractionDigits: 2})}</p>
                                             <span class="text-xs bg-red-100 text-red-600 px-1.5 py-0.5 rounded">-${v.sconto_percentuale}%</span>
                                         ` : `
-                                            <p class="font-bold" style="color:#151e26">€ ${v.prezzo.toLocaleString('it-IT', {minimumFractionDigits: 2})}</p>
+                                            <p class="font-bold" class="text-cyan-600">€ ${v.prezzo.toLocaleString('it-IT', {minimumFractionDigits: 2})}</p>
                                         `}
                                     </div>
                                 </div>
@@ -1152,7 +1128,7 @@ function renderPreventivoServiziFromListino(categorie) {
                                         <div>
                                             <span class="text-xs text-slate-600 block mb-1">Prezzo €:</span>
                                             <input type="number" id="prezzo-${v.id}" value="${v.prezzo}" min="0" step="0.01"
-                                                   class="w-full px-2 py-1 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#151e26]"
+                                                   class="w-full px-2 py-1 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
                                                    onchange="updatePreventivoPreview()">
                                         </div>
                                         <div>
@@ -1170,7 +1146,7 @@ function renderPreventivoServiziFromListino(categorie) {
                                         <div>
                                             <span class="text-xs text-slate-600 block mb-1">Sconto %:</span>
                                             <input type="number" id="sconto-${v.id}" value="0" min="0" max="100" 
-                                                   class="w-full px-2 py-1 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#151e26]"
+                                                   class="w-full px-2 py-1 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
                                                    onchange="updatePreventivoPreview()">
                                         </div>
                                         <div>
@@ -1196,10 +1172,10 @@ function toggleServizio(id) {
     
     if (checkbox.checked) {
         controls.classList.remove('hidden');
-        row.classList.add('bg-cyan-50', 'border-l-4', 'border-l-cyan-500');
+        row.classList.add('bg-cyan-600/5', 'border-l-4', 'border-l-cyan-500');
     } else {
         controls.classList.add('hidden');
-        row.classList.remove('bg-cyan-50', 'border-l-4', 'border-l-cyan-500');
+        row.classList.remove('bg-cyan-600/5', 'border-l-4', 'border-l-cyan-500');
         document.getElementById(`qty-${id}`).value = 1;
     }
     
@@ -1260,7 +1236,7 @@ function renderPreventivoServiziListino() {
                                        data-prezzo="${prezzoFinale}"
                                        data-nome="${escapeHtml(v.tipo_servizio)}"
                                        data-categoria="${escapeHtml(cat.nome)}"
-                                       class="w-5 h-5 text-cyan-600 rounded border-slate-300 focus:ring-[#151e26] cursor-pointer"
+                                       class="w-5 h-5 text-cyan-600 rounded border-slate-300 focus:ring-cyan-500 cursor-pointer"
                                        onchange="toggleServizio('${v.id}')">
                             </div>
                             
@@ -1276,10 +1252,10 @@ function renderPreventivoServiziListino() {
                                     <div class="text-right flex-shrink-0">
                                         ${hasSconto ? `
                                             <p class="text-xs text-slate-400 line-through">€ ${v.prezzo.toLocaleString('it-IT', {minimumFractionDigits: 2})}</p>
-                                            <p class="font-bold" style="color:#151e26">€ ${prezzoFinale.toLocaleString('it-IT', {minimumFractionDigits: 2})}</p>
+                                            <p class="font-bold" class="text-cyan-600">€ ${prezzoFinale.toLocaleString('it-IT', {minimumFractionDigits: 2})}</p>
                                             <span class="text-xs bg-red-100 text-red-600 px-1.5 py-0.5 rounded">-${v.sconto_percentuale}%</span>
                                         ` : `
-                                            <p class="font-bold" style="color:#151e26">€ ${v.prezzo.toLocaleString('it-IT', {minimumFractionDigits: 2})}</p>
+                                            <p class="font-bold" class="text-cyan-600">€ ${v.prezzo.toLocaleString('it-IT', {minimumFractionDigits: 2})}</p>
                                         `}
                                     </div>
                                 </div>
@@ -1337,7 +1313,7 @@ function renderPreventivoServizi() {
                     return `
                     <div class="px-4 py-3 flex items-center gap-3 hover:bg-slate-50">
                         <input type="checkbox" id="prev-voce-${v.id}" value="${v.id}" 
-                               class="w-4 h-4 text-cyan-600 rounded border-slate-300 focus:ring-[#151e26]"
+                               class="w-4 h-4 text-cyan-600 rounded border-slate-300 focus:ring-cyan-500"
                                onchange="updatePreventivoPreview()">
                         <label for="prev-voce-${v.id}" class="flex-1 cursor-pointer">
                             <div class="flex items-center justify-between">
@@ -1346,7 +1322,7 @@ function renderPreventivoServizi() {
                                     <p class="text-xs text-slate-500">${v.descrizione ? v.descrizione.substring(0, 60) + '...' : ''}</p>
                                 </div>
                                 <div class="text-right">
-                                    <p class="font-bold" style="color:#151e26">€ ${prezzoFinale.toLocaleString('it-IT', {minimumFractionDigits: 2})}</p>
+                                    <p class="font-bold" class="text-cyan-600">€ ${prezzoFinale.toLocaleString('it-IT', {minimumFractionDigits: 2})}</p>
                                     ${v.sconto_percentuale > 0 ? `<p class="text-xs text-green-600">-${v.sconto_percentuale}%</p>` : ''}
                                 </div>
                             </div>
@@ -1407,26 +1383,9 @@ function updatePreventivoPreview() {
     
     const scontoGlobale = parseFloat(document.getElementById('prevScontoGlobale').value) || 0;
     const scontoImporto = subtotale * (scontoGlobale / 100);
-    
-    // Gestione frequenza
-    const freqSelect = document.getElementById('prevFrequenza');
-    const moltiplicatore = freqSelect ? parseInt(freqSelect.value) || 1 : 1;
-    const freqText = freqSelect ? freqSelect.options[freqSelect.selectedIndex].text.split(' (')[0] : 'Una tantum';
-    
-    const subtotaleFreq = subtotale * moltiplicatore;
-    const totale = subtotaleFreq - scontoImporto;
+    const totale = subtotale - scontoImporto;
     
     document.getElementById('prevSubtotale').textContent = '€ ' + subtotale.toLocaleString('it-IT', {minimumFractionDigits: 2});
-    
-    // Mostra riga frequenza se > 1
-    const freqRow = document.getElementById('prevFrequenzaRow');
-    if (moltiplicatore > 1) {
-        freqRow.style.display = 'flex';
-        document.getElementById('prevFrequenzaLabel').textContent = freqText + ':';
-        document.getElementById('prevFrequenzaVal').textContent = 'x' + moltiplicatore;
-    } else {
-        freqRow.style.display = 'none';
-    }
     
     const scontoRow = document.getElementById('prevScontoRow');
     if (scontoGlobale > 0) {
@@ -1457,11 +1416,6 @@ async function generaPreventivo() {
         return;
     }
     
-    // Ottieni frequenza
-    const freqSelect = document.getElementById('prevFrequenza');
-    const freqValue = freqSelect ? freqSelect.value : '1';
-    const freqText = freqSelect ? freqSelect.options[freqSelect.selectedIndex].text.split(' (')[0] : 'Una tantum';
-    
     try {
         const response = await fetch('api/preventivi.php', {
             method: 'POST',
@@ -1473,9 +1427,7 @@ async function generaPreventivo() {
                 preventivo_num: document.getElementById('prevNumero').value,
                 note: document.getElementById('prevNote').value,
                 sconto_globale: document.getElementById('prevScontoGlobale').value,
-                data_scadenza: document.getElementById('prevScadenza').value,
-                frequenza: freqValue,
-                frequenza_testo: freqText
+                data_scadenza: document.getElementById('prevScadenza').value
             })
         });
         
@@ -1518,23 +1470,18 @@ async function salvaPreventivoGestionale() {
     const sconto = document.getElementById('prevScontoGlobale').value;
     const note = document.getElementById('prevNote').value;
     
-    // Ottieni frequenza
-    const freqSelect = document.getElementById('prevFrequenza');
-    const freqValue = freqSelect ? parseInt(freqSelect.value) || 1 : 1;
-    const freqText = freqSelect ? freqSelect.options[freqSelect.selectedIndex].text.split(' (')[0] : 'Una tantum';
-    
     // Calcola totali (incluso sconto singolo e quantità)
+    // NOTA: v.prezzo è il prezzo modificato dall'utente (che può essere diverso dal prezzo listino)
+    // Lo sconto listino è già stato applicato quando l'utente ha selezionato il servizio
     let subtotale = 0;
     preventivoVoci.forEach(v => {
-        const scontoListino = v.sconto_percentuale || 0;
         const scontoSingolo = v.sconto_singolo || 0;
         const qty = v.quantita || 1;
-        // Applica prima sconto listino, poi sconto singolo
-        const prezzoScontato = v.prezzo * (1 - scontoListino / 100) * (1 - scontoSingolo / 100);
+        // Applica solo lo sconto singolo al prezzo modificato
+        const prezzoScontato = v.prezzo * (1 - scontoSingolo / 100);
         subtotale += prezzoScontato * qty;
     });
-    const subtotaleFreq = subtotale * freqValue;
-    const totale = subtotaleFreq * (1 - parseFloat(sconto || 0) / 100);
+    const totale = subtotale * (1 - parseFloat(sconto || 0) / 100);
     
     const formData = new FormData();
     formData.append('action', 'salva_preventivo');
@@ -1547,8 +1494,6 @@ async function salvaPreventivoGestionale() {
     formData.append('servizi', JSON.stringify(preventivoVoci));
     formData.append('subtotale', subtotale.toFixed(2));
     formData.append('totale', totale.toFixed(2));
-    formData.append('frequenza', freqValue);
-    formData.append('frequenza_testo', freqText);
     
     try {
         const response = await fetch('api/preventivi.php', {
@@ -1601,7 +1546,7 @@ async function salvaPreventivoGestionale() {
                 
                 <div>
                     <label class="block text-sm font-medium text-slate-700 mb-2">Seleziona Progetto *</label>
-                    <select id="associaProgettoSelect" class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#151e26] outline-none">
+                    <select id="associaProgettoSelect" class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
                         <option value="">-- Seleziona un progetto --</option>
                         <?php foreach ($progetti as $prog): ?>
                             <option value="<?php echo e($prog['id']); ?>" data-cliente="<?php echo e($prog['cliente_id'] ?? ''); ?>">
