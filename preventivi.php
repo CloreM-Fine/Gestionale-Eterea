@@ -186,21 +186,21 @@ include __DIR__ . '/includes/header.php';
                 <div>
                     <label class="block text-sm font-medium text-slate-700 mb-2">Categoria *</label>
                     <select name="categoria_id" id="voceCategoria" required
-                            class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
+                            class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#151e26] outline-none">
                     </select>
                 </div>
                 
                 <div>
                     <label class="block text-sm font-medium text-slate-700 mb-2">Tipo Servizio *</label>
                     <input type="text" name="tipo_servizio" id="voceTipo" required
-                           class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none"
+                           class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#151e26] outline-none"
                            placeholder="es. Sito Web Vetrina">
                 </div>
                 
                 <div>
                     <label class="block text-sm font-medium text-slate-700 mb-2">Descrizione</label>
                     <textarea name="descrizione" id="voceDescrizione" rows="3"
-                              class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none resize-none"
+                              class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#151e26] outline-none resize-none"
                               placeholder="Descrivi il servizio..."></textarea>
                 </div>
                 
@@ -208,13 +208,13 @@ include __DIR__ . '/includes/header.php';
                     <div>
                         <label class="block text-sm font-medium text-slate-700 mb-2">Prezzo (€) *</label>
                         <input type="number" name="prezzo" id="vocePrezzo" required min="0" step="0.01"
-                               class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none"
+                               class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#151e26] outline-none"
                                placeholder="0.00">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-slate-700 mb-2">Sconto %</label>
                         <input type="number" name="sconto_percentuale" id="voceSconto" min="0" max="100" value="0"
-                               class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
+                               class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#151e26] outline-none">
                     </div>
                 </div>
                 
@@ -226,7 +226,7 @@ include __DIR__ . '/includes/header.php';
                         Frequenza di pagamento
                     </label>
                     <select name="frequenza" id="voceFrequenza"
-                            class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none bg-white">
+                            class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#151e26] outline-none bg-white">
                         <option value="1">Una tantum</option>
                         <option value="2">Settimanale</option>
                         <option value="3">Mensile</option>
@@ -269,7 +269,7 @@ include __DIR__ . '/includes/header.php';
             <div class="p-6">
                 <label class="block text-sm font-medium text-slate-700 mb-2">Nome Categoria *</label>
                 <input type="text" id="categoriaNome" 
-                       class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none"
+                       class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#151e26] outline-none"
                        placeholder="es. Consulenza">
             </div>
             
@@ -307,17 +307,17 @@ include __DIR__ . '/includes/header.php';
                     <div>
                         <label class="block text-sm font-medium text-slate-700 mb-2">Cliente *</label>
                         <select id="prevClienteSelect" onchange="updateClienteInput()"
-                                class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none mb-2">
+                                class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#151e26] outline-none mb-2">
                             <option value="">-- Seleziona cliente --</option>
                         </select>
                         <input type="text" id="prevCliente" 
-                               class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none"
+                               class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#151e26] outline-none"
                                placeholder="Oppure scrivi nome cliente manualmente">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-slate-700 mb-2">N. Preventivo</label>
                         <input type="text" id="prevNumero" 
-                               class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none"
+                               class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#151e26] outline-none"
                                placeholder="PREV-2024-001">
                     </div>
                 </div>
@@ -326,12 +326,12 @@ include __DIR__ . '/includes/header.php';
                     <div>
                         <label class="block text-sm font-medium text-slate-700 mb-2">Valido fino al *</label>
                         <input type="date" id="prevScadenza" 
-                               class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
+                               class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#151e26] outline-none">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-slate-700 mb-2">Sconto Globale %</label>
                         <input type="number" id="prevScontoGlobale" min="0" max="100" value="0"
-                               class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none"
+                               class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#151e26] outline-none"
                                onchange="updatePreventivoPreview()">
                     </div>
                 </div>
@@ -339,7 +339,7 @@ include __DIR__ . '/includes/header.php';
                 <div class="mb-6">
                     <label class="block text-sm font-medium text-slate-700 mb-2">Note</label>
                     <textarea id="prevNote" rows="2"
-                              class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none resize-none"
+                              class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#151e26] outline-none resize-none"
                               placeholder="Note aggiuntive per il cliente..."></textarea>
                 </div>
                 
@@ -582,7 +582,7 @@ async function visualizzaPreventivoSalvato(id) {
                             ` : ''}
                             <div class="flex justify-between text-lg font-bold mt-3">
                                 <span>Totale:</span>
-                                <span class="text-cyan-600">€${parseFloat(p.totale).toFixed(2)}</span>
+                                <span class="" style="color:#151e26">€${parseFloat(p.totale).toFixed(2)}</span>
                             </div>
                         </div>
                     </div>
@@ -1122,7 +1122,7 @@ function renderPreventivoServiziFromListino(categorie) {
                                 <input type="checkbox" id="prev-voce-${v.id}" value="${v.id}" 
                                        data-prezzo="${v.prezzo}"
                                        data-nome="${escapeHtml(v.tipo_servizio)}"
-                                       class="w-5 h-5 text-cyan-600 rounded border-slate-300 focus:ring-cyan-500 cursor-pointer"
+                                       class="w-5 h-5 text-cyan-600 rounded border-slate-300 focus:ring-[#151e26] cursor-pointer"
                                        onchange="toggleServizio('${v.id}')">
                             </div>
                             
@@ -1138,10 +1138,10 @@ function renderPreventivoServiziFromListino(categorie) {
                                     <div class="text-right flex-shrink-0">
                                         ${hasSconto ? `
                                             <p class="text-xs text-slate-400 line-through">€ ${v.prezzo.toLocaleString('it-IT', {minimumFractionDigits: 2})}</p>
-                                            <p class="font-bold text-cyan-600">€ ${prezzoFinale.toLocaleString('it-IT', {minimumFractionDigits: 2})}</p>
+                                            <p class="font-bold" style="color:#151e26">€ ${prezzoFinale.toLocaleString('it-IT', {minimumFractionDigits: 2})}</p>
                                             <span class="text-xs bg-red-100 text-red-600 px-1.5 py-0.5 rounded">-${v.sconto_percentuale}%</span>
                                         ` : `
-                                            <p class="font-bold text-cyan-600">€ ${v.prezzo.toLocaleString('it-IT', {minimumFractionDigits: 2})}</p>
+                                            <p class="font-bold" style="color:#151e26">€ ${v.prezzo.toLocaleString('it-IT', {minimumFractionDigits: 2})}</p>
                                         `}
                                     </div>
                                 </div>
@@ -1152,7 +1152,7 @@ function renderPreventivoServiziFromListino(categorie) {
                                         <div>
                                             <span class="text-xs text-slate-600 block mb-1">Prezzo €:</span>
                                             <input type="number" id="prezzo-${v.id}" value="${v.prezzo}" min="0" step="0.01"
-                                                   class="w-full px-2 py-1 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                                                   class="w-full px-2 py-1 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#151e26]"
                                                    onchange="updatePreventivoPreview()">
                                         </div>
                                         <div>
@@ -1170,7 +1170,7 @@ function renderPreventivoServiziFromListino(categorie) {
                                         <div>
                                             <span class="text-xs text-slate-600 block mb-1">Sconto %:</span>
                                             <input type="number" id="sconto-${v.id}" value="0" min="0" max="100" 
-                                                   class="w-full px-2 py-1 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                                                   class="w-full px-2 py-1 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#151e26]"
                                                    onchange="updatePreventivoPreview()">
                                         </div>
                                         <div>
@@ -1260,7 +1260,7 @@ function renderPreventivoServiziListino() {
                                        data-prezzo="${prezzoFinale}"
                                        data-nome="${escapeHtml(v.tipo_servizio)}"
                                        data-categoria="${escapeHtml(cat.nome)}"
-                                       class="w-5 h-5 text-cyan-600 rounded border-slate-300 focus:ring-cyan-500 cursor-pointer"
+                                       class="w-5 h-5 text-cyan-600 rounded border-slate-300 focus:ring-[#151e26] cursor-pointer"
                                        onchange="toggleServizio('${v.id}')">
                             </div>
                             
@@ -1276,10 +1276,10 @@ function renderPreventivoServiziListino() {
                                     <div class="text-right flex-shrink-0">
                                         ${hasSconto ? `
                                             <p class="text-xs text-slate-400 line-through">€ ${v.prezzo.toLocaleString('it-IT', {minimumFractionDigits: 2})}</p>
-                                            <p class="font-bold text-cyan-600">€ ${prezzoFinale.toLocaleString('it-IT', {minimumFractionDigits: 2})}</p>
+                                            <p class="font-bold" style="color:#151e26">€ ${prezzoFinale.toLocaleString('it-IT', {minimumFractionDigits: 2})}</p>
                                             <span class="text-xs bg-red-100 text-red-600 px-1.5 py-0.5 rounded">-${v.sconto_percentuale}%</span>
                                         ` : `
-                                            <p class="font-bold text-cyan-600">€ ${v.prezzo.toLocaleString('it-IT', {minimumFractionDigits: 2})}</p>
+                                            <p class="font-bold" style="color:#151e26">€ ${v.prezzo.toLocaleString('it-IT', {minimumFractionDigits: 2})}</p>
                                         `}
                                     </div>
                                 </div>
@@ -1337,7 +1337,7 @@ function renderPreventivoServizi() {
                     return `
                     <div class="px-4 py-3 flex items-center gap-3 hover:bg-slate-50">
                         <input type="checkbox" id="prev-voce-${v.id}" value="${v.id}" 
-                               class="w-4 h-4 text-cyan-600 rounded border-slate-300 focus:ring-cyan-500"
+                               class="w-4 h-4 text-cyan-600 rounded border-slate-300 focus:ring-[#151e26]"
                                onchange="updatePreventivoPreview()">
                         <label for="prev-voce-${v.id}" class="flex-1 cursor-pointer">
                             <div class="flex items-center justify-between">
@@ -1346,7 +1346,7 @@ function renderPreventivoServizi() {
                                     <p class="text-xs text-slate-500">${v.descrizione ? v.descrizione.substring(0, 60) + '...' : ''}</p>
                                 </div>
                                 <div class="text-right">
-                                    <p class="font-bold text-cyan-600">€ ${prezzoFinale.toLocaleString('it-IT', {minimumFractionDigits: 2})}</p>
+                                    <p class="font-bold" style="color:#151e26">€ ${prezzoFinale.toLocaleString('it-IT', {minimumFractionDigits: 2})}</p>
                                     ${v.sconto_percentuale > 0 ? `<p class="text-xs text-green-600">-${v.sconto_percentuale}%</p>` : ''}
                                 </div>
                             </div>
@@ -1601,7 +1601,7 @@ async function salvaPreventivoGestionale() {
                 
                 <div>
                     <label class="block text-sm font-medium text-slate-700 mb-2">Seleziona Progetto *</label>
-                    <select id="associaProgettoSelect" class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
+                    <select id="associaProgettoSelect" class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#151e26] outline-none">
                         <option value="">-- Seleziona un progetto --</option>
                         <?php foreach ($progetti as $prog): ?>
                             <option value="<?php echo e($prog['id']); ?>" data-cliente="<?php echo e($prog['cliente_id'] ?? ''); ?>">

@@ -461,7 +461,7 @@ function generaHTMLPreventivo(array $voci, string $cliente, string $numero, stri
             align-items: flex-start;
             margin-bottom: 40px;
             padding-bottom: 20px;
-            border-bottom: 3px solid #0891b2;
+            border-bottom: 3px solid #151e26;
         }
         .logo { 
             display: flex; 
@@ -471,7 +471,7 @@ function generaHTMLPreventivo(array $voci, string $cliente, string $numero, stri
         .logo-icon {
             width: 50px;
             height: 50px;
-            background: linear-gradient(135deg, #0891b2, #06b6d4);
+            background: linear-gradient(135deg, #151e26, #151e26);
             border-radius: 10px;
             display: flex;
             align-items: center;
@@ -480,12 +480,12 @@ function generaHTMLPreventivo(array $voci, string $cliente, string $numero, stri
             font-size: 20px;
             font-weight: 700;
         }
-        .logo-text h1 { font-size: 24px; font-weight: 700; color: #0891b2; }
+        .logo-text h1 { font-size: 24px; font-weight: 700; color: #151e26; }
         .logo-text p { font-size: 11px; color: #64748b; }
         .doc-info { text-align: right; }
         .doc-info h2 { 
             font-size: 18px; 
-            color: #0891b2; 
+            color: #151e26; 
             margin-bottom: 8px;
             text-transform: uppercase;
             letter-spacing: 1px;
@@ -542,7 +542,7 @@ function generaHTMLPreventivo(array $voci, string $cliente, string $numero, stri
             border-bottom: 1px solid #cbd5e1;
         }
         tr.categoria td strong {
-            color: #0891b2;
+            color: #151e26;
             font-size: 12px;
         }
         
@@ -554,7 +554,7 @@ function generaHTMLPreventivo(array $voci, string $cliente, string $numero, stri
         .totals table { margin: 0; }
         .totals td { padding: 8px; border: none; }
         .totals tr:last-child { 
-            background: linear-gradient(135deg, #0891b2, #06b6d4);
+            background: linear-gradient(135deg, #151e26, #151e26);
             color: white;
             font-size: 14px;
             font-weight: 700;
@@ -679,7 +679,7 @@ function generaHTMLPreventivo(array $voci, string $cliente, string $numero, stri
     </div>
     
     <div class="no-print" style="margin-top:30px;text-align:center;padding:20px;background:#f8fafc;border-radius:8px;">
-        <button onclick="window.print()" style="padding:12px 24px;background:#0891b2;color:white;border:none;border-radius:6px;cursor:pointer;font-size:14px;">
+        <button onclick="window.print()" style="padding:12px 24px;background:#151e26;color:white;border:none;border-radius:6px;cursor:pointer;font-size:14px;">
             🖨️ Stampa / Salva PDF
         </button>
         <p style="margin-top:10px;font-size:11px;color:#64748b;">
