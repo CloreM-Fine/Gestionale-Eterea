@@ -59,7 +59,7 @@ include __DIR__ . '/includes/header.php';
                 Nuova Categoria
             </button>
             <button onclick="openPreventivoModal()" 
-                    class="px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg font-medium flex items-center gap-2 transition-colors">
+                    class="px-4 py-2 bg-[#151e26] hover:bg-[#0d1117] text-white rounded-lg font-medium flex items-center gap-2 transition-colors">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                 </svg>
@@ -244,7 +244,7 @@ include __DIR__ . '/includes/header.php';
                     Annulla
                 </button>
                 <button type="button" onclick="saveVoce()" 
-                        class="flex-1 sm:flex-none px-4 sm:px-6 py-2.5 sm:py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg font-medium min-h-[44px] transition-colors text-sm sm:text-base">
+                        class="flex-1 sm:flex-none px-4 sm:px-6 py-2.5 sm:py-2 bg-[#151e26] hover:bg-[#0d1117] text-white rounded-lg font-medium min-h-[44px] transition-colors text-sm sm:text-base">
                     Salva
                 </button>
             </div>
@@ -279,7 +279,7 @@ include __DIR__ . '/includes/header.php';
                     Annulla
                 </button>
                 <button onclick="saveCategoria()" 
-                        class="flex-1 sm:flex-none px-4 sm:px-6 py-2.5 sm:py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg font-medium min-h-[44px] transition-colors text-sm sm:text-base">
+                        class="flex-1 sm:flex-none px-4 sm:px-6 py-2.5 sm:py-2 bg-[#151e26] hover:bg-[#0d1117] text-white rounded-lg font-medium min-h-[44px] transition-colors text-sm sm:text-base">
                     Salva
                 </button>
             </div>
@@ -390,7 +390,7 @@ include __DIR__ . '/includes/header.php';
                     </div>
                     <div class="flex items-center justify-between pt-2 border-t border-slate-200">
                         <span class="text-lg font-bold text-slate-800">TOTALE:</span>
-                        <span class="text-2xl font-bold text-cyan-600" id="prevTotale">€ 0,00</span>
+                        <span class="text-2xl font-bold" id="prevTotale" style="color:#151e26">€ 0,00</span>
                     </div>
                 </div>
             </div>
@@ -409,7 +409,7 @@ include __DIR__ . '/includes/header.php';
                     <span class="sm:hidden">Salva</span>
                 </button>
                 <button onclick="generaPreventivo()" 
-                        class="flex-1 sm:flex-none px-4 sm:px-6 py-2.5 sm:py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg font-medium flex items-center justify-center gap-2 min-h-[44px] transition-colors text-sm sm:text-base">
+                        class="flex-1 sm:flex-none px-4 sm:px-6 py-2.5 sm:py-2 bg-[#151e26] hover:bg-[#0d1117] text-white rounded-lg font-medium flex items-center justify-center gap-2 min-h-[44px] transition-colors text-sm sm:text-base">
                     <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                     </svg>
@@ -592,7 +592,7 @@ async function visualizzaPreventivoSalvato(id) {
                         </button>
                         ${p.file_path ? `
                         <a href="assets/uploads/preventivi/${p.file_path}" target="_blank"
-                           class="flex-1 sm:flex-none px-4 sm:px-6 py-2.5 sm:py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg font-medium flex items-center justify-center gap-2 min-h-[44px] transition-colors text-sm sm:text-base">
+                           class="flex-1 sm:flex-none px-4 sm:px-6 py-2.5 sm:py-2 bg-[#151e26] hover:bg-[#0d1117] text-white rounded-lg font-medium flex items-center justify-center gap-2 min-h-[44px] transition-colors text-sm sm:text-base">
                             <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
@@ -783,7 +783,7 @@ function renderPreventivi() {
                 </div>
                 <div class="flex items-center gap-2">
                     <button onclick="openVoceModal(${cat.id})" 
-                            class="px-3 py-1.5 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg text-sm font-medium flex items-center gap-1">
+                            class="px-3 py-1.5 bg-[#151e26] hover:bg-[#0d1117] text-white rounded-lg text-sm font-medium flex items-center gap-1">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                         </svg>
