@@ -236,23 +236,29 @@ function generaPreventivo(): void {
         $stmt->execute($ids);
         $voci = $stmt->fetchAll();
         
-        // Mappa le quantità personalizzate
+        // Mappa le quantità e sconti personalizzati
         $quantitaMap = [];
+        $scontoSingoloMap = [];
         foreach ($vociSelezionate as $v) {
             $quantitaMap[$v['id']] = $v['quantita'] ?? 1;
+            $scontoSingoloMap[$v['id']] = $v['sconto_singolo'] ?? 0;
         }
         
         // Calcola totali
         $subtotale = 0;
         foreach ($voci as &$voce) {
             $qty = $quantitaMap[$voce['id']] ?? 1;
+            $scontoSingolo = floatval($scontoSingoloMap[$voce['id']] ?? 0);
             $prezzoUnitario = floatval($voce['prezzo']);
-            $scontoPerc = intval($voce['sconto_percentuale']);
+            $scontoListino = intval($voce['sconto_percentuale']);
             
-            $prezzoScontato = $prezzoUnitario * (1 - $scontoPerc / 100);
+            // Applica prima lo sconto del listino, poi quello singolo
+            $prezzoConScontoListino = $prezzoUnitario * (1 - $scontoListino / 100);
+            $prezzoScontato = $prezzoConScontoListino * (1 - $scontoSingolo / 100);
             $totaleVoce = $prezzoScontato * $qty;
             
             $voce['quantita'] = $qty;
+            $voce['sconto_singolo'] = $scontoSingolo;
             $voce['prezzo_scontato'] = $prezzoScontato;
             $voce['totale'] = $totaleVoce;
             
@@ -399,7 +405,21 @@ function generaHTMLPreventivo(array $voci, string $cliente, string $numero, stri
             $tipoEsc = htmlspecialchars($item['tipo_servizio']);
             $descEsc = htmlspecialchars($item['descrizione'] ?? '');
             $prezzoForm = number_format($item['prezzo'], 2, ',', '.');
-            $sconto = $item['sconto_percentuale'] > 0 ? "-{$item['sconto_percentuale']}%" : '-';
+            
+            // Gestione sconti combinati
+            $scontoListino = intval($item['sconto_percentuale']);
+            $scontoSingolo = floatval($item['sconto_singolo'] ?? 0);
+            
+            if ($scontoListino > 0 && $scontoSingolo > 0) {
+                $sconto = "-{$scontoListino}% + -{$scontoSingolo}%";
+            } elseif ($scontoListino > 0) {
+                $sconto = "-{$scontoListino}%";
+            } elseif ($scontoSingolo > 0) {
+                $sconto = "-{$scontoSingolo}%";
+            } else {
+                $sconto = '-';
+            }
+            
             $totaleForm = number_format($item['totale'], 2, ',', '.');
             
             $righe .= "<tr><td>{$tipoEsc}</td><td>{$descEsc}</td><td style='text-align:center'>{$qty}</td><td style='text-align:right'>€ {$prezzoForm}</td><td style='text-align:center'>{$sconto}</td><td style='text-align:right'><strong>€ {$totaleForm}</strong></td></tr>";
