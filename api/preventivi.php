@@ -776,104 +776,25 @@ function salvaPreventivoGestionale(): void {
 }
 
 /**
- * Genera HTML del preventivo salvato (versione semplificata)
+ * Genera HTML del preventivo salvato (usa stessa impaginazione del PDF)
  */
 function generaHTMLPreventivoSalvato(array $voci, string $cliente, string $numero, string $note, float $scontoGlobale, float $subtotale, float $totale, string $dataScadenza = ''): string {
-    $data = date('d/m/Y');
-    $validita = $dataScadenza ? date('d/m/Y', strtotime($dataScadenza)) : date('d/m/Y', strtotime('+30 days'));
-    $clienteEsc = htmlspecialchars($cliente);
-    $numeroEsc = htmlspecialchars($numero);
-    $noteEsc = $note ? nl2br(htmlspecialchars($note)) : '';
-    
-    $righe = '';
+    // Converte il formato dati salvati nel formato usato da generaHTMLPreventivo
+    $vociFormattate = [];
     foreach ($voci as $v) {
-        $nome = htmlspecialchars($v['tipo_servizio']);
-        $desc = htmlspecialchars($v['descrizione'] ?? '');
-        $prezzo = number_format($v['prezzo'], 2, ',', '.');
-        $sconto = $v['sconto_percentuale'] ?? 0;
-        $prezzoFinale = $v['prezzo'] * (1 - $sconto / 100);
-        $prezzoFinaleFmt = number_format($prezzoFinale, 2, ',', '.');
-        
-        $scontoHtml = $sconto > 0 ? "<br><small style='color:#dc2626;'>-{$sconto}%</small>" : '';
-        
-        $righe .= "
-        <tr>
-            <td><strong>{$nome}</strong><br><small style='color:#64748b;'>{$desc}</small></td>
-            <td style='text-align:right;'>€ {$prezzo}{$scontoHtml}</td>
-        </tr>
-        ";
+        $vociFormattate[] = [
+            'tipo_servizio' => $v['tipo_servizio'] ?? $v['nome'] ?? 'Servizio',
+            'descrizione' => $v['descrizione'] ?? '',
+            'prezzo' => $v['prezzo'] ?? 0,
+            'categoria_nome' => $v['categoria_nome'] ?? 'Servizi',
+            'quantita' => $v['quantita'] ?? 1,
+            'sconto_percentuale' => $v['sconto_percentuale'] ?? 0,
+            'sconto_singolo' => $v['sconto_singolo'] ?? 0
+        ];
     }
     
-    $scontoHtml = $scontoGlobale > 0 ? "
-    <div style='background:#fef3c7;padding:15px;border-radius:6px;margin:15px 0;'>
-        <strong>Sconto applicato: {$scontoGlobale}%</strong>
-    </div>
-    " : '';
-    
-    $noteHtml = $note ? "
-    <div style='margin:20px 0;padding:15px;background:#f8fafc;border-radius:6px;'>
-        <h4 style='margin:0 0 10px;color:#475569;'>Note</h4>
-        <p style='margin:0;color:#64748b;'>{$noteEsc}</p>
-    </div>
-    " : '';
-    
-    return <<<HTML
-<!DOCTYPE html>
-<html lang="it">
-<head>
-    <meta charset="UTF-8">
-    <title>Preventivo {$numeroEsc}</title>
-    <style>
-        body { font-family: Arial, sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; color: #333; }
-        .header { text-align: center; border-bottom: 3px solid #0891b2; padding-bottom: 20px; margin-bottom: 30px; }
-        .header h1 { color: #0891b2; margin: 0; font-size: 28px; }
-        .header p { color: #64748b; margin: 5px 0; }
-        .info-box { background: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0; }
-        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-        th { background: #f1f5f9; padding: 12px; text-align: left; font-weight: 600; }
-        td { padding: 12px; border-bottom: 1px solid #e2e8f0; }
-        .totale { text-align: right; font-size: 20px; font-weight: bold; color: #0891b2; margin-top: 20px; }
-        @media print { .no-print { display: none; } body { margin: 0; } }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <h1>PREVENTIVO</h1>
-        <p>N. {$numeroEsc} - del {$data}</p>
-    </div>
-    
-    <div class="info-box">
-        <strong>Cliente:</strong> {$clienteEsc}<br>
-        <strong>Valido fino al:</strong> {$validita}
-    </div>
-    
-    <table>
-        <thead>
-            <tr>
-                <th>Servizio</th>
-                <th style="text-align:right;">Prezzo</th>
-            </tr>
-        </thead>
-        <tbody>
-            {$righe}
-        </tbody>
-    </table>
-    
-    {$scontoHtml}
-    {$noteHtml}
-    
-    <div class="totale">
-        TOTALE: € {$totale}
-    </div>
-    
-    <div class="no-print" style="margin-top:30px;text-align:center;padding:20px;background:#f8fafc;border-radius:8px;">
-        <button onclick="window.print()" style="padding:12px 24px;background:#0891b2;color:white;border:none;border-radius:6px;cursor:pointer;">
-            🖨️ Stampa / Salva PDF
-        </button>
-    </div>
-</body>
-</html>
-HTML;
+    // Usa la stessa funzione di generazione HTML del PDF
+    return generaHTMLPreventivo($vociFormattate, $cliente, $numero, $note, $scontoGlobale, $subtotale, $totale, $dataScadenza);
 }
 
 

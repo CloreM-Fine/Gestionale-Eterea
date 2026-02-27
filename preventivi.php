@@ -1511,11 +1511,15 @@ async function salvaPreventivoGestionale() {
     const freqValue = freqSelect ? parseInt(freqSelect.value) || 1 : 1;
     const freqText = freqSelect ? freqSelect.options[freqSelect.selectedIndex].text.split(' (')[0] : 'Una tantum';
     
-    // Calcola totali
+    // Calcola totali (incluso sconto singolo e quantità)
     let subtotale = 0;
     preventivoVoci.forEach(v => {
-        const prezzoFinale = v.prezzo * (1 - (v.sconto_percentuale || 0) / 100);
-        subtotale += prezzoFinale;
+        const scontoListino = v.sconto_percentuale || 0;
+        const scontoSingolo = v.sconto_singolo || 0;
+        const qty = v.quantita || 1;
+        // Applica prima sconto listino, poi sconto singolo
+        const prezzoScontato = v.prezzo * (1 - scontoListino / 100) * (1 - scontoSingolo / 100);
+        subtotale += prezzoScontato * qty;
     });
     const subtotaleFreq = subtotale * freqValue;
     const totale = subtotaleFreq * (1 - parseFloat(sconto || 0) / 100);
