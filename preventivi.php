@@ -1110,6 +1110,8 @@ function renderPreventivoServiziFromListino(categorie) {
                                 <input type="checkbox" id="prev-voce-${v.id}" value="${v.id}" 
                                        data-prezzo="${v.prezzo}"
                                        data-nome="${escapeHtml(v.tipo_servizio)}"
+                                       data-descrizione="${escapeHtml(v.descrizione || '')}"
+                                       data-categoria="${escapeHtml(v.categoria_nome || 'Servizi')}"
                                        class="w-5 h-5 text-cyan-600 rounded border-slate-300 focus:ring-cyan-500 cursor-pointer"
                                        onchange="toggleServizio('${v.id}')">
                             </div>
@@ -1248,6 +1250,7 @@ function renderPreventivoServiziListino() {
                                 <input type="checkbox" id="prev-voce-${v.id}" value="${v.id}" 
                                        data-prezzo="${prezzoFinale}"
                                        data-nome="${escapeHtml(v.tipo_servizio)}"
+                                       data-descrizione="${escapeHtml(v.descrizione || '')}"
                                        data-categoria="${escapeHtml(cat.nome)}"
                                        class="w-5 h-5 text-cyan-600 rounded border-slate-300 focus:ring-cyan-500 cursor-pointer"
                                        onchange="toggleServizio('${v.id}')">
@@ -1384,7 +1387,9 @@ function updatePreventivoPreview() {
             prezzo_originale: prezzoOriginale,
             prezzo_scontato: prezzoScontato,
             sconto_singolo: scontoSingolo,
-            nome: checkbox.dataset.nome || ''
+            tipo_servizio: checkbox.dataset.nome || '',
+            categoria_nome: checkbox.dataset.categoria || 'Servizi',
+            descrizione: checkbox.dataset.descrizione || ''
         });
         
         // Aggiorna il totale visualizzato per questa riga
