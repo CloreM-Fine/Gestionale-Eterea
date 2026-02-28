@@ -43,90 +43,121 @@ $pageTitle = 'Preventivi';
 include __DIR__ . '/includes/header.php';
 ?>
 
-<!-- Editor HTML Custom -->
+<!-- Editor WYSIWYG Custom - Self-hosted -->
 <style>
-.html-editor-toolbar {
+.wysiwyg-toolbar {
     display: flex;
     gap: 4px;
-    padding: 8px;
+    padding: 8px 10px;
     background: #f8fafc;
     border: 1px solid #e2e8f0;
-    border-bottom: none;
+    border-bottom: 1px solid #e2e8f0;
     border-radius: 8px 8px 0 0;
 }
-.html-editor-toolbar button {
+.wysiwyg-toolbar button {
     padding: 6px 10px;
     background: white;
     border: 1px solid #e2e8f0;
-    border-radius: 4px;
+    border-radius: 6px;
     cursor: pointer;
-    font-size: 13px;
+    font-size: 14px;
     color: #475569;
-    transition: all 0.2s;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    height: 32px;
 }
-.html-editor-toolbar button:hover {
+.wysiwyg-toolbar button:hover {
     background: #f1f5f9;
     border-color: #cbd5e1;
+    color: #1e293b;
 }
-.html-editor-toolbar button.active {
+.wysiwyg-toolbar button.active {
     background: #0891b2;
     color: white;
     border-color: #0891b2;
 }
-.html-editor-toolbar .separator {
+.wysiwyg-toolbar .separator {
     width: 1px;
-    background: #e2e8f0;
-    margin: 0 4px;
+    background: #cbd5e1;
+    margin: 2px 6px;
 }
-#voceDescrizione {
-    border-radius: 0 0 8px 8px !important;
-    border-top: none !important;
-    font-family: monospace;
-    font-size: 13px;
-    min-height: 120px;
+#voceDescrizioneEditor {
+    min-height: 140px;
+    padding: 12px;
+    border: 1px solid #e2e8f0;
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #334155;
+    background: white;
+    outline: none;
+}
+#voceDescrizioneEditor:empty:before {
+    content: 'Descrivi il servizio...';
+    color: #94a3b8;
+    font-style: italic;
+}
+#voceDescrizioneEditor ul, #voceDescrizioneEditor ol {
+    margin: 8px 0;
+    padding-left: 24px;
+}
+#voceDescrizioneEditor li {
+    margin: 4px 0;
+}
+#voceDescrizioneEditor b, #voceDescrizioneEditor strong {
+    font-weight: 600;
+}
+#voceDescrizioneEditor i, #voceDescrizioneEditor em {
+    font-style: italic;
 }
 </style>
 <script>
-// Editor HTML Custom - Self-hosted
-function htmlEditorInsertTag(tag, attributes = '') {
-    const textarea = document.getElementById('voceDescrizione');
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const text = textarea.value;
-    const selected = text.substring(start, end);
+// Editor WYSIWYG Custom - Self-hosted
+const wysiwygEditor = {
+    init: function() {
+        this.editor = document.getElementById('voceDescrizioneEditor');
+        this.hiddenInput = document.getElementById('voceDescrizione');
+        
+        // Salva automaticamente il contenuto HTML nell'input nascosto
+        this.editor.addEventListener('input', () => {
+            this.hiddenInput.value = this.editor.innerHTML;
+        });
+    },
     
-    let insert = '';
-    if (tag === 'ul') {
-        insert = '\n<ul>\n  <li>Elemento 1</li>\n  <li>Elemento 2</li>\n</ul>\n';
-    } else if (tag === 'ol') {
-        insert = '\n<ol>\n  <li>Elemento 1</li>\n  <li>Elemento 2</li>\n</ol>\n';
-    } else if (tag === 'li') {
-        insert = '<li>' + (selected || 'Nuovo elemento') + '</li>';
-    } else {
-        insert = '<' + tag + (attributes ? ' ' + attributes : '') + '>' + (selected || '') + '</' + tag + '>';
+    format: function(command) {
+        this.editor.focus();
+        document.execCommand(command, false, null);
+        this.hiddenInput.value = this.editor.innerHTML;
+    },
+    
+    insertList: function(type) {
+        this.editor.focus();
+        if (type === 'ul') {
+            document.execCommand('insertUnorderedList', false, null);
+        } else {
+            document.execCommand('insertOrderedList', false, null);
+        }
+        this.hiddenInput.value = this.editor.innerHTML;
+    },
+    
+    setContent: function(html) {
+        this.editor.innerHTML = html || '';
+        this.hiddenInput.value = html || '';
+    },
+    
+    getContent: function() {
+        return this.editor.innerHTML;
     }
-    
-    textarea.value = text.substring(0, start) + insert + text.substring(end);
-    textarea.focus();
-    textarea.selectionStart = start + insert.length;
-    textarea.selectionEnd = start + insert.length;
-}
+};
 
-function htmlEditorWrapSelection(tag) {
-    const textarea = document.getElementById('voceDescrizione');
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const text = textarea.value;
-    const selected = text.substring(start, end);
-    
-    if (!selected) return;
-    
-    const wrapped = '<' + tag + '>' + selected + '</' + tag + '>';
-    textarea.value = text.substring(0, start) + wrapped + text.substring(end);
-    textarea.focus();
-    textarea.selectionStart = start;
-    textarea.selectionEnd = start + wrapped.length;
-}
+// Inizializza quando il DOM è pronto
+document.addEventListener('DOMContentLoaded', function() {
+    wysiwygEditor.init();
+});
 </script>
 
 <!-- Header -->
@@ -284,17 +315,27 @@ function htmlEditorWrapSelection(tag) {
                 </div>
                 
                 <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-2">Descrizione <span class="text-xs text-cyan-600 font-normal">(supporta HTML: &lt;b&gt;, &lt;i&gt;, &lt;ul&gt;, &lt;li&gt;)</span></label>
-                    <div class="html-editor-toolbar">
-                        <button type="button" onclick="htmlEditorWrapSelection('b')" title="Grassetto"><b>B</b></button>
-                        <button type="button" onclick="htmlEditorWrapSelection('i')" title="Corsivo"><i>I</i></button>
+                    <label class="block text-sm font-medium text-slate-700 mb-2">Descrizione</label>
+                    <div class="wysiwyg-toolbar">
+                        <button type="button" onclick="wysiwygEditor.format('bold')" title="Grassetto">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 12h8a4 4 0 100-8H6v8zm0 0h10a4 4 0 110 8H6v-8z"/>
+                            </svg>
+                        </button>
+                        <button type="button" onclick="wysiwygEditor.format('italic')" title="Corsivo">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4M6 16l-4-4"/>
+                            </svg>
+                        </button>
                         <span class="separator"></span>
-                        <button type="button" onclick="htmlEditorInsertTag('ul')" title="Lista puntata">• Lista</button>
-                        <button type="button" onclick="htmlEditorInsertTag('li')" title="Elemento lista">→ Voce</button>
+                        <button type="button" onclick="wysiwygEditor.insertList('ul')" title="Elenco puntato">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16M8 6l2 2-2 2M8 12l2 2-2 2M8 18l2 2-2 2"/>
+                            </svg>
+                        </button>
                     </div>
-                    <textarea name="descrizione" id="voceDescrizione" rows="5"
-                              class="w-full px-4 py-2.5 border border-slate-200 focus:ring-2 focus:ring-cyan-500 outline-none resize-none"
-                              placeholder="Descrivi il servizio... Usa i bottoni sopra per formattare."></textarea>
+                    <div id="voceDescrizioneEditor" contenteditable="true"></div>
+                    <input type="hidden" name="descrizione" id="voceDescrizione">
                 </div>
                 
                 <div class="grid grid-cols-2 gap-4">
@@ -970,8 +1011,8 @@ function openVoceModal(categoriaId, voceId = null) {
     const select = document.getElementById('voceCategoria');
     select.innerHTML = preventiviData.map(c => `<option value="${c.id}" ${c.id == categoriaId ? 'selected' : ''}>${c.nome}</option>`).join('');
     
-    // Reset editor
-    document.getElementById('voceDescrizione').value = '';
+    // Reset editor WYSIWYG
+    wysiwygEditor.setContent('');
     
     if (voceId) {
         // Trova voce esistente
@@ -982,8 +1023,8 @@ function openVoceModal(categoriaId, voceId = null) {
                 document.getElementById('vocePrezzo').value = voce.prezzo;
                 document.getElementById('voceSconto').value = voce.sconto_percentuale;
                 document.getElementById('voceFrequenza').value = voce.frequenza || '1';
-                // Carica descrizione nell'editor
-                document.getElementById('voceDescrizione').value = voce.descrizione || '';
+                // Carica descrizione nell'editor WYSIWYG
+                wysiwygEditor.setContent(voce.descrizione || '');
                 break;
             }
         }
@@ -994,6 +1035,10 @@ function openVoceModal(categoriaId, voceId = null) {
 
 async function saveVoce() {
     const form = document.getElementById('voceForm');
+    
+    // Sincronizza contenuto WYSIWYG
+    document.getElementById('voceDescrizione').value = wysiwygEditor.getContent();
+    
     const formData = new FormData(form);
     
     if (!formData.get('tipo_servizio') || !formData.get('prezzo')) {
