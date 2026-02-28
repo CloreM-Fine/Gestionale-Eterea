@@ -343,6 +343,22 @@ include __DIR__ . '/includes/header.php';
                               placeholder="Note aggiuntive per il cliente..."></textarea>
                 </div>
                 
+                <!-- Tempi di consegna e Non include -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-2">Tempi di consegna</label>
+                        <input type="text" id="prevTempiConsegna" 
+                               class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none"
+                               placeholder="Es: 15 giorni lavorativi dalla conferma...">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-2">Non include</label>
+                        <input type="text" id="prevNonInclude" 
+                               class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none"
+                               placeholder="Es: Hosting, domini, licenze software...">
+                    </div>
+                </div>
+                
                 <!-- Checkbox Sezione Burocratica -->
                 <div class="mb-6 p-4 bg-slate-50 border border-slate-200 rounded-xl">
                     <label class="flex items-center gap-3 cursor-pointer">
@@ -1266,6 +1282,8 @@ function openPreventivoModal() {
     document.getElementById('prevNumero').value = 'PREV-' + new Date().getFullYear() + '-' + String(Math.floor(Math.random() * 900) + 100);
     document.getElementById('prevScontoGlobale').value = '0';
     document.getElementById('prevNote').value = '';
+    document.getElementById('prevTempiConsegna').value = '';
+    document.getElementById('prevNonInclude').value = '';
     document.getElementById('prevMostraBurocrazia').checked = true;
     
     // Carica i servizi dal listino prezzi
@@ -1498,6 +1516,8 @@ async function generaPreventivo() {
                 cliente_nome: cliente,
                 preventivo_num: document.getElementById('prevNumero').value,
                 note: document.getElementById('prevNote').value,
+                tempi_consegna: document.getElementById('prevTempiConsegna').value,
+                non_include: document.getElementById('prevNonInclude').value,
                 sconto_globale: document.getElementById('prevScontoGlobale').value,
                 data_scadenza: document.getElementById('prevScadenza').value,
                 mostra_burocrazia: mostraBurocrazia
@@ -1542,6 +1562,8 @@ async function salvaPreventivoGestionale() {
     const scadenza = document.getElementById('prevScadenza').value;
     const sconto = document.getElementById('prevScontoGlobale').value;
     const note = document.getElementById('prevNote').value;
+    const tempiConsegna = document.getElementById('prevTempiConsegna').value;
+    const nonInclude = document.getElementById('prevNonInclude').value;
     
     // Calcola totali (incluso sconto singolo e quantità)
     // NOTA: v.prezzo è il prezzo modificato dall'utente (che può essere diverso dal prezzo listino)
@@ -1565,6 +1587,8 @@ async function salvaPreventivoGestionale() {
     formData.append('data_scadenza', scadenza);
     formData.append('sconto_globale', sconto);
     formData.append('note', note);
+    formData.append('tempi_consegna', tempiConsegna);
+    formData.append('non_include', nonInclude);
     formData.append('servizi', JSON.stringify(preventivoVoci));
     formData.append('subtotale', subtotale.toFixed(2));
     formData.append('totale', totale.toFixed(2));

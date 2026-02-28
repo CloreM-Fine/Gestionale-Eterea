@@ -214,6 +214,8 @@ function generaPreventivo(): void {
     $clienteNome = trim($_POST['cliente_nome'] ?? 'Cliente');
     $preventivoNum = trim($_POST['preventivo_num'] ?? 'PREV-' . date('Y') . '-001');
     $note = trim($_POST['note'] ?? '');
+    $tempiConsegna = trim($_POST['tempi_consegna'] ?? '');
+    $nonInclude = trim($_POST['non_include'] ?? '');
     $scontoGlobale = floatval($_POST['sconto_globale'] ?? 0);
     $dataScadenza = trim($_POST['data_scadenza'] ?? '');
     $frequenza = intval($_POST['frequenza'] ?? 1);
@@ -298,7 +300,7 @@ function generaPreventivo(): void {
         $totaleScontato = $subtotaleConFrequenza * (1 - $scontoGlobale / 100);
         
         // Genera HTML per PDF
-        $html = generaHTMLPreventivo($voci, $clienteNome, $preventivoNum, $note, $scontoGlobale, $subtotaleConFrequenza, $totaleScontato, $dataScadenza, $frequenza, $mostraBurocrazia);
+        $html = generaHTMLPreventivo($voci, $clienteNome, $preventivoNum, $note, $scontoGlobale, $subtotaleConFrequenza, $totaleScontato, $dataScadenza, $frequenza, $mostraBurocrazia, $tempiConsegna, $nonInclude);
         
         // Salva HTML temporaneo
         $filename = 'preventivo_' . time() . '.html';
@@ -445,7 +447,7 @@ function getTemplateCondizioniDefault(): string {
 /**
  * Genera HTML del preventivo
  */
-function generaHTMLPreventivo(array $voci, string $cliente, string $numero, string $note, float $scontoGlobale, float $subtotale, float $totale, string $dataScadenza = '', int $frequenza = 1, bool $mostraBurocrazia = true): string {
+function generaHTMLPreventivo(array $voci, string $cliente, string $numero, string $note, float $scontoGlobale, float $subtotale, float $totale, string $dataScadenza = '', int $frequenza = 1, bool $mostraBurocrazia = true, string $tempiConsegna = '', string $nonInclude = ''): string {
     $data = date('d/m/Y');
     $validita = $dataScadenza ? date('d/m/Y', strtotime($dataScadenza)) : date('d/m/Y', strtotime('+30 days'));
     $clienteEsc = htmlspecialchars($cliente);
@@ -755,6 +757,31 @@ BUROCRAZIA;
         .condizioni ul { margin-left: 12px; }
         .condizioni li { margin: 3px 0; }
         
+        .condizioni-extra {
+            margin-top: 15px;
+            display: flex;
+            gap: 15px;
+        }
+        .condizioni-extra-item {
+            flex: 1;
+            padding: 12px;
+            background: #f8fafc;
+            border-radius: 8px;
+            font-size: 8px;
+            color: #64748b;
+            border: 1px solid #e2e8f0;
+        }
+        .condizioni-extra-item h4 {
+            color: #475569;
+            margin-bottom: 6px;
+            font-size: 9px;
+            font-weight: 600;
+        }
+        .condizioni-extra-item p {
+            margin: 0;
+            line-height: 1.4;
+        }
+        
         .burocrazia {
             margin-top: 15px;
             padding: 12px;
@@ -854,6 +881,23 @@ BUROCRAZIA;
         </ul>
     </div>
     
+    <!-- Tempi di consegna e Non include -->
+    {(empty($tempiConsegna) && empty($nonInclude)) ? '' : "
+    <div class='condizioni-extra'>
+        " . (empty($tempiConsegna) ? "" : "
+        <div class='condizioni-extra-item'>
+            <h4>🕐 Tempi di Consegna</h4>
+            <p>" . htmlspecialchars($tempiConsegna) . "</p>
+        </div>
+        ") . (empty($nonInclude) ? "" : "
+        <div class='condizioni-extra-item'>
+            <h4>📋 Non Include</h4>
+            <p>" . htmlspecialchars($nonInclude) . "</p>
+        </div>
+        ") . "
+    </div>
+    "}
+    
     {$burocraziaHtml}
     
     <div class="footer">
@@ -889,6 +933,8 @@ function salvaPreventivoGestionale(): void {
     $dataScadenza = $_POST['data_scadenza'] ?? null;
     $scontoGlobale = floatval($_POST['sconto_globale'] ?? 0);
     $note = $_POST['note'] ?? '';
+    $tempiConsegna = $_POST['tempi_consegna'] ?? '';
+    $nonInclude = $_POST['non_include'] ?? '';
     $serviziJson = $_POST['servizi'] ?? '[]';
     $subtotale = floatval($_POST['subtotale'] ?? 0);
     $totale = floatval($_POST['totale'] ?? 0);
@@ -907,8 +953,8 @@ function salvaPreventivoGestionale(): void {
         // Salva nel database
         $stmt = $pdo->prepare("
             INSERT INTO preventivi_salvati 
-            (numero, cliente_id, cliente_nome, data_validita, sconto_globale, note, servizi_json, subtotale, totale, frequenza, frequenza_testo, mostra_burocrazia, created_by)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            (numero, cliente_id, cliente_nome, data_validita, sconto_globale, note, tempi_consegna, non_include, servizi_json, subtotale, totale, frequenza, frequenza_testo, mostra_burocrazia, created_by)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
         
         $stmt->execute([
@@ -918,6 +964,8 @@ function salvaPreventivoGestionale(): void {
             $dataScadenza ?: null,
             $scontoGlobale,
             $note,
+            $tempiConsegna,
+            $nonInclude,
             $serviziJson,
             $subtotale,
             $totale,
@@ -931,7 +979,7 @@ function salvaPreventivoGestionale(): void {
         
         // Genera il file HTML del preventivo
         $servizi = json_decode($serviziJson, true);
-        $html = generaHTMLPreventivoSalvato($servizi, $clienteNome, $numero, $note, $scontoGlobale, $subtotale, $totale, $dataScadenza, $frequenza, $mostraBurocrazia);
+        $html = generaHTMLPreventivoSalvato($servizi, $clienteNome, $numero, $note, $scontoGlobale, $subtotale, $totale, $dataScadenza, $frequenza, $mostraBurocrazia, $tempiConsegna, $nonInclude);
         
         // Salva il file
         $filename = 'preventivo_' . $preventivoId . '_' . time() . '.html';
@@ -971,7 +1019,7 @@ function salvaPreventivoGestionale(): void {
 /**
  * Genera HTML del preventivo salvato (usa stessa impaginazione del PDF)
  */
-function generaHTMLPreventivoSalvato(array $voci, string $cliente, string $numero, string $note, float $scontoGlobale, float $subtotale, float $totale, string $dataScadenza = '', int $frequenza = 1, bool $mostraBurocrazia = true): string {
+function generaHTMLPreventivoSalvato(array $voci, string $cliente, string $numero, string $note, float $scontoGlobale, float $subtotale, float $totale, string $dataScadenza = '', int $frequenza = 1, bool $mostraBurocrazia = true, string $tempiConsegna = '', string $nonInclude = ''): string {
     // Converte il formato dati salvati nel formato usato da generaHTMLPreventivo
     $vociFormattate = [];
     foreach ($voci as $v) {
@@ -997,7 +1045,7 @@ function generaHTMLPreventivoSalvato(array $voci, string $cliente, string $numer
     }
     
     // Usa la stessa funzione di generazione HTML del PDF
-    return generaHTMLPreventivo($vociFormattate, $cliente, $numero, $note, $scontoGlobale, $subtotale, $totale, $dataScadenza, $frequenza, $mostraBurocrazia);
+    return generaHTMLPreventivo($vociFormattate, $cliente, $numero, $note, $scontoGlobale, $subtotale, $totale, $dataScadenza, $frequenza, $mostraBurocrazia, $tempiConsegna, $nonInclude);
 }
 
 
