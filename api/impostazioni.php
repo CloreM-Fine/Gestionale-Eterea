@@ -58,6 +58,8 @@ switch ($method) {
             saveDatiAzienda();
         } elseif ($action === 'upload_logo_azienda') {
             uploadLogoAzienda();
+        } elseif ($action === 'upload_firma_azienda') {
+            uploadFirmaAzienda();
         } elseif ($action === 'save_codice_ateco') {
             saveCodiceAteco();
         } elseif ($action === 'delete_codice_ateco') {
@@ -409,6 +411,11 @@ function getDatiAzienda(): void {
     $stmt = $pdo->prepare("SELECT valore FROM impostazioni WHERE chiave = 'logo_azienda'");
     $stmt->execute();
     $dati['logo'] = $stmt->fetchColumn() ?: '';
+    
+    // Carica la firma
+    $stmt = $pdo->prepare("SELECT valore FROM impostazioni WHERE chiave = 'firma_azienda'");
+    $stmt->execute();
+    $dati['firma'] = $stmt->fetchColumn() ?: '';
     
     jsonResponse(true, $dati);
 }
@@ -1210,4 +1217,79 @@ function setTemplateBurocraziaDefaultInternal(int $id): void {
         ON DUPLICATE KEY UPDATE valore = ?
     ");
     $stmt->execute([$id, $id]);
+}
+
+
+/**
+ * Upload firma aziendale
+ */
+function uploadFirmaAzienda(): void {
+    global $pdo;
+    
+    // Verifica password
+    $password = $_POST['password'] ?? '';
+    if ($password !== 'Tomato2399!?') {
+        jsonResponse(false, null, 'Password errata');
+        return;
+    }
+    
+    // Gestione rimozione
+    if (isset($_POST['remove']) && $_POST['remove'] === 'true') {
+        try {
+            $stmt = $pdo->prepare("DELETE FROM impostazioni WHERE chiave = 'firma_azienda'");
+            $stmt->execute();
+            jsonResponse(true, null, 'Firma rimossa');
+        } catch (PDOException $e) {
+            error_log("Errore rimozione firma: " . $e->getMessage());
+            jsonResponse(false, null, 'Errore durante la rimozione');
+        }
+        return;
+    }
+    
+    // Verifica file
+    if (!isset($_FILES['firma'])) {
+        jsonResponse(false, null, 'Nessun file caricato');
+        return;
+    }
+    
+    $file = $_FILES['firma'];
+    
+    // Validazione
+    $allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+    if (!in_array($file['type'], $allowedTypes)) {
+        jsonResponse(false, null, 'Formato non valido. Usa JPG, PNG o GIF');
+        return;
+    }
+    
+    if ($file['size'] > 2 * 1024 * 1024) {
+        jsonResponse(false, null, 'File troppo grande (max 2MB)');
+        return;
+    }
+    
+    // Crea directory
+    $uploadDir = __DIR__ . '/../assets/uploads/firma_azienda/';
+    if (!is_dir($uploadDir)) {
+        mkdir($uploadDir, 0755, true);
+    }
+    
+    // Nome file
+    $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
+    $filename = 'firma_azienda_' . time() . '.' . $ext;
+    $filepath = $uploadDir . $filename;
+    
+    if (move_uploaded_file($file['tmp_name'], $filepath)) {
+        global $pdo;
+        $firmaUrl = 'assets/uploads/firma_azienda/' . $filename;
+        
+        $stmt = $pdo->prepare("
+            INSERT INTO impostazioni (chiave, valore) 
+            VALUES ('firma_azienda', ?)
+            ON DUPLICATE KEY UPDATE valore = ?
+        ");
+        $stmt->execute([$firmaUrl, $firmaUrl]);
+        
+        jsonResponse(true, ['firma' => $filename, 'firma_url' => $firmaUrl], 'Firma caricata con successo');
+    } else {
+        jsonResponse(false, null, 'Errore durante il caricamento');
+    }
 }

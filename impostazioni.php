@@ -549,6 +549,41 @@ include __DIR__ . '/includes/header.php';
                     </div>
                 </div>
                 
+                <!-- Firma Aziendale -->
+                <div class="mb-6 p-4 bg-slate-50 rounded-xl">
+                    <label class="block text-sm font-medium text-slate-700 mb-3">Firma Digitale</label>
+                    <div class="flex flex-col sm:flex-row items-start gap-4">
+                        <div class="relative">
+                            <div id="firmaAziendaPreview" class="w-48 h-24 rounded-xl overflow-hidden border-2 border-slate-200 bg-white flex items-center justify-center">
+                                <div id="firmaAziendaPlaceholder" class="text-center text-slate-400">
+                                    <svg class="w-8 h-8 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                                    </svg>
+                                    <span class="text-xs">Nessuna firma</span>
+                                </div>
+                                <img id="firmaAziendaImg" src="" alt="Firma Azienda" class="w-full h-full object-contain hidden">
+                            </div>
+                            <button onclick="document.getElementById('firmaAziendaInput').click()" 
+                                    class="absolute -bottom-2 -right-2 w-8 h-8 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full flex items-center justify-center shadow-lg transition-colors"
+                                    title="Carica firma">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="flex-1">
+                            <input type="file" id="firmaAziendaInput" accept="image/png,image/jpeg,image/gif" 
+                                   class="hidden" onchange="uploadFirmaAzienda(this)">
+                            <p class="text-sm text-slate-600 mb-2">Firma per i preventivi</p>
+                            <p class="text-xs text-slate-400">Formati: PNG, JPG, GIF (fondo trasparente consigliato)<br>Max 2MB - Sarà visibile nella sezione "Firma Fornitore"</p>
+                            <button type="button" onclick="rimuoviFirmaAzienda()" id="btnRimuoviFirmaAzienda"
+                                    class="mt-3 px-3 py-1.5 text-xs text-red-600 hover:text-red-700 border border-red-200 rounded-lg hover:bg-red-50 transition-colors hidden">
+                                Rimuovi firma
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
                 <!-- Form Grid -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="md:col-span-2">
@@ -1517,6 +1552,12 @@ async function caricaDatiAzienda() {
                 mostraLogoAzienda(datiAziendaCorrenti.logo_url);
             }
             
+            // Firma
+            if (datiAziendaCorrenti.firma) {
+                firmaAziendaFilename = datiAziendaCorrenti.firma;
+                mostraFirmaAzienda(datiAziendaCorrenti.firma_url);
+            }
+            
             // Aggiorna stato
             aggiornaStatoDatiAzienda();
         }
@@ -1579,6 +1620,107 @@ function nascondiLogoAzienda() {
     placeholder.classList.remove('hidden');
     btnRimuovi.classList.add('hidden');
     logoAziendaFilename = '';
+}
+
+// Firma Aziendale
+let firmaAziendaFilename = '';
+
+function mostraFirmaAzienda(url) {
+    const img = document.getElementById('firmaAziendaImg');
+    const placeholder = document.getElementById('firmaAziendaPlaceholder');
+    const btnRimuovi = document.getElementById('btnRimuoviFirmaAzienda');
+    
+    img.src = url;
+    img.classList.remove('hidden');
+    placeholder.classList.add('hidden');
+    btnRimuovi.classList.remove('hidden');
+}
+
+function nascondiFirmaAzienda() {
+    const img = document.getElementById('firmaAziendaImg');
+    const placeholder = document.getElementById('firmaAziendaPlaceholder');
+    const btnRimuovi = document.getElementById('btnRimuoviFirmaAzienda');
+    
+    img.src = '';
+    img.classList.add('hidden');
+    placeholder.classList.remove('hidden');
+    btnRimuovi.classList.add('hidden');
+    firmaAziendaFilename = '';
+}
+
+async function uploadFirmaAzienda(input) {
+    const file = input.files[0];
+    if (!file) return;
+    
+    const password = document.getElementById('aziendaPassword').value;
+    if (!password) {
+        showToast('Inserisci prima la password di modifica', 'error');
+        input.value = '';
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('action', 'upload_firma_azienda');
+    formData.append('firma', file);
+    formData.append('password', password);
+    
+    try {
+        showToast('Caricamento firma...', 'info');
+        
+        const response = await fetch('api/impostazioni.php', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            firmaAziendaFilename = data.data.firma;
+            mostraFirmaAzienda(data.data.firma_url);
+            showToast('Firma caricata con successo', 'success');
+        } else {
+            showToast(data.message || 'Errore caricamento firma', 'error');
+        }
+    } catch (error) {
+        console.error('Errore:', error);
+        showToast('Errore durante l\'upload', 'error');
+    }
+    
+    input.value = '';
+}
+
+async function rimuoviFirmaAzienda() {
+    const password = document.getElementById('aziendaPassword').value;
+    if (!password) {
+        showToast('Inserisci prima la password di modifica', 'error');
+        return;
+    }
+    
+    if (!confirm('Sei sicuro di voler rimuovere la firma?')) return;
+    
+    try {
+        const formData = new FormData();
+        formData.append('action', 'upload_firma_azienda');
+        formData.append('remove', 'true');
+        formData.append('password', password);
+        
+        const response = await fetch('api/impostazioni.php', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            nascondiFirmaAzienda();
+            showToast('Firma rimossa', 'success');
+        } else {
+            showToast(data.message || 'Errore', 'error');
+        }
+    } catch (error) {
+        console.error('Errore:', error);
+        showToast('Errore durante la rimozione', 'error');
+    }
 }
 
 async function uploadLogoAzienda(input) {

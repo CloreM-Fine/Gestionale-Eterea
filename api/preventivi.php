@@ -357,17 +357,20 @@ function getDatiAzienda(): array {
             'azienda_sdi'
         ];
         
-        // Logo ha chiave diversa
+        // Logo e firma hanno chiavi diverse
         $chiavi[] = 'logo_azienda';
+        $chiavi[] = 'firma_azienda';
         
         $dati = [];
         foreach ($chiavi as $chiave) {
             $stmt = $pdo->prepare("SELECT valore FROM impostazioni WHERE chiave = ?");
             $stmt->execute([$chiave]);
             $valore = $stmt->fetchColumn() ?: '';
-            // Gestione chiave logo che ha nome diverso
+            // Gestione chiavi con nome diverso
             if ($chiave === 'logo_azienda') {
                 $dati['logo'] = $valore;
+            } elseif ($chiave === 'firma_azienda') {
+                $dati['firma'] = $valore;
             } else {
                 $dati[str_replace('azienda_', '', $chiave)] = $valore;
             }
@@ -485,8 +488,20 @@ function generaHTMLPreventivo(array $voci, string $cliente, string $numero, stri
         }
     }
     
-    // Recupera dati azienda
+    // Recupera dati azienda (incluse firma)
     $datiAzienda = getDatiAzienda();
+    
+    // Prepara firma HTML se presente
+    $firmaHtml = '';
+    if (!empty($datiAzienda['firma'])) {
+        $firmaPath = __DIR__ . '/../assets/uploads/firma_azienda/' . $datiAzienda['firma'];
+        if (file_exists($firmaPath)) {
+            $firmaData = base64_encode(file_get_contents($firmaPath));
+            $firmaExt = pathinfo($datiAzienda['firma'], PATHINFO_EXTENSION);
+            $mimeType = ($firmaExt === 'svg') ? 'image/svg+xml' : 'image/' . $firmaExt;
+            $firmaHtml = '<img src="data:' . $mimeType . ';base64,' . $firmaData . '" style="max-height:50px;max-width:120px;object-fit:contain;" alt="Firma">';
+        }
+    }
     
     // Recupera template condizioni
     $templateContenuto = getTemplateCondizioniDefault();
@@ -503,6 +518,27 @@ function generaHTMLPreventivo(array $voci, string $cliente, string $numero, stri
                 $condizioniHtml .= '<li>' . htmlspecialchars($riga) . '</li>';
             }
         }
+    }
+    
+    // Costruisci sezione Tempi di consegna e Non include
+    $condizioniExtraHtml = '';
+    if (!empty($tempiConsegna) || !empty($nonInclude)) {
+        $condizioniExtraHtml = '<div class="condizioni-extra">';
+        if (!empty($tempiConsegna)) {
+            $condizioniExtraHtml .= '
+                <div class="condizioni-extra-item">
+                    <h4>🕐 Tempi di Consegna</h4>
+                    <p>' . htmlspecialchars($tempiConsegna) . '</p>
+                </div>';
+        }
+        if (!empty($nonInclude)) {
+            $condizioniExtraHtml .= '
+                <div class="condizioni-extra-item">
+                    <h4>📋 Non Include</h4>
+                    <p>' . htmlspecialchars($nonInclude) . '</p>
+                </div>';
+        }
+        $condizioniExtraHtml .= '</div>';
     }
     
     // Recupera template burocratico (privacy, termini, ecc.)
@@ -578,7 +614,18 @@ BUROCRAZIA;
         foreach ($items as $item) {
             $qty = $item['quantita'];
             $tipoEsc = htmlspecialchars($item['tipo_servizio']);
-            $descEsc = htmlspecialchars($item['descrizione'] ?? '');
+            // Supporta HTML nella descrizione per bullet points
+            $descHtml = $item['descrizione'] ?? '';
+            if (!empty($descHtml)) {
+                // Converte newline in <br> se non c'è già HTML
+                if (strpos($descHtml, '<') === false) {
+                    $descHtml = nl2br(htmlspecialchars($descHtml));
+                } else {
+                    // Permette solo tag HTML sicuri
+                    $allowedTags = '<br><p><ul><ol><li><strong><em><b><i><span>';
+                    $descHtml = strip_tags($descHtml, $allowedTags);
+                }
+            }
             $prezzoForm = number_format($item['prezzo'], 2, ',', '.');
             
             // Gestione sconti combinati
@@ -597,7 +644,7 @@ BUROCRAZIA;
             
             $totaleRigaForm = number_format($item['totale'], 2, ',', '.');
             
-            $righe .= "<tr><td>{$tipoEsc}</td><td>{$descEsc}</td><td style='text-align:center'>{$qty}</td><td style='text-align:right'>€ {$prezzoForm}</td><td style='text-align:center'>{$sconto}</td><td style='text-align:right'><strong>€ {$totaleRigaForm}</strong></td></tr>";
+            $righe .= "<tr><td>{$tipoEsc}</td><td>{$descHtml}</td><td style='text-align:center'>{$qty}</td><td style='text-align:right'>€ {$prezzoForm}</td><td style='text-align:center'>{$sconto}</td><td style='text-align:right'><strong>€ {$totaleRigaForm}</strong></td></tr>";
         }
     }
     
@@ -884,8 +931,21 @@ BUROCRAZIA;
         }
         
         @media print {
-            body { padding: 20px; }
+            body { padding: 40px; }
             .no-print { display: none; }
+        }
+        
+        /* Stile per elenco puntato nella descrizione */
+        td p {
+            margin: 0;
+            line-height: 1.4;
+        }
+        td ul {
+            margin: 0;
+            padding-left: 15px;
+        }
+        td li {
+            margin: 2px 0;
         }
     </style>
 </head>
@@ -958,21 +1018,7 @@ BUROCRAZIA;
     </div>
     
     <!-- Tempi di consegna e Non include -->
-    {(empty($tempiConsegna) && empty($nonInclude)) ? '' : "
-    <div class='condizioni-extra'>
-        " . (empty($tempiConsegna) ? "" : "
-        <div class='condizioni-extra-item'>
-            <h4>🕐 Tempi di Consegna</h4>
-            <p>" . htmlspecialchars($tempiConsegna) . "</p>
-        </div>
-        ") . (empty($nonInclude) ? "" : "
-        <div class='condizioni-extra-item'>
-            <h4>📋 Non Include</h4>
-            <p>" . htmlspecialchars($nonInclude) . "</p>
-        </div>
-        ") . "
-    </div>
-    "}
+    {$condizioniExtraHtml}
     
     {$burocraziaHtml}
     
@@ -992,7 +1038,9 @@ BUROCRAZIA;
             </div>
             <div class="firma-box">
                 <div class="firma-label">Firma Fornitore</div>
-                <div class="firma-line"></div>
+                <div class="firma-line" style="display:flex;align-items:flex-end;justify-content:center;padding-bottom:5px;">
+                    ' . ($firmaHtml ?: '') . '
+                </div>
                 <div class="firma-data">{$ragioneSociale}</div>
             </div>
         </div>
