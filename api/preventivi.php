@@ -693,6 +693,25 @@ BUROCRAZIA;
             color: #1e293b;
             padding: 30px;
         }
+        /* Stili per elenchi in descrizioni */
+        ul, ol { 
+            margin: 4px 0; 
+            padding-left: 16px; 
+        }
+        ul { list-style-type: disc; }
+        ol { list-style-type: decimal; }
+        li { 
+            margin: 2px 0; 
+            padding-left: 4px;
+        }
+        td ul, td ol {
+            margin: 2px 0;
+            padding-left: 12px;
+        }
+        td li {
+            font-size: 8px;
+            line-height: 1.3;
+        }
         .header { 
             display: flex; 
             justify-content: space-between; 

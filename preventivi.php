@@ -43,6 +43,24 @@ $pageTitle = 'Preventivi';
 include __DIR__ . '/includes/header.php';
 ?>
 
+<!-- TinyMCE Editor -->
+<script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+<script>
+tinymce.init({
+    selector: '#voceDescrizione',
+    plugins: 'lists link',
+    toolbar: 'undo redo | formatselect | bold italic | alignleft aligncenter alignright | bullist numlist | link',
+    menubar: false,
+    height: 200,
+    content_style: 'body { font-family: Inter, sans-serif; font-size: 14px; }',
+    setup: function(editor) {
+        editor.on('change', function() {
+            editor.save();
+        });
+    }
+});
+</script>
+
 <!-- Header -->
 <div class="mb-6">
     <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
@@ -198,7 +216,7 @@ include __DIR__ . '/includes/header.php';
                 </div>
                 
                 <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-2">Descrizione</label>
+                    <label class="block text-sm font-medium text-slate-700 mb-2">Descrizione <span class="text-xs text-cyan-600 font-normal">(supporta elenchi e formattazione)</span></label>
                     <textarea name="descrizione" id="voceDescrizione" rows="3"
                               class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none resize-none"
                               placeholder="Descrivi il servizio..."></textarea>
@@ -877,16 +895,26 @@ function openVoceModal(categoriaId, voceId = null) {
     const select = document.getElementById('voceCategoria');
     select.innerHTML = preventiviData.map(c => `<option value="${c.id}" ${c.id == categoriaId ? 'selected' : ''}>${c.nome}</option>`).join('');
     
+    // Reset editor TinyMCE
+    if (tinymce.get('voceDescrizione')) {
+        tinymce.get('voceDescrizione').setContent('');
+    }
+    
     if (voceId) {
         // Trova voce esistente
         for (const cat of preventiviData) {
             const voce = cat.voci.find(v => v.id == voceId);
             if (voce) {
                 document.getElementById('voceTipo').value = voce.tipo_servizio;
-                document.getElementById('voceDescrizione').value = voce.descrizione || '';
                 document.getElementById('vocePrezzo').value = voce.prezzo;
                 document.getElementById('voceSconto').value = voce.sconto_percentuale;
                 document.getElementById('voceFrequenza').value = voce.frequenza || '1';
+                // Carica descrizione nell'editor
+                if (tinymce.get('voceDescrizione')) {
+                    tinymce.get('voceDescrizione').setContent(voce.descrizione || '');
+                } else {
+                    document.getElementById('voceDescrizione').value = voce.descrizione || '';
+                }
                 break;
             }
         }
@@ -897,6 +925,12 @@ function openVoceModal(categoriaId, voceId = null) {
 
 async function saveVoce() {
     const form = document.getElementById('voceForm');
+    
+    // Sincronizza contenuto TinyMCE
+    if (tinymce.get('voceDescrizione')) {
+        tinymce.get('voceDescrizione').save();
+    }
+    
     const formData = new FormData(form);
     
     if (!formData.get('tipo_servizio') || !formData.get('prezzo')) {
