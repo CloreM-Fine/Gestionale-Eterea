@@ -211,6 +211,7 @@ function generaPreventivo(): void {
     global $pdo;
     
     $vociSelezionate = json_decode($_POST['voci'] ?? '[]', true);
+    $clienteId = $_POST['cliente_id'] ?? null;
     $clienteNome = trim($_POST['cliente_nome'] ?? 'Cliente');
     $preventivoNum = trim($_POST['preventivo_num'] ?? 'PREV-' . date('Y') . '-001');
     $note = trim($_POST['note'] ?? '');
@@ -224,6 +225,18 @@ function generaPreventivo(): void {
     if (empty($vociSelezionate)) {
         jsonResponse(false, null, 'Nessuna voce selezionata');
         return;
+    }
+    
+    // Recupera dati cliente se presente
+    $datiCliente = [];
+    if (!empty($clienteId)) {
+        try {
+            $stmt = $pdo->prepare("SELECT * FROM clienti WHERE id = ?");
+            $stmt->execute([$clienteId]);
+            $datiCliente = $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
+        } catch (PDOException $e) {
+            error_log("Errore recupero dati cliente: " . $e->getMessage());
+        }
     }
     
     // Recupera dettagli voci
@@ -300,7 +313,7 @@ function generaPreventivo(): void {
         $totaleScontato = $subtotaleConFrequenza * (1 - $scontoGlobale / 100);
         
         // Genera HTML per PDF
-        $html = generaHTMLPreventivo($voci, $clienteNome, $preventivoNum, $note, $scontoGlobale, $subtotaleConFrequenza, $totaleScontato, $dataScadenza, $frequenza, $mostraBurocrazia, $tempiConsegna, $nonInclude);
+        $html = generaHTMLPreventivo($voci, $clienteNome, $preventivoNum, $note, $scontoGlobale, $subtotaleConFrequenza, $totaleScontato, $dataScadenza, $frequenza, $mostraBurocrazia, $tempiConsegna, $nonInclude, $datiCliente);
         
         // Salva HTML temporaneo
         $filename = 'preventivo_' . time() . '.html';
@@ -447,12 +460,30 @@ function getTemplateCondizioniDefault(): string {
 /**
  * Genera HTML del preventivo
  */
-function generaHTMLPreventivo(array $voci, string $cliente, string $numero, string $note, float $scontoGlobale, float $subtotale, float $totale, string $dataScadenza = '', int $frequenza = 1, bool $mostraBurocrazia = true, string $tempiConsegna = '', string $nonInclude = ''): string {
+function generaHTMLPreventivo(array $voci, string $cliente, string $numero, string $note, float $scontoGlobale, float $subtotale, float $totale, string $dataScadenza = '', int $frequenza = 1, bool $mostraBurocrazia = true, string $tempiConsegna = '', string $nonInclude = '', array $datiCliente = []): string {
     $data = date('d/m/Y');
     $validita = $dataScadenza ? date('d/m/Y', strtotime($dataScadenza)) : date('d/m/Y', strtotime('+30 days'));
     $clienteEsc = htmlspecialchars($cliente);
     $numeroEsc = htmlspecialchars($numero);
     $noteEsc = $note ? nl2br(htmlspecialchars($note)) : '';
+    
+    // Prepara dettagli cliente
+    $clienteDettagli = '';
+    if (!empty($datiCliente)) {
+        $dettagli = [];
+        if (!empty($datiCliente['indirizzo'])) $dettagli[] = htmlspecialchars($datiCliente['indirizzo']);
+        if (!empty($datiCliente['cap']) || !empty($datiCliente['citta'])) {
+            $dettagli[] = htmlspecialchars(trim($datiCliente['cap'] . ' ' . $datiCliente['citta']));
+        }
+        if (!empty($datiCliente['piva'])) $dettagli[] = 'P.IVA: ' . htmlspecialchars($datiCliente['piva']);
+        elseif (!empty($datiCliente['cf'])) $dettagli[] = 'CF: ' . htmlspecialchars($datiCliente['cf']);
+        if (!empty($datiCliente['email'])) $dettagli[] = htmlspecialchars($datiCliente['email']);
+        if (!empty($datiCliente['telefono'])) $dettagli[] = 'Tel: ' . htmlspecialchars($datiCliente['telefono']);
+        
+        if (!empty($dettagli)) {
+            $clienteDettagli = '<div class="cliente-dettagli">' . implode(' | ', $dettagli) . '</div>';
+        }
+    }
     
     // Recupera dati azienda
     $datiAzienda = getDatiAzienda();
@@ -672,6 +703,12 @@ BUROCRAZIA;
             letter-spacing: 0.5px;
         }
         .client-box .nome { font-size: 13px; font-weight: 600; color: #1e293b; }
+        .cliente-dettagli { 
+            font-size: 9px; 
+            color: #64748b; 
+            margin-top: 4px;
+            line-height: 1.4;
+        }
         .validita-box p { color: #475569; font-size: 10px; }
         
         table { 
@@ -740,6 +777,44 @@ BUROCRAZIA;
             font-size: 8px;
         }
         .footer strong { color: #64748b; }
+        
+        .firma-section {
+            margin-top: 40px;
+            padding: 20px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            background: #f8fafc;
+        }
+        .firma-section p {
+            font-size: 9px;
+            color: #475569;
+            margin-bottom: 20px;
+            font-style: italic;
+            text-align: center;
+        }
+        .firma-boxes {
+            display: flex;
+            gap: 40px;
+            justify-content: space-between;
+        }
+        .firma-box {
+            flex: 1;
+        }
+        .firma-label {
+            font-size: 8px;
+            color: #64748b;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+        .firma-line {
+            border-bottom: 1px solid #94a3b8;
+            height: 40px;
+            margin-bottom: 5px;
+        }
+        .firma-data {
+            font-size: 8px;
+            color: #64748b;
+        }
         
         .condizioni {
             margin-top: 20px;
@@ -834,6 +909,7 @@ BUROCRAZIA;
         <div class="client-box">
             <h3>Preventivo per</h3>
             <div class="nome">{$clienteEsc}</div>
+            {$clienteDettagli}
         </div>
         <div class="validita-box">
             <h3>Validità preventivo</h3>
@@ -899,6 +975,28 @@ BUROCRAZIA;
     "}
     
     {$burocraziaHtml}
+    
+    <!-- Sezione Firma -->
+    <div class="firma-section">
+        <p>Il presente preventivo si intende accettato con firma o timbro del cliente o conferma via email</p>
+        <div class="firma-boxes">
+            <div class="firma-box">
+                <div class="firma-label">Data</div>
+                <div class="firma-line"></div>
+                <div class="firma-data">__ / __ / ______</div>
+            </div>
+            <div class="firma-box">
+                <div class="firma-label">Firma Cliente</div>
+                <div class="firma-line"></div>
+                <div class="firma-data">Timbro e/o Firma</div>
+            </div>
+            <div class="firma-box">
+                <div class="firma-label">Firma Fornitore</div>
+                <div class="firma-line"></div>
+                <div class="firma-data">{$ragioneSociale}</div>
+            </div>
+        </div>
+    </div>
     
     <div class="footer">
         <p><strong>{$ragioneSociale}</strong> | {$indirizzoCompleto} | {$piva} {$cf}</p>
