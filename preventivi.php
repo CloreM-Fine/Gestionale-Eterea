@@ -43,22 +43,90 @@ $pageTitle = 'Preventivi';
 include __DIR__ . '/includes/header.php';
 ?>
 
-<!-- TinyMCE Editor -->
-<script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+<!-- Editor HTML Custom -->
+<style>
+.html-editor-toolbar {
+    display: flex;
+    gap: 4px;
+    padding: 8px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-bottom: none;
+    border-radius: 8px 8px 0 0;
+}
+.html-editor-toolbar button {
+    padding: 6px 10px;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    color: #475569;
+    transition: all 0.2s;
+}
+.html-editor-toolbar button:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+}
+.html-editor-toolbar button.active {
+    background: #0891b2;
+    color: white;
+    border-color: #0891b2;
+}
+.html-editor-toolbar .separator {
+    width: 1px;
+    background: #e2e8f0;
+    margin: 0 4px;
+}
+#voceDescrizione {
+    border-radius: 0 0 8px 8px !important;
+    border-top: none !important;
+    font-family: monospace;
+    font-size: 13px;
+    min-height: 120px;
+}
+</style>
 <script>
-tinymce.init({
-    selector: '#voceDescrizione',
-    plugins: 'lists link',
-    toolbar: 'undo redo | formatselect | bold italic | alignleft aligncenter alignright | bullist numlist | link',
-    menubar: false,
-    height: 200,
-    content_style: 'body { font-family: Inter, sans-serif; font-size: 14px; }',
-    setup: function(editor) {
-        editor.on('change', function() {
-            editor.save();
-        });
+// Editor HTML Custom - Self-hosted
+function htmlEditorInsertTag(tag, attributes = '') {
+    const textarea = document.getElementById('voceDescrizione');
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const text = textarea.value;
+    const selected = text.substring(start, end);
+    
+    let insert = '';
+    if (tag === 'ul') {
+        insert = '\n<ul>\n  <li>Elemento 1</li>\n  <li>Elemento 2</li>\n</ul>\n';
+    } else if (tag === 'ol') {
+        insert = '\n<ol>\n  <li>Elemento 1</li>\n  <li>Elemento 2</li>\n</ol>\n';
+    } else if (tag === 'li') {
+        insert = '<li>' + (selected || 'Nuovo elemento') + '</li>';
+    } else {
+        insert = '<' + tag + (attributes ? ' ' + attributes : '') + '>' + (selected || '') + '</' + tag + '>';
     }
-});
+    
+    textarea.value = text.substring(0, start) + insert + text.substring(end);
+    textarea.focus();
+    textarea.selectionStart = start + insert.length;
+    textarea.selectionEnd = start + insert.length;
+}
+
+function htmlEditorWrapSelection(tag) {
+    const textarea = document.getElementById('voceDescrizione');
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const text = textarea.value;
+    const selected = text.substring(start, end);
+    
+    if (!selected) return;
+    
+    const wrapped = '<' + tag + '>' + selected + '</' + tag + '>';
+    textarea.value = text.substring(0, start) + wrapped + text.substring(end);
+    textarea.focus();
+    textarea.selectionStart = start;
+    textarea.selectionEnd = start + wrapped.length;
+}
 </script>
 
 <!-- Header -->
@@ -216,10 +284,17 @@ tinymce.init({
                 </div>
                 
                 <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-2">Descrizione <span class="text-xs text-cyan-600 font-normal">(supporta elenchi e formattazione)</span></label>
-                    <textarea name="descrizione" id="voceDescrizione" rows="3"
-                              class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none resize-none"
-                              placeholder="Descrivi il servizio..."></textarea>
+                    <label class="block text-sm font-medium text-slate-700 mb-2">Descrizione <span class="text-xs text-cyan-600 font-normal">(supporta HTML: &lt;b&gt;, &lt;i&gt;, &lt;ul&gt;, &lt;li&gt;)</span></label>
+                    <div class="html-editor-toolbar">
+                        <button type="button" onclick="htmlEditorWrapSelection('b')" title="Grassetto"><b>B</b></button>
+                        <button type="button" onclick="htmlEditorWrapSelection('i')" title="Corsivo"><i>I</i></button>
+                        <span class="separator"></span>
+                        <button type="button" onclick="htmlEditorInsertTag('ul')" title="Lista puntata">• Lista</button>
+                        <button type="button" onclick="htmlEditorInsertTag('li')" title="Elemento lista">→ Voce</button>
+                    </div>
+                    <textarea name="descrizione" id="voceDescrizione" rows="5"
+                              class="w-full px-4 py-2.5 border border-slate-200 focus:ring-2 focus:ring-cyan-500 outline-none resize-none"
+                              placeholder="Descrivi il servizio... Usa i bottoni sopra per formattare."></textarea>
                 </div>
                 
                 <div class="grid grid-cols-2 gap-4">
@@ -895,10 +970,8 @@ function openVoceModal(categoriaId, voceId = null) {
     const select = document.getElementById('voceCategoria');
     select.innerHTML = preventiviData.map(c => `<option value="${c.id}" ${c.id == categoriaId ? 'selected' : ''}>${c.nome}</option>`).join('');
     
-    // Reset editor TinyMCE
-    if (tinymce.get('voceDescrizione')) {
-        tinymce.get('voceDescrizione').setContent('');
-    }
+    // Reset editor
+    document.getElementById('voceDescrizione').value = '';
     
     if (voceId) {
         // Trova voce esistente
@@ -910,11 +983,7 @@ function openVoceModal(categoriaId, voceId = null) {
                 document.getElementById('voceSconto').value = voce.sconto_percentuale;
                 document.getElementById('voceFrequenza').value = voce.frequenza || '1';
                 // Carica descrizione nell'editor
-                if (tinymce.get('voceDescrizione')) {
-                    tinymce.get('voceDescrizione').setContent(voce.descrizione || '');
-                } else {
-                    document.getElementById('voceDescrizione').value = voce.descrizione || '';
-                }
+                document.getElementById('voceDescrizione').value = voce.descrizione || '';
                 break;
             }
         }
@@ -925,12 +994,6 @@ function openVoceModal(categoriaId, voceId = null) {
 
 async function saveVoce() {
     const form = document.getElementById('voceForm');
-    
-    // Sincronizza contenuto TinyMCE
-    if (tinymce.get('voceDescrizione')) {
-        tinymce.get('voceDescrizione').save();
-    }
-    
     const formData = new FormData(form);
     
     if (!formData.get('tipo_servizio') || !formData.get('prezzo')) {
