@@ -494,10 +494,12 @@ function generaHTMLPreventivo(array $voci, string $cliente, string $numero, stri
     // Prepara firma HTML se presente
     $firmaHtml = '';
     if (!empty($datiAzienda['firma'])) {
-        $firmaPath = __DIR__ . '/../assets/uploads/firma_azienda/' . $datiAzienda['firma'];
+        // Estrai solo il nome file dal path (se presente)
+        $firmaFilename = basename($datiAzienda['firma']);
+        $firmaPath = __DIR__ . '/../assets/uploads/firma_azienda/' . $firmaFilename;
         if (file_exists($firmaPath)) {
             $firmaData = base64_encode(file_get_contents($firmaPath));
-            $firmaExt = pathinfo($datiAzienda['firma'], PATHINFO_EXTENSION);
+            $firmaExt = pathinfo($firmaFilename, PATHINFO_EXTENSION);
             $mimeType = ($firmaExt === 'svg') ? 'image/svg+xml' : 'image/' . $firmaExt;
             $firmaHtml = '<img src="data:' . $mimeType . ';base64,' . $firmaData . '" style="max-height:50px;max-width:120px;object-fit:contain;" alt="Firma">';
         }
@@ -832,6 +834,7 @@ BUROCRAZIA;
             border-radius: 0 8px 8px 0;
             font-size: 9px;
             color: #92400e;
+            page-break-inside: avoid;
         }
         
         .footer {
@@ -850,6 +853,7 @@ BUROCRAZIA;
             border: 1px solid #e2e8f0;
             border-radius: 8px;
             background: #f8fafc;
+            page-break-inside: avoid;
         }
         .firma-section p {
             font-size: 9px;
@@ -889,6 +893,7 @@ BUROCRAZIA;
             border-radius: 8px;
             font-size: 8px;
             color: #64748b;
+            page-break-inside: avoid;
         }
         .condizioni h4 {
             color: #475569;
@@ -902,6 +907,7 @@ BUROCRAZIA;
             margin-top: 15px;
             display: flex;
             gap: 15px;
+            page-break-inside: avoid;
         }
         .condizioni-extra-item {
             flex: 1;
@@ -931,6 +937,7 @@ BUROCRAZIA;
             font-size: 7px;
             color: #64748b;
             border: 1px solid #e2e8f0;
+            page-break-inside: avoid;
         }
         .burocrazia h4 {
             color: #475569;
@@ -1048,7 +1055,7 @@ BUROCRAZIA;
             <div class="firma-box">
                 <div class="firma-label">Data</div>
                 <div class="firma-line"></div>
-                <div class="firma-data">__ / __ / ______</div>
+                <div class="firma-data">{$data}</div>
             </div>
             <div class="firma-box">
                 <div class="firma-label">Firma Cliente</div>
