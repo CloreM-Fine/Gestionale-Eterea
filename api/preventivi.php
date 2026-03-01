@@ -497,12 +497,24 @@ function generaHTMLPreventivo(array $voci, string $cliente, string $numero, stri
         // Estrai solo il nome file dal path (se presente)
         $firmaFilename = basename($datiAzienda['firma']);
         $firmaPath = __DIR__ . '/../assets/uploads/firma_azienda/' . $firmaFilename;
+        
+        // Debug logging
+        error_log("[FIRMA] Valore DB: " . $datiAzienda['firma']);
+        error_log("[FIRMA] Filename: " . $firmaFilename);
+        error_log("[FIRMA] Path completo: " . $firmaPath);
+        error_log("[FIRMA] File esiste: " . (file_exists($firmaPath) ? 'SI' : 'NO'));
+        
         if (file_exists($firmaPath)) {
             $firmaData = base64_encode(file_get_contents($firmaPath));
             $firmaExt = pathinfo($firmaFilename, PATHINFO_EXTENSION);
             $mimeType = ($firmaExt === 'svg') ? 'image/svg+xml' : 'image/' . $firmaExt;
             $firmaHtml = '<img src="data:' . $mimeType . ';base64,' . $firmaData . '" style="max-height:50px;max-width:120px;object-fit:contain;" alt="Firma">';
+            error_log("[FIRMA] HTML generato con successo");
+        } else {
+            error_log("[FIRMA] File non trovato: " . $firmaPath);
         }
+    } else {
+        error_log("[FIRMA] Nessuna firma nel DB");
     }
     
     // Recupera template condizioni
