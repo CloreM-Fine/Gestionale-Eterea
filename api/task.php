@@ -67,6 +67,16 @@ function listTask(): void {
     global $pdo;
     
     try {
+        // Verifica e crea colonne timer se non esistono
+        try {
+            $pdo->query("SELECT tempo_impiegato_seconds FROM task LIMIT 1");
+        } catch (PDOException $e) {
+            if (strpos($e->getMessage(), 'Unknown column') !== false) {
+                $pdo->exec("ALTER TABLE task ADD COLUMN tempo_impiegato_seconds INT DEFAULT 0");
+                $pdo->exec("ALTER TABLE task ADD COLUMN costo_calcolato DECIMAL(10,2) DEFAULT 0.00");
+            }
+        }
+        
         $where = [];
         $params = [];
         
