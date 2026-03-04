@@ -962,13 +962,8 @@ function switchTab(tabName) {
 </div>
 
 <script>
-// DEBUG: Verifica che lo script sia caricato
-console.log('=== SCRIPT PROGETTO DETTAGLIO CARICATO ===');
-alert('Debug: Pagina caricata, avvio loadTask...');
-
 // Carica task all'apertura
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOMContentLoaded triggered');
     loadTask();
     
     // Controlla se c'è un parametro 'section' per aprire un tab specifico
@@ -1216,6 +1211,7 @@ async function loadTask() {
         }
         
         // Renderizza le task (senza commenti, che verranno caricati dopo)
+        try {
         list.innerHTML = data.data.map(t => {
             const prioritaColor = {bassa: 'blue', media: 'yellow', alta: 'red'}[t.priorita];
             const statoClass = t.stato === 'completato' ? 'line-through text-slate-400' : '';
@@ -1467,6 +1463,11 @@ async function loadTask() {
                 </div>
             `;
         }).join('');
+        } catch (renderError) {
+            console.error('Errore rendering task:', renderError);
+            list.innerHTML = '<p class="text-center py-8 text-red-500">Errore nel rendering: ' + renderError.message + '</p>';
+            return;
+        }
         
         // Carica i commenti per tutte le task in parallelo
         data.data.forEach(t => loadCommentiForTask(t.id));
