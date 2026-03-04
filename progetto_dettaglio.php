@@ -1184,13 +1184,18 @@ async function loadTask() {
         const data = await response.json();
         
         console.log('Task data:', data);
+        console.log('Progetto ID:', progettoId);
+        
+        const list = document.getElementById('taskList');
         
         if (!data.success) {
             console.error('Errore API task:', data.message);
             showToast('Errore caricamento task: ' + (data.message || 'Errore sconosciuto'), 'error');
+            list.innerHTML = '<p class="text-center py-8 text-red-500">Errore: ' + (data.message || 'Errore sconosciuto') + '</p>';
+            return;
         }
         
-        const list = document.getElementById('taskList');
+        console.log('Numero task:', data.data?.length || 0);
         document.getElementById('taskCountBadge').textContent = data.data?.length || 0;
         
         if (!data.success || !data.data || data.data.length === 0) {
