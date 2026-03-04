@@ -152,7 +152,10 @@ function listTask(): void {
         
     } catch (PDOException $e) {
         error_log("Errore lista task: " . $e->getMessage());
-        jsonResponse(false, null, 'Errore caricamento task');
+        jsonResponse(false, null, 'Errore caricamento task: ' . $e->getMessage());
+    } catch (Exception $e) {
+        error_log("Errore generico lista task: " . $e->getMessage());
+        jsonResponse(false, null, 'Errore generico: ' . $e->getMessage());
     }
 }
 

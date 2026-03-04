@@ -1183,6 +1183,13 @@ async function loadTask() {
         const response = await fetch(`api/task.php?action=list&progetto_id=${progettoId}`);
         const data = await response.json();
         
+        console.log('Task data:', data);
+        
+        if (!data.success) {
+            console.error('Errore API task:', data.message);
+            showToast('Errore caricamento task: ' + (data.message || 'Errore sconosciuto'), 'error');
+        }
+        
         const list = document.getElementById('taskList');
         document.getElementById('taskCountBadge').textContent = data.data?.length || 0;
         
