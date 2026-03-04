@@ -964,6 +964,7 @@ function switchTab(tabName) {
 <script>
 // Carica task all'apertura
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOMContentLoaded triggered - loading tasks...');
     loadTask();
     
     // Controlla se c'è un parametro 'section' per aprire un tab specifico
