@@ -28,6 +28,8 @@ switch ($method) {
             getCodiciAteco();
         } elseif ($action === 'get_impostazioni_tasse') {
             getImpostazioniTasse();
+        } elseif ($action === 'get_paga_oraria') {
+            getPagaOraria();
         } elseif ($action === 'get_impostazioni_contabilita') {
             getImpostazioniContabilita();
         } elseif ($action === 'get_template_condizioni') {
@@ -66,6 +68,8 @@ switch ($method) {
             deleteCodiceAteco();
         } elseif ($action === 'save_impostazioni_tasse') {
             saveImpostazioniTasse();
+        } elseif ($action === 'save_paga_oraria') {
+            savePagaOraria();
         } elseif ($action === 'save_impostazioni_contabilita') {
             saveImpostazioniContabilita();
         } elseif ($action === 'change_password') {
@@ -703,6 +707,52 @@ function saveImpostazioniTasse(): void {
         jsonResponse(true, null, 'Impostazioni tasse salvate');
     } catch (PDOException $e) {
         error_log("Errore save impostazioni tasse: " . $e->getMessage());
+        jsonResponse(false, null, 'Errore durante il salvataggio');
+    }
+}
+
+/**
+ * Ottiene la paga oraria per task
+ */
+function getPagaOraria(): void {
+    global $pdo;
+    
+    try {
+        $stmt = $pdo->prepare("SELECT valore FROM impostazioni WHERE chiave = 'paga_oraria'");
+        $stmt->execute();
+        $paga = floatval($stmt->fetchColumn() ?: '25.00');
+        
+        jsonResponse(true, ['paga_oraria' => $paga]);
+    } catch (PDOException $e) {
+        error_log("Errore get paga oraria: " . $e->getMessage());
+        jsonResponse(true, ['paga_oraria' => 25.00]); // Default in caso di errore
+    }
+}
+
+/**
+ * Salva la paga oraria per task
+ */
+function savePagaOraria(): void {
+    global $pdo;
+    
+    $paga = floatval($_POST['paga_oraria'] ?? 25.00);
+    
+    if ($paga < 0) {
+        jsonResponse(false, null, 'La paga oraria non può essere negativa');
+        return;
+    }
+    
+    try {
+        $stmt = $pdo->prepare("
+            INSERT INTO impostazioni (chiave, valore, tipo, descrizione) 
+            VALUES ('paga_oraria', ?, 'number', 'Paga oraria per calcolo costi task')
+            ON DUPLICATE KEY UPDATE valore = ?
+        ");
+        $stmt->execute([$paga, $paga]);
+        
+        jsonResponse(true, null, 'Paga oraria salvata');
+    } catch (PDOException $e) {
+        error_log("Errore save paga oraria: " . $e->getMessage());
         jsonResponse(false, null, 'Errore durante il salvataggio');
     }
 }

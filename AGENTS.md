@@ -110,6 +110,36 @@ L'applicazione è scritta in **PHP vanilla** (senza framework) con un'architettu
 - **impostazioni** - Configurazioni variabili
 - **progetto_documenti** - File allegati ai progetti
 - **progetti_checklist** - Checklist di controllo per progetti
+- **task_timer** - Time tracking per task (avvio/pausa/stop)
+
+### Sistema Timer Task
+
+Il sistema include un timer integrato per tracciare il tempo impiegato su ogni task:
+
+| Campo | Descrizione |
+|-------|-------------|
+| `task_id` | Riferimento alla task |
+| `utente_id` | Utente che sta tracciando il tempo |
+| `started_at` | Timestamp avvio timer |
+| `paused_at` | Timestamp pausa |
+| `resumed_at` | Timestamp ripresa |
+| `stopped_at` | Timestamp stop finale |
+| `total_seconds` | Secondi totali accumulati |
+| `is_running` | Se il timer è attivo |
+| `is_paused` | Se il timer è in pausa |
+
+**Funzionalità:**
+- Pulsanti Avvia/Pausa/Riprendi/Stop per ogni task
+- Calcolo automatico del costo basato su "Paga Oraria" in impostazioni
+- Visualizzazione tempo totale e costo quando la task è completata
+- Mobile responsive
+
+**API Endpoints:**
+- `timer_start` - Avvia il timer
+- `timer_pause` - Mette in pausa
+- `timer_resume` - Riprende dalla pausa  
+- `timer_stop` - Ferma e calcola costo
+- `get_timer` - Ottiene stato timer
 
 ### Relazioni Chiave
 

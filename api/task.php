@@ -25,6 +25,8 @@ switch ($method) {
             changeTaskStatus($id);
         } elseif ($action === 'list_commenti' && $id) {
             listCommenti($id);
+        } elseif ($action === 'get_timer' && $id) {
+            getTimerStatus($id);
         } else {
             jsonResponse(false, null, 'Azione non valida');
         }
@@ -41,6 +43,14 @@ switch ($method) {
             addCommento();
         } elseif ($action === 'delete_commento' && isset($_POST['commento_id'])) {
             deleteCommento($_POST['commento_id']);
+        } elseif ($action === 'timer_start') {
+            timerStart();
+        } elseif ($action === 'timer_pause') {
+            timerPause();
+        } elseif ($action === 'timer_resume') {
+            timerResume();
+        } elseif ($action === 'timer_stop') {
+            timerStop();
         } else {
             jsonResponse(false, null, 'Azione non valida');
         }
@@ -548,5 +558,277 @@ function deleteCommento(string $commentoId): void {
     } catch (PDOException $e) {
         error_log("Errore eliminazione commento: " . $e->getMessage());
         jsonResponse(false, null, 'Errore eliminazione commento');
+    }
+}
+
+
+/**
+ * ============================================================================
+ * GESTIONE TIMER TASK
+ * ============================================================================
+ */
+
+/**
+ * Avvia il timer per una task
+ */
+function timerStart(): void {
+    global $pdo;
+    
+    $taskId = $_POST['task_id'] ?? '';
+    $utenteId = $_SESSION['user_id'] ?? '';
+    
+    if (empty($taskId)) {
+        jsonResponse(false, null, 'Task ID mancante');
+        return;
+    }
+    
+    try {
+        // Verifica se c'è già un timer attivo per questa task
+        $stmt = $pdo->prepare("
+            SELECT id FROM task_timer 
+            WHERE task_id = ? AND utente_id = ? AND is_running = 1
+        ");
+        $stmt->execute([$taskId, $utenteId]);
+        if ($stmt->fetch()) {
+            jsonResponse(false, null, 'Timer già attivo per questa task');
+            return;
+        }
+        
+        // Ferma eventuali altri timer attivi dell'utente
+        $stmt = $pdo->prepare("
+            UPDATE task_timer 
+            SET is_running = 0, stopped_at = NOW(),
+                total_seconds = total_seconds + TIMESTAMPDIFF(SECOND, started_at, NOW())
+            WHERE utente_id = ? AND is_running = 1
+        ");
+        $stmt->execute([$utenteId]);
+        
+        // Crea nuovo timer
+        $stmt = $pdo->prepare("
+            INSERT INTO task_timer (task_id, utente_id, started_at, is_running, total_seconds)
+            VALUES (?, ?, NOW(), 1, 0)
+        ");
+        $stmt->execute([$taskId, $utenteId]);
+        
+        $timerId = $pdo->lastInsertId();
+        
+        jsonResponse(true, [
+            'timer_id' => $timerId,
+            'started_at' => date('Y-m-d H:i:s'),
+            'message' => 'Timer avviato'
+        ]);
+        
+    } catch (PDOException $e) {
+        error_log("Errore avvio timer: " . $e->getMessage());
+        jsonResponse(false, null, 'Errore avvio timer');
+    }
+}
+
+/**
+ * Mette in pausa il timer
+ */
+function timerPause(): void {
+    global $pdo;
+    
+    $taskId = $_POST['task_id'] ?? '';
+    $utenteId = $_SESSION['user_id'] ?? '';
+    
+    if (empty($taskId)) {
+        jsonResponse(false, null, 'Task ID mancante');
+        return;
+    }
+    
+    try {
+        $stmt = $pdo->prepare("
+            UPDATE task_timer 
+            SET is_paused = 1, paused_at = NOW(),
+                total_seconds = total_seconds + TIMESTAMPDIFF(SECOND, started_at, NOW())
+            WHERE task_id = ? AND utente_id = ? AND is_running = 1 AND is_paused = 0
+        ");
+        $stmt->execute([$taskId, $utenteId]);
+        
+        if ($stmt->rowCount() === 0) {
+            jsonResponse(false, null, 'Nessun timer attivo trovato');
+            return;
+        }
+        
+        jsonResponse(true, ['message' => 'Timer in pausa']);
+        
+    } catch (PDOException $e) {
+        error_log("Errore pausa timer: " . $e->getMessage());
+        jsonResponse(false, null, 'Errore pausa timer');
+    }
+}
+
+/**
+ * Riprende il timer dalla pausa
+ */
+function timerResume(): void {
+    global $pdo;
+    
+    $taskId = $_POST['task_id'] ?? '';
+    $utenteId = $_SESSION['user_id'] ?? '';
+    
+    if (empty($taskId)) {
+        jsonResponse(false, null, 'Task ID mancante');
+        return;
+    }
+    
+    try {
+        $stmt = $pdo->prepare("
+            UPDATE task_timer 
+            SET is_paused = 0, resumed_at = NOW(), started_at = NOW()
+            WHERE task_id = ? AND utente_id = ? AND is_running = 1 AND is_paused = 1
+        ");
+        $stmt->execute([$taskId, $utenteId]);
+        
+        if ($stmt->rowCount() === 0) {
+            jsonResponse(false, null, 'Nessun timer in pausa trovato');
+            return;
+        }
+        
+        jsonResponse(true, ['message' => 'Timer ripreso']);
+        
+    } catch (PDOException $e) {
+        error_log("Errore resume timer: " . $e->getMessage());
+        jsonResponse(false, null, 'Errore resume timer');
+    }
+}
+
+/**
+ * Ferma il timer e calcola il tempo totale
+ */
+function timerStop(): void {
+    global $pdo;
+    
+    $taskId = $_POST['task_id'] ?? '';
+    $utenteId = $_SESSION['user_id'] ?? '';
+    
+    if (empty($taskId)) {
+        jsonResponse(false, null, 'Task ID mancante');
+        return;
+    }
+    
+    try {
+        // Ottieni il timer attivo
+        $stmt = $pdo->prepare("
+            SELECT id, total_seconds, started_at, is_paused
+            FROM task_timer 
+            WHERE task_id = ? AND utente_id = ? AND is_running = 1
+            ORDER BY id DESC LIMIT 1
+        ");
+        $stmt->execute([$taskId, $utenteId]);
+        $timer = $stmt->fetch();
+        
+        if (!$timer) {
+            jsonResponse(false, null, 'Nessun timer attivo trovato');
+            return;
+        }
+        
+        // Calcola secondi finali
+        $additionalSeconds = 0;
+        if (!$timer['is_paused']) {
+            $additionalSeconds = time() - strtotime($timer['started_at']);
+        }
+        $totalSeconds = $timer['total_seconds'] + $additionalSeconds;
+        
+        // Aggiorna timer
+        $stmt = $pdo->prepare("
+            UPDATE task_timer 
+            SET is_running = 0, stopped_at = NOW(), total_seconds = ?
+            WHERE id = ?
+        ");
+        $stmt->execute([$totalSeconds, $timer['id']]);
+        
+        // Ottieni paga oraria
+        $stmt = $pdo->prepare("SELECT valore FROM impostazioni WHERE chiave = 'paga_oraria'");
+        $stmt->execute();
+        $pagaOraria = floatval($stmt->fetchColumn() ?: '25.00');
+        
+        // Calcola costo
+        $oreLavorate = $totalSeconds / 3600;
+        $costo = round($oreLavorate * $pagaOraria, 2);
+        
+        // Aggiorna task con tempo e costo
+        $stmt = $pdo->prepare("
+            UPDATE task 
+            SET tempo_impiegato_seconds = tempo_impiegato_seconds + ?,
+                costo_calcolato = costo_calcolato + ?
+            WHERE id = ?
+        ");
+        $stmt->execute([$totalSeconds, $costo, $taskId]);
+        
+        // Formatta tempo per risposta
+        $ore = floor($totalSeconds / 3600);
+        $min = floor(($totalSeconds % 3600) / 60);
+        $sec = $totalSeconds % 60;
+        $tempoFormattato = sprintf('%02d:%02d:%02d', $ore, $min, $sec);
+        
+        jsonResponse(true, [
+            'total_seconds' => $totalSeconds,
+            'tempo_formattato' => $tempoFormattato,
+            'costo' => $costo,
+            'paga_oraria' => $pagaOraria,
+            'message' => 'Timer fermato'
+        ]);
+        
+    } catch (PDOException $e) {
+        error_log("Errore stop timer: " . $e->getMessage());
+        jsonResponse(false, null, 'Errore stop timer');
+    }
+}
+
+/**
+ * Ottiene lo stato del timer per una task
+ */
+function getTimerStatus(string $taskId): void {
+    global $pdo;
+    
+    $utenteId = $_SESSION['user_id'] ?? '';
+    
+    try {
+        // Ottieni timer attivo
+        $stmt = $pdo->prepare("
+            SELECT id, started_at, is_running, is_paused, total_seconds
+            FROM task_timer 
+            WHERE task_id = ? AND utente_id = ? AND is_running = 1
+            ORDER BY id DESC LIMIT 1
+        ");
+        $stmt->execute([$taskId, $utenteId]);
+        $timer = $stmt->fetch();
+        
+        // Ottieni totali accumulati dalla task
+        $stmt = $pdo->prepare("
+            SELECT tempo_impiegato_seconds, costo_calcolato 
+            FROM task WHERE id = ?
+        ");
+        $stmt->execute([$taskId]);
+        $task = $stmt->fetch();
+        
+        $response = [
+            'has_active_timer' => false,
+            'total_seconds' => intval($task['tempo_impiegato_seconds'] ?? 0),
+            'costo_calcolato' => floatval($task['costo_calcolato'] ?? 0)
+        ];
+        
+        if ($timer) {
+            $response['has_active_timer'] = true;
+            $response['timer_id'] = $timer['id'];
+            $response['is_paused'] = (bool)$timer['is_paused'];
+            $response['started_at'] = $timer['started_at'];
+            
+            // Calcola tempo corrente se non in pausa
+            $currentTotal = $timer['total_seconds'];
+            if (!$timer['is_paused']) {
+                $currentTotal += time() - strtotime($timer['started_at']);
+            }
+            $response['current_session_seconds'] = $currentTotal;
+        }
+        
+        jsonResponse(true, $response);
+        
+    } catch (PDOException $e) {
+        error_log("Errore get timer status: " . $e->getMessage());
+        jsonResponse(false, null, 'Errore lettura timer');
     }
 }

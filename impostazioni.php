@@ -851,6 +851,63 @@ include __DIR__ . '/includes/header.php';
         </div>
     </div>
     
+    <!-- Sezione: Impostazioni Task -->
+    <div class="md:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="p-5 border-b border-slate-100">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center">
+                    <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-slate-800">Impostazioni Task</h3>
+                    <p class="text-xs sm:text-sm text-slate-500">Timer e calcolo costi</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="p-5">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Paga Oraria -->
+                <div class="p-4 bg-slate-50 rounded-xl">
+                    <label class="block text-sm font-medium text-slate-700 mb-2">
+                        <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        Paga Oraria (€/ora)
+                    </label>
+                    <input type="number" id="pagaOraria" step="0.01" min="0"
+                           class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none"
+                           placeholder="es. 25.00">
+                    <p class="text-xs text-slate-500 mt-1">Tariffa oraria per calcolo costi task</p>
+                </div>
+                
+                <!-- Info -->
+                <div class="p-4 bg-purple-50 border border-purple-200 rounded-xl">
+                    <h4 class="font-medium text-purple-800 mb-2 text-sm">
+                        <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        Come funziona
+                    </h4>
+                    <p class="text-xs text-purple-700 leading-relaxed">
+                        Ogni task avrà un timer per tracciare il tempo impiegato. 
+                        Al completamento, il sistema calcolerà automaticamente il costo 
+                        in base alla paga oraria configurata.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="mt-4 flex justify-end">
+                <button onclick="salvaImpostazioniTask()" 
+                        class="px-6 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium transition-colors">
+                    Salva Impostazioni
+                </button>
+            </div>
+        </div>
+    </div>
+    
     <!-- Sezione: ELIMINA TUTTO (Pericolo Estremo) -->
     <div class="md:col-span-2 bg-gradient-to-r from-red-50 to-red-100 rounded-2xl shadow-sm border border-red-200 overflow-hidden">
         <div class="p-5 border-b border-red-200">
@@ -1924,6 +1981,59 @@ async function caricaImpostazioniTasse() {
         console.error('Errore caricamento impostazioni tasse:', error);
     }
 }
+
+// ============================================================================
+// GESTIONE IMPOSTAZIONI TASK
+// ============================================================================
+
+async function caricaImpostazioniTask() {
+    try {
+        const response = await fetch('api/impostazioni.php?action=get_paga_oraria');
+        const data = await response.json();
+        
+        if (data.success) {
+            document.getElementById('pagaOraria').value = data.data.paga_oraria || '25.00';
+        }
+    } catch (error) {
+        console.error('Errore caricamento impostazioni task:', error);
+    }
+}
+
+async function salvaImpostazioniTask() {
+    const pagaOraria = document.getElementById('pagaOraria').value;
+    
+    if (!pagaOraria || parseFloat(pagaOraria) < 0) {
+        showToast('Inserisci una paga oraria valida', 'error');
+        return;
+    }
+    
+    try {
+        const formData = new FormData();
+        formData.append('action', 'save_paga_oraria');
+        formData.append('paga_oraria', pagaOraria);
+        
+        const response = await fetch('api/impostazioni.php', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showToast('Impostazioni task salvate', 'success');
+        } else {
+            showToast(data.message || 'Errore durante il salvataggio', 'error');
+        }
+    } catch (error) {
+        console.error('Errore:', error);
+        showToast('Errore di connessione', 'error');
+    }
+}
+
+// Carica impostazioni task all'avvio
+document.addEventListener('DOMContentLoaded', function() {
+    caricaImpostazioniTask();
+});
 
 function toggleTasseForm() {
     const form = document.getElementById('tasseForm');
