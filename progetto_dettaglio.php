@@ -1167,6 +1167,17 @@ function renderDistribuzione(distribuzione, totale) {
     openModal('distribuzioneModal');
 }
 
+// ============================================================================
+// FUNZIONI UTILITY TIMER (definite prima di loadTask per evitare errori)
+// ============================================================================
+
+function formatTimerSeconds(totalSeconds) {
+    const ore = Math.floor(totalSeconds / 3600);
+    const min = Math.floor((totalSeconds % 3600) / 60);
+    const sec = totalSeconds % 60;
+    return `${ore.toString().padStart(2, '0')}:${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
+}
+
 async function loadTask() {
     try {
         const response = await fetch(`api/task.php?action=list&progetto_id=${progettoId}`);
@@ -1598,13 +1609,6 @@ function stopTimerInterval(taskId) {
 function getTimerSeconds(taskId) {
     const display = document.getElementById(`timer-display-${taskId}`);
     return parseInt(display?.dataset?.seconds || 0);
-}
-
-function formatTimerSeconds(totalSeconds) {
-    const ore = Math.floor(totalSeconds / 3600);
-    const min = Math.floor((totalSeconds % 3600) / 60);
-    const sec = totalSeconds % 60;
-    return `${ore.toString().padStart(2, '0')}:${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
 }
 
 function updateTimerUI(taskId, isRunning, isPaused, seconds) {
