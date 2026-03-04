@@ -1630,6 +1630,8 @@ function getTimerSeconds(taskId) {
 }
 
 function updateTimerUI(taskId, isRunning, isPaused, seconds) {
+    console.log('updateTimerUI:', {taskId, isRunning, isPaused, seconds});
+    
     const display = document.getElementById(`timer-display-${taskId}`);
     if (display) {
         display.dataset.seconds = seconds;
@@ -1642,10 +1644,20 @@ function updateTimerUI(taskId, isRunning, isPaused, seconds) {
     const btnResume = document.getElementById(`timer-btn-resume-${taskId}`);
     const btnStop = document.getElementById(`timer-btn-stop-${taskId}`);
     
-    if (btnStart) btnStart.classList.toggle('hidden', isRunning);
-    if (btnPause) btnPause.classList.toggle('hidden', !isRunning || isPaused);
-    if (btnResume) btnResume.classList.toggle('hidden', !isPaused);
-    if (btnStop) btnStop.classList.toggle('hidden', !isRunning);
+    console.log('Pulsanti trovati:', {btnStart: !!btnStart, btnPause: !!btnPause, btnResume: !!btnResume, btnStop: !!btnStop});
+    
+    if (btnStart) {
+        isRunning ? btnStart.classList.add('hidden') : btnStart.classList.remove('hidden');
+    }
+    if (btnPause) {
+        (isRunning && !isPaused) ? btnPause.classList.remove('hidden') : btnPause.classList.add('hidden');
+    }
+    if (btnResume) {
+        isPaused ? btnResume.classList.remove('hidden') : btnResume.classList.add('hidden');
+    }
+    if (btnStop) {
+        isRunning ? btnStop.classList.remove('hidden') : btnStop.classList.add('hidden');
+    }
 }
 
 // Carica stato timer per una task
@@ -1653,6 +1665,8 @@ async function loadTimerStatus(taskId) {
     try {
         const response = await fetch(`api/task.php?action=get_timer&id=${encodeURIComponent(taskId)}`);
         const data = await response.json();
+        
+        console.log('loadTimerStatus:', taskId, data);
         
         if (data.success) {
             const timerData = data.data;
@@ -1673,6 +1687,7 @@ async function loadTimerStatus(taskId) {
             
             // Se c'è un timer attivo, aggiorna UI
             if (timerData.has_active_timer) {
+                console.log('Timer attivo trovato per task', taskId);
                 const seconds = timerData.current_session_seconds || 0;
                 updateTimerUI(taskId, true, timerData.is_paused, seconds);
                 if (!timerData.is_paused) {
