@@ -596,15 +596,35 @@ function timerStart(): void {
     }
     
     try {
-        // Verifica se c'è già un timer attivo per questa task
+        // Se c'è già un timer attivo per questa task, continua quello
         $stmt = $pdo->prepare("
-            SELECT id FROM task_timer 
+            SELECT id, started_at, TIMESTAMPDIFF(SECOND, started_at, NOW()) as seconds_running
+            FROM task_timer 
             WHERE task_id = ? AND utente_id = ? AND is_running = 1
         ");
         $stmt->execute([$taskId, $utenteId]);
-        if ($stmt->fetch()) {
-            jsonResponse(false, null, 'Timer già attivo per questa task');
-            return;
+        $existingTimer = $stmt->fetch();
+        
+        if ($existingTimer) {
+            // Se il timer è attivo da più di 8 ore, probabilmente è "stuck" - ferma e avvia nuovo
+            if ($existingTimer['seconds_running'] > 28800) { // 8 ore
+                $stmt = $pdo->prepare("
+                    UPDATE task_timer 
+                    SET is_running = 0, stopped_at = NOW(),
+                        total_seconds = ?
+                    WHERE id = ?
+                ");
+                $stmt->execute([$existingTimer['seconds_running'], $existingTimer['id']]);
+            } else {
+                // Timer valido, continua
+                jsonResponse(true, [
+                    'timer_id' => $existingTimer['id'],
+                    'started_at' => $existingTimer['started_at'],
+                    'message' => 'Timer ripreso',
+                    'seconds_running' => $existingTimer['seconds_running']
+                ]);
+                return;
+            }
         }
         
         // Ferma eventuali altri timer attivi dell'utente
