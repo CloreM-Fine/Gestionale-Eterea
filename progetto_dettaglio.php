@@ -962,9 +962,13 @@ function switchTab(tabName) {
 </div>
 
 <script>
+// DEBUG: Verifica che lo script sia caricato
+console.log('=== SCRIPT PROGETTO DETTAGLIO CARICATO ===');
+alert('Debug: Pagina caricata, avvio loadTask...');
+
 // Carica task all'apertura
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOMContentLoaded triggered - loading tasks...');
+    console.log('DOMContentLoaded triggered');
     loadTask();
     
     // Controlla se c'è un parametro 'section' per aprire un tab specifico
