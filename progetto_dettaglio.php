@@ -1304,10 +1304,10 @@ async function loadTask() {
                                     </div>
                                 </div>
                             ` : ''}
-                            ${(t.tempo_impiegato_seconds > 0 || t.costo_calcolato > 0) ? `
+                            ${(parseFloat(t.tempo_impiegato_seconds) > 0 || parseFloat(t.costo_calcolato) > 0) ? `
                                 <div class="flex items-center gap-3 text-sm mb-3">
                                     <span class="text-slate-600">⏱️ <span id="timer-total-${t.id}">Totale: ${formatTimerSeconds(t.tempo_impiegato_seconds || 0)}</span></span>
-                                    <span class="text-emerald-600 font-medium">💰 €${(t.costo_calcolato || 0).toFixed(2)}</span>
+                                    <span class="text-emerald-600 font-medium">💰 €${parseFloat(t.costo_calcolato || 0).toFixed(2)}</span>
                                 </div>
                             ` : ''}
                         </div>
@@ -1418,8 +1418,8 @@ async function loadTask() {
                                 <div class="flex items-center justify-between mb-4 p-3 bg-slate-50 rounded-lg">
                                     <div class="flex items-center gap-3">
                                         <span class="text-2xl font-mono font-bold text-slate-800" id="timer-display-${t.id}" data-seconds="0">00:00:00</span>
-                                        <span id="timer-total-${t.id}" class="text-sm text-slate-500 ${t.tempo_impiegato_seconds > 0 ? '' : 'hidden'}">Totale: ${formatTimerSeconds(t.tempo_impiegato_seconds || 0)}</span>
-                                        <span id="timer-costo-${t.id}" class="text-sm text-emerald-600 font-medium ${t.costo_calcolato > 0 ? '' : 'hidden'}">€${(t.costo_calcolato || 0).toFixed(2)}</span>
+                                        <span id="timer-total-${t.id}" class="text-sm text-slate-500 ${parseFloat(t.tempo_impiegato_seconds) > 0 ? '' : 'hidden'}">Totale: ${formatTimerSeconds(parseFloat(t.tempo_impiegato_seconds) || 0)}</span>
+                                        <span id="timer-costo-${t.id}" class="text-sm text-emerald-600 font-medium ${parseFloat(t.costo_calcolato) > 0 ? '' : 'hidden'}">€${parseFloat(t.costo_calcolato || 0).toFixed(2)}</span>
                                     </div>
                                     <div class="flex gap-2">
                                         <button id="timer-btn-start-${t.id}" onclick="startTaskTimer('${t.id}')" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-1">
@@ -1442,10 +1442,10 @@ async function loadTask() {
                                 </div>
                             ` : ''}
                             
-                            ${t.stato === 'completato' && (t.tempo_impiegato_seconds > 0 || t.costo_calcolato > 0) ? `
+                            ${t.stato === 'completato' && (parseFloat(t.tempo_impiegato_seconds) > 0 || parseFloat(t.costo_calcolato) > 0) ? `
                                 <div class="flex items-center gap-4 mb-4 p-3 bg-emerald-50 rounded-lg">
                                     <span class="text-slate-700">⏱️ Tempo impiegato: <strong>${formatTimerSeconds(t.tempo_impiegato_seconds || 0)}</strong></span>
-                                    <span class="text-emerald-700 font-medium">💰 Costo: <strong>€${(t.costo_calcolato || 0).toFixed(2)}</strong></span>
+                                    <span class="text-emerald-700 font-medium">💰 Costo: <strong>€${parseFloat(t.costo_calcolato || 0).toFixed(2)}</strong></span>
                                 </div>
                             ` : ''}
                             
