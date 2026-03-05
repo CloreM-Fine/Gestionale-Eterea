@@ -1250,6 +1250,9 @@ async function loadTask() {
                                         <button id="timer-btn-stop-${t.id}" onclick="stopTaskTimer('${t.id}')" class="text-red-500 hover:text-red-600 p-0.5 hidden" title="Stop">
                                             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4h12v12H4V4z"/></svg>
                                         </button>
+                                        <button id="timer-btn-reset-${t.id}" onclick="resetTaskTimer('${t.id}')" class="text-slate-400 hover:text-slate-600 p-0.5" title="Reset">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                                        </button>
                                     </div>
                                 ` : ''}
                                 ${t.tempo_impiegato_seconds > 0 ? `<span class="text-xs text-slate-500" title="Tempo totale">⏱️ ${formatTimerSeconds(t.tempo_impiegato_seconds)}</span>` : ''}
@@ -1359,6 +1362,9 @@ async function loadTask() {
                                         </button>
                                         <button id="timer-btn-desk-stop-${t.id}" onclick="stopTaskTimer('${t.id}')" class="text-red-500 hover:text-red-600 p-0.5 hidden" title="Stop">
                                             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4h12v12H4V4z"/></svg>
+                                        </button>
+                                        <button id="timer-btn-desk-reset-${t.id}" onclick="resetTaskTimer('${t.id}')" class="text-slate-400 hover:text-slate-600 p-0.5" title="Reset">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
                                         </button>
                                     </div>
                                 ` : ''}
@@ -1565,6 +1571,29 @@ async function stopTaskTimer(taskId) {
     } catch (error) {
         showToast('Errore di connessione', 'error');
     }
+}
+
+async function resetTaskTimer(taskId) {
+    confirmAction('Resettare il timer? Il tempo corrente verrà perso.', async () => {
+        try {
+            const response = await fetch('api/task.php?action=timer_reset', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `task_id=${encodeURIComponent(taskId)}`
+            });
+            
+            const data = await response.json();
+            if (data.success) {
+                stopTimerInterval(taskId);
+                updateTimerUI(taskId, false, false, 0);
+                showToast('Timer resettato', 'success');
+            } else {
+                showToast(data.message || 'Errore reset timer', 'error');
+            }
+        } catch (error) {
+            showToast('Errore di connessione', 'error');
+        }
+    });
 }
 
 function startTimerInterval(taskId) {
