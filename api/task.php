@@ -51,6 +51,8 @@ switch ($method) {
             timerResume();
         } elseif ($action === 'timer_stop') {
             timerStop();
+        } elseif ($action === 'timer_delete') {
+            timerDelete();
         } else {
             jsonResponse(false, null, 'Azione non valida');
         }
@@ -808,6 +810,36 @@ function timerStop(): void {
     } catch (PDOException $e) {
         error_log("Errore stop timer: " . $e->getMessage());
         jsonResponse(false, null, 'Errore stop timer');
+    }
+}
+
+/**
+ * Elimina il timer per una task
+ */
+function timerDelete(): void {
+    global $pdo;
+    
+    $taskId = $_POST['task_id'] ?? '';
+    $utenteId = $_SESSION['user_id'] ?? '';
+    
+    if (empty($taskId)) {
+        jsonResponse(false, null, 'Task ID mancante');
+        return;
+    }
+    
+    try {
+        // Elimina timer attivo o in pausa
+        $stmt = $pdo->prepare("
+            DELETE FROM task_timer 
+            WHERE task_id = ? AND utente_id = ? AND is_running = 1
+        ");
+        $stmt->execute([$taskId, $utenteId]);
+        
+        jsonResponse(true, null, 'Timer eliminato');
+        
+    } catch (PDOException $e) {
+        error_log("Errore delete timer: " . $e->getMessage());
+        jsonResponse(false, null, 'Errore eliminazione timer');
     }
 }
 

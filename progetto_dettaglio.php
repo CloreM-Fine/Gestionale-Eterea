@@ -1301,6 +1301,9 @@ async function loadTask() {
                                         <button id="timer-btn-stop-${t.id}" onclick="stopTaskTimer('${t.id}')" class="px-3 py-2 bg-red-500 text-white rounded-lg text-sm font-medium hidden">
                                             ⏹ Stop
                                         </button>
+                                        <button onclick="deleteTaskTimer('${t.id}')" class="px-3 py-2 bg-slate-200 text-slate-600 rounded-lg text-sm font-medium" title="Elimina timer">
+                                            🗑️
+                                        </button>
                                     </div>
                                 </div>
                             ` : ''}
@@ -1438,6 +1441,9 @@ async function loadTask() {
                                             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4h12v12H4V4z"/></svg>
                                             Stop
                                         </button>
+                                        <button onclick="deleteTaskTimer('${t.id}')" class="px-3 py-2 bg-slate-200 hover:bg-slate-300 text-slate-600 rounded-lg text-sm font-medium transition-colors" title="Elimina timer">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                        </button>
                                     </div>
                                 </div>
                             ` : ''}
@@ -1520,6 +1526,7 @@ async function deleteTask(taskId) {
 let timerIntervals = {}; // Memorizza gli interval per ogni task
 
 async function startTaskTimer(taskId) {
+    console.log('startTaskTimer chiamato per task:', taskId);
     try {
         const response = await fetch('api/task.php?action=timer_start', {
             method: 'POST',
@@ -1528,14 +1535,19 @@ async function startTaskTimer(taskId) {
         });
         
         const data = await response.json();
+        console.log('Risposta timer_start:', data);
+        
         if (data.success) {
             showToast('Timer avviato', 'success');
-            updateTimerUI(taskId, true, false, 0);
+            // Se il timer esisteva già, usa i secondi già trascorsi
+            const seconds = data.data.seconds_running || 0;
+            updateTimerUI(taskId, true, false, seconds);
             startTimerInterval(taskId);
         } else {
             showToast(data.message || 'Errore avvio timer', 'error');
         }
     } catch (error) {
+        console.error('Errore startTaskTimer:', error);
         showToast('Errore di connessione', 'error');
     }
 }
@@ -1600,6 +1612,31 @@ async function stopTaskTimer(taskId) {
             showToast(data.message || 'Errore stop timer', 'error');
         }
     } catch (error) {
+        showToast('Errore di connessione', 'error');
+    }
+}
+
+async function deleteTaskTimer(taskId) {
+    if (!confirm('Eliminare il timer per questa task?')) return;
+    
+    try {
+        const response = await fetch('api/task.php?action=timer_delete', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `task_id=${encodeURIComponent(taskId)}`
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+            stopTimerInterval(taskId);
+            updateTimerUI(taskId, false, false, 0);
+            showToast('Timer eliminato', 'success');
+            loadTask();
+        } else {
+            showToast(data.message || 'Errore eliminazione timer', 'error');
+        }
+    } catch (error) {
+        console.error('Errore deleteTaskTimer:', error);
         showToast('Errore di connessione', 'error');
     }
 }
