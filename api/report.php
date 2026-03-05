@@ -44,6 +44,20 @@ switch ($method) {
 }
 
 /**
+ * Verifica se una colonna esiste in una tabella
+ */
+function columnExists($pdo, $table, $column): bool {
+    try {
+        $stmt = $pdo->prepare("SELECT 1 FROM information_schema.columns 
+            WHERE table_name = ? AND column_name = ? LIMIT 1");
+        $stmt->execute([$table, $column]);
+        return $stmt->fetch() !== false;
+    } catch (Exception $e) {
+        return false;
+    }
+}
+
+/**
  * Statistiche generali per dashboard
  */
 function getDashboardStats(): void {
@@ -68,21 +82,36 @@ function getDashboardStats(): void {
             FROM task");
         $task = $stmt->fetch();
         
-        // Tempo totale registrato
-        $stmt = $pdo->query("SELECT SUM(tempo_impiegato_seconds) as totale FROM task");
-        $tempo = $stmt->fetch();
+        // Tempo totale registrato (verifica colonna)
+        $hasTempo = columnExists($pdo, 'task', 'tempo_impiegato_seconds');
+        $tempoTotale = 0;
+        if ($hasTempo) {
+            $stmt = $pdo->query("SELECT SUM(tempo_impiegato_seconds) as totale FROM task");
+            $tempoTotale = (int)($stmt->fetchColumn() ?? 0);
+        }
         
-        // Fatturato totale
-        $stmt = $pdo->query("SELECT 
-            SUM(costo_calcolato) as costi_task,
-            SUM(budget) as budget_progetti
-            FROM task t 
-            LEFT JOIN progetti p ON t.progetto_id = p.id");
-        $economico = $stmt->fetch();
+        // Fatturato totale (verifica colonne)
+        $hasCosto = columnExists($pdo, 'task', 'costo_calcolato');
+        $hasBudget = columnExists($pdo, 'progetti', 'budget');
+        $costiTask = 0;
+        $budgetProgetti = 0;
+        if ($hasCosto) {
+            $stmt = $pdo->query("SELECT SUM(costo_calcolato) FROM task");
+            $costiTask = (float)($stmt->fetchColumn() ?? 0);
+        }
+        if ($hasBudget) {
+            $stmt = $pdo->query("SELECT SUM(budget) FROM progetti");
+            $budgetProgetti = (float)($stmt->fetchColumn() ?? 0);
+        }
         
-        // Utenti attivi
-        $stmt = $pdo->query("SELECT COUNT(DISTINCT utente_id) as attivi FROM task_timer WHERE created_at > DATE_SUB(NOW(), INTERVAL 30 DAY)");
-        $utentiAttivi = $stmt->fetch();
+        // Utenti attivi (verifica tabella)
+        $utentiAttivi = 0;
+        try {
+            $stmt = $pdo->query("SELECT COUNT(DISTINCT utente_id) as attivi FROM task_timer WHERE created_at > DATE_SUB(NOW(), INTERVAL 30 DAY)");
+            $utentiAttivi = (int)($stmt->fetchColumn() ?? 0);
+        } catch (PDOException $e) {
+            // tabella non esiste
+        }
         
         jsonResponse(true, [
             'progetti' => [
@@ -98,14 +127,14 @@ function getDashboardStats(): void {
                 'completate' => (int)$task['completate']
             ],
             'tempo' => [
-                'totale_secondi' => (int)$tempo['totale'],
-                'ore' => round($tempo['totale'] / 3600, 1)
+                'totale_secondi' => $tempoTotale,
+                'ore' => round($tempoTotale / 3600, 1)
             ],
             'economico' => [
-                'costi_task' => round($economico['costi_task'] ?? 0, 2),
-                'budget_progetti' => round($economico['budget_progetti'] ?? 0, 2)
+                'costi_task' => round($costiTask, 2),
+                'budget_progetti' => round($budgetProgetti, 2)
             ],
-            'utenti_attivi_30gg' => (int)$utentiAttivi['attivi']
+            'utenti_attivi_30gg' => $utentiAttivi
         ]);
         
     } catch (PDOException $e) {
@@ -120,27 +149,43 @@ function getDashboardStats(): void {
 function getUtentiReport(): void {
     global $pdo;
     
-    $periodo = $_GET['periodo'] ?? '30'; // giorni
+    $periodo = $_GET['periodo'] ?? '30';
+    
+    // Verifica quali colonne/tabelle esistono
+    $hasCosto = columnExists($pdo, 'task', 'costo_calcolato');
+    $hasTimer = false;
+    try {
+        $pdo->query("SELECT 1 FROM task_timer LIMIT 1");
+        $hasTimer = true;
+    } catch (PDOException $e) {
+        $hasTimer = false;
+    }
     
     try {
-        // Statistiche per ogni utente
-        $stmt = $pdo->prepare("
+        // Query base
+        $costoSelect = $hasCosto ? "SUM(t.costo_calcolato) as costo_generato" : "0 as costo_generato";
+        $timerJoin = $hasTimer ? "LEFT JOIN task_timer tt ON tt.utente_id = u.id AND tt.created_at > DATE_SUB(NOW(), INTERVAL ? DAY)" : "";
+        $timerSelect = $hasTimer ? "SUM(tt.total_seconds) as tempo_lavorato" : "0 as tempo_lavorato";
+        $timerGroup = $hasTimer ? ", tt.utente_id" : "";
+        
+        $sql = "
             SELECT 
                 u.id,
                 u.nome,
                 u.colore,
                 COUNT(DISTINCT t.id) as task_assegnate,
                 SUM(CASE WHEN t.stato = 'completato' THEN 1 ELSE 0 END) as task_completate,
-                SUM(tt.total_seconds) as tempo_lavorato,
-                SUM(t.costo_calcolato) as costo_generato
+                $timerSelect,
+                $costoSelect
             FROM utenti u
             LEFT JOIN task t ON JSON_CONTAINS(t.assegnati, JSON_QUOTE(u.id))
-            LEFT JOIN task_timer tt ON tt.utente_id = u.id 
-                AND tt.created_at > DATE_SUB(NOW(), INTERVAL ? DAY)
-            GROUP BY u.id, u.nome, u.colore
+            $timerJoin
+            GROUP BY u.id, u.nome, u.colore $timerGroup
             ORDER BY tempo_lavorato DESC
-        ");
-        $stmt->execute([$periodo]);
+        ";
+        
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($hasTimer ? [$periodo] : []);
         $utenti = $stmt->fetchAll();
         
         // Formatta dati
@@ -189,6 +234,11 @@ function getProgettiReport(): void {
     
     $stato = $_GET['stato'] ?? 'tutti';
     
+    // Verifica colonne
+    $hasBudget = columnExists($pdo, 'progetti', 'budget');
+    $hasTempo = columnExists($pdo, 'task', 'tempo_impiegato_seconds');
+    $hasCosto = columnExists($pdo, 'task', 'costo_calcolato');
+    
     try {
         $where = '';
         $params = [];
@@ -197,27 +247,33 @@ function getProgettiReport(): void {
             $params[] = $stato;
         }
         
-        $stmt = $pdo->prepare("
+        $budgetSelect = $hasBudget ? "p.budget" : "0 as budget";
+        $tempoSelect = $hasTempo ? "SUM(t.tempo_impiegato_seconds) as tempo_impiegato" : "0 as tempo_impiegato";
+        $costoSelect = $hasCosto ? "SUM(t.costo_calcolato) as costo_totale" : "0 as costo_totale";
+        
+        $sql = "
             SELECT 
                 p.id,
                 p.titolo,
                 p.stato,
-                p.budget,
+                $budgetSelect,
                 p.data_inizio,
                 p.data_fine_prevista,
                 p.data_fine_reale,
                 c.ragione_sociale as cliente,
                 COUNT(DISTINCT t.id) as totale_task,
                 SUM(CASE WHEN t.stato = 'completato' THEN 1 ELSE 0 END) as task_completate,
-                SUM(t.tempo_impiegato_seconds) as tempo_impiegato,
-                SUM(t.costo_calcolato) as costo_totale
+                $tempoSelect,
+                $costoSelect
             FROM progetti p
             LEFT JOIN clienti c ON p.cliente_id = c.id
             LEFT JOIN task t ON t.progetto_id = p.id
             $where
-            GROUP BY p.id, p.titolo, p.stato, p.budget, p.data_inizio, p.data_fine_prevista, p.data_fine_reale, c.ragione_sociale
+            GROUP BY p.id, p.titolo, p.stato, p.data_inizio, p.data_fine_prevista, p.data_fine_reale, c.ragione_sociale
             ORDER BY p.data_inizio DESC
-        ");
+        ";
+        
+        $stmt = $pdo->prepare($sql);
         $stmt->execute($params);
         $progetti = $stmt->fetchAll();
         
@@ -236,11 +292,12 @@ function getProgettiReport(): void {
         }
         
         // Riepilogo per stato
+        $budgetSum = $hasBudget ? "SUM(budget) as budget_totale" : "0 as budget_totale";
         $stmt = $pdo->query("
             SELECT 
                 stato,
                 COUNT(*) as count,
-                SUM(budget) as budget_totale
+                $budgetSum
             FROM progetti
             GROUP BY stato
         ");
@@ -265,59 +322,83 @@ function getEconomicoReport(): void {
     
     $anno = $_GET['anno'] ?? date('Y');
     
+    // Verifica tabelle/colonne
+    $hasTransazioni = false;
+    try {
+        $pdo->query("SELECT 1 FROM transazioni_economiche LIMIT 1");
+        $hasTransazioni = true;
+    } catch (PDOException $e) {
+        $hasTransazioni = false;
+    }
+    $hasCosto = columnExists($pdo, 'task', 'costo_calcolato');
+    
     try {
         // Entrate/uscite per mese
-        $stmt = $pdo->prepare("
-            SELECT 
-                MONTH(data) as mese,
-                SUM(CASE WHEN tipo = 'entrata' THEN importo ELSE 0 END) as entrate,
-                SUM(CASE WHEN tipo = 'uscita' THEN importo ELSE 0 END) as uscite,
-                SUM(CASE WHEN tipo = 'entrata' THEN importo ELSE -importo END) as saldo
-            FROM transazioni_economiche
-            WHERE YEAR(data) = ?
-            GROUP BY MONTH(data)
-            ORDER BY mese
-        ");
-        $stmt->execute([$anno]);
-        $mensile = $stmt->fetchAll();
+        $mensile = [];
+        $totale_entrate = 0;
+        $totale_uscite = 0;
         
-        // Costi per progetto (anno corrente)
-        $stmt = $pdo->query("
-            SELECT 
-                p.titolo,
-                SUM(t.costo_calcolato) as costo_totale
-            FROM progetti p
-            LEFT JOIN task t ON t.progetto_id = p.id
-            WHERE t.costo_calcolato > 0
-            GROUP BY p.id, p.titolo
-            ORDER BY costo_totale DESC
-            LIMIT 10
-        ");
-        $costiProgetto = $stmt->fetchAll();
+        if ($hasTransazioni) {
+            $stmt = $pdo->prepare("
+                SELECT 
+                    MONTH(data) as mese,
+                    SUM(CASE WHEN tipo = 'entrata' THEN importo ELSE 0 END) as entrate,
+                    SUM(CASE WHEN tipo = 'uscita' THEN importo ELSE 0 END) as uscite,
+                    SUM(CASE WHEN tipo = 'entrata' THEN importo ELSE -importo END) as saldo
+                FROM transazioni_economiche
+                WHERE YEAR(data) = ?
+                GROUP BY MONTH(data)
+                ORDER BY mese
+            ");
+            $stmt->execute([$anno]);
+            $mensile = $stmt->fetchAll();
+            
+            // Totale economico
+            $stmt = $pdo->prepare("
+                SELECT 
+                    SUM(CASE WHEN tipo = 'entrata' THEN importo ELSE 0 END) as totale_entrate,
+                    SUM(CASE WHEN tipo = 'uscita' THEN importo ELSE 0 END) as totale_uscite
+                FROM transazioni_economiche
+                WHERE YEAR(data) = ?
+            ");
+            $stmt->execute([$anno]);
+            $totale = $stmt->fetch();
+            $totale_entrate = $totale['totale_entrate'] ?? 0;
+            $totale_uscite = $totale['totale_uscite'] ?? 0;
+        }
+        
+        // Costi per progetto (solo se colonna esiste)
+        $costiProgetto = [];
+        if ($hasCosto) {
+            $stmt = $pdo->query("
+                SELECT 
+                    p.titolo,
+                    SUM(t.costo_calcolato) as costo_totale
+                FROM progetti p
+                LEFT JOIN task t ON t.progetto_id = p.id
+                WHERE t.costo_calcolato > 0
+                GROUP BY p.id, p.titolo
+                ORDER BY costo_totale DESC
+                LIMIT 10
+            ");
+            $costiProgetto = $stmt->fetchAll();
+        }
         
         // Costi per utente
-        $stmt = $pdo->query("
-            SELECT 
-                u.nome,
-                SUM(t.costo_calcolato) as costo_generato
-            FROM utenti u
-            LEFT JOIN task t ON JSON_CONTAINS(t.assegnati, JSON_QUOTE(u.id))
-            WHERE t.costo_calcolato > 0
-            GROUP BY u.id, u.nome
-            ORDER BY costo_generato DESC
-        ");
-        $costiUtente = $stmt->fetchAll();
-        
-        // Totale economico
-        $stmt = $pdo->prepare("
-            SELECT 
-                SUM(CASE WHEN tipo = 'entrata' THEN importo ELSE 0 END) as totale_entrate,
-                SUM(CASE WHEN tipo = 'uscita' THEN importo ELSE 0 END) as totale_uscite
-            FROM transazioni_economiche
-            WHERE YEAR(data) = ?
-        ");
-        $stmt->execute([$anno]);
-        $totale = $stmt->fetch();
+        $costiUtente = [];
+        if ($hasCosto) {
+            $stmt = $pdo->query("
+                SELECT 
+                    u.nome,
+                    SUM(t.costo_calcolato) as costo_generato
+                FROM utenti u
+                LEFT JOIN task t ON JSON_CONTAINS(t.assegnati, JSON_QUOTE(u.id))
+                WHERE t.costo_calcolato > 0
+                GROUP BY u.id, u.nome
+                ORDER BY costo_generato DESC
+            ");
+            $costiUtente = $stmt->fetchAll();
+        }
         
         jsonResponse(true, [
             'anno' => (int)$anno,
@@ -325,9 +406,9 @@ function getEconomicoReport(): void {
             'costi_progetto' => $costiProgetto,
             'costi_utente' => $costiUtente,
             'totale' => [
-                'entrate' => round($totale['totale_entrate'] ?? 0, 2),
-                'uscite' => round($totale['totale_uscite'] ?? 0, 2),
-                'saldo' => round(($totale['totale_entrate'] ?? 0) - ($totale['totale_uscite'] ?? 0), 2)
+                'entrate' => round($totale_entrate, 2),
+                'uscite' => round($totale_uscite, 2),
+                'saldo' => round($totale_entrate - $totale_uscite, 2)
             ]
         ]);
         
@@ -345,46 +426,66 @@ function getTemporaleReport(): void {
     
     $mesi = $_GET['mesi'] ?? 6;
     
+    // Verifica colonne/tabelle
+    $hasCompletatoIl = columnExists($pdo, 'task', 'completato_il');
+    $hasTimer = false;
+    try {
+        $pdo->query("SELECT 1 FROM task_timer LIMIT 1");
+        $hasTimer = true;
+    } catch (PDOException $e) {
+        $hasTimer = false;
+    }
+    
     try {
         // Task completate per mese
-        $stmt = $pdo->prepare("
-            SELECT 
-                DATE_FORMAT(completato_il, '%Y-%m') as periodo,
-                COUNT(*) as task_completate
-            FROM task
-            WHERE completato_il > DATE_SUB(NOW(), INTERVAL ? MONTH)
-                AND stato = 'completato'
-            GROUP BY DATE_FORMAT(completato_il, '%Y-%m')
-            ORDER BY periodo
-        ");
-        $stmt->execute([$mesi]);
-        $taskCompletate = $stmt->fetchAll();
+        $taskCompletate = [];
+        if ($hasCompletatoIl) {
+            $stmt = $pdo->prepare("
+                SELECT 
+                    DATE_FORMAT(completato_il, '%Y-%m') as periodo,
+                    COUNT(*) as task_completate
+                FROM task
+                WHERE completato_il > DATE_SUB(NOW(), INTERVAL ? MONTH)
+                    AND stato = 'completato'
+                GROUP BY DATE_FORMAT(completato_il, '%Y-%m')
+                ORDER BY periodo
+            ");
+            $stmt->execute([$mesi]);
+            $taskCompletate = $stmt->fetchAll();
+        }
         
         // Ore lavorate per mese
-        $stmt = $pdo->prepare("
-            SELECT 
-                DATE_FORMAT(created_at, '%Y-%m') as periodo,
-                SUM(total_seconds) / 3600 as ore_lavorate
-            FROM task_timer
-            WHERE created_at > DATE_SUB(NOW(), INTERVAL ? MONTH)
-            GROUP BY DATE_FORMAT(created_at, '%Y-%m')
-            ORDER BY periodo
-        ");
-        $stmt->execute([$mesi]);
-        $oreLavorate = $stmt->fetchAll();
+        $oreLavorate = [];
+        if ($hasTimer) {
+            $stmt = $pdo->prepare("
+                SELECT 
+                    DATE_FORMAT(created_at, '%Y-%m') as periodo,
+                    SUM(total_seconds) / 3600 as ore_lavorate
+                FROM task_timer
+                WHERE created_at > DATE_SUB(NOW(), INTERVAL ? MONTH)
+                GROUP BY DATE_FORMAT(created_at, '%Y-%m')
+                ORDER BY periodo
+            ");
+            $stmt->execute([$mesi]);
+            $oreLavorate = $stmt->fetchAll();
+        }
         
         // Nuovi progetti per mese
-        $stmt = $pdo->prepare("
-            SELECT 
-                DATE_FORMAT(created_at, '%Y-%m') as periodo,
-                COUNT(*) as nuovi_progetti
-            FROM progetti
-            WHERE created_at > DATE_SUB(NOW(), INTERVAL ? MONTH)
-            GROUP BY DATE_FORMAT(created_at, '%Y-%m')
-            ORDER BY periodo
-        ");
-        $stmt->execute([$mesi]);
-        $nuoviProgetti = $stmt->fetchAll();
+        $hasCreatedAt = columnExists($pdo, 'progetti', 'created_at');
+        $nuoviProgetti = [];
+        if ($hasCreatedAt) {
+            $stmt = $pdo->prepare("
+                SELECT 
+                    DATE_FORMAT(created_at, '%Y-%m') as periodo,
+                    COUNT(*) as nuovi_progetti
+                FROM progetti
+                WHERE created_at > DATE_SUB(NOW(), INTERVAL ? MONTH)
+                GROUP BY DATE_FORMAT(created_at, '%Y-%m')
+                ORDER BY periodo
+            ");
+            $stmt->execute([$mesi]);
+            $nuoviProgetti = $stmt->fetchAll();
+        }
         
         jsonResponse(true, [
             'periodo_mesi' => (int)$mesi,
