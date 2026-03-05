@@ -1365,6 +1365,31 @@ async function loadTask() {
                             </div>
                             <span class="px-2 py-1 bg-${prioritaColor}-100 text-${prioritaColor}-700 rounded text-xs font-medium flex-shrink-0">${t.priorita}</span>
                             
+                            <!-- Timer Compatto (accanto alla priorità) -->
+                            ${t.stato !== 'completato' ? `
+                                <div class="flex items-center gap-1 flex-shrink-0" id="timer-container-${t.id}">
+                                    <span class="font-mono text-sm font-bold text-slate-700" id="timer-display-${t.id}" data-seconds="0">00:00:00</span>
+                                    <button id="timer-btn-start-${t.id}" onclick="startTaskTimer('${t.id}')" class="p-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-xs" title="Avvia">
+                                        ▶
+                                    </button>
+                                    <button id="timer-btn-pause-${t.id}" onclick="pauseTaskTimer('${t.id}')" class="p-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded text-xs hidden" title="Pausa">
+                                        ⏸
+                                    </button>
+                                    <button id="timer-btn-resume-${t.id}" onclick="resumeTaskTimer('${t.id}')" class="p-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-xs hidden" title="Riprendi">
+                                        ▶
+                                    </button>
+                                    <button id="timer-btn-stop-${t.id}" onclick="stopTaskTimer('${t.id}')" class="p-1.5 bg-red-500 hover:bg-red-600 text-white rounded text-xs hidden" title="Stop">
+                                        ⏹
+                                    </button>
+                                </div>
+                            ` : ''}
+                            ${t.stato === 'completato' && (parseFloat(t.tempo_impiegato_seconds) > 0 || parseFloat(t.costo_calcolato) > 0) ? `
+                                <div class="flex items-center gap-2 text-xs flex-shrink-0">
+                                    <span class="font-mono text-slate-700">${formatTimerSeconds(parseFloat(t.tempo_impiegato_seconds) || 0)}</span>
+                                    <span class="text-emerald-600 font-medium">€${parseFloat(t.costo_calcolato || 0).toFixed(2)}</span>
+                                </div>
+                            ` : ''}
+                            
                             <!-- Avatar creatore task -->
                             ${t.creato_nome ? `
                                 <div class="flex-shrink-0 tooltip-container">
