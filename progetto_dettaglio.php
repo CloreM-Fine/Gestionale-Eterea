@@ -1183,19 +1183,7 @@ async function loadTask() {
         const response = await fetch(`api/task.php?action=list&progetto_id=${progettoId}`);
         const data = await response.json();
         
-        console.log('Task data:', data);
-        console.log('Progetto ID:', progettoId);
-        
         const list = document.getElementById('taskList');
-        
-        if (!data.success) {
-            console.error('Errore API task:', data.message);
-            showToast('Errore caricamento task: ' + (data.message || 'Errore sconosciuto'), 'error');
-            list.innerHTML = '<p class="text-center py-8 text-red-500">Errore: ' + (data.message || 'Errore sconosciuto') + '</p>';
-            return;
-        }
-        
-        console.log('Numero task:', data.data?.length || 0);
         document.getElementById('taskCountBadge').textContent = data.data?.length || 0;
         
         if (!data.success || !data.data || data.data.length === 0) {
@@ -1211,7 +1199,6 @@ async function loadTask() {
         }
         
         // Renderizza le task (senza commenti, che verranno caricati dopo)
-        try {
         list.innerHTML = data.data.map(t => {
             const prioritaColor = {bassa: 'blue', media: 'yellow', alta: 'red'}[t.priorita];
             const statoClass = t.stato === 'completato' ? 'line-through text-slate-400' : '';
@@ -1246,7 +1233,28 @@ async function loadTask() {
                                     <p class="font-medium ${statoClass} text-slate-800">${t.titolo}</p>
                                 </div>
                             </div>
-                            <span class="px-2 py-1 bg-${prioritaColor}-100 text-${prioritaColor}-700 rounded-lg text-xs font-medium flex-shrink-0">${t.priorita}</span>
+                            <div class="flex items-center gap-2 flex-shrink-0">
+                                <span class="px-2 py-1 bg-${prioritaColor}-100 text-${prioritaColor}-700 rounded-lg text-xs font-medium">${t.priorita}</span>
+                                ${t.stato !== 'completato' ? `
+                                    <div class="flex items-center gap-1 bg-slate-100 rounded-lg px-2 py-1">
+                                        <span class="font-mono text-sm font-bold text-slate-700" id="timer-display-${t.id}" data-seconds="0">00:00:00</span>
+                                        <button id="timer-btn-start-${t.id}" onclick="startTaskTimer('${t.id}')" class="text-emerald-600 hover:text-emerald-700 p-0.5" title="Avvia">
+                                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M6.3 5.84a.75.75 0 00-1.06 1.06l4.78 4.78-4.78 4.78a.75.75 0 101.06 1.06l5.25-5.25a.75.75 0 000-1.06L6.3 5.84z"/></svg>
+                                        </button>
+                                        <button id="timer-btn-pause-${t.id}" onclick="pauseTaskTimer('${t.id}')" class="text-amber-500 hover:text-amber-600 p-0.5 hidden" title="Pausa">
+                                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M5 4h3v12H5V4zm7 0h3v12h-3V4z"/></svg>
+                                        </button>
+                                        <button id="timer-btn-resume-${t.id}" onclick="resumeTaskTimer('${t.id}')" class="text-emerald-600 hover:text-emerald-700 p-0.5 hidden" title="Riprendi">
+                                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M6.3 5.84a.75.75 0 00-1.06 1.06l4.78 4.78-4.78 4.78a.75.75 0 101.06 1.06l5.25-5.25a.75.75 0 000-1.06L6.3 5.84z"/></svg>
+                                        </button>
+                                        <button id="timer-btn-stop-${t.id}" onclick="stopTaskTimer('${t.id}')" class="text-red-500 hover:text-red-600 p-0.5 hidden" title="Stop">
+                                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4h12v12H4V4z"/></svg>
+                                        </button>
+                                    </div>
+                                ` : ''}
+                                ${t.tempo_impiegato_seconds > 0 ? `<span class="text-xs text-slate-500" title="Tempo totale">⏱️ ${formatTimerSeconds(t.tempo_impiegato_seconds)}</span>` : ''}
+                                ${t.costo_calcolato > 0 ? `<span class="text-xs text-emerald-600 font-medium">€${parseFloat(t.costo_calcolato).toFixed(2)}</span>` : ''}
+                            </div>
                         </div>
                         
                         ${hasDescrizione ? `
@@ -1281,39 +1289,11 @@ async function loadTask() {
                             </button>
                         </div>
                         
-                        <!-- Timer Mobile -->
-                        <div class="mt-3 pt-3 border-t border-slate-100">
-                            ${t.stato !== 'completato' ? `
-                                <div class="flex items-center justify-between mb-3">
-                                    <div class="flex items-center gap-2">
-                                        <span class="text-2xl font-mono font-bold text-slate-800" id="timer-display-${t.id}" data-seconds="0">00:00:00</span>
-                                    </div>
-                                    <div class="flex gap-2">
-                                        <button id="timer-btn-start-${t.id}" onclick="startTaskTimer('${t.id}')" class="px-3 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium">
-                                            ▶ Avvia
-                                        </button>
-                                        <button id="timer-btn-pause-${t.id}" onclick="pauseTaskTimer('${t.id}')" class="px-3 py-2 bg-amber-500 text-white rounded-lg text-sm font-medium hidden">
-                                            ⏸ Pausa
-                                        </button>
-                                        <button id="timer-btn-resume-${t.id}" onclick="resumeTaskTimer('${t.id}')" class="px-3 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium hidden">
-                                            ▶ Riprendi
-                                        </button>
-                                        <button id="timer-btn-stop-${t.id}" onclick="stopTaskTimer('${t.id}')" class="px-3 py-2 bg-red-500 text-white rounded-lg text-sm font-medium hidden">
-                                            ⏹ Stop
-                                        </button>
-                                        <button onclick="deleteTaskTimer('${t.id}')" class="px-3 py-2 bg-slate-200 text-slate-600 rounded-lg text-sm font-medium" title="Elimina timer">
-                                            🗑️
-                                        </button>
-                                    </div>
-                                </div>
-                            ` : ''}
-                            ${(parseFloat(t.tempo_impiegato_seconds) > 0 || parseFloat(t.costo_calcolato) > 0) ? `
-                                <div class="flex items-center gap-3 text-sm mb-3">
-                                    <span class="text-slate-600">⏱️ <span id="timer-total-${t.id}">Totale: ${formatTimerSeconds(t.tempo_impiegato_seconds || 0)}</span></span>
-                                    <span class="text-emerald-600 font-medium">💰 €${parseFloat(t.costo_calcolato || 0).toFixed(2)}</span>
-                                </div>
-                            ` : ''}
+                        ${t.costo_calcolato > 0 ? `
+                        <div class="mt-3 text-sm text-emerald-600 font-medium text-center">
+                            💰 Costo: €${parseFloat(t.costo_calcolato).toFixed(2)}
                         </div>
+                        ` : ''}
                         
                         <!-- Dettagli espandibili mobile -->
                         <div class="mt-3 pt-3 border-t border-slate-100">
@@ -1363,32 +1343,28 @@ async function loadTask() {
                                     </p>
                                 ` : ''}
                             </div>
-                            <span class="px-2 py-1 bg-${prioritaColor}-100 text-${prioritaColor}-700 rounded text-xs font-medium flex-shrink-0">${t.priorita}</span>
-                            
-                            <!-- Timer Compatto (accanto alla priorità) -->
-                            ${t.stato !== 'completato' ? `
-                                <div class="flex items-center gap-1 flex-shrink-0" id="timer-container-${t.id}">
-                                    <span class="font-mono text-sm font-bold text-slate-700" id="timer-display-${t.id}" data-seconds="0">00:00:00</span>
-                                    <button id="timer-btn-start-${t.id}" onclick="startTaskTimer('${t.id}')" class="p-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-xs" title="Avvia">
-                                        ▶
-                                    </button>
-                                    <button id="timer-btn-pause-${t.id}" onclick="pauseTaskTimer('${t.id}')" class="p-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded text-xs hidden" title="Pausa">
-                                        ⏸
-                                    </button>
-                                    <button id="timer-btn-resume-${t.id}" onclick="resumeTaskTimer('${t.id}')" class="p-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-xs hidden" title="Riprendi">
-                                        ▶
-                                    </button>
-                                    <button id="timer-btn-stop-${t.id}" onclick="stopTaskTimer('${t.id}')" class="p-1.5 bg-red-500 hover:bg-red-600 text-white rounded text-xs hidden" title="Stop">
-                                        ⏹
-                                    </button>
-                                </div>
-                            ` : ''}
-                            ${t.stato === 'completato' && (parseFloat(t.tempo_impiegato_seconds) > 0 || parseFloat(t.costo_calcolato) > 0) ? `
-                                <div class="flex items-center gap-2 text-xs flex-shrink-0">
-                                    <span class="font-mono text-slate-700">${formatTimerSeconds(parseFloat(t.tempo_impiegato_seconds) || 0)}</span>
-                                    <span class="text-emerald-600 font-medium">€${parseFloat(t.costo_calcolato || 0).toFixed(2)}</span>
-                                </div>
-                            ` : ''}
+                            <div class="flex items-center gap-2 flex-shrink-0">
+                                <span class="px-2 py-1 bg-${prioritaColor}-100 text-${prioritaColor}-700 rounded text-xs font-medium">${t.priorita}</span>
+                                ${t.stato !== 'completato' ? `
+                                    <div class="flex items-center gap-1 bg-slate-100 rounded px-2 py-1">
+                                        <span class="font-mono text-sm font-bold text-slate-700" id="timer-display-desk-${t.id}" data-seconds="0">00:00:00</span>
+                                        <button id="timer-btn-desk-start-${t.id}" onclick="startTaskTimer('${t.id}')" class="text-emerald-600 hover:text-emerald-700 p-0.5" title="Avvia">
+                                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M6.3 5.84a.75.75 0 00-1.06 1.06l4.78 4.78-4.78 4.78a.75.75 0 101.06 1.06l5.25-5.25a.75.75 0 000-1.06L6.3 5.84z"/></svg>
+                                        </button>
+                                        <button id="timer-btn-desk-pause-${t.id}" onclick="pauseTaskTimer('${t.id}')" class="text-amber-500 hover:text-amber-600 p-0.5 hidden" title="Pausa">
+                                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M5 4h3v12H5V4zm7 0h3v12h-3V4z"/></svg>
+                                        </button>
+                                        <button id="timer-btn-desk-resume-${t.id}" onclick="resumeTaskTimer('${t.id}')" class="text-emerald-600 hover:text-emerald-700 p-0.5 hidden" title="Riprendi">
+                                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M6.3 5.84a.75.75 0 00-1.06 1.06l4.78 4.78-4.78 4.78a.75.75 0 101.06 1.06l5.25-5.25a.75.75 0 000-1.06L6.3 5.84z"/></svg>
+                                        </button>
+                                        <button id="timer-btn-desk-stop-${t.id}" onclick="stopTaskTimer('${t.id}')" class="text-red-500 hover:text-red-600 p-0.5 hidden" title="Stop">
+                                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4h12v12H4V4z"/></svg>
+                                        </button>
+                                    </div>
+                                ` : ''}
+                                ${t.tempo_impiegato_seconds > 0 ? `<span class="text-xs text-slate-500 whitespace-nowrap" title="Tempo totale">⏱️ ${formatTimerSeconds(t.tempo_impiegato_seconds)}</span>` : ''}
+                                ${t.costo_calcolato > 0 ? `<span class="text-xs text-emerald-600 font-medium whitespace-nowrap">€${parseFloat(t.costo_calcolato).toFixed(2)}</span>` : ''}
+                            </div>
                             
                             <!-- Avatar creatore task -->
                             ${t.creato_nome ? `
@@ -1441,45 +1417,6 @@ async function loadTask() {
                                 ${t.stato === 'completato' ? `<span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">✓ Completata</span>` : `<span class="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded">⏳ Da fare</span>`}
                             </div>
                             
-                            <!-- Timer Desktop -->
-                            ${t.stato !== 'completato' ? `
-                                <div class="flex items-center justify-between mb-4 p-3 bg-slate-50 rounded-lg">
-                                    <div class="flex items-center gap-3">
-                                        <span class="text-2xl font-mono font-bold text-slate-800" id="timer-display-${t.id}" data-seconds="0">00:00:00</span>
-                                        <span id="timer-total-${t.id}" class="text-sm text-slate-500 ${parseFloat(t.tempo_impiegato_seconds) > 0 ? '' : 'hidden'}">Totale: ${formatTimerSeconds(parseFloat(t.tempo_impiegato_seconds) || 0)}</span>
-                                        <span id="timer-costo-${t.id}" class="text-sm text-emerald-600 font-medium ${parseFloat(t.costo_calcolato) > 0 ? '' : 'hidden'}">€${parseFloat(t.costo_calcolato || 0).toFixed(2)}</span>
-                                    </div>
-                                    <div class="flex gap-2">
-                                        <button id="timer-btn-start-${t.id}" onclick="startTaskTimer('${t.id}')" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-1">
-                                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M6.3 5.84a.75.75 0 00-1.06 1.06l4.78 4.78-4.78 4.78a.75.75 0 101.06 1.06l5.25-5.25a.75.75 0 000-1.06L6.3 5.84z"/></svg>
-                                            Avvia
-                                        </button>
-                                        <button id="timer-btn-pause-${t.id}" onclick="pauseTaskTimer('${t.id}')" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-sm font-medium transition-colors hidden flex items-center gap-1">
-                                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M5 4h3v12H5V4zm7 0h3v12h-3V4z"/></svg>
-                                            Pausa
-                                        </button>
-                                        <button id="timer-btn-resume-${t.id}" onclick="resumeTaskTimer('${t.id}')" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm font-medium transition-colors hidden flex items-center gap-1">
-                                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M6.3 5.84a.75.75 0 00-1.06 1.06l4.78 4.78-4.78 4.78a.75.75 0 101.06 1.06l5.25-5.25a.75.75 0 000-1.06L6.3 5.84z"/></svg>
-                                            Riprendi
-                                        </button>
-                                        <button id="timer-btn-stop-${t.id}" onclick="stopTaskTimer('${t.id}')" class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg text-sm font-medium transition-colors hidden flex items-center gap-1">
-                                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4h12v12H4V4z"/></svg>
-                                            Stop
-                                        </button>
-                                        <button onclick="deleteTaskTimer('${t.id}')" class="px-3 py-2 bg-slate-200 hover:bg-slate-300 text-slate-600 rounded-lg text-sm font-medium transition-colors" title="Elimina timer">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                                        </button>
-                                    </div>
-                                </div>
-                            ` : ''}
-                            
-                            ${t.stato === 'completato' && (parseFloat(t.tempo_impiegato_seconds) > 0 || parseFloat(t.costo_calcolato) > 0) ? `
-                                <div class="flex items-center gap-4 mb-4 p-3 bg-emerald-50 rounded-lg">
-                                    <span class="text-slate-700">⏱️ Tempo impiegato: <strong>${formatTimerSeconds(t.tempo_impiegato_seconds || 0)}</strong></span>
-                                    <span class="text-emerald-700 font-medium">💰 Costo: <strong>€${parseFloat(t.costo_calcolato || 0).toFixed(2)}</strong></span>
-                                </div>
-                            ` : ''}
-                            
                             <!-- Form aggiunta commento -->
                             <div class="task-commento-form">
                                 <input type="text" 
@@ -1494,11 +1431,6 @@ async function loadTask() {
                 </div>
             `;
         }).join('');
-        } catch (renderError) {
-            console.error('Errore rendering task:', renderError);
-            list.innerHTML = '<p class="text-center py-8 text-red-500">Errore nel rendering: ' + renderError.message + '</p>';
-            return;
-        }
         
         // Carica i commenti per tutte le task in parallelo
         data.data.forEach(t => loadCommentiForTask(t.id));
@@ -1551,7 +1483,6 @@ async function deleteTask(taskId) {
 let timerIntervals = {}; // Memorizza gli interval per ogni task
 
 async function startTaskTimer(taskId) {
-    console.log('startTaskTimer chiamato per task:', taskId);
     try {
         const response = await fetch('api/task.php?action=timer_start', {
             method: 'POST',
@@ -1560,19 +1491,14 @@ async function startTaskTimer(taskId) {
         });
         
         const data = await response.json();
-        console.log('Risposta timer_start:', data);
-        
         if (data.success) {
             showToast('Timer avviato', 'success');
-            // Se il timer esisteva già, usa i secondi già trascorsi
-            const seconds = data.data.seconds_running || 0;
-            updateTimerUI(taskId, true, false, seconds);
+            updateTimerUI(taskId, true, false, 0);
             startTimerInterval(taskId);
         } else {
             showToast(data.message || 'Errore avvio timer', 'error');
         }
     } catch (error) {
-        console.error('Errore startTaskTimer:', error);
         showToast('Errore di connessione', 'error');
     }
 }
@@ -1641,40 +1567,24 @@ async function stopTaskTimer(taskId) {
     }
 }
 
-async function deleteTaskTimer(taskId) {
-    if (!confirm('Eliminare il timer per questa task?')) return;
-    
-    try {
-        const response = await fetch('api/task.php?action=timer_delete', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `task_id=${encodeURIComponent(taskId)}`
-        });
-        
-        const data = await response.json();
-        if (data.success) {
-            stopTimerInterval(taskId);
-            updateTimerUI(taskId, false, false, 0);
-            showToast('Timer eliminato', 'success');
-            loadTask();
-        } else {
-            showToast(data.message || 'Errore eliminazione timer', 'error');
-        }
-    } catch (error) {
-        console.error('Errore deleteTaskTimer:', error);
-        showToast('Errore di connessione', 'error');
-    }
-}
-
 function startTimerInterval(taskId) {
-    // Aggiorna il display ogni secondo
+    // Aggiorna i display ogni secondo (sia mobile che desktop)
     timerIntervals[taskId] = setInterval(() => {
-        const display = document.getElementById(`timer-display-${taskId}`);
-        if (display) {
-            let seconds = parseInt(display.dataset.seconds || 0);
+        // Mobile
+        const displayMobile = document.getElementById(`timer-display-${taskId}`);
+        if (displayMobile) {
+            let seconds = parseInt(displayMobile.dataset.seconds || 0);
             seconds++;
-            display.dataset.seconds = seconds;
-            display.textContent = formatTimerSeconds(seconds);
+            displayMobile.dataset.seconds = seconds;
+            displayMobile.textContent = formatTimerSeconds(seconds);
+        }
+        // Desktop
+        const displayDesktop = document.getElementById(`timer-display-desk-${taskId}`);
+        if (displayDesktop) {
+            let seconds = parseInt(displayDesktop.dataset.seconds || 0);
+            seconds++;
+            displayDesktop.dataset.seconds = seconds;
+            displayDesktop.textContent = formatTimerSeconds(seconds);
         }
     }, 1000);
 }
@@ -1687,39 +1597,46 @@ function stopTimerInterval(taskId) {
 }
 
 function getTimerSeconds(taskId) {
-    const display = document.getElementById(`timer-display-${taskId}`);
+    // Prova prima mobile, poi desktop
+    const display = document.getElementById(`timer-display-${taskId}`) || document.getElementById(`timer-display-desk-${taskId}`);
     return parseInt(display?.dataset?.seconds || 0);
 }
 
 function updateTimerUI(taskId, isRunning, isPaused, seconds) {
-    console.log('updateTimerUI:', {taskId, isRunning, isPaused, seconds});
-    
-    const display = document.getElementById(`timer-display-${taskId}`);
-    if (display) {
-        display.dataset.seconds = seconds;
-        display.textContent = formatTimerSeconds(seconds);
+    // Aggiorna display mobile
+    const displayMobile = document.getElementById(`timer-display-${taskId}`);
+    if (displayMobile) {
+        displayMobile.dataset.seconds = seconds;
+        displayMobile.textContent = formatTimerSeconds(seconds);
+    }
+    // Aggiorna display desktop
+    const displayDesktop = document.getElementById(`timer-display-desk-${taskId}`);
+    if (displayDesktop) {
+        displayDesktop.dataset.seconds = seconds;
+        displayDesktop.textContent = formatTimerSeconds(seconds);
     }
     
-    // Aggiorna visibilità pulsanti
+    // Aggiorna visibilità pulsanti mobile
     const btnStart = document.getElementById(`timer-btn-start-${taskId}`);
     const btnPause = document.getElementById(`timer-btn-pause-${taskId}`);
     const btnResume = document.getElementById(`timer-btn-resume-${taskId}`);
     const btnStop = document.getElementById(`timer-btn-stop-${taskId}`);
     
-    console.log('Pulsanti trovati:', {btnStart: !!btnStart, btnPause: !!btnPause, btnResume: !!btnResume, btnStop: !!btnStop});
+    if (btnStart) btnStart.classList.toggle('hidden', isRunning);
+    if (btnPause) btnPause.classList.toggle('hidden', !isRunning || isPaused);
+    if (btnResume) btnResume.classList.toggle('hidden', !isPaused);
+    if (btnStop) btnStop.classList.toggle('hidden', !isRunning);
     
-    if (btnStart) {
-        isRunning ? btnStart.classList.add('hidden') : btnStart.classList.remove('hidden');
-    }
-    if (btnPause) {
-        (isRunning && !isPaused) ? btnPause.classList.remove('hidden') : btnPause.classList.add('hidden');
-    }
-    if (btnResume) {
-        isPaused ? btnResume.classList.remove('hidden') : btnResume.classList.add('hidden');
-    }
-    if (btnStop) {
-        isRunning ? btnStop.classList.remove('hidden') : btnStop.classList.add('hidden');
-    }
+    // Aggiorna visibilità pulsanti desktop
+    const btnDeskStart = document.getElementById(`timer-btn-desk-start-${taskId}`);
+    const btnDeskPause = document.getElementById(`timer-btn-desk-pause-${taskId}`);
+    const btnDeskResume = document.getElementById(`timer-btn-desk-resume-${taskId}`);
+    const btnDeskStop = document.getElementById(`timer-btn-desk-stop-${taskId}`);
+    
+    if (btnDeskStart) btnDeskStart.classList.toggle('hidden', isRunning);
+    if (btnDeskPause) btnDeskPause.classList.toggle('hidden', !isRunning || isPaused);
+    if (btnDeskResume) btnDeskResume.classList.toggle('hidden', !isPaused);
+    if (btnDeskStop) btnDeskStop.classList.toggle('hidden', !isRunning);
 }
 
 // Carica stato timer per una task
@@ -1728,28 +1645,11 @@ async function loadTimerStatus(taskId) {
         const response = await fetch(`api/task.php?action=get_timer&id=${encodeURIComponent(taskId)}`);
         const data = await response.json();
         
-        console.log('loadTimerStatus:', taskId, data);
-        
         if (data.success) {
             const timerData = data.data;
             
-            // Aggiorna display tempo totale accumulato
-            const totalDisplay = document.getElementById(`timer-total-${taskId}`);
-            if (totalDisplay && timerData.total_seconds > 0) {
-                totalDisplay.textContent = `Totale: ${formatTimerSeconds(timerData.total_seconds)}`;
-                totalDisplay.classList.remove('hidden');
-            }
-            
-            // Mostra costo se presente
-            const costoDisplay = document.getElementById(`timer-costo-${taskId}`);
-            if (costoDisplay && timerData.costo_calcolato > 0) {
-                costoDisplay.textContent = `€${timerData.costo_calcolato.toFixed(2)}`;
-                costoDisplay.classList.remove('hidden');
-            }
-            
-            // Se c'è un timer attivo, aggiorna UI
+            // Se c'è un timer attivo, aggiorna UI e avvia interval
             if (timerData.has_active_timer) {
-                console.log('Timer attivo trovato per task', taskId);
                 const seconds = timerData.current_session_seconds || 0;
                 updateTimerUI(taskId, true, timerData.is_paused, seconds);
                 if (!timerData.is_paused) {

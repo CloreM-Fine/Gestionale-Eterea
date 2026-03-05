@@ -51,8 +51,6 @@ switch ($method) {
             timerResume();
         } elseif ($action === 'timer_stop') {
             timerStop();
-        } elseif ($action === 'timer_delete') {
-            timerDelete();
         } else {
             jsonResponse(false, null, 'Azione non valida');
         }
@@ -154,10 +152,7 @@ function listTask(): void {
         
     } catch (PDOException $e) {
         error_log("Errore lista task: " . $e->getMessage());
-        jsonResponse(false, null, 'Errore caricamento task: ' . $e->getMessage());
-    } catch (Exception $e) {
-        error_log("Errore generico lista task: " . $e->getMessage());
-        jsonResponse(false, null, 'Errore generico: ' . $e->getMessage());
+        jsonResponse(false, null, 'Errore caricamento task');
     }
 }
 
@@ -598,35 +593,15 @@ function timerStart(): void {
     }
     
     try {
-        // Se c'è già un timer attivo per questa task, continua quello
+        // Verifica se c'è già un timer attivo per questa task
         $stmt = $pdo->prepare("
-            SELECT id, started_at, TIMESTAMPDIFF(SECOND, started_at, NOW()) as seconds_running
-            FROM task_timer 
+            SELECT id FROM task_timer 
             WHERE task_id = ? AND utente_id = ? AND is_running = 1
         ");
         $stmt->execute([$taskId, $utenteId]);
-        $existingTimer = $stmt->fetch();
-        
-        if ($existingTimer) {
-            // Se il timer è attivo da più di 8 ore, probabilmente è "stuck" - ferma e avvia nuovo
-            if ($existingTimer['seconds_running'] > 28800) { // 8 ore
-                $stmt = $pdo->prepare("
-                    UPDATE task_timer 
-                    SET is_running = 0, stopped_at = NOW(),
-                        total_seconds = ?
-                    WHERE id = ?
-                ");
-                $stmt->execute([$existingTimer['seconds_running'], $existingTimer['id']]);
-            } else {
-                // Timer valido, continua
-                jsonResponse(true, [
-                    'timer_id' => $existingTimer['id'],
-                    'started_at' => $existingTimer['started_at'],
-                    'message' => 'Timer ripreso',
-                    'seconds_running' => $existingTimer['seconds_running']
-                ]);
-                return;
-            }
+        if ($stmt->fetch()) {
+            jsonResponse(false, null, 'Timer già attivo per questa task');
+            return;
         }
         
         // Ferma eventuali altri timer attivi dell'utente
@@ -810,36 +785,6 @@ function timerStop(): void {
     } catch (PDOException $e) {
         error_log("Errore stop timer: " . $e->getMessage());
         jsonResponse(false, null, 'Errore stop timer');
-    }
-}
-
-/**
- * Elimina il timer per una task
- */
-function timerDelete(): void {
-    global $pdo;
-    
-    $taskId = $_POST['task_id'] ?? '';
-    $utenteId = $_SESSION['user_id'] ?? '';
-    
-    if (empty($taskId)) {
-        jsonResponse(false, null, 'Task ID mancante');
-        return;
-    }
-    
-    try {
-        // Elimina timer attivo o in pausa
-        $stmt = $pdo->prepare("
-            DELETE FROM task_timer 
-            WHERE task_id = ? AND utente_id = ? AND is_running = 1
-        ");
-        $stmt->execute([$taskId, $utenteId]);
-        
-        jsonResponse(true, null, 'Timer eliminato');
-        
-    } catch (PDOException $e) {
-        error_log("Errore delete timer: " . $e->getMessage());
-        jsonResponse(false, null, 'Errore eliminazione timer');
     }
 }
 
