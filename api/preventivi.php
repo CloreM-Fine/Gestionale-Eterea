@@ -1373,30 +1373,6 @@ function associaPreventivoAProgetto(): void {
         $stmt = $pdo->prepare("UPDATE preventivi_salvati SET progetto_id = ? WHERE id = ?");
         $stmt->execute([$progettoId, $preventivoId]);
         
-        // Crea una task nel progetto con il riferimento al preventivo
-        $servizi = json_decode($preventivo['servizi_json'] ?? '[]', true);
-        $numServizi = count($servizi);
-        
-        $taskTitolo = "Preventivo " . $preventivo['numero'];
-        $taskDescrizione = "Preventivo approvato per " . $preventivo['cliente_nome'] . 
-                          "\nTotale: €" . number_format($preventivo['totale'], 2) . 
-                          "\nServizi: " . $numServizi;
-        
-        // Genera ID task
-        $taskId = 'tsk_' . uniqid();
-        
-        $stmt = $pdo->prepare("
-            INSERT INTO task (id, progetto_id, titolo, descrizione, stato, priorita, created_by, created_at)
-            VALUES (?, ?, ?, ?, 'da_fare', 'media', ?, NOW())
-        ");
-        $stmt->execute([
-            $taskId,
-            $progettoId,
-            $taskTitolo,
-            $taskDescrizione,
-            $_SESSION['user_id']
-        ]);
-        
         $pdo->commit();
         
         // Log
