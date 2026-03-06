@@ -2185,8 +2185,14 @@ async function loadCommentiForTask(taskId) {
  * Aggiunge un nuovo commento a una task
  */
 async function aggiungiCommento(taskId) {
+    console.log('aggiungiCommento chiamato per task:', taskId);
     const input = document.getElementById(`commento-input-${taskId}`);
+    if (!input) {
+        console.error('Input non trovato per task:', taskId);
+        return;
+    }
     const commento = input.value.trim();
+    console.log('Commento:', commento);
     
     if (!commento) return;
     
@@ -2591,6 +2597,10 @@ function escapeHtml(text) {
 }
 
 // Carica documenti quando si apre la tab
+// Esponi funzioni globalmente per onclick inline
+window.aggiungiCommento = aggiungiCommento;
+window.eliminaCommento = eliminaCommento;
+
 document.addEventListener('DOMContentLoaded', function() {
     // Carica documenti all'avvio se la tab è attiva
     if (!document.getElementById('content-documenti').classList.contains('hidden')) {
