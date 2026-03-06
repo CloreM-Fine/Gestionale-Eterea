@@ -330,11 +330,13 @@ function reportTemporaleStats() {
                 DATE_FORMAT(updated_at, '%Y-%m') as periodo,
                 COUNT(*) as task_completate
             FROM task
-            WHERE stato = 'completato' AND updated_at > DATE_SUB(NOW(), INTERVAL ? MONTH)
+            WHERE updated_at > DATE_SUB(NOW(), INTERVAL ? MONTH)
             GROUP BY DATE_FORMAT(updated_at, '%Y-%m')");
             $stmt->execute(array($mesi));
             $taskCompletate = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        } catch (Exception $e) {}
+        } catch (Exception $e) {
+            error_log("Temporale task error: " . $e->getMessage());
+        }
         
         try {
             $stmt = $pdo->prepare("SELECT 
