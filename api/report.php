@@ -4,12 +4,32 @@
  * API Report - Statistiche e analisi
  */
 
+// DEBUG - Identificazione errore
+error_reporting(E_ALL);
+ini_set('display_errors', '1');
+ini_set('log_errors', '1');
+
+$debug_log = [];
+$debug_log[] = 'Start';
+
+try {
+    $debug_log[] = 'Before functions.php';
+    require_once __DIR__ . '/../includes/functions.php';
+    $debug_log[] = 'After functions.php';
+    
+    $debug_log[] = 'Before config.php';
+    require_once __DIR__ . '/../includes/config.php';
+    $debug_log[] = 'After config.php';
+} catch (Exception $e) {
+    header('Content-Type: text/plain');
+    echo "ERROR: " . $e->getMessage() . "\n";
+    echo "Debug: " . print_r($debug_log, true);
+    exit;
+}
+
 // Nessun output prima di jsonResponse
 error_reporting(E_ALL);
 ini_set('display_errors', '0');
-
-require_once __DIR__ . '/../includes/functions.php';
-require_once __DIR__ . '/../includes/config.php';
 
 // Autenticazione manuale (senza auth_check.php che manda redirect)
 session_start();
