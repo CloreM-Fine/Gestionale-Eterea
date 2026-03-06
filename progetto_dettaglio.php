@@ -2194,7 +2194,7 @@ async function aggiungiCommento(taskId) {
         const response = await fetch('api/task.php', {
             method: 'POST',
             headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-            body: `action=add_commento&task_id=${encodeURIComponent(taskId)}&commento=${encodeURIComponent(commento)}`
+            body: `action=add_commento&task_id=${encodeURIComponent(taskId)}&commento=${encodeURIComponent(commento)}&csrf_token=${encodeURIComponent(getCsrfToken())}`
         });
         
         const data = await response.json();
@@ -2223,7 +2223,7 @@ async function eliminaCommento(commentoId, taskId) {
         const response = await fetch('api/task.php', {
             method: 'POST',
             headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-            body: `action=delete_commento&commento_id=${encodeURIComponent(commentoId)}`
+            body: `action=delete_commento&commento_id=${encodeURIComponent(commentoId)}&csrf_token=${encodeURIComponent(getCsrfToken())}`
         });
         
         const data = await response.json();
