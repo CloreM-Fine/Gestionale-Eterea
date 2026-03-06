@@ -111,13 +111,13 @@ function verifyCsrfToken(string $token): bool {
 /**
  * Risponde con JSON
  */
-function jsonResponse(bool $success, $data = null, string $message = ''): void {
+function jsonResponse($success, $data = null, $message = '') {
     header('Content-Type: application/json');
-    echo json_encode([
+    echo json_encode(array(
         'success' => $success,
         'data' => $data,
         'message' => $message
-    ]);
+    ));
     exit;
 }
 
