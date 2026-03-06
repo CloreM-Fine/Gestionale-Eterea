@@ -363,39 +363,77 @@ function loadReportData() {
 async function loadDashboardStats() {
     try {
         const response = await fetch('api/report.php?action=dashboard');
-        const data = await response.json();
         
-        if (data.success) {
-            const s = data.data;
-            document.getElementById('kpi-progetti-totali').textContent = s.progetti.totale;
-            document.getElementById('kpi-progetti-attivi').textContent = s.progetti.in_corso;
-            document.getElementById('kpi-task-completate').textContent = s.task.completate;
-            document.getElementById('kpi-task-totali').textContent = s.task.totale;
-            document.getElementById('kpi-ore-lavorate').textContent = s.tempo.ore;
-            document.getElementById('kpi-costi-totali').textContent = '€' + s.economico.costi_task.toLocaleString('it-IT');
-            
-            document.getElementById('quick-budget').textContent = '€' + (s.economico.budget_progetti/1000).toFixed(1) + 'k';
-            document.getElementById('quick-utenti').textContent = s.utenti_attivi_30gg;
-            document.getElementById('quick-task-dafare').textContent = s.task.da_fare;
-            
-            createChart('progetti-stato', 'doughnut', {
-                labels: ['In Corso', 'Completati', 'Archiviati'],
-                datasets: [{
-                    data: [s.progetti.in_corso, s.progetti.completati, s.progetti.archiviati],
-                    backgroundColor: ['#3B82F6', '#10B981', '#64748B'],
-                    borderWidth: 0
-                }]
-            });
-            
-            createChart('task-stato', 'doughnut', {
-                labels: ['Da Fare', 'In Lavorazione', 'Completate'],
-                datasets: [{
-                    data: [s.task.da_fare, s.task.in_lavorazione, s.task.completate],
-                    backgroundColor: ['#F59E0B', '#3B82F6', '#10B981'],
-                    borderWidth: 0
-                }]
-            });
+        if (!response.ok) {
+            console.error('Errore HTTP:', response.status);
+            // Mostra dati vuoti o default
+            return;
         }
+        const text = await response.text();
+        if (!text) {
+            console.error('Risposta vuota');
+            return;
+        }
+        let data;
+        try {
+            data = JSON.parse(text);
+        } catch (e) {
+            console.error('JSON non valido:', text);
+            return;
+        }
+        
+        if (!data.success) {
+            console.error('API error:', data.message || 'Errore sconosciuto');
+            return;
+        }
+        
+        const s = data.data || {};
+        
+        // Fallback per dati mancanti
+        const progetti = s.progetti || {};
+        const task = s.task || {};
+        const tempo = s.tempo || {};
+        const economico = s.economico || {};
+        
+        // Verifica esistenza elementi DOM prima di usarli
+        const kpiProgettiTotali = document.getElementById('kpi-progetti-totali');
+        const kpiProgettiAttivi = document.getElementById('kpi-progetti-attivi');
+        const kpiTaskCompletate = document.getElementById('kpi-task-completate');
+        const kpiTaskTotali = document.getElementById('kpi-task-totali');
+        const kpiOreLavorate = document.getElementById('kpi-ore-lavorate');
+        const kpiCostiTotali = document.getElementById('kpi-costi-totali');
+        const quickBudget = document.getElementById('quick-budget');
+        const quickUtenti = document.getElementById('quick-utenti');
+        const quickTaskDaFare = document.getElementById('quick-task-dafare');
+        
+        if (kpiProgettiTotali) kpiProgettiTotali.textContent = progetti.totale ?? '-';
+        if (kpiProgettiAttivi) kpiProgettiAttivi.textContent = progetti.in_corso ?? '-';
+        if (kpiTaskCompletate) kpiTaskCompletate.textContent = task.completate ?? '-';
+        if (kpiTaskTotali) kpiTaskTotali.textContent = task.totale ?? '-';
+        if (kpiOreLavorate) kpiOreLavorate.textContent = tempo.ore ?? '-';
+        if (kpiCostiTotali) kpiCostiTotali.textContent = '€' + (economico.costi_task || 0).toLocaleString('it-IT');
+        
+        if (quickBudget) quickBudget.textContent = '€' + ((economico.budget_progetti || 0)/1000).toFixed(1) + 'k';
+        if (quickUtenti) quickUtenti.textContent = s.utenti_attivi_30gg ?? '-';
+        if (quickTaskDaFare) quickTaskDaFare.textContent = task.da_fare ?? '-';
+        
+        createChart('progetti-stato', 'doughnut', {
+            labels: ['In Corso', 'Completati', 'Archiviati'],
+            datasets: [{
+                data: [progetti.in_corso || 0, progetti.completati || 0, progetti.archiviati || 0],
+                backgroundColor: ['#3B82F6', '#10B981', '#64748B'],
+                borderWidth: 0
+            }]
+        });
+        
+        createChart('task-stato', 'doughnut', {
+            labels: ['Da Fare', 'In Lavorazione', 'Completate'],
+            datasets: [{
+                data: [task.da_fare || 0, task.in_lavorazione || 0, task.completate || 0],
+                backgroundColor: ['#F59E0B', '#3B82F6', '#10B981'],
+                borderWidth: 0
+            }]
+        });
     } catch (error) {
         console.error('Errore dashboard:', error);
     }
@@ -406,52 +444,80 @@ async function loadUtentiReport() {
     
     try {
         const response = await fetch(`api/report.php?action=utenti&periodo=${periodo}`);
-        const data = await response.json();
         
-        if (data.success) {
-            const utenti = data.data.utenti;
-            
-            createChart('utenti-ore', 'bar', {
-                labels: utenti.map(u => u.nome),
-                datasets: [{
-                    label: 'Ore Lavorate',
-                    data: utenti.map(u => u.tempo_ore),
-                    backgroundColor: utenti.map(u => u.colore || '#6366f1'),
-                    borderRadius: 6
-                }]
-            }, { legend: { display: false }, scales: { y: { beginAtZero: true } } });
-            
-            createChart('utenti-efficienza', 'bar', {
-                labels: utenti.map(u => u.nome),
-                datasets: [{
-                    label: 'Efficienza %',
-                    data: utenti.map(u => u.efficienza),
-                    backgroundColor: '#10b981',
-                    borderRadius: 6
-                }]
-            }, { legend: { display: false }, scales: { y: { beginAtZero: true, max: 100 } } });
-            
-            document.getElementById('table-utenti-body').innerHTML = utenti.map(u => `
+        if (!response.ok) {
+            console.error('Errore HTTP:', response.status);
+            return;
+        }
+        const text = await response.text();
+        if (!text) {
+            console.error('Risposta vuota');
+            return;
+        }
+        let data;
+        try {
+            data = JSON.parse(text);
+        } catch (e) {
+            console.error('JSON non valido:', text);
+            return;
+        }
+        
+        if (!data.success) {
+            console.error('API error:', data.message || 'Errore sconosciuto');
+            return;
+        }
+        
+        const utenti = data.data?.utenti || [];
+        
+        if (utenti.length === 0) {
+            const tableBody = document.getElementById('table-utenti-body');
+            if (tableBody) tableBody.innerHTML = '<tr><td colspan="7" class="px-4 py-8 text-center text-slate-400">Nessun dato disponibile</td></tr>';
+            return;
+        }
+        
+        createChart('utenti-ore', 'bar', {
+            labels: utenti.map(u => u.nome || '-'),
+            datasets: [{
+                label: 'Ore Lavorate',
+                data: utenti.map(u => u.tempo_ore || 0),
+                backgroundColor: utenti.map(u => u.colore || '#6366f1'),
+                borderRadius: 6
+            }]
+        }, { legend: { display: false }, scales: { y: { beginAtZero: true } } });
+        
+        createChart('utenti-efficienza', 'bar', {
+            labels: utenti.map(u => u.nome || '-'),
+            datasets: [{
+                label: 'Efficienza %',
+                data: utenti.map(u => u.efficienza || 0),
+                backgroundColor: '#10b981',
+                borderRadius: 6
+            }]
+        }, { legend: { display: false }, scales: { y: { beginAtZero: true, max: 100 } } });
+        
+        const tableBody = document.getElementById('table-utenti-body');
+        if (tableBody) {
+            tableBody.innerHTML = utenti.map(u => `
                 <tr class="hover:bg-slate-50">
                     <td class="px-4 py-3">
                         <div class="flex items-center gap-2">
-                            <div class="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold" style="background-color: ${u.colore}">${u.nome.charAt(0)}</div>
-                            <span class="font-medium text-slate-700">${u.nome}</span>
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold" style="background-color: ${u.colore || '#6366f1'}">${(u.nome || '?').charAt(0)}</div>
+                            <span class="font-medium text-slate-700">${u.nome || '-'}</span>
                         </div>
                     </td>
-                    <td class="px-4 py-3 text-center">${u.progetti_coinvolti}</td>
-                    <td class="px-4 py-3 text-center">${u.task_assegnate}</td>
-                    <td class="px-4 py-3 text-center text-emerald-600 font-medium">${u.task_completate}</td>
+                    <td class="px-4 py-3 text-center">${u.progetti_coinvolti || 0}</td>
+                    <td class="px-4 py-3 text-center">${u.task_assegnate || 0}</td>
+                    <td class="px-4 py-3 text-center text-emerald-600 font-medium">${u.task_completate || 0}</td>
                     <td class="px-4 py-3 text-center">
                         <div class="flex items-center justify-center gap-2">
                             <div class="w-16 h-2 bg-slate-200 rounded-full overflow-hidden">
-                                <div class="h-full ${u.efficienza >= 80 ? 'bg-emerald-500' : u.efficienza >= 50 ? 'bg-amber-500' : 'bg-rose-500'}" style="width: ${u.efficienza}%"></div>
+                                <div class="h-full ${(u.efficienza || 0) >= 80 ? 'bg-emerald-500' : (u.efficienza || 0) >= 50 ? 'bg-amber-500' : 'bg-rose-500'}" style="width: ${u.efficienza || 0}%"></div>
                             </div>
-                            <span class="text-xs">${u.efficienza}%</span>
+                            <span class="text-xs">${u.efficienza || 0}%</span>
                         </div>
                     </td>
-                    <td class="px-4 py-3 text-center font-medium">${u.tempo_ore}h</td>
-                    <td class="px-4 py-3 text-right font-medium">€${u.costo_generato.toFixed(2)}</td>
+                    <td class="px-4 py-3 text-center font-medium">${u.tempo_ore || 0}h</td>
+                    <td class="px-4 py-3 text-right font-medium">€${(u.costo_generato || 0).toFixed(2)}</td>
                 </tr>
             `).join('');
         }
@@ -465,47 +531,75 @@ async function loadProgettiReport() {
     
     try {
         const response = await fetch(`api/report.php?action=progetti&stato=${stato}`);
-        const data = await response.json();
         
-        if (data.success) {
-            const progetti = data.data.progetti;
-            
-            createChart('progetti-budget', 'bar', {
-                labels: progetti.slice(0, 8).map(p => p.titolo.substring(0, 15) + '...'),
-                datasets: [
-                    { label: 'Budget', data: progetti.slice(0, 8).map(p => p.budget), backgroundColor: '#3b82f6', borderRadius: 4 },
-                    { label: 'Costo', data: progetti.slice(0, 8).map(p => p.costo_totale), backgroundColor: '#ef4444', borderRadius: 4 }
-                ]
-            }, { scales: { y: { beginAtZero: true } } });
-            
-            createChart('progetti-avanzamento', 'bar', {
-                labels: progetti.slice(0, 8).map(p => p.titolo.substring(0, 15) + '...'),
-                datasets: [{
-                    label: '% Completamento',
-                    data: progetti.slice(0, 8).map(p => p.avanzamento),
-                    backgroundColor: '#10b981',
-                    borderRadius: 4
-                }]
-            }, { indexAxis: 'y', scales: { x: { beginAtZero: true, max: 100 } } });
-            
-            document.getElementById('table-progetti-body').innerHTML = progetti.map(p => {
+        if (!response.ok) {
+            console.error('Errore HTTP:', response.status);
+            return;
+        }
+        const text = await response.text();
+        if (!text) {
+            console.error('Risposta vuota');
+            return;
+        }
+        let data;
+        try {
+            data = JSON.parse(text);
+        } catch (e) {
+            console.error('JSON non valido:', text);
+            return;
+        }
+        
+        if (!data.success) {
+            console.error('API error:', data.message || 'Errore sconosciuto');
+            return;
+        }
+        
+        const progetti = data.data?.progetti || [];
+        
+        if (progetti.length === 0) {
+            const tableBody = document.getElementById('table-progetti-body');
+            if (tableBody) tableBody.innerHTML = '<tr><td colspan="8" class="px-4 py-8 text-center text-slate-400">Nessun progetto disponibile</td></tr>';
+            return;
+        }
+        
+        createChart('progetti-budget', 'bar', {
+            labels: progetti.slice(0, 8).map(p => (p.titolo || '-').substring(0, 15) + '...'),
+            datasets: [
+                { label: 'Budget', data: progetti.slice(0, 8).map(p => p.budget || 0), backgroundColor: '#3b82f6', borderRadius: 4 },
+                { label: 'Costo', data: progetti.slice(0, 8).map(p => p.costo_totale || 0), backgroundColor: '#ef4444', borderRadius: 4 }
+            ]
+        }, { scales: { y: { beginAtZero: true } } });
+        
+        createChart('progetti-avanzamento', 'bar', {
+            labels: progetti.slice(0, 8).map(p => (p.titolo || '-').substring(0, 15) + '...'),
+            datasets: [{
+                label: '% Completamento',
+                data: progetti.slice(0, 8).map(p => p.avanzamento || 0),
+                backgroundColor: '#10b981',
+                borderRadius: 4
+            }]
+        }, { indexAxis: 'y', scales: { x: { beginAtZero: true, max: 100 } } });
+        
+        const tableBody = document.getElementById('table-progetti-body');
+        if (tableBody) {
+            tableBody.innerHTML = progetti.map(p => {
                 const statoClass = { 'in_corso': 'bg-blue-100 text-blue-700', 'completato': 'bg-emerald-100 text-emerald-700', 'archiviato': 'bg-slate-100 text-slate-700' }[p.stato] || 'bg-slate-100 text-slate-700';
-                const margineClass = p.margine >= 0 ? 'text-emerald-600' : 'text-rose-600';
+                const margineClass = (p.margine || 0) >= 0 ? 'text-emerald-600' : 'text-rose-600';
                 return `
                     <tr class="hover:bg-slate-50">
-                        <td class="px-4 py-3 font-medium text-slate-700">${p.titolo}</td>
+                        <td class="px-4 py-3 font-medium text-slate-700">${p.titolo || '-'}</td>
                         <td class="px-4 py-3 text-slate-500">${p.cliente || '-'}</td>
-                        <td class="px-4 py-3 text-center"><span class="px-2 py-1 rounded-full text-xs font-medium ${statoClass}">${p.stato.replace('_', ' ')}</span></td>
-                        <td class="px-4 py-3 text-center">${p.task_completate}/${p.totale_task}</td>
+                        <td class="px-4 py-3 text-center"><span class="px-2 py-1 rounded-full text-xs font-medium ${statoClass}">${(p.stato || '-').replace('_', ' ')}</span></td>
+                        <td class="px-4 py-3 text-center">${p.task_completate || 0}/${p.totale_task || 0}</td>
                         <td class="px-4 py-3 text-center">
                             <div class="flex items-center justify-center gap-2">
-                                <div class="w-16 h-2 bg-slate-200 rounded-full overflow-hidden"><div class="h-full bg-emerald-500" style="width: ${p.avanzamento}%"></div></div>
-                                <span class="text-xs">${p.avanzamento}%</span>
+                                <div class="w-16 h-2 bg-slate-200 rounded-full overflow-hidden"><div class="h-full bg-emerald-500" style="width: ${p.avanzamento || 0}%"></div></div>
+                                <span class="text-xs">${p.avanzamento || 0}%</span>
                             </div>
                         </td>
-                        <td class="px-4 py-3 text-right">€${p.budget.toLocaleString('it-IT')}</td>
-                        <td class="px-4 py-3 text-right">€${p.costo_totale.toLocaleString('it-IT')}</td>
-                        <td class="px-4 py-3 text-right font-medium ${margineClass}">€${p.margine.toLocaleString('it-IT')}</td>
+                        <td class="px-4 py-3 text-right">€${(p.budget || 0).toLocaleString('it-IT')}</td>
+                        <td class="px-4 py-3 text-right">€${(p.costo_totale || 0).toLocaleString('it-IT')}</td>
+                        <td class="px-4 py-3 text-right font-medium ${margineClass}">€${(p.margine || 0).toLocaleString('it-IT')}</td>
                     </tr>
                 `;
             }).join('');
@@ -520,33 +614,66 @@ async function loadEconomicoReport() {
     
     try {
         const response = await fetch(`api/report.php?action=economico&anno=${anno}`);
-        const data = await response.json();
         
-        if (data.success) {
-            const r = data.data;
-            document.getElementById('eco-entrate').textContent = '€' + r.totale.entrate.toLocaleString('it-IT');
-            document.getElementById('eco-uscite').textContent = '€' + r.totale.uscite.toLocaleString('it-IT');
-            document.getElementById('eco-saldo').textContent = '€' + r.totale.saldo.toLocaleString('it-IT');
-            document.getElementById('eco-saldo').className = 'text-3xl font-bold ' + (r.totale.saldo >= 0 ? 'text-emerald-700' : 'text-rose-700');
-            
-            const mesiLabels = ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu', 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'];
-            const entrateData = new Array(12).fill(0);
-            const usciteData = new Array(12).fill(0);
-            r.mensile.forEach(m => { entrateData[m.mese - 1] = m.entrate; usciteData[m.mese - 1] = m.uscite; });
-            
-            createChart('economico-mensile', 'line', {
-                labels: mesiLabels,
-                datasets: [
-                    { label: 'Entrate', data: entrateData, borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0.1)', fill: true, tension: 0.4 },
-                    { label: 'Uscite', data: usciteData, borderColor: '#ef4444', backgroundColor: 'rgba(239, 68, 68, 0.1)', fill: true, tension: 0.4 }
-                ]
-            }, { interaction: { intersect: false, mode: 'index' } });
-            
-            createChart('economico-progetti', 'bar', {
-                labels: r.costi_progetto.map(p => p.titolo.substring(0, 12) + '...'),
-                datasets: [{ label: 'Costo', data: r.costi_progetto.map(p => p.costo_totale), backgroundColor: '#6366f1', borderRadius: 4 }]
-            }, { indexAxis: 'y', plugins: { legend: { display: false } } });
+        if (!response.ok) {
+            console.error('Errore HTTP:', response.status);
+            return;
         }
+        const text = await response.text();
+        if (!text) {
+            console.error('Risposta vuota');
+            return;
+        }
+        let data;
+        try {
+            data = JSON.parse(text);
+        } catch (e) {
+            console.error('JSON non valido:', text);
+            return;
+        }
+        
+        if (!data.success) {
+            console.error('API error:', data.message || 'Errore sconosciuto');
+            return;
+        }
+        
+        const r = data.data || {};
+        const totale = r.totale || {};
+        
+        const ecoEntrate = document.getElementById('eco-entrate');
+        const ecoUscite = document.getElementById('eco-uscite');
+        const ecoSaldo = document.getElementById('eco-saldo');
+        
+        if (ecoEntrate) ecoEntrate.textContent = '€' + (totale.entrate || 0).toLocaleString('it-IT');
+        if (ecoUscite) ecoUscite.textContent = '€' + (totale.uscite || 0).toLocaleString('it-IT');
+        if (ecoSaldo) {
+            ecoSaldo.textContent = '€' + (totale.saldo || 0).toLocaleString('it-IT');
+            ecoSaldo.className = 'text-3xl font-bold ' + ((totale.saldo || 0) >= 0 ? 'text-emerald-700' : 'text-rose-700');
+        }
+        
+        const mesiLabels = ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu', 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'];
+        const entrateData = new Array(12).fill(0);
+        const usciteData = new Array(12).fill(0);
+        (r.mensile || []).forEach(m => { 
+            if (m.mese >= 1 && m.mese <= 12) {
+                entrateData[m.mese - 1] = m.entrate || 0; 
+                usciteData[m.mese - 1] = m.uscite || 0; 
+            }
+        });
+        
+        createChart('economico-mensile', 'line', {
+            labels: mesiLabels,
+            datasets: [
+                { label: 'Entrate', data: entrateData, borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0.1)', fill: true, tension: 0.4 },
+                { label: 'Uscite', data: usciteData, borderColor: '#ef4444', backgroundColor: 'rgba(239, 68, 68, 0.1)', fill: true, tension: 0.4 }
+            ]
+        }, { interaction: { intersect: false, mode: 'index' } });
+        
+        const costiProgetto = r.costi_progetto || [];
+        createChart('economico-progetti', 'bar', {
+            labels: costiProgetto.map(p => (p.titolo || '-').substring(0, 12) + '...'),
+            datasets: [{ label: 'Costo', data: costiProgetto.map(p => p.costo_totale || 0), backgroundColor: '#6366f1', borderRadius: 4 }]
+        }, { indexAxis: 'y', plugins: { legend: { display: false } } });
     } catch (error) {
         console.error('Errore economico:', error);
     }
@@ -557,36 +684,63 @@ async function loadTemporaleReport() {
     
     try {
         const response = await fetch(`api/report.php?action=temporale&mesi=${mesi}`);
-        const data = await response.json();
         
-        if (data.success) {
-            const r = data.data;
-            const totaliTask = r.task_completate.reduce((a, b) => a + parseInt(b.task_completate), 0);
-            const totaliOre = r.ore_lavorate.reduce((a, b) => a + parseFloat(b.ore_lavorate), 0);
-            const totaliProgetti = r.nuovi_progetti.reduce((a, b) => a + parseInt(b.nuovi_progetti), 0);
-            
-            document.getElementById('temp-task-totali').textContent = totaliTask;
-            document.getElementById('temp-ore-totali').textContent = Math.round(totaliOre);
-            document.getElementById('temp-progetti-nuovi').textContent = totaliProgetti;
-            
-            const periodi = [...new Set([...r.task_completate.map(t => t.periodo), ...r.ore_lavorate.map(o => o.periodo), ...r.nuovi_progetti.map(p => p.periodo)])].sort();
-            const labels = periodi.map(p => { const [a, m] = p.split('-'); return `${m}/${a}`; });
-            
-            createChart('temporale-andamento', 'line', {
-                labels: labels,
-                datasets: [
-                    { label: 'Task Completate', data: periodi.map(p => { const f = r.task_completate.find(t => t.periodo === p); return f ? parseInt(f.task_completate) : 0; }), borderColor: '#6366f1', backgroundColor: 'rgba(99, 102, 241, 0.1)', fill: true, tension: 0.4, yAxisID: 'y' },
-                    { label: 'Ore Lavorate', data: periodi.map(p => { const f = r.ore_lavorate.find(o => o.periodo === p); return f ? parseFloat(f.ore_lavorate) : 0; }), borderColor: '#06b6d4', backgroundColor: 'rgba(6, 182, 212, 0.1)', fill: true, tension: 0.4, yAxisID: 'y1' },
-                    { label: 'Nuovi Progetti', data: periodi.map(p => { const f = r.nuovi_progetti.find(n => n.periodo === p); return f ? parseInt(f.nuovi_progetti) : 0; }), borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0)', fill: false, tension: 0.4, yAxisID: 'y' }
-                ]
-            }, {
-                interaction: { mode: 'index', intersect: false },
-                scales: {
-                    y: { type: 'linear', display: true, position: 'left', title: { display: true, text: 'Quantità' } },
-                    y1: { type: 'linear', display: true, position: 'right', title: { display: true, text: 'Ore' }, grid: { drawOnChartArea: false } }
-                }
-            });
+        if (!response.ok) {
+            console.error('Errore HTTP:', response.status);
+            return;
         }
+        const text = await response.text();
+        if (!text) {
+            console.error('Risposta vuota');
+            return;
+        }
+        let data;
+        try {
+            data = JSON.parse(text);
+        } catch (e) {
+            console.error('JSON non valido:', text);
+            return;
+        }
+        
+        if (!data.success) {
+            console.error('API error:', data.message || 'Errore sconosciuto');
+            return;
+        }
+        
+        const r = data.data || {};
+        const taskCompletate = r.task_completate || [];
+        const oreLavorate = r.ore_lavorate || [];
+        const nuoviProgetti = r.nuovi_progetti || [];
+        
+        const totaliTask = taskCompletate.reduce((a, b) => a + parseInt(b.task_completate || 0), 0);
+        const totaliOre = oreLavorate.reduce((a, b) => a + parseFloat(b.ore_lavorate || 0), 0);
+        const totaliProgetti = nuoviProgetti.reduce((a, b) => a + parseInt(b.nuovi_progetti || 0), 0);
+        
+        const tempTaskTotali = document.getElementById('temp-task-totali');
+        const tempOreTotali = document.getElementById('temp-ore-totali');
+        const tempProgettiNuovi = document.getElementById('temp-progetti-nuovi');
+        
+        if (tempTaskTotali) tempTaskTotali.textContent = totaliTask;
+        if (tempOreTotali) tempOreTotali.textContent = Math.round(totaliOre);
+        if (tempProgettiNuovi) tempProgettiNuovi.textContent = totaliProgetti;
+        
+        const periodi = [...new Set([...taskCompletate.map(t => t.periodo), ...oreLavorate.map(o => o.periodo), ...nuoviProgetti.map(p => p.periodo)])].sort();
+        const labels = periodi.map(p => { const [a, m] = p.split('-'); return `${m}/${a}`; });
+        
+        createChart('temporale-andamento', 'line', {
+            labels: labels,
+            datasets: [
+                { label: 'Task Completate', data: periodi.map(p => { const f = taskCompletate.find(t => t.periodo === p); return f ? parseInt(f.task_completate || 0) : 0; }), borderColor: '#6366f1', backgroundColor: 'rgba(99, 102, 241, 0.1)', fill: true, tension: 0.4, yAxisID: 'y' },
+                { label: 'Ore Lavorate', data: periodi.map(p => { const f = oreLavorate.find(o => o.periodo === p); return f ? parseFloat(f.ore_lavorate || 0) : 0; }), borderColor: '#06b6d4', backgroundColor: 'rgba(6, 182, 212, 0.1)', fill: true, tension: 0.4, yAxisID: 'y1' },
+                { label: 'Nuovi Progetti', data: periodi.map(p => { const f = nuoviProgetti.find(n => n.periodo === p); return f ? parseInt(f.nuovi_progetti || 0) : 0; }), borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0)', fill: false, tension: 0.4, yAxisID: 'y' }
+            ]
+        }, {
+            interaction: { mode: 'index', intersect: false },
+            scales: {
+                y: { type: 'linear', display: true, position: 'left', title: { display: true, text: 'Quantità' } },
+                y1: { type: 'linear', display: true, position: 'right', title: { display: true, text: 'Ore' }, grid: { drawOnChartArea: false } }
+            }
+        });
     } catch (error) {
         console.error('Errore temporale:', error);
     }
