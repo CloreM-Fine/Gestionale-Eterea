@@ -39,6 +39,12 @@ switch ($method) {
         } elseif ($action === 'salva_preventivo') {
             salvaPreventivoGestionale();
         } elseif ($action === 'associa_progetto') {
+            // Verifica CSRF token
+            $csrfToken = $_POST['csrf_token'] ?? '';
+            if (empty($csrfToken) || !verifyCsrfToken($csrfToken)) {
+                jsonResponse(false, null, 'Token CSRF non valido');
+                break;
+            }
             associaPreventivoAProgetto();
         } elseif ($action === 'delete_preventivo' && !empty($_POST['id'])) {
             deletePreventivoSalvato($_POST['id']);
