@@ -899,21 +899,24 @@ async function aggiornaBadgeScadenze() {
         });
         
         const count = scadenzeInScadenza.length;
+        const haScadenzeImminenti = count > 0;
         
         // Aggiorna badge sidebar desktop
         const badgeSidebar = document.getElementById('scadenzeBadgeSidebar');
         const alertIcon = document.getElementById('scadenzeAlertIcon');
-        if (badgeSidebar) {
-            if (count > 0) {
-                badgeSidebar.textContent = count > 99 ? '99+' : count;
-                badgeSidebar.classList.remove('hidden');
-                if (alertIcon) alertIcon.classList.add('hidden');
+        
+        // Mostra l'icona di avviso se ci sono scadenze in scadenza
+        if (alertIcon) {
+            if (haScadenzeImminenti) {
+                alertIcon.classList.remove('hidden');
             } else {
-                badgeSidebar.classList.add('hidden');
+                alertIcon.classList.add('hidden');
             }
-        } else if (alertIcon && count > 0) {
-            // Se non c'è il badge numerico, mostra icona di avviso
-            alertIcon.classList.remove('hidden');
+        }
+        
+        // Nascondi il badge numerico (usiamo solo l'icona)
+        if (badgeSidebar) {
+            badgeSidebar.classList.add('hidden');
         }
         
         // Aggiorna badge mobile
