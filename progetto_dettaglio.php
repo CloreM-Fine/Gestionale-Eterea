@@ -1318,8 +1318,8 @@ async function loadTask() {
                                        placeholder="Aggiungi un commento..." 
                                        maxlength="500"
                                        class="flex-1 text-base px-3 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none"
-                                       onkeypress="if(event.key==='Enter') aggiungiCommento('${t.id}')">
-                                <button onclick="aggiungiCommento('${t.id}')" class="px-4 py-2.5 bg-cyan-600 text-white rounded-lg font-medium">
+                                       onkeydown="if(event.key==='Enter') { event.preventDefault(); aggiungiCommento('${t.id}'); }">
+                                <button type="button" onclick="aggiungiCommento('${t.id}')" class="px-4 py-2.5 bg-cyan-600 text-white rounded-lg font-medium">
                                     Invia
                                 </button>
                             </div>
@@ -1429,8 +1429,8 @@ async function loadTask() {
                                        id="commento-input-${t.id}" 
                                        placeholder="Aggiungi un commento..." 
                                        maxlength="500"
-                                       onkeypress="if(event.key==='Enter') aggiungiCommento('${t.id}')">
-                                <button onclick="aggiungiCommento('${t.id}')">Invia</button>
+                                       onkeydown="if(event.key==='Enter') { event.preventDefault(); aggiungiCommento('${t.id}'); }">
+                                <button type="button" onclick="aggiungiCommento('${t.id}')">Invia</button>
                             </div>
                         </div>
                     </div>
