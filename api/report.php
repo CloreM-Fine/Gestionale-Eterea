@@ -72,9 +72,9 @@ function reportDashboardStats() {
     try {
         $stmt = $pdo->query("SELECT 
             COUNT(*) as totale,
-            SUM(CASE WHEN stato = 'in_corso' THEN 1 ELSE 0 END) as in_corso,
-            SUM(CASE WHEN stato = 'completato' THEN 1 ELSE 0 END) as completati,
-            SUM(CASE WHEN stato = 'archiviato' THEN 1 ELSE 0 END) as archiviati
+            SUM(CASE WHEN stato_progetto = 'in_corso' THEN 1 ELSE 0 END) as in_corso,
+            SUM(CASE WHEN stato_progetto = 'completato' OR stato_progetto = 'consegnato' THEN 1 ELSE 0 END) as completati,
+            SUM(CASE WHEN stato_progetto = 'archiviato' THEN 1 ELSE 0 END) as archiviati
             FROM progetti");
         $progetti = $stmt->fetch(PDO::FETCH_ASSOC);
         
@@ -102,7 +102,7 @@ function reportDashboardStats() {
         } catch (Exception $e) {}
         
         try {
-            $stmt = $pdo->query("SELECT SUM(budget) FROM progetti");
+            $stmt = $pdo->query("SELECT SUM(prezzo_totale) FROM progetti");
             $budgetProgetti = (float)$stmt->fetchColumn();
         } catch (Exception $e) {}
         
@@ -206,10 +206,10 @@ function reportProgettiStats() {
     try {
         // Query semplice senza subquery
         if ($stato !== 'tutti') {
-            $stmt = $pdo->prepare("SELECT id, titolo, stato, budget, data_inizio, cliente_id FROM progetti WHERE stato = ? ORDER BY data_inizio DESC");
+            $stmt = $pdo->prepare("SELECT id, titolo, stato_progetto, prezzo_totale, data_inizio, cliente_id FROM progetti WHERE stato_progetto = ? ORDER BY data_inizio DESC");
             $stmt->execute(array($stato));
         } else {
-            $stmt = $pdo->query("SELECT id, titolo, stato, budget, data_inizio, cliente_id FROM progetti ORDER BY data_inizio DESC");
+            $stmt = $pdo->query("SELECT id, titolo, stato_progetto, prezzo_totale, data_inizio, cliente_id FROM progetti ORDER BY data_inizio DESC");
         }
         
         // Carica clienti per lookup
@@ -226,9 +226,9 @@ function reportProgettiStats() {
             $progetti[] = array(
                 'id' => $p['id'],
                 'titolo' => $p['titolo'],
-                'stato' => $p['stato'],
+                'stato' => $p['stato_progetto'],
                 'cliente' => $clienti[$p['cliente_id']] ?? '-',
-                'budget' => floatval($p['budget'] ?? 0),
+                'budget' => floatval($p['prezzo_totale'] ?? 0),
                 'totale_task' => 0,
                 'task_completate' => 0,
                 'costo_totale' => 0,
