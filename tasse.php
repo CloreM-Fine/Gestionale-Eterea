@@ -592,6 +592,7 @@ async function salvaCalcolo() {
     try {
         const formData = new FormData();
         formData.append('action', 'salva_calcolo_tasse');
+        formData.append('csrf_token', getCsrfToken());
         Object.keys(ultimoCalcolo).forEach(key => {
             formData.append(key, ultimoCalcolo[key]);
         });
@@ -697,6 +698,7 @@ async function eliminaCalcolo(id) {
         const formData = new FormData();
         formData.append('action', 'elimina_calcolo');
         formData.append('id', id);
+        formData.append('csrf_token', getCsrfToken());
         
         const response = await fetch('api/tasse.php', {
             method: 'POST',

@@ -20,6 +20,13 @@ switch ($method) {
         break;
         
     case 'POST':
+        // Verifica CSRF token per tutte le operazioni state-changing
+        $csrfToken = $_POST['csrf_token'] ?? '';
+        if (empty($csrfToken) || !verifyCsrfToken($csrfToken)) {
+            jsonResponse(false, null, 'Token CSRF non valido');
+            break;
+        }
+        
         if ($action === 'salva_calcolo_tasse') {
             salvaCalcoloTasse();
         } elseif ($action === 'elimina_calcolo') {
