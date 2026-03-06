@@ -852,7 +852,7 @@ async function salvaAssociazioneProgetto() {
         const response = await fetch('api/preventivi.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `action=associa_progetto&preventivo_id=${preventivoId}&progetto_id=${progettoId}`
+            body: `action=associa_progetto&preventivo_id=${preventivoId}&progetto_id=${progettoId}&csrf_token=${encodeURIComponent(getCsrfToken())}`
         });
         
         const data = await response.json();
@@ -874,7 +874,7 @@ async function eliminaPreventivo(id) {
             const response = await fetch('api/preventivi.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: `action=delete_preventivo&id=${id}`
+                body: `action=delete_preventivo&id=${id}&csrf_token=${encodeURIComponent(getCsrfToken())}`
             });
             
             const data = await response.json();
