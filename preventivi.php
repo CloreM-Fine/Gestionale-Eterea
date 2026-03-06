@@ -1914,11 +1914,17 @@ async function modificaPreventivo(preventivoId) {
         tipo_prezzo: s.tipo_prezzo || 'fisso'
     }));
     
-    // Dopo che i servizi del listino sono caricati, seleziona quelli del preventivo
-    setTimeout(() => {
-        selezionaServiziPreventivo();
-        updatePreventivoPreview();
-    }, 300);
+    // Carica il listino servizi e poi seleziona quelli del preventivo
+    document.getElementById('preventivoServizi').innerHTML = '<p class="text-slate-400 text-center py-4">Caricamento servizi...</p>';
+    
+    loadPreventivi().then(() => {
+        renderPreventivoServiziListino();
+        // Dopo il render, seleziona i servizi del preventivo
+        setTimeout(() => {
+            selezionaServiziPreventivo();
+            updatePreventivoPreview();
+        }, 100);
+    });
     
     // Cambia il titolo del modal
     document.getElementById('preventivoModalTitle').textContent = 'Modifica Preventivo';
