@@ -204,18 +204,22 @@ function reportProgettiStats() {
     $stato = $_GET['stato'] ?? 'tutti';
     
     try {
-        $where = '';
-        $params = array();
+        // Query semplice senza subquery
         if ($stato !== 'tutti') {
-            $where = "WHERE stato = ?";
-            $params[] = $stato;
+            $stmt = $pdo->prepare("SELECT id, titolo, stato, budget, data_inizio, cliente_id FROM progetti WHERE stato = ? ORDER BY data_inizio DESC");
+            $stmt->execute(array($stato));
+        } else {
+            $stmt = $pdo->query("SELECT id, titolo, stato, budget, data_inizio, cliente_id FROM progetti ORDER BY data_inizio DESC");
         }
         
-        $sql = "SELECT id, titolo, stato, budget, data_inizio,
-            (SELECT ragione_sociale FROM clienti c WHERE c.id = p.cliente_id) as cliente
-            FROM progetti p $where ORDER BY data_inizio DESC";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute($params);
+        // Carica clienti per lookup
+        $clienti = array();
+        try {
+            $stmtClienti = $pdo->query("SELECT id, ragione_sociale FROM clienti");
+            while ($c = $stmtClienti->fetch(PDO::FETCH_ASSOC)) {
+                $clienti[$c['id']] = $c['ragione_sociale'];
+            }
+        } catch (Exception $e) {}
         
         $progetti = array();
         while ($p = $stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -223,7 +227,7 @@ function reportProgettiStats() {
                 'id' => $p['id'],
                 'titolo' => $p['titolo'],
                 'stato' => $p['stato'],
-                'cliente' => $p['cliente'] ?? '-',
+                'cliente' => $clienti[$p['cliente_id']] ?? '-',
                 'budget' => floatval($p['budget'] ?? 0),
                 'totale_task' => 0,
                 'task_completate' => 0,
