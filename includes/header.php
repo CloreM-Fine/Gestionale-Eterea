@@ -446,6 +446,12 @@ try {
                         </svg>
                         <span class="sidebar-text">Scadenze</span>
                         <span id="scadenzeBadgeSidebar" class="hidden absolute right-2 top-1/2 -translate-y-1/2 min-w-[20px] h-5 px-1.5 bg-rose-500 text-white text-xs font-bold rounded-full flex items-center justify-center">0</span>
+                        <!-- Icona avviso scadenze -->
+                        <span id="scadenzeAlertIcon" class="hidden absolute right-2 top-1/2 -translate-y-1/2">
+                            <svg class="w-5 h-5 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                            </svg>
+                        </span>
                     </a>
                 </li>
                 <li>
@@ -870,8 +876,8 @@ document.addEventListener('click', function(e) {
 // Carica il conteggio delle scadenze in scadenza e aggiorna i badge
 async function aggiornaBadgeScadenze() {
     try {
-        // Ottieni i giorni di preavviso salvati (default: 3)
-        const giorniPreavviso = parseInt(localStorage.getItem('scadenze_giorni_preavviso')) || 3;
+        // Ottieni i giorni di preavviso salvati (default: 1 - come nella pagina scadenze)
+        const giorniPreavviso = parseInt(localStorage.getItem('scadenze_giorni_preavviso')) || 1;
         
         // Carica tutte le scadenze aperte
         const response = await fetch('api/scadenze.php?action=list', { credentials: 'same-origin' });
@@ -896,13 +902,18 @@ async function aggiornaBadgeScadenze() {
         
         // Aggiorna badge sidebar desktop
         const badgeSidebar = document.getElementById('scadenzeBadgeSidebar');
+        const alertIcon = document.getElementById('scadenzeAlertIcon');
         if (badgeSidebar) {
             if (count > 0) {
                 badgeSidebar.textContent = count > 99 ? '99+' : count;
                 badgeSidebar.classList.remove('hidden');
+                if (alertIcon) alertIcon.classList.add('hidden');
             } else {
                 badgeSidebar.classList.add('hidden');
             }
+        } else if (alertIcon && count > 0) {
+            // Se non c'è il badge numerico, mostra icona di avviso
+            alertIcon.classList.remove('hidden');
         }
         
         // Aggiorna badge mobile
