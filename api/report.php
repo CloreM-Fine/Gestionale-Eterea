@@ -146,7 +146,7 @@ function reportUtentiStats() {
     
     try {
         $utenti = array();
-        $stmt = $pdo->query("SELECT id, nome, colore FROM utenti ORDER BY nome");
+        $stmt = $pdo->query("SELECT id, nome, colore FROM utenti WHERE nome != 'user' ORDER BY nome");
         while ($u = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $utenti[] = array(
                 'id' => $u['id'],
