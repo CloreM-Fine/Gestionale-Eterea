@@ -75,3 +75,6 @@ php5.ini
 test/
 tests/
 phpunit.xml
+
+# File inutili/debug (mantenuti solo in locale)
+_unused_files/
