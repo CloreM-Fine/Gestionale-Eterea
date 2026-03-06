@@ -1124,7 +1124,7 @@ function salvaPreventivoGestionale(): void {
         $pdo->beginTransaction();
         
         if ($preventivoId) {
-            // UPDATE: Aggiorna preventivo esistente
+            // UPDATE: Aggiorna preventivo esistente (senza updated_at per compatibilità)
             $stmt = $pdo->prepare("
                 UPDATE preventivi_salvati SET
                     numero = ?,
@@ -1140,8 +1140,7 @@ function salvaPreventivoGestionale(): void {
                     totale = ?,
                     frequenza = ?,
                     frequenza_testo = ?,
-                    mostra_burocrazia = ?,
-                    updated_at = NOW()
+                    mostra_burocrazia = ?
                 WHERE id = ?
             ");
             
