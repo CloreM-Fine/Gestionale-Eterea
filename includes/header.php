@@ -364,6 +364,9 @@ try {
             scroll-behavior: smooth;
         }
     </style>
+    
+    <!-- CSRF Token per protezione form -->
+    <meta name="csrf-token" content="<?php echo generateCsrfToken(); ?>">
 </head>
 <body class="bg-slate-50 font-sans text-slate-800">
     <!-- Mobile Menu Overlay -->
@@ -950,4 +953,30 @@ document.addEventListener('DOMContentLoaded', aggiornaBadgeScadenze);
 
 // Esponi funzione globalmente per essere chiamata da altre pagine
 window.updateScadenzeBadge = aggiornaBadgeScadenze;
+
+// ============================================
+// CSRF PROTECTION - Aggiunge token a tutte le richieste POST
+// ============================================
+
+// Ottieni CSRF token dal meta tag
+function getCsrfToken() {
+    const meta = document.querySelector('meta[name="csrf-token"]');
+    return meta ? meta.content : '';
+}
+
+// Intercetta tutte le richieste fetch e aggiunge CSRF token ai POST
+const originalFetch = window.fetch;
+window.fetch = function(url, options = {}) {
+    // Se è una richiesta POST, aggiungi il token CSRF
+    if (options.method === 'POST' || (!options.method && url instanceof Request && url.method === 'POST')) {
+        options = options || {};
+        
+        // Se il body è FormData, aggiungi il token
+        if (options.body instanceof FormData) {
+            options.body.append('csrf_token', getCsrfToken());
+        }
+    }
+    
+    return originalFetch.call(this, url, options);
+};
 </script>
