@@ -1360,18 +1360,24 @@ function associaPreventivoAProgetto(): void {
         }
         
         // Aggiorna il preventivo con il riferimento al progetto
-        // Aggiungiamo una colonna progetto_id se non esiste
+        // La colonna progetto_id dovrebbe esistere, altrimenti l'update fallirà
         try {
-            $stmt = $pdo->prepare("
-                ALTER TABLE preventivi_salvati ADD COLUMN IF NOT EXISTS progetto_id VARCHAR(20) NULL AFTER cliente_id
-            ");
-            $stmt->execute();
+            $stmt = $pdo->prepare("UPDATE preventivi_salvati SET progetto_id = ? WHERE id = ?");
+            $stmt->execute([$progettoId, $preventivoId]);
         } catch (PDOException $e) {
-            // Ignora errore se la colonna esiste già
+            // Se la colonna non esiste, proviamo a crearla
+            if (strpos($e->getMessage(), 'Unknown column') !== false || strpos($e->getMessage(), 'progetto_id') !== false) {
+                try {
+                    $pdo->exec("ALTER TABLE preventivi_salvati ADD COLUMN progetto_id VARCHAR(20) NULL AFTER cliente_id");
+                    $stmt = $pdo->prepare("UPDATE preventivi_salvati SET progetto_id = ? WHERE id = ?");
+                    $stmt->execute([$progettoId, $preventivoId]);
+                } catch (PDOException $e2) {
+                    throw $e2;
+                }
+            } else {
+                throw $e;
+            }
         }
-        
-        $stmt = $pdo->prepare("UPDATE preventivi_salvati SET progetto_id = ? WHERE id = ?");
-        $stmt->execute([$progettoId, $preventivoId]);
         
         $pdo->commit();
         
