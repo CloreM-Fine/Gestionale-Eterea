@@ -1409,7 +1409,10 @@ function associaPreventivoAProgetto(): void {
         if ($pdo->inTransaction()) {
             $pdo->rollBack();
         }
-        error_log("Errore associazione preventivo: " . $e->getMessage());
+        error_log("Errore associazione preventivo [SQLSTATE {$e->getCode()}]: " . $e->getMessage());
+        jsonResponse(false, null, 'Errore database: ' . $e->getMessage());
+    } catch (Throwable $e) {
+        error_log("Errore generico associazione preventivo: " . $e->getMessage());
         jsonResponse(false, null, 'Errore durante l\'associazione');
     }
 }
