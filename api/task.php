@@ -33,6 +33,13 @@ switch ($method) {
         break;
         
     case 'POST':
+        // Verifica CSRF token per tutte le operazioni state-changing
+        $csrfToken = $_POST['csrf_token'] ?? '';
+        if (empty($csrfToken) || !verifyCsrfToken($csrfToken)) {
+            jsonResponse(false, null, 'Token CSRF non valido');
+            break;
+        }
+        
         if ($action === 'create') {
             createTask();
         } elseif ($action === 'update' && isset($_POST['id'])) {

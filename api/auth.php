@@ -215,7 +215,7 @@ function checkSession(): void {
     
     if (isset($_SESSION['user_id']) && isset($_SESSION['last_activity'])) {
         // Verifica timeout
-        if (time() - $_SESSION['last_activity'] <= 86400) {
+        if (time() - $_SESSION['last_activity'] <= 7200) { // 2 ore
             jsonResponse(true, [
                 'id' => $_SESSION['user_id'],
                 'nome' => $_SESSION['user_name'] ?? 'Utente',

@@ -90,7 +90,7 @@ include __DIR__ . '/includes/header.php';
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-slate-300 text-xs sm:text-sm font-medium mb-1">Progetti Attivi</p>
-                        <h3 class="text-xl sm:text-2xl md:text-3xl font-bold"><?php echo $stats['progetti_attivi']; ?></h3>
+                        <h3 class="text-xl sm:text-2xl md:text-3xl font-bold"><?php echo e($stats['progetti_attivi']); ?></h3>
                     </div>
                     <div class="w-10 h-10 sm:w-14 sm:h-14 bg-white/20 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0">
                         <svg class="w-5 h-5 sm:w-7 sm:h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -193,19 +193,19 @@ unset($member);
         <?php foreach ($teamMembers as $member): ?>
         <div class="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
             <!-- Header Card -->
-            <div class="p-3 sm:p-4 border-b border-slate-100" style="background: linear-gradient(135deg, <?php echo $member['colore']; ?>15 0%, <?php echo $member['colore']; ?>05 100%);">
+            <div class="p-3 sm:p-4 border-b border-slate-100" style="background: linear-gradient(135deg, <?php echo e($member['colore']); ?>15 0%, <?php echo e($member['colore']); ?>05 100%);">
                 <div class="flex items-center gap-2 sm:gap-3">
                     <?php if (!empty($member['avatar']) && file_exists(__DIR__ . '/assets/uploads/avatars/' . $member['avatar'])): ?>
                         <img src="assets/uploads/avatars/<?php echo e($member['avatar']); ?>" 
                              alt="<?php echo e($member['nome']); ?>" 
                              class="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl object-cover border-2 border-white shadow-sm flex-shrink-0">
                     <?php else: ?>
-                        <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl flex items-center justify-center text-white font-bold text-base sm:text-lg flex-shrink-0" style="background-color: <?php echo $member['colore']; ?>">
+                        <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl flex items-center justify-center text-white font-bold text-base sm:text-lg flex-shrink-0" style="background-color: <?php echo e($member['colore']); ?>">
                             <?php echo substr($member['nome'], 0, 1); ?>
                         </div>
                     <?php endif; ?>
                     <div class="min-w-0">
-                        <h3 class="text-sm sm:text-base font-bold text-slate-800 truncate"><?php echo $member['nome'] . ' ' . $member['cognome']; ?></h3>
+                        <h3 class="text-sm sm:text-base font-bold text-slate-800 truncate"><?php echo e($member['nome'] . ' ' . $member['cognome']); ?></h3>
                         <p class="text-xs text-slate-500"><?php echo count($member['progetti']); ?> progetti attivi</p>
                     </div>
                 </div>

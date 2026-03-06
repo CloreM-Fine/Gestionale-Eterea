@@ -21,8 +21,8 @@ try {
 $method = $_SERVER['REQUEST_METHOD'];
 $action = $_GET['action'] ?? $_POST['action'] ?? '';
 
-// Debug
-error_log("API Progetti - Method: $method, Action: $action, GET: " . print_r($_GET, true) . ", POST: " . print_r($_POST, true));
+// Log solo azione (senza dati sensibili)
+error_log("API Progetti - Method: $method, Action: $action");
 
 switch ($method) {
     case 'GET':
@@ -40,6 +40,13 @@ switch ($method) {
         break;
         
     case 'POST':
+        // Verifica CSRF token per tutte le operazioni state-changing
+        $csrfToken = $_POST['csrf_token'] ?? '';
+        if (empty($csrfToken) || !verifyCsrfToken($csrfToken)) {
+            jsonResponse(false, null, 'Token CSRF non valido');
+            break;
+        }
+        
         if ($action === 'create') {
             createProgetto();
         } elseif ($action === 'update' && isset($_POST['id'])) {
@@ -126,15 +133,16 @@ function listProgetti(): void {
             $hasNotificationTable = false;
         }
         
-        // Usa interpolazione sicura per user_id (solo alfanumerico e underscore)
+        // Sanitizza user_id e usa quote per sicurezza assoluta
         $safeUserId = preg_replace('/[^a-zA-Z0-9_-]/', '', $userId);
+        $quotedUserId = $pdo->quote($safeUserId);
         
         $nuoveTaskSql = $hasNotificationTable && $safeUserId ? 
             "COALESCE((
                 SELECT COUNT(*) 
                 FROM task t2 
                 LEFT JOIN task_visualizzazioni tv ON t2.progetto_id = tv.progetto_id COLLATE utf8mb4_0900_ai_ci 
-                    AND tv.user_id COLLATE utf8mb4_0900_ai_ci = '{$safeUserId}' COLLATE utf8mb4_0900_ai_ci
+                    AND tv.user_id COLLATE utf8mb4_0900_ai_ci = {$quotedUserId} COLLATE utf8mb4_0900_ai_ci
                 WHERE t2.progetto_id = p.id 
                 AND t2.created_at > COALESCE(tv.last_viewed, '1970-01-01')
             ), 0) as nuove_task" : 

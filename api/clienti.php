@@ -24,7 +24,13 @@ switch ($method) {
         break;
         
     case 'POST':
-        error_log("POST request received - action: {$action}, id: " . ($_POST['id'] ?? 'none') . ", FILES: " . print_r($_FILES, true));
+        // Verifica CSRF token per tutte le operazioni state-changing
+        $csrfToken = $_POST['csrf_token'] ?? '';
+        if (empty($csrfToken) || !verifyCsrfToken($csrfToken)) {
+            jsonResponse(false, null, 'Token CSRF non valido');
+            break;
+        }
+        
         if ($action === 'create') {
             createCliente();
         } elseif ($action === 'update' && isset($_POST['id'])) {

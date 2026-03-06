@@ -94,7 +94,7 @@ include __DIR__ . '/includes/header.php';
             <select id="statoFilter" class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none min-h-[44px]">
                 <option value="">Tutti gli stati</option>
                 <?php foreach (STATI_PROGETTO as $key => $label): ?>
-                <option value="<?php echo $key; ?>"><?php echo $label; ?></option>
+                <option value="<?php echo e($key); ?>"><?php echo e($label); ?></option>
                 <?php endforeach; ?>
             </select>
             
@@ -135,7 +135,7 @@ include __DIR__ . '/includes/header.php';
                     '#F5D0FE' => ['nome' => 'Fucsia'],
                 ];
                 foreach ($coloriTag as $hex => $info): ?>
-                <option value="<?php echo $hex; ?>"><span class="inline-block w-3 h-3 rounded-sm mr-1 align-middle" style="background-color: <?php echo $hex; ?>"></span> <?php echo $info['nome']; ?></option>
+                <option value="<?php echo e($hex); ?>"><span class="inline-block w-3 h-3 rounded-sm mr-1 align-middle" style="background-color: <?php echo e($hex); ?>"></span> <?php echo e($info['nome']); ?></option>
                 <?php endforeach; ?>
             </select>
             </select>
@@ -378,7 +378,7 @@ include __DIR__ . '/includes/header.php';
                             <?php foreach (TIPOLOGIE_PROGETTO as $tipo): ?>
                             <label class="inline-flex items-center px-3 py-1.5 rounded-full border border-slate-200 cursor-pointer hover:bg-slate-50 transition-colors has-[:checked]:bg-cyan-50 has-[:checked]:border-cyan-500 has-[:checked]:text-cyan-700">
                                 <input type="checkbox" name="tipologie[]" value="<?php echo $tipo; ?>" class="sr-only">
-                                <span class="text-xs sm:text-sm"><?php echo $tipo; ?></span>
+                                <span class="text-xs sm:text-sm"><?php echo e($tipo); ?></span>
                             </label>
                             <?php endforeach; ?>
                         </div>
@@ -399,7 +399,7 @@ include __DIR__ . '/includes/header.php';
                             <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-2">Stato Progetto</label>
                             <select name="stato_progetto" class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none min-h-[44px]">
                                 <?php foreach (STATI_PROGETTO as $key => $label): ?>
-                                <option value="<?php echo $key; ?>" <?php echo $key === 'da_iniziare' ? 'selected' : ''; ?>><?php echo $label; ?></option>
+                                <option value="<?php echo e($key); ?>" <?php echo $key === 'da_iniziare' ? 'selected' : ''; ?>><?php echo e($label); ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
@@ -407,7 +407,7 @@ include __DIR__ . '/includes/header.php';
                             <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-2">Stato Pagamento</label>
                             <select name="stato_pagamento" id="statoPagamentoSelect" onchange="toggleAccontoPercentuale()" class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none min-h-[44px]">
                                 <?php foreach (STATI_PAGAMENTO as $key => $label): ?>
-                                <option value="<?php echo $key; ?>" <?php echo $key === 'da_pagare' ? 'selected' : ''; ?>><?php echo $label; ?></option>
+                                <option value="<?php echo e($key); ?>" <?php echo $key === 'da_pagare' ? 'selected' : ''; ?>><?php echo e($label); ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>

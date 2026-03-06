@@ -292,9 +292,13 @@ function uploadAvatar(): void {
     $file = $_FILES['avatar'];
     $userId = $_SESSION['user_id'];
     
-    // Validazione
+    // Validazione tipo file usando finfo (sicuro, non si basa sul client)
+    $finfo = finfo_open(FILEINFO_MIME_TYPE);
+    $realMimeType = finfo_file($finfo, $file['tmp_name']);
+    finfo_close($finfo);
+    
     $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-    if (!in_array($file['type'], $allowedTypes)) {
+    if (!in_array($realMimeType, $allowedTypes)) {
         jsonResponse(false, null, 'Formato non valido. Usa JPG, PNG, GIF o WEBP');
         return;
     }
@@ -488,9 +492,13 @@ function uploadLogoAzienda(): void {
     
     $file = $_FILES['logo'];
     
-    // Validazione
+    // Validazione tipo file usando finfo (sicuro, non si basa sul client)
+    $finfo = finfo_open(FILEINFO_MIME_TYPE);
+    $realMimeType = finfo_file($finfo, $file['tmp_name']);
+    finfo_close($finfo);
+    
     $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
-    if (!in_array($file['type'], $allowedTypes)) {
+    if (!in_array($realMimeType, $allowedTypes)) {
         jsonResponse(false, null, 'Formato non valido. Usa JPG, PNG, GIF, WEBP o SVG');
         return;
     }
@@ -602,10 +610,9 @@ function getImpostazioniContabilita(): void {
 function saveCodiceAteco(): void {
     global $pdo;
     
-    // Verifica password
-    $password = $_POST['password'] ?? '';
-    if ($password !== 'Tomato2399!?') {
-        jsonResponse(false, null, 'Password errata');
+    // Verifica permessi admin
+    if (!isAdmin()) {
+        jsonResponse(false, null, 'Accesso negato: richiesto ruolo amministratore');
         return;
     }
     
@@ -652,10 +659,9 @@ function saveCodiceAteco(): void {
 function deleteCodiceAteco(): void {
     global $pdo;
     
-    // Verifica password
-    $password = $_POST['password'] ?? '';
-    if ($password !== 'Tomato2399!?') {
-        jsonResponse(false, null, 'Password errata');
+    // Verifica permessi admin
+    if (!isAdmin()) {
+        jsonResponse(false, null, 'Accesso negato: richiesto ruolo amministratore');
         return;
     }
     
@@ -681,10 +687,9 @@ function deleteCodiceAteco(): void {
 function saveImpostazioniTasse(): void {
     global $pdo;
     
-    // Verifica password
-    $password = $_POST['password'] ?? '';
-    if ($password !== 'Tomato2399!?') {
-        jsonResponse(false, null, 'Password errata');
+    // Verifica permessi admin
+    if (!isAdmin()) {
+        jsonResponse(false, null, 'Accesso negato: richiesto ruolo amministratore');
         return;
     }
     
@@ -1393,9 +1398,13 @@ function uploadFirmaAzienda(): void {
     
     $file = $_FILES['firma'];
     
-    // Validazione
+    // Validazione tipo file usando finfo (sicuro, non si basa sul client)
+    $finfo = finfo_open(FILEINFO_MIME_TYPE);
+    $realMimeType = finfo_file($finfo, $file['tmp_name']);
+    finfo_close($finfo);
+    
     $allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
-    if (!in_array($file['type'], $allowedTypes)) {
+    if (!in_array($realMimeType, $allowedTypes)) {
         jsonResponse(false, null, 'Formato non valido. Usa JPG, PNG o GIF');
         return;
     }
