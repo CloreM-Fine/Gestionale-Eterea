@@ -35,7 +35,16 @@ switch ($method) {
     case 'POST':
         // Verifica CSRF token per tutte le operazioni state-changing
         $csrfToken = $_POST['csrf_token'] ?? '';
-        if (empty($csrfToken) || !verifyCsrfToken($csrfToken)) {
+        $sessionToken = $_SESSION['csrf_token'] ?? 'NESSUNO';
+        
+        if (empty($csrfToken)) {
+            error_log("CSRF DEBUG: Token mancato per azione {$action}");
+            jsonResponse(false, null, 'Token CSRF mancante');
+            break;
+        }
+        
+        if (!verifyCsrfToken($csrfToken)) {
+            error_log("CSRF DEBUG: Token non valido. Ricevuto: {$csrfToken}, Sessione: {$sessionToken}");
             jsonResponse(false, null, 'Token CSRF non valido');
             break;
         }
