@@ -350,13 +350,21 @@ document.addEventListener('DOMContentLoaded', function() {
                         <label class="block text-sm font-medium text-slate-700 mb-2">Prezzo (€) *</label>
                         <input type="number" name="prezzo" id="vocePrezzo" required min="0" step="0.01"
                                class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none"
-                               placeholder="0.00">
+                               placeholder="0.00"
+                               oninput="calcolaPrezzoScontato()">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-slate-700 mb-2">Sconto %</label>
                         <input type="number" name="sconto_percentuale" id="voceSconto" min="0" max="100" value="0"
-                               class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
+                               class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none"
+                               oninput="calcolaPrezzoScontato()">
                     </div>
+                </div>
+                
+                <!-- Prezzo Scontato in tempo reale -->
+                <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-3 flex items-center justify-between">
+                    <span class="text-sm text-emerald-700 font-medium">Prezzo finale scontato:</span>
+                    <span class="text-lg font-bold text-emerald-800" id="vocePrezzoScontato">€ 0,00</span>
                 </div>
                 
                 <div>
@@ -1087,6 +1095,18 @@ function renderPreventivi() {
     `).join('');
 }
 
+// Calcola prezzo scontato in tempo reale
+function calcolaPrezzoScontato() {
+    const prezzo = parseFloat(document.getElementById('vocePrezzo').value) || 0;
+    const sconto = parseFloat(document.getElementById('voceSconto').value) || 0;
+    const prezzoScontato = prezzo * (1 - sconto / 100);
+    
+    document.getElementById('vocePrezzoScontato').textContent = '€ ' + prezzoScontato.toLocaleString('it-IT', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
+}
+
 // Gestione Modal Voce
 function openVoceModal(categoriaId, voceId = null) {
     document.getElementById('voceForm').reset();
@@ -1111,9 +1131,14 @@ function openVoceModal(categoriaId, voceId = null) {
                 document.getElementById('voceFrequenza').value = voce.frequenza || '1';
                 // Carica descrizione nell'editor WYSIWYG
                 wysiwygEditor.setContent(voce.descrizione || '');
+                // Calcola prezzo scontato
+                calcolaPrezzoScontato();
                 break;
             }
         }
+    } else {
+        // Reset prezzo scontato per nuovo servizio
+        document.getElementById('vocePrezzoScontato').textContent = '€ 0,00';
     }
     
     openModal('voceModal');
