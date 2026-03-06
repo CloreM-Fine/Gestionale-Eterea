@@ -1522,8 +1522,6 @@ function openPreventivoModal() {
     
     // Reset voci preventivo
     preventivoVoci = [];
-    renderVociPreventivo();
-    calcolaTotale();
     
     // Carica i servizi dal listino prezzi
     loadPreventivi().then(() => {
