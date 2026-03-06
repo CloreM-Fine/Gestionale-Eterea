@@ -1493,7 +1493,7 @@ async function startTaskTimer(taskId) {
         const response = await fetch('api/task.php?action=timer_start', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `task_id=${encodeURIComponent(taskId)}`
+            body: `task_id=${encodeURIComponent(taskId)}&csrf_token=${encodeURIComponent(getCsrfToken())}`
         });
         
         const data = await response.json();
@@ -1514,7 +1514,7 @@ async function pauseTaskTimer(taskId) {
         const response = await fetch('api/task.php?action=timer_pause', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `task_id=${encodeURIComponent(taskId)}`
+            body: `task_id=${encodeURIComponent(taskId)}&csrf_token=${encodeURIComponent(getCsrfToken())}`
         });
         
         const data = await response.json();
@@ -1535,7 +1535,7 @@ async function resumeTaskTimer(taskId) {
         const response = await fetch('api/task.php?action=timer_resume', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `task_id=${encodeURIComponent(taskId)}`
+            body: `task_id=${encodeURIComponent(taskId)}&csrf_token=${encodeURIComponent(getCsrfToken())}`
         });
         
         const data = await response.json();
@@ -1556,7 +1556,7 @@ async function stopTaskTimer(taskId) {
         const response = await fetch('api/task.php?action=timer_stop', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `task_id=${encodeURIComponent(taskId)}`
+            body: `task_id=${encodeURIComponent(taskId)}&csrf_token=${encodeURIComponent(getCsrfToken())}`
         });
         
         const data = await response.json();
@@ -1579,7 +1579,7 @@ async function resetTaskTimer(taskId) {
             const response = await fetch('api/task.php?action=timer_reset', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: `task_id=${encodeURIComponent(taskId)}`
+                body: `task_id=${encodeURIComponent(taskId)}&csrf_token=${encodeURIComponent(getCsrfToken())}`
             });
             
             const data = await response.json();

@@ -51,14 +51,39 @@ switch ($method) {
         } elseif ($action === 'delete_commento' && isset($_POST['commento_id'])) {
             deleteCommento($_POST['commento_id']);
         } elseif ($action === 'timer_start') {
+            $csrfToken = $_POST['csrf_token'] ?? '';
+            if (empty($csrfToken) || !verifyCsrfToken($csrfToken)) {
+                jsonResponse(false, null, 'Token CSRF non valido');
+                break;
+            }
             timerStart();
         } elseif ($action === 'timer_pause') {
+            $csrfToken = $_POST['csrf_token'] ?? '';
+            if (empty($csrfToken) || !verifyCsrfToken($csrfToken)) {
+                jsonResponse(false, null, 'Token CSRF non valido');
+                break;
+            }
             timerPause();
         } elseif ($action === 'timer_resume') {
+            $csrfToken = $_POST['csrf_token'] ?? '';
+            if (empty($csrfToken) || !verifyCsrfToken($csrfToken)) {
+                jsonResponse(false, null, 'Token CSRF non valido');
+                break;
+            }
             timerResume();
         } elseif ($action === 'timer_stop') {
+            $csrfToken = $_POST['csrf_token'] ?? '';
+            if (empty($csrfToken) || !verifyCsrfToken($csrfToken)) {
+                jsonResponse(false, null, 'Token CSRF non valido');
+                break;
+            }
             timerStop();
         } elseif ($action === 'timer_reset') {
+            $csrfToken = $_POST['csrf_token'] ?? '';
+            if (empty($csrfToken) || !verifyCsrfToken($csrfToken)) {
+                jsonResponse(false, null, 'Token CSRF non valido');
+                break;
+            }
             timerReset();
         } else {
             jsonResponse(false, null, 'Azione non valida');
