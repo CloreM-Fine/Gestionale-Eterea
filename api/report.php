@@ -48,25 +48,25 @@ if ($method !== 'GET') {
 
 switch ($action) {
     case 'dashboard':
-        getDashboardStats();
+        reportDashboardStats();
         break;
     case 'utenti':
-        getUtentiReport();
+        reportUtentiStats();
         break;
     case 'progetti':
-        getProgettiReport();
+        reportProgettiStats();
         break;
     case 'economico':
-        getEconomicoReport();
+        reportEconomicoStats();
         break;
     case 'temporale':
-        getTemporaleReport();
+        reportTemporaleStats();
         break;
     default:
         jsonResponse(false, null, 'Azione non valida');
 }
 
-function getDashboardStats() {
+function reportDashboardStats() {
     global $pdo;
     
     try {
@@ -141,7 +141,7 @@ function getDashboardStats() {
     }
 }
 
-function getUtentiReport() {
+function reportUtentiStats() {
     global $pdo;
     
     try {
@@ -198,7 +198,7 @@ function getUtentiReport() {
     }
 }
 
-function getProgettiReport() {
+function reportProgettiStats() {
     global $pdo;
     
     $stato = $_GET['stato'] ?? 'tutti';
@@ -263,7 +263,7 @@ function getProgettiReport() {
     }
 }
 
-function getEconomicoReport() {
+function reportEconomicoStats() {
     global $pdo;
     
     $anno = intval($_GET['anno'] ?? date('Y'));
@@ -312,7 +312,7 @@ function getEconomicoReport() {
     }
 }
 
-function getTemporaleReport() {
+function reportTemporaleStats() {
     global $pdo;
     
     $mesi = intval($_GET['mesi'] ?? 6);
