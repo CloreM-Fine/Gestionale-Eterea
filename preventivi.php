@@ -1518,8 +1518,7 @@ function openPreventivoModal() {
     document.getElementById('prevTempiConsegna').value = '';
     document.getElementById('prevNonInclude').value = '';
     document.getElementById('prevMostraBurocrazia').checked = true;
-    document.getElementById('prevFrequenza').value = '1';
-    if (typeof aggiornaFrequenzaLabel === 'function') aggiornaFrequenzaLabel();
+
     
     // Reset voci preventivo
     preventivoVoci = [];
@@ -1901,10 +1900,6 @@ async function modificaPreventivo(preventivoId) {
     document.getElementById('prevTempiConsegna').value = preventivo.tempi_consegna || '';
     document.getElementById('prevNonInclude').value = preventivo.non_include || '';
     document.getElementById('prevMostraBurocrazia').checked = preventivo.mostra_burocrazia == 1;
-    
-    // Imposta la frequenza
-    document.getElementById('prevFrequenza').value = preventivo.frequenza || 1;
-    aggiornaFrequenzaLabel(); // Aggiorna il testo della frequenza
     
     // Carica i servizi nel preventivo
     preventivoVoci = servizi.map(s => ({
