@@ -862,4 +862,78 @@ document.addEventListener('click', function(e) {
         menu.classList.remove('show');
     }
 });
+
+// ============================================
+// BADGE SCADENZE IN SCADENZA
+// ============================================
+
+// Carica il conteggio delle scadenze in scadenza e aggiorna i badge
+async function aggiornaBadgeScadenze() {
+    try {
+        // Ottieni i giorni di preavviso salvati (default: 3)
+        const giorniPreavviso = parseInt(localStorage.getItem('scadenze_giorni_preavviso')) || 3;
+        
+        // Carica tutte le scadenze aperte
+        const response = await fetch('api/scadenze.php?action=list', { credentials: 'same-origin' });
+        const data = await response.json();
+        
+        if (!data.success) return;
+        
+        // Filtra le scadenze in scadenza (entro X giorni)
+        const oggi = new Date();
+        oggi.setHours(0, 0, 0, 0);
+        
+        const scadenzeInScadenza = data.data.filter(s => {
+            if (s.stato === 'completata' || s.stato === 'scaduta') return false;
+            const scadenza = new Date(s.data_scadenza);
+            scadenza.setHours(0, 0, 0, 0);
+            const diffTime = scadenza - oggi;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            return diffDays >= 0 && diffDays <= giorniPreavviso;
+        });
+        
+        const count = scadenzeInScadenza.length;
+        
+        // Aggiorna badge sidebar desktop
+        const badgeSidebar = document.getElementById('scadenzeBadgeSidebar');
+        if (badgeSidebar) {
+            if (count > 0) {
+                badgeSidebar.textContent = count > 99 ? '99+' : count;
+                badgeSidebar.classList.remove('hidden');
+            } else {
+                badgeSidebar.classList.add('hidden');
+            }
+        }
+        
+        // Aggiorna badge mobile
+        const badgeMobile = document.getElementById('scadenzeBadgeMobile');
+        if (badgeMobile) {
+            if (count > 0) {
+                badgeMobile.textContent = count > 99 ? '99+' : count;
+                badgeMobile.classList.remove('hidden');
+            } else {
+                badgeMobile.classList.add('hidden');
+            }
+        }
+        
+    } catch (error) {
+        console.error('Errore aggiornamento badge scadenze:', error);
+    }
+}
+
+// Aggiorna il badge ogni 5 minuti
+setInterval(aggiornaBadgeScadenze, 5 * 60 * 1000);
+
+// Aggiorna quando la pagina è visibile
+document.addEventListener('visibilitychange', function() {
+    if (!document.hidden) {
+        aggiornaBadgeScadenze();
+    }
+});
+
+// Aggiorna al caricamento della pagina
+document.addEventListener('DOMContentLoaded', aggiornaBadgeScadenze);
+
+// Esponi funzione globalmente per essere chiamata da altre pagine
+window.updateScadenzeBadge = aggiornaBadgeScadenze;
 </script>

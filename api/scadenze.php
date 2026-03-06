@@ -205,7 +205,7 @@ function getScadenzaDetail($id) {
     try {
         $stmt = $pdo->prepare("
             SELECT s.*, st.nome as tipologia_nome, st.colore as tipologia_colore,
-                   c.nome as cliente_nome, u.nome as user_nome
+                   c.ragione_sociale as cliente_nome, u.nome as user_nome
             FROM scadenze s
             LEFT JOIN scadenze_tipologie st ON s.tipologia_id = st.id
             LEFT JOIN clienti c ON s.cliente_id = c.id
