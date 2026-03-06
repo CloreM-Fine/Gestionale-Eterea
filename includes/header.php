@@ -521,19 +521,17 @@ try {
                         <span class="sidebar-text">Impostazioni</span>
                     </a>
                 </li>
+                <li class="pt-4 mt-4 border-t border-slate-700">
+                    <a href="https://www.etereastudio.it" target="_blank" rel="noopener noreferrer"
+                       class="flex items-center gap-3 px-3 py-3 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700 transition-all shadow-lg hover:shadow-xl">
+                        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/>
+                        </svg>
+                        <span class="sidebar-text font-medium">Visita il sito</span>
+                    </a>
+                </li>
             </ul>
         </nav>
-        
-        <!-- Visita il Sito -->
-        <div class="mt-auto p-4 border-t border-slate-700">
-            <a href="https://www.etereastudio.it" target="_blank" rel="noopener noreferrer"
-               class="flex items-center gap-3 px-3 py-3 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700 transition-all shadow-lg hover:shadow-xl">
-                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/>
-                </svg>
-                <span class="sidebar-text font-medium">Visita il sito</span>
-            </a>
-        </div>
         
         <!-- Logout Mobile -->
         <div class="lg:hidden p-4 border-t border-slate-700">
