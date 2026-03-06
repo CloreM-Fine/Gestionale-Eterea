@@ -1318,8 +1318,8 @@ async function loadTask() {
                                        placeholder="Aggiungi un commento..." 
                                        maxlength="500"
                                        class="flex-1 text-base px-3 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none"
-                                       onkeydown="if(event.key==='Enter') { event.preventDefault(); aggiungiCommento('${t.id}'); }">
-                                <button type="button" onclick="aggiungiCommento('${t.id}')" class="px-4 py-2.5 bg-cyan-600 text-white rounded-lg font-medium">
+                                       onkeydown="if(event.key==='Enter') { event.preventDefault(); aggiungiCommentoDaInput(this); }">
+                                <button type="button" onclick="aggiungiCommentoDaBottone(this)" class="px-4 py-2.5 bg-cyan-600 text-white rounded-lg font-medium">
                                     Invia
                                 </button>
                             </div>
@@ -1429,8 +1429,8 @@ async function loadTask() {
                                        id="commento-input-${t.id}" 
                                        placeholder="Aggiungi un commento..." 
                                        maxlength="500"
-                                       onkeydown="if(event.key==='Enter') { event.preventDefault(); aggiungiCommento('${t.id}'); }">
-                                <button type="button" onclick="aggiungiCommento('${t.id}')">Invia</button>
+                                       onkeydown="if(event.key==='Enter') { event.preventDefault(); aggiungiCommentoDaInput(this); }">
+                                <button type="button" onclick="aggiungiCommentoDaBottone(this)">Invia</button>
                             </div>
                         </div>
                     </div>
@@ -2184,9 +2184,25 @@ async function loadCommentiForTask(taskId) {
 /**
  * Aggiunge un nuovo commento a una task
  */
-async function aggiungiCommento(taskId) {
+// Nuova funzione chiamata dal bottone (this = bottone)
+async function aggiungiCommentoDaBottone(btn) {
+    const input = btn.previousElementSibling;
+    const taskId = input.id.replace('commento-input-', '');
+    await aggiungiCommento(taskId, input);
+}
+
+// Nuova funzione chiamata dall'input (this = input)
+async function aggiungiCommentoDaInput(input) {
+    const taskId = input.id.replace('commento-input-', '');
+    await aggiungiCommento(taskId, input);
+}
+
+// Funzione principale
+async function aggiungiCommento(taskId, input) {
     console.log('aggiungiCommento chiamato per task:', taskId);
-    const input = document.getElementById(`commento-input-${taskId}`);
+    if (!input) {
+        input = document.getElementById(`commento-input-${taskId}`);
+    }
     if (!input) {
         console.error('Input non trovato per task:', taskId);
         return;
@@ -2599,6 +2615,8 @@ function escapeHtml(text) {
 // Carica documenti quando si apre la tab
 // Esponi funzioni globalmente per onclick inline
 window.aggiungiCommento = aggiungiCommento;
+window.aggiungiCommentoDaBottone = aggiungiCommentoDaBottone;
+window.aggiungiCommentoDaInput = aggiungiCommentoDaInput;
 window.eliminaCommento = eliminaCommento;
 
 document.addEventListener('DOMContentLoaded', function() {
