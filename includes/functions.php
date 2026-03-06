@@ -13,7 +13,7 @@ date_default_timezone_set('Europe/Rome');
 /**
  * Verifica se l'utente è autenticato
  */
-function isLoggedIn(): bool {
+function isLoggedIn() {
     if (session_status() === PHP_SESSION_NONE) {
         // Se headers già inviati, non possiamo settare ini
         if (!headers_sent()) {
@@ -29,7 +29,7 @@ function isLoggedIn(): bool {
 /**
  * Verifica se l'utente è admin
  */
-function isAdmin(): bool {
+function isAdmin() {
     // Per ora consideriamo admin l'utente con ID specifico
     // Puoi modificare questa logica in base alle tue esigenze
     if (!isLoggedIn()) {
@@ -44,7 +44,7 @@ function isAdmin(): bool {
 /**
  * Verifica che l'utente sia autenticato (per API)
  */
-function requireAuth(): void {
+function requireAuth() {
     if (!isLoggedIn()) {
         header('Content-Type: application/json');
         http_response_code(401);
@@ -56,7 +56,7 @@ function requireAuth(): void {
 /**
  * Ottiene l'ID dell'utente corrente
  */
-function currentUserId(): string {
+function currentUserId() {
     if (session_status() === PHP_SESSION_NONE) {
         session_start();
     }
@@ -66,35 +66,35 @@ function currentUserId(): string {
 /**
  * Genera un ID univoco (formato simile a quelli esistenti)
  */
-function generateId(): string {
+function generateId() {
     return 'u' . substr(md5(uniqid(mt_rand(), true)), 0, 12) . substr(uniqid(), -1);
 }
 
 /**
  * Genera un ID breve per task/progetti (formato: txxx o pxxx)
  */
-function generateEntityId(string $prefix): string {
+function generateEntityId($prefix) {
     return $prefix . substr(md5(uniqid(mt_rand(), true)), 0, 10);
 }
 
 /**
  * Sanitizza output per prevenire XSS
  */
-function e(string $text): string {
+function e($text) {
     return htmlspecialchars($text ?? '', ENT_QUOTES, 'UTF-8');
 }
 
 /**
  * Sanitizza input stringa
  */
-function sanitizeInput(string $input): string {
+function sanitizeInput($input) {
     return trim(htmlspecialchars(strip_tags($input), ENT_QUOTES, 'UTF-8'));
 }
 
 /**
  * Genera token CSRF
  */
-function generateCsrfToken(): string {
+function generateCsrfToken() {
     if (empty($_SESSION['csrf_token'])) {
         $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
     }
@@ -104,7 +104,7 @@ function generateCsrfToken(): string {
 /**
  * Verifica token CSRF
  */
-function verifyCsrfToken(string $token): bool {
+function verifyCsrfToken($token) {
     return isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $token);
 }
 
@@ -124,7 +124,7 @@ function jsonResponse($success, $data = null, $message = '') {
 /**
  * Log azione nella timeline
  */
-function logTimeline(string $utenteId, string $azione, string $entitaTipo, string $entitaId, string $dettagli = ''): void {
+function logTimeline($utenteId, $azione, $entitaTipo, $entitaId, $dettagli = '') {
     global $pdo;
     
     try {
@@ -141,7 +141,7 @@ function logTimeline(string $utenteId, string $azione, string $entitaTipo, strin
 /**
  * Pulizia timeline (può essere chiamata da cron o ad ogni login)
  */
-function pulisciTimeline(): void {
+function pulisciTimeline() {
     global $pdo;
     
     try {
@@ -159,7 +159,7 @@ function pulisciTimeline(): void {
  * @param array $partecipantiIds Array degli ID dei partecipanti attivi
  * @return array Distribuzione calcolata
  */
-function calcolaDistribuzione(float $totale, array $partecipantiIds, bool $includiCassa = true, bool $includiPassivo = false): array {
+function calcolaDistribuzione($totale, $partecipantiIds, $includiCassa = true, $includiPassivo = false) {
     $count = count($partecipantiIds);
     $distribuzione = [];
     
@@ -269,7 +269,7 @@ function calcolaDistribuzione(float $totale, array $partecipantiIds, bool $inclu
 /**
  * Esegue la distribuzione economica e salva le transazioni
  */
-function eseguiDistribuzione(string $progettoId, float $totale, array $partecipantiIds, bool $includiCassa = true, bool $includiPassivo = false, array $utentiEsclusi = []): bool {
+function eseguiDistribuzione($progettoId, $totale, $partecipantiIds, $includiCassa = true, $includiPassivo = false, $utentiEsclusi = []) {
     global $pdo;
     
     try {
@@ -327,14 +327,14 @@ function eseguiDistribuzione(string $progettoId, float $totale, array $partecipa
 /**
  * Formatta importo in euro
  */
-function formatCurrency(float $amount): string {
+function formatCurrency($amount) {
     return '€ ' . number_format($amount, 2, ',', '.');
 }
 
 /**
  * Formatta data in formato italiano
  */
-function formatDate(?string $date, string $format = 'd/m/Y'): string {
+function formatDate($date, $format = 'd/m/Y') {
     if (!$date) return '-';
     return date($format, strtotime($date));
 }
@@ -342,7 +342,7 @@ function formatDate(?string $date, string $format = 'd/m/Y'): string {
 /**
  * Formatta datetime in formato italiano
  */
-function formatDateTime(?string $datetime, string $format = 'd/m/Y H:i'): string {
+function formatDateTime($datetime, $format = 'd/m/Y H:i') {
     if (!$datetime) return '-';
     
     // Gestione timezone: converte da UTC (database) a Europe/Rome
@@ -359,14 +359,14 @@ function formatDateTime(?string $datetime, string $format = 'd/m/Y H:i'): string
 /**
  * Ottiene il nome di un utente dal suo ID
  */
-function getUserName(string $userId): string {
+function getUserName($userId) {
     return USERS[$userId]['nome'] ?? 'Utente sconosciuto';
 }
 
 /**
  * Ottiene il colore di un utente dal suo ID
  */
-function getUserColor(string $userId): string {
+function getUserColor($userId) {
     return USERS[$userId]['colore'] ?? '#3B82F6';
 }
 
@@ -383,7 +383,7 @@ function getUserColor(string $userId): string {
  * DEPRECATO: Usare uploadFileSecure() invece
  * @deprecated
  */
-function uploadFile(array $file, string $destinationDir, array $allowedTypes, int $maxSize): array|false {
+function uploadFile($file, $destinationDir, $allowedTypes, $maxSize) {
     // Wrapper per retrocompatibilità, usa la versione sicura
     return uploadFileSecure($file, $destinationDir, $allowedTypes, $maxSize, false);
 }
@@ -395,7 +395,7 @@ function uploadFile(array $file, string $destinationDir, array $allowedTypes, in
  * @param int $giorniAnticipo Giorni di anticipo per considerare "in scadenza"
  * @return string 'scaduto', 'in_scadenza', 'ok'
  */
-function checkScadenza(string $scadenza, int $giorniAnticipo = 1): string {
+function checkScadenza($scadenza, $giorniAnticipo = 1) {
     $oggi = new DateTime();
     $oggi->setTime(0, 0, 0);
     
@@ -416,7 +416,7 @@ function checkScadenza(string $scadenza, int $giorniAnticipo = 1): string {
 /**
  * Crea un appuntamento automatico per una task
  */
-function creaAppuntamentoTask(string $taskId, string $progettoId, string $titolo, string $scadenza, string $assegnatoA): void {
+function creaAppuntamentoTask($taskId, $progettoId, $titolo, $scadenza, $assegnatoA) {
     global $pdo;
     
     try {
@@ -435,7 +435,7 @@ function creaAppuntamentoTask(string $taskId, string $progettoId, string $titolo
 /**
  * Crea notifica nel database per tutti gli utenti o un utente specifico
  */
-function creaNotifica(string $tipo, string $titolo, string $messaggio, ?string $entitaTipo = null, ?string $entitaId = null, ?string $creatoDa = null): void {
+function creaNotifica($tipo, $titolo, $messaggio, $entitaTipo = null, $entitaId = null, $creatoDa = null) {
     global $pdo;
     
     try {
@@ -452,7 +452,7 @@ function creaNotifica(string $tipo, string $titolo, string $messaggio, ?string $
 /**
  * Ottieni statistiche dashboard per un utente
  */
-function getDashboardStats(string $utenteId): array {
+function getDashboardStats($utenteId) {
     global $pdo;
     
     $stats = [
