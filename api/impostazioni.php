@@ -30,6 +30,8 @@ switch ($method) {
             getImpostazioniTasse();
         } elseif ($action === 'get_paga_oraria') {
             getPagaOraria();
+        } elseif ($action === 'get_task_settings') {
+            getTaskSettings();
         } elseif ($action === 'get_impostazioni_contabilita') {
             getImpostazioniContabilita();
         } elseif ($action === 'get_template_condizioni') {
@@ -70,6 +72,8 @@ switch ($method) {
             saveImpostazioniTasse();
         } elseif ($action === 'save_paga_oraria') {
             savePagaOraria();
+        } elseif ($action === 'save_task_settings') {
+            saveTaskSettings();
         } elseif ($action === 'save_impostazioni_contabilita') {
             saveImpostazioniContabilita();
         } elseif ($action === 'change_password') {
@@ -753,6 +757,79 @@ function savePagaOraria(): void {
         jsonResponse(true, null, 'Paga oraria salvata');
     } catch (PDOException $e) {
         error_log("Errore save paga oraria: " . $e->getMessage());
+        jsonResponse(false, null, 'Errore durante il salvataggio');
+    }
+}
+
+/**
+ * Ottiene le impostazioni task (paga oraria e giorni preavviso scadenze)
+ */
+function getTaskSettings(): void {
+    global $pdo;
+    
+    try {
+        // Paga oraria
+        $stmt = $pdo->prepare("SELECT valore FROM impostazioni WHERE chiave = 'paga_oraria'");
+        $stmt->execute();
+        $paga = floatval($stmt->fetchColumn() ?: '25.00');
+        
+        // Giorni preavviso scadenze
+        $stmt = $pdo->prepare("SELECT valore FROM impostazioni WHERE chiave = 'giorni_preavviso_scadenze'");
+        $stmt->execute();
+        $giorni = intval($stmt->fetchColumn() ?: '1');
+        
+        jsonResponse(true, [
+            'paga_oraria' => $paga,
+            'giorni_preavviso_scadenze' => $giorni
+        ]);
+    } catch (PDOException $e) {
+        error_log("Errore get task settings: " . $e->getMessage());
+        jsonResponse(true, [
+            'paga_oraria' => 25.00,
+            'giorni_preavviso_scadenze' => 1
+        ]); // Default in caso di errore
+    }
+}
+
+/**
+ * Salva le impostazioni task (paga oraria e giorni preavviso scadenze)
+ */
+function saveTaskSettings(): void {
+    global $pdo;
+    
+    $paga = floatval($_POST['paga_oraria'] ?? 25.00);
+    $giorni = intval($_POST['giorni_preavviso_scadenze'] ?? 1);
+    
+    if ($paga < 0) {
+        jsonResponse(false, null, 'La paga oraria non può essere negativa');
+        return;
+    }
+    
+    if ($giorni < 1 || $giorni > 365) {
+        jsonResponse(false, null, 'I giorni di preavviso devono essere tra 1 e 365');
+        return;
+    }
+    
+    try {
+        // Salva paga oraria
+        $stmt = $pdo->prepare("
+            INSERT INTO impostazioni (chiave, valore, tipo, descrizione) 
+            VALUES ('paga_oraria', ?, 'number', 'Paga oraria per calcolo costi task')
+            ON DUPLICATE KEY UPDATE valore = ?
+        ");
+        $stmt->execute([$paga, $paga]);
+        
+        // Salva giorni preavviso scadenze
+        $stmt = $pdo->prepare("
+            INSERT INTO impostazioni (chiave, valore, tipo, descrizione) 
+            VALUES ('giorni_preavviso_scadenze', ?, 'number', 'Giorni di preavviso per le scadenze in dashboard')
+            ON DUPLICATE KEY UPDATE valore = ?
+        ");
+        $stmt->execute([$giorni, $giorni]);
+        
+        jsonResponse(true, null, 'Impostazioni salvate');
+    } catch (PDOException $e) {
+        error_log("Errore save task settings: " . $e->getMessage());
         jsonResponse(false, null, 'Errore durante il salvataggio');
     }
 }

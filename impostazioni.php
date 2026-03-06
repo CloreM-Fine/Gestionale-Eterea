@@ -883,20 +883,39 @@ include __DIR__ . '/includes/header.php';
                     <p class="text-xs text-slate-500 mt-1">Tariffa oraria per calcolo costi task</p>
                 </div>
                 
-                <!-- Info -->
-                <div class="p-4 bg-purple-50 border border-purple-200 rounded-xl">
-                    <h4 class="font-medium text-purple-800 mb-2 text-sm">
+                <!-- Giorni Preavviso Scadenze -->
+                <div class="p-4 bg-slate-50 rounded-xl">
+                    <label class="block text-sm font-medium text-slate-700 mb-2">
                         <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
                         </svg>
-                        Come funziona
-                    </h4>
-                    <p class="text-xs text-purple-700 leading-relaxed">
-                        Ogni task avrà un timer per tracciare il tempo impiegato. 
-                        Al completamento, il sistema calcolerà automaticamente il costo 
-                        in base alla paga oraria configurata.
-                    </p>
+                        Preavviso Scadenze (giorni)
+                    </label>
+                    <select id="giorniPreavvisoScadenze"
+                           class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none bg-white">
+                        <option value="1">1 giorno prima</option>
+                        <option value="2">2 giorni prima</option>
+                        <option value="3">3 giorni prima</option>
+                        <option value="5">5 giorni prima</option>
+                        <option value="7">7 giorni prima</option>
+                        <option value="14">14 giorni prima</option>
+                    </select>
+                    <p class="text-xs text-slate-500 mt-1">Quando mostrare l'alert scadenze in dashboard</p>
                 </div>
+            </div>
+            
+            <div class="mt-4 p-4 bg-purple-50 border border-purple-200 rounded-xl">
+                <h4 class="font-medium text-purple-800 mb-2 text-sm">
+                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    Come funziona
+                </h4>
+                <p class="text-xs text-purple-700 leading-relaxed">
+                    La <strong>paga oraria</strong> viene usata per calcolare automaticamente i costi dei task completati.
+                    Il <strong>preavviso scadenze</strong> determina quanti giorni prima della scadenza mostrare 
+                    l'alert in dashboard (es: se imposti 3 giorni, l'alert apparirà quando mancano 3 giorni o meno).
+                </p>
             </div>
             
             <div class="mt-4 flex justify-end">
@@ -1989,11 +2008,12 @@ async function caricaImpostazioniTasse() {
 
 async function caricaImpostazioniTask() {
     try {
-        const response = await fetch('api/impostazioni.php?action=get_paga_oraria');
+        const response = await fetch('api/impostazioni.php?action=get_task_settings');
         const data = await response.json();
         
         if (data.success) {
             document.getElementById('pagaOraria').value = data.data.paga_oraria || '25.00';
+            document.getElementById('giorniPreavvisoScadenze').value = data.data.giorni_preavviso_scadenze || '1';
         }
     } catch (error) {
         console.error('Errore caricamento impostazioni task:', error);
@@ -2002,6 +2022,7 @@ async function caricaImpostazioniTask() {
 
 async function salvaImpostazioniTask() {
     const pagaOraria = document.getElementById('pagaOraria').value;
+    const giorniPreavviso = document.getElementById('giorniPreavvisoScadenze').value;
     
     if (!pagaOraria || parseFloat(pagaOraria) < 0) {
         showToast('Inserisci una paga oraria valida', 'error');
@@ -2010,8 +2031,9 @@ async function salvaImpostazioniTask() {
     
     try {
         const formData = new FormData();
-        formData.append('action', 'save_paga_oraria');
+        formData.append('action', 'save_task_settings');
         formData.append('paga_oraria', pagaOraria);
+        formData.append('giorni_preavviso_scadenze', giorniPreavviso);
         
         const response = await fetch('api/impostazioni.php', {
             method: 'POST',

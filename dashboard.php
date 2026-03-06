@@ -348,7 +348,7 @@ unset($member);
                     </div>
                     <div>
                         <h3 class="text-sm sm:text-base font-semibold text-slate-800">Prossime Scadenze</h3>
-                        <p class="text-xs sm:text-sm text-slate-500">Progetti - Prossimi 7 giorni</p>
+                        <p class="text-xs sm:text-sm text-slate-500">Progetti - Prossimi <?php echo $stats['giorni_preavviso'] ?? 1; ?> giorni</p>
                     </div>
                 </div>
             </div>
@@ -360,7 +360,8 @@ unset($member);
                 </div>
                 <?php else: ?>
                     <?php foreach ($stats['prossime_scadenze'] as $progetto): 
-                        $scadenza = checkScadenza($progetto['data_consegna_prevista']);
+                        $giorniPreavviso = $stats['giorni_preavviso'] ?? 1;
+                        $scadenza = checkScadenza($progetto['data_consegna_prevista'], $giorniPreavviso);
                         $badgeClass = $scadenza === 'scaduto' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700';
                     ?>
                     <div class="p-3 sm:p-4 hover:bg-slate-50 transition-colors">

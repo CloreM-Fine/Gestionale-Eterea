@@ -55,6 +55,28 @@ try {
     </div>
 </div>
 
+<!-- Configurazione Preavviso -->
+<div class="bg-amber-50 rounded-xl shadow-sm border border-amber-200 p-4 mb-4">
+    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+        <div class="flex items-center gap-2 text-amber-800">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+            </svg>
+            <span class="font-medium">Mostra notifica quando mancano:</span>
+        </div>
+        <select id="giorniPreavviso" onchange="salvaGiorniPreavviso(); caricaScadenze();" 
+                class="px-3 py-2 bg-white border border-amber-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none text-sm">
+            <option value="1">1 giorno alla scadenza</option>
+            <option value="2">2 giorni alla scadenza</option>
+            <option value="3">3 giorni alla scadenza</option>
+            <option value="5">5 giorni alla scadenza</option>
+            <option value="7">7 giorni alla scadenza</option>
+            <option value="14">14 giorni alla scadenza</option>
+        </select>
+        <span class="text-xs text-amber-700">Le scadenze in scadenza verranno evidenziate in giallo/arancione</span>
+    </div>
+</div>
+
 <!-- Filtri -->
 <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 mb-6">
     <div class="flex flex-col lg:flex-row gap-4">
@@ -63,6 +85,7 @@ try {
             <select id="filtroStato" onchange="caricaScadenze()" class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-rose-500 outline-none">
                 <option value="">Tutti gli stati</option>
                 <option value="aperta">Aperte</option>
+                <option value="in_scadenza">In Scadenza</option>
                 <option value="completata">Completate</option>
                 <option value="scaduta">Scadute</option>
             </select>
@@ -255,21 +278,57 @@ try {
 
 let tipologieCache = [];
 let scadenzeCache = [];
+let giorniPreavviso = 1;
 
 // Carica scadenze al caricamento della pagina
 document.addEventListener('DOMContentLoaded', function() {
     caricaTipologie();
+    caricaGiorniPreavviso();
     caricaScadenze();
 });
 
+// Carica i giorni di preavviso salvati
+function caricaGiorniPreavviso() {
+    const salvato = localStorage.getItem('scadenze_giorni_preavviso');
+    if (salvato) {
+        giorniPreavviso = parseInt(salvato) || 1;
+    }
+    const select = document.getElementById('giorniPreavviso');
+    if (select) {
+        select.value = giorniPreavviso;
+    }
+}
+
+// Salva i giorni di preavviso
+function salvaGiorniPreavviso() {
+    const select = document.getElementById('giorniPreavviso');
+    if (select) {
+        giorniPreavviso = parseInt(select.value) || 1;
+        localStorage.setItem('scadenze_giorni_preavviso', giorniPreavviso);
+    }
+}
+
+// Verifica se una scadenza è in scadenza (entro X giorni)
+function isInScadenza(dataScadenza, stato) {
+    if (stato === 'completata' || stato === 'scaduta') return false;
+    const oggi = new Date();
+    oggi.setHours(0, 0, 0, 0);
+    const scadenza = new Date(dataScadenza);
+    scadenza.setHours(0, 0, 0, 0);
+    const diffTime = scadenza - oggi;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays >= 0 && diffDays <= giorniPreavviso;
+}
+
 async function caricaScadenze() {
-    const stato = document.getElementById('filtroStato')?.value || '';
+    const statoFiltro = document.getElementById('filtroStato')?.value || '';
     const tipologia = document.getElementById('filtroTipologia')?.value || '';
     const mese = document.getElementById('filtroMese')?.value || '';
     const anno = document.getElementById('filtroAnno')?.value || '';
     
     let url = 'api/scadenze.php?action=list';
-    if (stato) url += '&stato=' + stato;
+    // Non passiamo 'in_scadenza' all'API, filtriamo client-side
+    if (statoFiltro && statoFiltro !== 'in_scadenza') url += '&stato=' + statoFiltro;
     if (tipologia) url += '&tipologia=' + tipologia;
     if (mese && anno) {
         url += '&mese=' + mese + '&anno=' + anno;
@@ -288,7 +347,13 @@ async function caricaScadenze() {
         
         scadenzeCache = data.data;
         
-        if (scadenzeCache.length === 0) {
+        // Filtra per "in_scadenza" se selezionato
+        let scadenzeDaMostrare = scadenzeCache;
+        if (statoFiltro === 'in_scadenza') {
+            scadenzeDaMostrare = scadenzeCache.filter(s => isInScadenza(s.data_scadenza, s.stato));
+        }
+        
+        if (scadenzeDaMostrare.length === 0) {
             container.innerHTML = `
                 <div class="text-center py-12 text-slate-400">
                     <svg class="w-16 h-16 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -303,7 +368,7 @@ async function caricaScadenze() {
         
         // Raggruppa per mese
         const gruppi = {};
-        scadenzeCache.forEach(s => {
+        scadenzeDaMostrare.forEach(s => {
             const data = new Date(s.data_scadenza);
             const key = data.toLocaleDateString('it-IT', { month: 'long', year: 'numeric' });
             if (!gruppi[key]) gruppi[key] = [];
@@ -338,6 +403,7 @@ function renderScadenzaCard(s) {
     
     const isScaduta = s.stato === 'scaduta' || (new Date(s.data_scadenza) < new Date().setHours(0,0,0,0) && s.stato === 'aperta');
     const isCompletata = s.stato === 'completata';
+    const inScadenza = isInScadenza(s.data_scadenza, s.stato);
     
     let statoClass = 'bg-emerald-100 text-emerald-700';
     let statoText = 'Aperta';
@@ -347,17 +413,23 @@ function renderScadenzaCard(s) {
     } else if (isScaduta) {
         statoClass = 'bg-red-100 text-red-700';
         statoText = 'Scaduta';
+    } else if (inScadenza) {
+        statoClass = 'bg-amber-100 text-amber-700';
+        statoText = 'In Scadenza';
     }
+    
+    // Bordo evidenziato per scadenze in scadenza
+    const borderClass = inScadenza ? 'border-amber-300 ring-1 ring-amber-200' : 'border-slate-200';
     
     const tipologiaColore = s.tipologia_colore || '#64748b';
     const tipologiaNome = s.tipologia_nome || 'Altro';
     
     return `
-        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 hover:shadow-md transition-shadow ${isCompletata ? 'opacity-60' : ''}">
+        <div class="bg-white rounded-xl shadow-sm border ${borderClass} p-4 hover:shadow-md transition-shadow ${isCompletata ? 'opacity-60' : ''}">
             <div class="flex items-start gap-4">
                 <div class="flex-shrink-0 text-center w-14">
                     <div class="text-xs text-slate-500 uppercase">${settimana}</div>
-                    <div class="text-2xl font-bold ${isScaduta && !isCompletata ? 'text-red-600' : 'text-slate-800'}">${giorno}</div>
+                    <div class="text-2xl font-bold ${isScaduta && !isCompletata ? 'text-red-600' : (inScadenza ? 'text-amber-600' : 'text-slate-800')}">${giorno}</div>
                 </div>
                 
                 <div class="flex-1 min-w-0">

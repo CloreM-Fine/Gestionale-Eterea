@@ -465,6 +465,11 @@ function getDashboardStats($utenteId) {
     ];
     
     try {
+        // Carica giorni preavviso scadenze dalle impostazioni
+        $stmt = $pdo->query("SELECT valore FROM impostazioni WHERE chiave = 'giorni_preavviso_scadenze'");
+        $giorniPreavviso = intval($stmt->fetchColumn() ?: '1');
+        $stats['giorni_preavviso'] = $giorniPreavviso;
+        
         // Cassa aziendale (somma di tutte le transazioni cassa)
         $stmt = $pdo->query("
             SELECT COALESCE(SUM(importo), 0) as totale 
@@ -502,18 +507,18 @@ function getDashboardStats($utenteId) {
         $stmt->execute([$utenteId]);
         $stats['task_oggi'] = $stmt->fetchAll();
         
-        // Prossime scadenze (progetti che scadono nei prossimi 7 giorni)
+        // Prossime scadenze (progetti che scadono nei prossimi X giorni configurati)
         $stmt = $pdo->prepare("
             SELECT p.*, c.ragione_sociale as cliente_nome
             FROM progetti p
             LEFT JOIN clienti c ON p.cliente_id = c.id
             WHERE DATE(p.data_consegna_prevista) >= CURDATE()
-            AND DATE(p.data_consegna_prevista) <= DATE_ADD(CURDATE(), INTERVAL 7 DAY)
+            AND DATE(p.data_consegna_prevista) <= DATE_ADD(CURDATE(), INTERVAL ? DAY)
             AND p.stato_progetto NOT IN ('consegnato', 'archiviato', 'annullato')
             ORDER BY p.data_consegna_prevista ASC
             LIMIT 5
         ");
-        $stmt->execute();
+        $stmt->execute([$giorniPreavviso]);
         $stats['prossime_scadenze'] = $stmt->fetchAll();
         
         // Timeline recente
