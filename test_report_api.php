@@ -26,7 +26,7 @@ $endpoints = [
 ];
 
 // Funzione per fare richieste HTTP GET
-function makeRequest(string $url): array {
+function makeRequest(string $url) {
     $result = [
         'url' => $url,
         'status_code' => 0,
@@ -106,7 +106,7 @@ function makeRequest(string $url): array {
 }
 
 // Funzione per mostrare lo status code con colore
-function formatStatusCode(int $code): string {
+function formatStatusCode(int $code) {
     if ($code >= 200 && $code < 300) {
         return '<span class="status-success">' . $code . ' OK</span>';
     } elseif ($code >= 400 && $code < 500) {
@@ -118,7 +118,7 @@ function formatStatusCode(int $code): string {
 }
 
 // Funzione per mostrare il successo
-function formatSuccess(?bool $success): string {
+function formatSuccess(?bool $success) {
     if ($success === true) {
         return '<span class="badge-success">TRUE ✓</span>';
     } elseif ($success === false) {
