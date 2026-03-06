@@ -239,13 +239,20 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                     
                     <div class="flex gap-2">
-                        <button onclick="associaAProgetto(<?php echo $p['id']; ?>, '<?php echo e($clienteId); ?>', '<?php echo e($clienteNome); ?>')"
-                                class="flex-1 px-3 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-lg text-sm font-medium transition-colors"
-                                title="Associa a progetto">
+                        <button onclick="modificaPreventivo(<?php echo $p['id']; ?>)"
+                                class="flex-1 px-3 py-2 bg-cyan-50 hover:bg-cyan-100 text-cyan-700 rounded-lg text-sm font-medium transition-colors"
+                                title="Modifica preventivo">
                             <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                            </svg>
+                            Modifica
+                        </button>
+                        <button onclick="associaAProgetto(<?php echo $p['id']; ?>, '<?php echo e($clienteId); ?>', '<?php echo e($clienteNome); ?>')"
+                                class="px-3 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-lg text-sm font-medium transition-colors"
+                                title="Associa a progetto">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
                             </svg>
-                            Associa a Progetto
                         </button>
                         <?php if (!empty($p['file_path'])): ?>
                         <a href="assets/uploads/preventivi/<?php echo e($p['file_path']); ?>" target="_blank"
@@ -427,7 +434,7 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="absolute inset-0 flex items-end sm:items-center justify-center p-0 sm:p-4">
         <div class="bg-white sm:rounded-2xl rounded-t-2xl shadow-2xl w-full max-w-4xl max-h-[85vh] sm:max-h-[90vh] overflow-hidden flex flex-col">
             <div class="p-6 border-b border-slate-100 flex items-center justify-between">
-                <h2 class="text-xl font-bold text-slate-800">Crea Preventivo</h2>
+                <h2 id="preventivoModalTitle" class="text-xl font-bold text-slate-800">Crea Preventivo</h2>
                 <button onclick="closeModal('preventivoModal')" class="text-slate-400 hover:text-slate-600">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -436,6 +443,8 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
             
             <div class="flex-1 overflow-y-auto p-6">
+                <!-- ID Preventivo (nascosto, per modifica) -->
+                <input type="hidden" id="preventivoId" value="">
                 <!-- Dati Cliente -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                     <div>
@@ -1497,13 +1506,25 @@ function escapeHtml(text) {
 }
 
 function openPreventivoModal() {
+    // Reset ID preventivo (modalità creazione)
+    document.getElementById('preventivoId').value = '';
+    document.getElementById('preventivoModalTitle').textContent = 'Crea Preventivo';
+    
     document.getElementById('prevCliente').value = '';
+    document.getElementById('prevClienteSelect').value = '';
     document.getElementById('prevNumero').value = 'PREV-' + new Date().getFullYear() + '-' + String(Math.floor(Math.random() * 900) + 100);
     document.getElementById('prevScontoGlobale').value = '0';
     document.getElementById('prevNote').value = '';
     document.getElementById('prevTempiConsegna').value = '';
     document.getElementById('prevNonInclude').value = '';
     document.getElementById('prevMostraBurocrazia').checked = true;
+    document.getElementById('prevFrequenza').value = '1';
+    if (typeof aggiornaFrequenzaLabel === 'function') aggiornaFrequenzaLabel();
+    
+    // Reset voci preventivo
+    preventivoVoci = [];
+    renderVociPreventivo();
+    calcolaTotale();
     
     // Carica i servizi dal listino prezzi
     loadPreventivi().then(() => {
@@ -1809,7 +1830,12 @@ async function salvaPreventivoGestionale() {
     const mostraBurocrazia = document.getElementById('prevMostraBurocrazia').checked;
     
     const formData = new FormData();
+    const preventivoId = document.getElementById('preventivoId').value;
+    
     formData.append('action', 'salva_preventivo');
+    if (preventivoId) {
+        formData.append('preventivo_id', preventivoId);
+    }
     formData.append('numero', numero);
     formData.append('cliente_id', clienteSelect);
     formData.append('cliente_nome', cliente);
@@ -1832,7 +1858,8 @@ async function salvaPreventivoGestionale() {
         const data = await response.json();
         
         if (data.success) {
-            showToast('Preventivo salvato nel gestionale!', 'success');
+            const isUpdate = document.getElementById('preventivoId').value !== '';
+            showToast(isUpdate ? 'Preventivo aggiornato!' : 'Preventivo salvato nel gestionale!', 'success');
             closeModal('preventivoModal');
             // Ricarica la pagina per vedere il preventivo salvato
             setTimeout(() => location.reload(), 500);
@@ -1842,6 +1869,65 @@ async function salvaPreventivoGestionale() {
     } catch (error) {
         showToast('Errore di connessione', 'error');
     }
+}
+
+// Variabile globale per i preventivi caricati
+let preventiviDataCache = <?php echo json_encode($preventiviSalvati); ?>;
+
+// Carica un preventivo salvato nel form per modifica
+async function modificaPreventivo(preventivoId) {
+    // Trova il preventivo nei dati caricati
+    const preventivo = preventiviDataCache.find(p => p.id == preventivoId);
+    if (!preventivo) {
+        showToast('Preventivo non trovato', 'error');
+        return;
+    }
+    
+    // Parse servizi JSON
+    const servizi = JSON.parse(preventivo.servizi_json || '[]');
+    
+    // Imposta l'ID del preventivo in modifica
+    document.getElementById('preventivoId').value = preventivoId;
+    
+    // Imposta i dati cliente
+    document.getElementById('prevCliente').value = preventivo.cliente_nome || '';
+    document.getElementById('prevClienteSelect').value = preventivo.cliente_id || '';
+    
+    // Imposta altri campi
+    document.getElementById('prevNumero').value = preventivo.numero || '';
+    document.getElementById('prevScadenza').value = preventivo.data_validita || '';
+    document.getElementById('prevScontoGlobale').value = preventivo.sconto_globale || 0;
+    document.getElementById('prevNote').value = preventivo.note || '';
+    document.getElementById('prevTempiConsegna').value = preventivo.tempi_consegna || '';
+    document.getElementById('prevNonInclude').value = preventivo.non_include || '';
+    document.getElementById('prevMostraBurocrazia').checked = preventivo.mostra_burocrazia == 1;
+    
+    // Imposta la frequenza
+    document.getElementById('prevFrequenza').value = preventivo.frequenza || 1;
+    aggiornaFrequenzaLabel(); // Aggiorna il testo della frequenza
+    
+    // Carica i servizi nel preventivo
+    preventivoVoci = servizi.map(s => ({
+        id: s.id || Date.now() + Math.random(),
+        categoria: s.categoria || '',
+        nome: s.nome || '',
+        descrizione: s.descrizione || '',
+        prezzo: parseFloat(s.prezzo) || 0,
+        prezzo_originale: parseFloat(s.prezzo_originale) || 0,
+        quantita: parseInt(s.quantita) || 1,
+        sconto_singolo: parseFloat(s.sconto_singolo) || 0,
+        tipo_prezzo: s.tipo_prezzo || 'fisso'
+    }));
+    
+    // Aggiorna la tabella voci
+    renderVociPreventivo();
+    calcolaTotale();
+    
+    // Cambia il titolo del modal
+    document.getElementById('preventivoModalTitle').textContent = 'Modifica Preventivo';
+    
+    // Apri il modal
+    openModal('preventivoModal');
 }
 </script>
 

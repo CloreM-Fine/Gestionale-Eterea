@@ -1093,12 +1093,13 @@ HTML;
 
 
 /**
- * Salva il preventivo nel gestionale come documento
+ * Salva o aggiorna il preventivo nel gestionale come documento
  */
 function salvaPreventivoGestionale(): void {
     global $pdo;
     
     // Recupera dati dal POST
+    $preventivoId = $_POST['preventivo_id'] ?? null; // Se presente, è una modifica
     $numero = $_POST['numero'] ?? '';
     $clienteId = $_POST['cliente_id'] ?? null;
     $clienteNome = $_POST['cliente_nome'] ?? '';
@@ -1122,32 +1123,73 @@ function salvaPreventivoGestionale(): void {
     try {
         $pdo->beginTransaction();
         
-        // Salva nel database
-        $stmt = $pdo->prepare("
-            INSERT INTO preventivi_salvati 
-            (numero, cliente_id, cliente_nome, data_validita, sconto_globale, note, tempi_consegna, non_include, servizi_json, subtotale, totale, frequenza, frequenza_testo, mostra_burocrazia, created_by)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ");
-        
-        $stmt->execute([
-            $numero,
-            $clienteId,
-            $clienteNome,
-            $dataScadenza ?: null,
-            $scontoGlobale,
-            $note,
-            $tempiConsegna,
-            $nonInclude,
-            $serviziJson,
-            $subtotale,
-            $totale,
-            $frequenza,
-            $frequenzaTesto,
-            $mostraBurocrazia ? 1 : 0,
-            $_SESSION['user_id']
-        ]);
-        
-        $preventivoId = $pdo->lastInsertId();
+        if ($preventivoId) {
+            // UPDATE: Aggiorna preventivo esistente
+            $stmt = $pdo->prepare("
+                UPDATE preventivi_salvati SET
+                    numero = ?,
+                    cliente_id = ?,
+                    cliente_nome = ?,
+                    data_validita = ?,
+                    sconto_globale = ?,
+                    note = ?,
+                    tempi_consegna = ?,
+                    non_include = ?,
+                    servizi_json = ?,
+                    subtotale = ?,
+                    totale = ?,
+                    frequenza = ?,
+                    frequenza_testo = ?,
+                    mostra_burocrazia = ?,
+                    updated_at = NOW()
+                WHERE id = ?
+            ");
+            
+            $stmt->execute([
+                $numero,
+                $clienteId,
+                $clienteNome,
+                $dataScadenza ?: null,
+                $scontoGlobale,
+                $note,
+                $tempiConsegna,
+                $nonInclude,
+                $serviziJson,
+                $subtotale,
+                $totale,
+                $frequenza,
+                $frequenzaTesto,
+                $mostraBurocrazia ? 1 : 0,
+                $preventivoId
+            ]);
+        } else {
+            // INSERT: Nuovo preventivo
+            $stmt = $pdo->prepare("
+                INSERT INTO preventivi_salvati 
+                (numero, cliente_id, cliente_nome, data_validita, sconto_globale, note, tempi_consegna, non_include, servizi_json, subtotale, totale, frequenza, frequenza_testo, mostra_burocrazia, created_by)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ");
+            
+            $stmt->execute([
+                $numero,
+                $clienteId,
+                $clienteNome,
+                $dataScadenza ?: null,
+                $scontoGlobale,
+                $note,
+                $tempiConsegna,
+                $nonInclude,
+                $serviziJson,
+                $subtotale,
+                $totale,
+                $frequenza,
+                $frequenzaTesto,
+                $mostraBurocrazia ? 1 : 0,
+                $_SESSION['user_id']
+            ]);
+            
+            $preventivoId = $pdo->lastInsertId();
+        }
         
         // Genera il file HTML del preventivo
         $servizi = json_decode($serviziJson, true);
@@ -1171,7 +1213,10 @@ function salvaPreventivoGestionale(): void {
         $pdo->commit();
         
         // Log
-        logTimeline($_SESSION['user_id'], 'salvato_preventivo', 'preventivo', $preventivoId, "Salvato preventivo {$numero} per {$clienteNome}");
+        $isUpdate = !empty($_POST['preventivo_id']);
+        $logAction = $isUpdate ? 'modificato_preventivo' : 'salvato_preventivo';
+        $logMessage = $isUpdate ? "Modificato preventivo {$numero} per {$clienteNome}" : "Salvato preventivo {$numero} per {$clienteNome}";
+        logTimeline($_SESSION['user_id'], $logAction, 'preventivo', $preventivoId, $logMessage);
         
         jsonResponse(true, [
             'id' => $preventivoId,
