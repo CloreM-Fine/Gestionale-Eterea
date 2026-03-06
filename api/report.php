@@ -4,50 +4,52 @@
  * API Report - Statistiche e analisi
  */
 
+// Nessun output prima di jsonResponse
+error_reporting(E_ALL);
+ini_set('display_errors', '0');
+
 require_once __DIR__ . '/../includes/functions.php';
-require_once __DIR__ . '/../includes/auth_check.php';
+require_once __DIR__ . '/../includes/config.php';
+
+// Autenticazione manuale (senza auth_check.php che manda redirect)
+session_start();
+if (empty($_SESSION['user_id'])) {
+    header('Content-Type: application/json');
+    echo json_encode(array('success' => false, 'message' => 'Non autenticato'));
+    exit;
+}
 
 $method = $_SERVER['REQUEST_METHOD'];
 $action = $_GET['action'] ?? $_POST['action'] ?? '';
 
-// Abilita error reporting per debug
-error_reporting(E_ALL);
-ini_set('display_errors', '0');
-
-switch ($method) {
-    case 'GET':
-        switch ($action) {
-            case 'dashboard':
-                getDashboardStats();
-                break;
-            case 'utenti':
-                getUtentiReport();
-                break;
-            case 'progetti':
-                getProgettiReport();
-                break;
-            case 'economico':
-                getEconomicoReport();
-                break;
-            case 'temporale':
-                getTemporaleReport();
-                break;
-            default:
-                jsonResponse(false, null, 'Azione non valida');
-        }
-        break;
-    default:
-        jsonResponse(false, null, 'Metodo non consentito');
+if ($method !== 'GET') {
+    jsonResponse(false, null, 'Metodo non consentito');
 }
 
-/**
- * Statistiche generali per dashboard
- */
+switch ($action) {
+    case 'dashboard':
+        getDashboardStats();
+        break;
+    case 'utenti':
+        getUtentiReport();
+        break;
+    case 'progetti':
+        getProgettiReport();
+        break;
+    case 'economico':
+        getEconomicoReport();
+        break;
+    case 'temporale':
+        getTemporaleReport();
+        break;
+    default:
+        jsonResponse(false, null, 'Azione non valida');
+}
+
 function getDashboardStats() {
     global $pdo;
     
     try {
-        // Progetti
         $stmt = $pdo->query("SELECT 
             COUNT(*) as totale,
             SUM(CASE WHEN stato = 'in_corso' THEN 1 ELSE 0 END) as in_corso,
@@ -56,7 +58,6 @@ function getDashboardStats() {
             FROM progetti");
         $progetti = $stmt->fetch(PDO::FETCH_ASSOC);
         
-        // Task
         $stmt = $pdo->query("SELECT 
             COUNT(*) as totale,
             SUM(CASE WHEN stato = 'da_fare' THEN 1 ELSE 0 END) as da_fare,
@@ -65,13 +66,11 @@ function getDashboardStats() {
             FROM task");
         $task = $stmt->fetch(PDO::FETCH_ASSOC);
         
-        // Valori di default
         $tempoTotale = 0;
         $costiTask = 0;
         $budgetProgetti = 0;
         $utentiAttivi = 0;
         
-        // Prova colonne opzionali
         try {
             $stmt = $pdo->query("SELECT SUM(tempo_impiegato_seconds) FROM task");
             $tempoTotale = (int)$stmt->fetchColumn();
@@ -94,16 +93,16 @@ function getDashboardStats() {
         
         jsonResponse(true, array(
             'progetti' => array(
-                'totale' => (int)$progetti['totale'],
-                'in_corso' => (int)$progetti['in_corso'],
-                'completati' => (int)$progetti['completati'],
-                'archiviati' => (int)$progetti['archiviati']
+                'totale' => (int)($progetti['totale'] ?? 0),
+                'in_corso' => (int)($progetti['in_corso'] ?? 0),
+                'completati' => (int)($progetti['completati'] ?? 0),
+                'archiviati' => (int)($progetti['archiviati'] ?? 0)
             ),
             'task' => array(
-                'totale' => (int)$task['totale'],
-                'da_fare' => (int)$task['da_fare'],
-                'in_lavorazione' => (int)$task['in_lavorazione'],
-                'completate' => (int)$task['completate']
+                'totale' => (int)($task['totale'] ?? 0),
+                'da_fare' => (int)($task['da_fare'] ?? 0),
+                'in_lavorazione' => (int)($task['in_lavorazione'] ?? 0),
+                'completate' => (int)($task['completate'] ?? 0)
             ),
             'tempo' => array(
                 'totale_secondi' => $tempoTotale,
@@ -122,18 +121,11 @@ function getDashboardStats() {
     }
 }
 
-/**
- * Report per utenti
- */
 function getUtentiReport() {
     global $pdo;
     
-    $periodo = intval($_GET['periodo'] ?? 30);
-    
     try {
         $utenti = array();
-        
-        // Query semplice senza join complessi
         $stmt = $pdo->query("SELECT id, nome, colore FROM utenti ORDER BY nome");
         while ($u = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $utenti[] = array(
@@ -149,11 +141,10 @@ function getUtentiReport() {
             );
         }
         
-        // Conta task per utente
         try {
-            $stmt = $pdo->query("SELECT id, assegnati, stato FROM task WHERE assegnati IS NOT NULL");
+            $stmt = $pdo->query("SELECT id, assegnati, stato FROM task WHERE assegnati IS NOT NULL AND assegnati != ''");
             while ($t = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                $assegnati = json_decode($t['assegnati'], true);
+                $assegnati = @json_decode($t['assegnati'], true);
                 if (is_array($assegnati)) {
                     foreach ($assegnati as $uid) {
                         foreach ($utenti as &$u) {
@@ -170,7 +161,6 @@ function getUtentiReport() {
             }
         } catch (Exception $e) {}
         
-        // Calcola efficienza
         foreach ($utenti as &$u) {
             if ($u['task_assegnate'] > 0) {
                 $u['efficienza'] = round(($u['task_completate'] / $u['task_assegnate']) * 100, 1);
@@ -178,7 +168,7 @@ function getUtentiReport() {
         }
         
         jsonResponse(true, array(
-            'periodo_giorni' => $periodo,
+            'periodo_giorni' => 30,
             'utenti' => $utenti
         ));
         
@@ -188,9 +178,6 @@ function getUtentiReport() {
     }
 }
 
-/**
- * Report progetti
- */
 function getProgettiReport() {
     global $pdo;
     
@@ -204,12 +191,10 @@ function getProgettiReport() {
             $params[] = $stato;
         }
         
-        $stmt = $pdo->prepare("SELECT 
-            id, titolo, stato, budget, data_inizio,
+        $sql = "SELECT id, titolo, stato, budget, data_inizio,
             (SELECT ragione_sociale FROM clienti c WHERE c.id = p.cliente_id) as cliente
-            FROM progetti p
-            $where
-            ORDER BY data_inizio DESC");
+            FROM progetti p $where ORDER BY data_inizio DESC";
+        $stmt = $pdo->prepare($sql);
         $stmt->execute($params);
         
         $progetti = array();
@@ -228,7 +213,6 @@ function getProgettiReport() {
             );
         }
         
-        // Conta task per progetto
         try {
             $stmt = $pdo->query("SELECT progetto_id, stato FROM task");
             while ($t = $stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -244,7 +228,6 @@ function getProgettiReport() {
             }
         } catch (Exception $e) {}
         
-        // Calcola avanzamento e margine
         foreach ($progetti as &$p) {
             if ($p['totale_task'] > 0) {
                 $p['avanzamento'] = round(($p['task_completate'] / $p['totale_task']) * 100, 1);
@@ -252,10 +235,7 @@ function getProgettiReport() {
             $p['margine'] = $p['budget'] - $p['costo_totale'];
         }
         
-        jsonResponse(true, array(
-            'progetti' => $progetti,
-            'riepilogo_stati' => array()
-        ));
+        jsonResponse(true, array('progetti' => $progetti, 'riepilogo_stati' => array()));
         
     } catch (Exception $e) {
         error_log("Errore progetti: " . $e->getMessage());
@@ -263,9 +243,6 @@ function getProgettiReport() {
     }
 }
 
-/**
- * Report economico
- */
 function getEconomicoReport() {
     global $pdo;
     
@@ -273,11 +250,9 @@ function getEconomicoReport() {
     
     try {
         $mensile = array();
-        $costiProgetto = array();
         $totaleEntrate = 0;
         $totaleUscite = 0;
         
-        // Prova a leggere transazioni
         try {
             $stmt = $pdo->prepare("SELECT 
                 MONTH(data) as mese,
@@ -302,7 +277,7 @@ function getEconomicoReport() {
         jsonResponse(true, array(
             'anno' => $anno,
             'mensile' => $mensile,
-            'costi_progetto' => $costiProgetto,
+            'costi_progetto' => array(),
             'costi_utente' => array(),
             'totale' => array(
                 'entrate' => round($totaleEntrate, 2),
@@ -317,9 +292,6 @@ function getEconomicoReport() {
     }
 }
 
-/**
- * Report temporale
- */
 function getTemporaleReport() {
     global $pdo;
     
@@ -327,10 +299,8 @@ function getTemporaleReport() {
     
     try {
         $taskCompletate = array();
-        $oreLavorate = array();
         $nuoviProgetti = array();
         
-        // Task completate per mese
         try {
             $stmt = $pdo->prepare("SELECT 
                 DATE_FORMAT(updated_at, '%Y-%m') as periodo,
@@ -342,7 +312,6 @@ function getTemporaleReport() {
             $taskCompletate = $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (Exception $e) {}
         
-        // Nuovi progetti
         try {
             $stmt = $pdo->prepare("SELECT 
                 DATE_FORMAT(created_at, '%Y-%m') as periodo,
@@ -357,7 +326,7 @@ function getTemporaleReport() {
         jsonResponse(true, array(
             'periodo_mesi' => $mesi,
             'task_completate' => $taskCompletate,
-            'ore_lavorate' => $oreLavorate,
+            'ore_lavorate' => array(),
             'nuovi_progetti' => $nuoviProgetti
         ));
         
