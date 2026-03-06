@@ -1914,15 +1914,50 @@ async function modificaPreventivo(preventivoId) {
         tipo_prezzo: s.tipo_prezzo || 'fisso'
     }));
     
-    // Aggiorna la tabella voci
-    renderVociPreventivo();
-    calcolaTotale();
+    // Dopo che i servizi del listino sono caricati, seleziona quelli del preventivo
+    setTimeout(() => {
+        selezionaServiziPreventivo();
+        updatePreventivoPreview();
+    }, 300);
     
     // Cambia il titolo del modal
     document.getElementById('preventivoModalTitle').textContent = 'Modifica Preventivo';
     
     // Apri il modal
     openModal('preventivoModal');
+}
+
+// Seleziona i servizi del preventivo nel listino (usato in modifica)
+function selezionaServiziPreventivo() {
+    if (!preventivoVoci || preventivoVoci.length === 0) return;
+    
+    // Per ogni voce nel preventivo, cerca la checkbox corrispondente
+    preventivoVoci.forEach(voce => {
+        // Cerca per ID o per nome (compatibilità)
+        let checkbox = document.getElementById(`prev-voce-${voce.id}`);
+        
+        // Se non trovato per ID, cerca per nome
+        if (!checkbox) {
+            const checkboxes = document.querySelectorAll('input[id^="prev-voce-"]');
+            for (const cb of checkboxes) {
+                const label = cb.closest('label') || document.querySelector(`label[for="${cb.id}"]`);
+                if (label && label.textContent.includes(voce.nome)) {
+                    checkbox = cb;
+                    break;
+                }
+            }
+        }
+        
+        if (checkbox) {
+            checkbox.checked = true;
+            // Imposta quantità se diversa da 1
+            const qtyInput = document.getElementById(`prev-qty-${voce.id}`) || 
+                             checkbox.closest('.flex')?.querySelector('input[type="number"]');
+            if (qtyInput && voce.quantita > 1) {
+                qtyInput.value = voce.quantita;
+            }
+        }
+    });
 }
 </script>
 
