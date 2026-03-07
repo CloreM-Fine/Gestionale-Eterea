@@ -653,20 +653,8 @@ include __DIR__ . '/includes/header.php';
             <div id="pipeline-in_pausa" class="node-content"></div>
         </div>
         
-        <!-- Col 3: In Consegna -->
-        <div id="node-in_consegna" class="pipeline-node" style="left: 850px; top: 300px;">
-            <div class="node-header bg-emerald-600">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
-                <span>In Consegna</span>
-                <span class="node-count" id="count-in_consegna">0</span>
-            </div>
-            <div id="pipeline-in_consegna" class="node-content"></div>
-        </div>
-        
-        <!-- Col 4: Completati -->
-        <div id="node-completato" class="pipeline-node" style="left: 1250px; top: 300px;">
+        <!-- Col 3: Completati -->
+        <div id="node-completato" class="pipeline-node" style="left: 850px; top: 300px;">
             <div class="node-header bg-purple-600">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
@@ -675,6 +663,18 @@ include __DIR__ . '/includes/header.php';
                 <span class="node-count" id="count-completato">0</span>
             </div>
             <div id="pipeline-completato" class="node-content"></div>
+        </div>
+        
+        <!-- Col 4: Consegnato (progetti con tag/stato consegnato) -->
+        <div id="node-consegnato" class="pipeline-node" style="left: 1250px; top: 300px;">
+            <div class="node-header bg-emerald-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+                <span>Consegnato</span>
+                <span class="node-count" id="count-consegnato">0</span>
+            </div>
+            <div id="pipeline-consegnato" class="node-content"></div>
         </div>
         
         <!-- Col 5: Archiviati -->
@@ -963,7 +963,7 @@ function togglePipeline() {
 // Renderizza vista Pipeline (Workflow n8n style) - ORIZZONTALE con Archiviati
 function renderPipeline() {
     // Tutti gli stati inclusi archiviati
-    const stati = ['da_iniziare', 'in_corso', 'in_pausa', 'in_consegna', 'completato', 'archiviato'];
+    const stati = ['da_iniziare', 'in_corso', 'in_pausa', 'completato', 'consegnato', 'archiviato'];
     
     // Svuota tutti i nodi
     stati.forEach(stato => {
@@ -1073,9 +1073,9 @@ function drawPipelineConnections() {
     const connections = [
         // Flusso principale orizzontale
         { from: 'node-da_iniziare', to: 'node-in_corso', fromAnchor: 'right', toAnchor: 'left' },
-        { from: 'node-in_corso', to: 'node-in_consegna', fromAnchor: 'right', toAnchor: 'left' },
-        { from: 'node-in_consegna', to: 'node-completato', fromAnchor: 'right', toAnchor: 'left' },
-        { from: 'node-completato', to: 'node-archiviato', fromAnchor: 'right', toAnchor: 'left' },
+        { from: 'node-in_corso', to: 'node-completato', fromAnchor: 'right', toAnchor: 'left' },
+        { from: 'node-completato', to: 'node-consegnato', fromAnchor: 'right', toAnchor: 'left' },
+        { from: 'node-consegnato', to: 'node-archiviato', fromAnchor: 'right', toAnchor: 'left' },
         // Branch In Corso ↔ In Pausa (con offset per evitare sovrapposizione)
         { from: 'node-in_corso', to: 'node-in_pausa', fromAnchor: 'top', toAnchor: 'bottom', offset: -40 },
         { from: 'node-in_pausa', to: 'node-in_corso', fromAnchor: 'bottom', toAnchor: 'top', offset: 40 }
