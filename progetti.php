@@ -59,6 +59,15 @@ include __DIR__ . '/includes/header.php';
                 </svg>
                 <span id="txtArchiviati">Mostra Archiviati</span>
             </button>
+            
+            <button onclick="togglePipeline()" 
+                    id="btnPipeline"
+                    class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-lg font-medium flex items-center justify-center gap-2 transition-colors min-h-[44px]">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"/>
+                </svg>
+                <span>Pipeline</span>
+            </button>
         </div>
     </div>
 </div>
@@ -326,6 +335,81 @@ include __DIR__ . '/includes/header.php';
     </div>
 </div>
 
+<!-- Vista Pipeline (Kanban) -->
+<div id="pipelineContainer" class="hidden overflow-x-auto pb-4">
+    <div class="flex gap-4 min-w-max">
+        <!-- Colonna: Da Iniziare -->
+        <div class="w-80 flex-shrink-0">
+            <div class="bg-slate-100 rounded-xl p-4">
+                <div class="flex items-center gap-2 mb-4">
+                    <div class="w-3 h-3 rounded-full bg-slate-400"></div>
+                    <h3 class="font-semibold text-slate-700">Da Iniziare</h3>
+                    <span class="ml-auto text-xs bg-slate-200 text-slate-600 px-2 py-1 rounded-full" id="count-da_iniziare">0</span>
+                </div>
+                <div id="pipeline-da_iniziare" class="space-y-3 min-h-[200px]">
+                    <!-- Progetti qui -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- Colonna: In Corso -->
+        <div class="w-80 flex-shrink-0">
+            <div class="bg-cyan-50 rounded-xl p-4 border border-cyan-100">
+                <div class="flex items-center gap-2 mb-4">
+                    <div class="w-3 h-3 rounded-full bg-cyan-500"></div>
+                    <h3 class="font-semibold text-cyan-800">In Corso</h3>
+                    <span class="ml-auto text-xs bg-cyan-100 text-cyan-700 px-2 py-1 rounded-full" id="count-in_corso">0</span>
+                </div>
+                <div id="pipeline-in_corso" class="space-y-3 min-h-[200px]">
+                    <!-- Progetti qui -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- Colonna: In Pausa -->
+        <div class="w-80 flex-shrink-0">
+            <div class="bg-amber-50 rounded-xl p-4 border border-amber-100">
+                <div class="flex items-center gap-2 mb-4">
+                    <div class="w-3 h-3 rounded-full bg-amber-500"></div>
+                    <h3 class="font-semibold text-amber-800">In Pausa</h3>
+                    <span class="ml-auto text-xs bg-amber-100 text-amber-700 px-2 py-1 rounded-full" id="count-in_pausa">0</span>
+                </div>
+                <div id="pipeline-in_pausa" class="space-y-3 min-h-[200px]">
+                    <!-- Progetti qui -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- Colonna: In Consegna -->
+        <div class="w-80 flex-shrink-0">
+            <div class="bg-emerald-50 rounded-xl p-4 border border-emerald-100">
+                <div class="flex items-center gap-2 mb-4">
+                    <div class="w-3 h-3 rounded-full bg-emerald-500"></div>
+                    <h3 class="font-semibold text-emerald-800">In Consegna</h3>
+                    <span class="ml-auto text-xs bg-emerald-100 text-emerald-700 px-2 py-1 rounded-full" id="count-in_consegna">0</span>
+                </div>
+                <div id="pipeline-in_consegna" class="space-y-3 min-h-[200px]">
+                    <!-- Progetti qui -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- Colonna: Completati -->
+        <div class="w-80 flex-shrink-0">
+            <div class="bg-purple-50 rounded-xl p-4 border border-purple-100">
+                <div class="flex items-center gap-2 mb-4">
+                    <div class="w-3 h-3 rounded-full bg-purple-500"></div>
+                    <h3 class="font-semibold text-purple-800">Completati</h3>
+                    <span class="ml-auto text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full" id="count-completato">0</span>
+                </div>
+                <div id="pipeline-completato" class="space-y-3 min-h-[200px]">
+                    <!-- Progetti qui -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Modal Nuovo/Edit Progetto -->
 <div id="progettoModal" class="fixed inset-0 z-[60] hidden">
     <div class="absolute inset-0 bg-black/50" onclick="closeModal('progettoModal')"></div>
@@ -548,6 +632,113 @@ function toggleArchiviati() {
     loadProgetti();
 }
 
+// Toggle vista Pipeline
+let vistaPipeline = false;
+
+function togglePipeline() {
+    vistaPipeline = !vistaPipeline;
+    
+    const btn = document.getElementById('btnPipeline');
+    const progettiContainer = document.getElementById('progettiContainer');
+    const pipelineContainer = document.getElementById('pipelineContainer');
+    
+    if (vistaPipeline) {
+        btn.classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
+        btn.classList.add('bg-slate-600', 'hover:bg-slate-700');
+        progettiContainer.classList.add('hidden');
+        pipelineContainer.classList.remove('hidden');
+        renderPipeline();
+    } else {
+        btn.classList.remove('bg-slate-600', 'hover:bg-slate-700');
+        btn.classList.add('bg-indigo-600', 'hover:bg-indigo-700');
+        progettiContainer.classList.remove('hidden');
+        pipelineContainer.classList.add('hidden');
+    }
+}
+
+// Renderizza vista Pipeline
+function renderPipeline() {
+    const stati = ['da_iniziare', 'in_corso', 'in_pausa', 'in_consegna', 'completato'];
+    
+    // Svuota colonne
+    stati.forEach(stato => {
+        const colonna = document.getElementById(`pipeline-${stato}`);
+        if (colonna) colonna.innerHTML = '';
+        const counter = document.getElementById(`count-${stato}`);
+        if (counter) counter.textContent = '0';
+    });
+    
+    // Filtra progetti visibili
+    const progettiFiltrati = allProgetti.filter(p => {
+        if (mostraArchiviati) return p.stato_progetto === 'archiviato';
+        return p.stato_progetto !== 'archiviato';
+    });
+    
+    // Raggruppa per stato
+    const progettiPerStato = {};
+    stati.forEach(stato => progettiPerStato[stato] = []);
+    
+    progettiFiltrati.forEach(p => {
+        const stato = p.stato_progetto || 'da_iniziare';
+        if (progettiPerStato[stato]) {
+            progettiPerStato[stato].push(p);
+        }
+    });
+    
+    // Renderizza card per ogni colonna
+    stati.forEach(stato => {
+        const colonna = document.getElementById(`pipeline-${stato}`);
+        const counter = document.getElementById(`count-${stato}`);
+        if (!colonna) return;
+        
+        counter.textContent = progettiPerStato[stato].length;
+        
+        progettiPerStato[stato].forEach(p => {
+            const card = createPipelineCard(p);
+            colonna.appendChild(card);
+        });
+    });
+}
+
+// Crea card per pipeline
+function createPipelineCard(p) {
+    const div = document.createElement('div');
+    div.className = 'bg-white rounded-lg p-3 shadow-sm border border-slate-200 hover:shadow-md transition-shadow cursor-pointer';
+    div.onclick = () => window.location.href = `progetto_dettaglio.php?id=${p.id}`;
+    
+    const colore = p.colore_tag || '#FFFFFF';
+    const statoLabel = {
+        'da_iniziare': 'Da Iniziare',
+        'in_corso': 'In Corso',
+        'in_pausa': 'In Pausa',
+        'in_consegna': 'In Consegna',
+        'completato': 'Completato'
+    }[p.stato_progetto] || p.stato_progetto;
+    
+    div.innerHTML = `
+        <div class="flex items-start gap-2 mb-2">
+            <div class="w-3 h-3 rounded-full flex-shrink-0 mt-1" style="background-color: ${colore}"></div>
+            <div class="flex-1 min-w-0">
+                <h4 class="font-medium text-slate-800 text-sm truncate">${escapeHtml(p.titolo)}</h4>
+                <p class="text-xs text-slate-500 truncate">${escapeHtml(p.cliente_nome || 'Nessun cliente')}</p>
+            </div>
+        </div>
+        <div class="flex items-center justify-between text-xs text-slate-400">
+            <span>${p.data_consegna_prevista ? new Date(p.data_consegna_prevista).toLocaleDateString('it-IT') : 'Nessuna scadenza'}</span>
+            <span class="font-medium">${p.prezzo_totale ? '€' + parseFloat(p.prezzo_totale).toLocaleString('it-IT') : ''}</span>
+        </div>
+        ${p.partecipanti ? `
+        <div class="flex -space-x-1 mt-2">
+            ${p.partecipanti.split(',').slice(0, 3).map(() => `
+                <div class="w-5 h-5 rounded-full bg-slate-200 border-2 border-white"></div>
+            `).join('')}
+        </div>
+        ` : ''}
+    `;
+    
+    return div;
+}
+
 // Carica progetti
 document.addEventListener('DOMContentLoaded', function() {
     // Inizializza toggle raggruppamento
@@ -635,8 +826,20 @@ function toggleGroupByCliente() {
     }
 }
 
+// Variabile globale per tutti i progetti (per pipeline)
+let allProgetti = [];
+
 function renderProgetti(progetti) {
     console.log('renderProgetti called', progetti?.length, 'items');
+    
+    // Salva riferimento globale per la pipeline
+    allProgetti = progetti || [];
+    
+    // Se in vista pipeline, aggiorna anche quella
+    if (vistaPipeline) {
+        renderPipeline();
+    }
+    
     const container = document.getElementById('progettiContainer');
     
     if (!container) {
@@ -1037,6 +1240,17 @@ function debounce(func, wait) {
         clearTimeout(timeout);
         timeout = setTimeout(later, wait);
     };
+}
+
+// Utility: escape HTML per sicurezza
+function escapeHtml(text) {
+    if (!text) return '';
+    return text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
 }
 </script>
 
