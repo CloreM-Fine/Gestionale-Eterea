@@ -327,23 +327,46 @@ include __DIR__ . '/includes/header.php';
 }
 
 /* ============================================
-   PIPELINE WORKFLOW STILE n8n
+   PIPELINE WORKFLOW STILE n8n - LIGHT MODE
    ============================================ */
+
+#pipelineContainer {
+    overflow: hidden;
+    cursor: grab;
+}
+
+#pipelineContainer:active {
+    cursor: grabbing;
+}
+
+#pipelineCanvas {
+    transform-origin: center top;
+    transition: transform 0.1s ease-out;
+}
 
 .pipeline-node {
     width: 320px;
-    background: #1e293b;
+    background: #ffffff;
     border-radius: 12px;
-    border: 2px solid #334155;
+    border: 2px solid #e2e8f0;
     overflow: hidden;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     transition: all 0.3s ease;
+    position: absolute;
+    cursor: grab;
+    user-select: none;
 }
 
 .pipeline-node:hover {
-    border-color: #475569;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+    border-color: #cbd5e1;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.15), 0 4px 6px -2px rgba(0, 0, 0, 0.1);
     transform: translateY(-2px);
+}
+
+.pipeline-node.dragging {
+    cursor: grabbing;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+    z-index: 100;
 }
 
 .node-header {
@@ -362,7 +385,7 @@ include __DIR__ . '/includes/header.php';
 
 .node-count {
     margin-left: auto;
-    background: rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.25);
     padding: 2px 10px;
     border-radius: 12px;
     font-size: 12px;
@@ -378,18 +401,18 @@ include __DIR__ . '/includes/header.php';
 
 /* Mini card progetto per pipeline */
 .pipeline-project-card {
-    background: #334155;
+    background: #f8fafc;
     border-radius: 8px;
     padding: 12px;
     margin-bottom: 8px;
     cursor: pointer;
     transition: all 0.2s ease;
-    border: 1px solid transparent;
+    border: 1px solid #e2e8f0;
 }
 
 .pipeline-project-card:hover {
-    background: #475569;
-    border-color: #64748b;
+    background: #f1f5f9;
+    border-color: #cbd5e1;
     transform: translateX(4px);
 }
 
@@ -412,7 +435,7 @@ include __DIR__ . '/includes/header.php';
 }
 
 .pipeline-project-title {
-    color: #f1f5f9;
+    color: #1e293b;
     font-size: 13px;
     font-weight: 500;
     white-space: nowrap;
@@ -421,7 +444,7 @@ include __DIR__ . '/includes/header.php';
 }
 
 .pipeline-project-client {
-    color: #94a3b8;
+    color: #64748b;
     font-size: 11px;
     margin-left: 16px;
     margin-bottom: 6px;
@@ -433,18 +456,18 @@ include __DIR__ . '/includes/header.php';
     align-items: center;
     margin-left: 16px;
     font-size: 11px;
-    color: #64748b;
+    color: #94a3b8;
 }
 
 .pipeline-project-price {
-    color: #10b981;
+    color: #059669;
     font-weight: 600;
 }
 
 /* Connessioni SVG */
 .pipeline-connection {
     fill: none;
-    stroke: #475569;
+    stroke: #94a3b8;
     stroke-width: 2;
 }
 
@@ -453,17 +476,65 @@ include __DIR__ . '/includes/header.php';
     stroke-width: 3;
 }
 
+/* Controlli Zoom */
+.pipeline-controls {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 100;
+    background: white;
+    padding: 8px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    border: 1px solid #e2e8f0;
+}
+
+.pipeline-controls button {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    background: white;
+    color: #475569;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.pipeline-controls button:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+    color: #1e293b;
+}
+
+.pipeline-controls button:active {
+    transform: scale(0.95);
+}
+
+.pipeline-zoom-level {
+    text-align: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: #64748b;
+    padding: 4px 0;
+}
+
 /* Custom scrollbar per nodi */
 .node-content::-webkit-scrollbar {
     width: 4px;
 }
 
 .node-content::-webkit-scrollbar-track {
-    background: #1e293b;
+    background: #f1f5f9;
 }
 
 .node-content::-webkit-scrollbar-thumb {
-    background: #475569;
+    background: #cbd5e1;
     border-radius: 2px;
 }
 
@@ -497,85 +568,101 @@ include __DIR__ . '/includes/header.php';
     </div>
 </div>
 
-<!-- Vista Pipeline (Workflow Stile n8n) -->
-<div id="pipelineContainer" class="hidden relative" style="min-height: 800px; background-color: #0f172a; background-image: radial-gradient(#334155 1px, transparent 1px); background-size: 20px 20px;">
-    <!-- SVG per le connessioni -->
-    <svg id="pipelineConnections" class="absolute inset-0 w-full h-full pointer-events-none" style="z-index: 1;">
-        <defs>
-            <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-                <polygon points="0 0, 10 3, 0 6" fill="#64748b" />
-            </marker>
-        </defs>
-    </svg>
+<!-- Vista Pipeline (Workflow Stile n8n) - Light Mode -->
+<div id="pipelineContainer" class="hidden relative" style="height: calc(100vh - 200px); min-height: 600px; background-color: #f8f9fa; background-image: radial-gradient(#d1d5db 1px, transparent 1px); background-size: 20px 20px; overflow: hidden;">
     
-    <!-- Container nodi -->
-    <div class="relative z-10 p-8" style="min-height: 800px;">
-        <!-- Row 1: Da Iniziare -->
-        <div class="flex justify-center mb-16">
-            <div id="node-da_iniziare" class="pipeline-node" data-x="50%" data-y="50">
-                <div class="node-header bg-slate-600">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                    <span>Da Iniziare</span>
-                    <span class="node-count" id="count-da_iniziare">0</span>
-                </div>
-                <div id="pipeline-da_iniziare" class="node-content"></div>
+    <!-- Canvas per Pan & Zoom -->
+    <div id="pipelineCanvas" style="position: absolute; width: 2000px; height: 1500px; left: 50%; top: 0; transform: translateX(-50%); transform-origin: center top;">
+        <!-- SVG per le connessioni -->
+        <svg id="pipelineConnections" style="position: absolute; width: 100%; height: 100%; pointer-events: none; z-index: 1;">
+            <defs>
+                <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                    <polygon points="0 0, 10 3, 0 6" fill="#94a3b8" />
+                </marker>
+            </defs>
+        </svg>
+        
+        <!-- Nodi posizionati assolutamente -->
+        <!-- Row 1: Da Iniziare (centro, alto) -->
+        <div id="node-da_iniziare" class="pipeline-node" style="left: 840px; top: 50px;">
+            <div class="node-header bg-slate-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <span>Da Iniziare</span>
+                <span class="node-count" id="count-da_iniziare">0</span>
             </div>
+            <div id="pipeline-da_iniziare" class="node-content"></div>
         </div>
         
-        <!-- Row 2: In Corso | In Pausa -->
-        <div class="flex justify-center gap-32 mb-16">
-            <div id="node-in_corso" class="pipeline-node" data-x="35%" data-y="300">
-                <div class="node-header bg-cyan-600">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                    <span>In Corso</span>
-                    <span class="node-count" id="count-in_corso">0</span>
-                </div>
-                <div id="pipeline-in_corso" class="node-content"></div>
+        <!-- Row 2: In Corso (sinistra) | In Pausa (destra) -->
+        <div id="node-in_corso" class="pipeline-node" style="left: 440px; top: 350px;">
+            <div class="node-header bg-cyan-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <span>In Corso</span>
+                <span class="node-count" id="count-in_corso">0</span>
             </div>
-            
-            <div id="node-in_pausa" class="pipeline-node" data-x="65%" data-y="300">
-                <div class="node-header bg-amber-600">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                    <span>In Pausa</span>
-                    <span class="node-count" id="count-in_pausa">0</span>
-                </div>
-                <div id="pipeline-in_pausa" class="node-content"></div>
-            </div>
+            <div id="pipeline-in_corso" class="node-content"></div>
         </div>
         
-        <!-- Row 3: In Consegna -->
-        <div class="flex justify-center mb-16">
-            <div id="node-in_consegna" class="pipeline-node" data-x="50%" data-y="550">
-                <div class="node-header bg-emerald-600">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                    <span>In Consegna</span>
-                    <span class="node-count" id="count-in_consegna">0</span>
-                </div>
-                <div id="pipeline-in_consegna" class="node-content"></div>
+        <div id="node-in_pausa" class="pipeline-node" style="left: 1240px; top: 350px;">
+            <div class="node-header bg-amber-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <span>In Pausa</span>
+                <span class="node-count" id="count-in_pausa">0</span>
             </div>
+            <div id="pipeline-in_pausa" class="node-content"></div>
         </div>
         
-        <!-- Row 4: Completati -->
-        <div class="flex justify-center">
-            <div id="node-completato" class="pipeline-node" data-x="50%" data-y="800">
-                <div class="node-header bg-purple-600">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
-                    </svg>
-                    <span>Completati</span>
-                    <span class="node-count" id="count-completato">0</span>
-                </div>
-                <div id="pipeline-completato" class="node-content"></div>
+        <!-- Row 3: In Consegna (centro) -->
+        <div id="node-in_consegna" class="pipeline-node" style="left: 840px; top: 650px;">
+            <div class="node-header bg-emerald-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <span>In Consegna</span>
+                <span class="node-count" id="count-in_consegna">0</span>
             </div>
+            <div id="pipeline-in_consegna" class="node-content"></div>
+        </div>
+        
+        <!-- Row 4: Completati (centro, basso) -->
+        <div id="node-completato" class="pipeline-node" style="left: 840px; top: 950px;">
+            <div class="node-header bg-purple-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                </svg>
+                <span>Completati</span>
+                <span class="node-count" id="count-completato">0</span>
+            </div>
+            <div id="pipeline-completato" class="node-content"></div>
+        </div>
+    </div>
+    
+    <!-- Controlli Zoom -->
+    <div class="pipeline-controls">
+        <button onclick="pipelineZoomIn()" title="Zoom In">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+            </svg>
+        </button>
+        <div class="pipeline-zoom-level" id="zoomLevel">100%</div>
+        <button onclick="pipelineZoomOut()" title="Zoom Out">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/>
+            </svg>
+        </button>
+        <button onclick="pipelineResetView()" title="Reset View">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
+            </svg>
+        </button>
+    </div>
         </div>
     </div>
 </div>
@@ -905,7 +992,8 @@ function createPipelineCard(p) {
 // Disegna le connessioni SVG tra i nodi
 function drawPipelineConnections() {
     const svg = document.getElementById('pipelineConnections');
-    if (!svg) return;
+    const canvas = document.getElementById('pipelineCanvas');
+    if (!svg || !canvas) return;
     
     // Pulisci linee esistenti (tranne defs)
     const existingLines = svg.querySelectorAll('.pipeline-connection');
@@ -919,24 +1007,31 @@ function drawPipelineConnections() {
         { from: 'node-in_consegna', to: 'node-completato', type: 'main' }
     ];
     
+    // Ottieni zoom scale
+    const scale = pipelineState.scale;
+    
     connections.forEach(conn => {
         const fromNode = document.getElementById(conn.from);
         const toNode = document.getElementById(conn.to);
         if (!fromNode || !toNode) return;
         
-        const fromRect = fromNode.getBoundingClientRect();
-        const toRect = toNode.getBoundingClientRect();
-        const svgRect = svg.getBoundingClientRect();
+        // Usa le posizioni CSS direttamente (relative al canvas)
+        const fromLeft = parseInt(fromNode.style.left) || 0;
+        const fromTop = parseInt(fromNode.style.top) || 0;
+        const toLeft = parseInt(toNode.style.left) || 0;
+        const toTop = parseInt(toNode.style.top) || 0;
         
-        // Calcola punti di connessione (relativi al SVG)
-        const x1 = fromRect.left + fromRect.width / 2 - svgRect.left;
-        const y1 = fromRect.bottom - svgRect.top;
-        const x2 = toRect.left + toRect.width / 2 - svgRect.left;
-        const y2 = toRect.top - svgRect.top;
+        const nodeWidth = 320;
+        const nodeHeight = 50; // Header height approx
+        
+        const x1 = fromLeft + nodeWidth / 2;
+        const y1 = fromTop + fromNode.offsetHeight;
+        const x2 = toLeft + nodeWidth / 2;
+        const y2 = toTop;
         
         // Crea path curvo (bezier)
         const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        const controlY = (y2 - y1) / 2;
+        const controlY = Math.abs(y2 - y1) / 2;
         const d = `M ${x1} ${y1} C ${x1} ${y1 + controlY}, ${x2} ${y2 - controlY}, ${x2} ${y2}`;
         
         path.setAttribute('d', d);
@@ -944,6 +1039,140 @@ function drawPipelineConnections() {
         path.setAttribute('marker-end', 'url(#arrowhead)');
         
         svg.appendChild(path);
+    });
+}
+
+// ============================================
+// ZOOM E PAN PIPELINE
+// ============================================
+
+let pipelineState = {
+    scale: 1,
+    panX: 0,
+    panY: 0,
+    isPanning: false,
+    startX: 0,
+    startY: 0
+};
+
+function pipelineZoomIn() {
+    pipelineState.scale = Math.min(pipelineState.scale + 0.1, 2);
+    updatePipelineTransform();
+}
+
+function pipelineZoomOut() {
+    pipelineState.scale = Math.max(pipelineState.scale - 0.1, 0.5);
+    updatePipelineTransform();
+}
+
+function pipelineResetView() {
+    pipelineState.scale = 1;
+    pipelineState.panX = 0;
+    pipelineState.panY = 0;
+    updatePipelineTransform();
+}
+
+function updatePipelineTransform() {
+    const canvas = document.getElementById('pipelineCanvas');
+    if (!canvas) return;
+    
+    canvas.style.transform = `translate(calc(-50% + ${pipelineState.panX}px), ${pipelineState.panY}px) scale(${pipelineState.scale})`;
+    document.getElementById('zoomLevel').textContent = Math.round(pipelineState.scale * 100) + '%';
+    
+    // Ridisegna connessioni dopo il render
+    setTimeout(drawPipelineConnections, 50);
+}
+
+// Inizializza pan del canvas
+function initPipelinePan() {
+    const container = document.getElementById('pipelineContainer');
+    const canvas = document.getElementById('pipelineCanvas');
+    if (!container || !canvas) return;
+    
+    // Pan con middle mouse o space+drag
+    container.addEventListener('mousedown', (e) => {
+        // Solo se clic sul container (non sui nodi)
+        if (e.target === container || e.target === canvas) {
+            pipelineState.isPanning = true;
+            pipelineState.startX = e.clientX - pipelineState.panX;
+            pipelineState.startY = e.clientY - pipelineState.panY;
+            container.style.cursor = 'grabbing';
+        }
+    });
+    
+    document.addEventListener('mousemove', (e) => {
+        if (!pipelineState.isPanning) return;
+        
+        pipelineState.panX = e.clientX - pipelineState.startX;
+        pipelineState.panY = e.clientY - pipelineState.startY;
+        updatePipelineTransform();
+    });
+    
+    document.addEventListener('mouseup', () => {
+        pipelineState.isPanning = false;
+        container.style.cursor = 'grab';
+    });
+    
+    // Zoom con wheel
+    container.addEventListener('wheel', (e) => {
+        if (e.ctrlKey || e.metaKey) {
+            e.preventDefault();
+            const delta = e.deltaY > 0 ? -0.1 : 0.1;
+            pipelineState.scale = Math.max(0.5, Math.min(2, pipelineState.scale + delta));
+            updatePipelineTransform();
+        }
+    }, { passive: false });
+}
+
+// ============================================
+// DRAG & DROP NODI
+// ============================================
+
+let draggedNode = null;
+let nodeOffsetX = 0;
+let nodeOffsetY = 0;
+
+function initNodeDragging() {
+    const nodes = document.querySelectorAll('.pipeline-node');
+    
+    nodes.forEach(node => {
+        const header = node.querySelector('.node-header');
+        if (!header) return;
+        
+        header.addEventListener('mousedown', (e) => {
+            e.stopPropagation(); // Non attivare il pan
+            
+            draggedNode = node;
+            const rect = node.getBoundingClientRect();
+            nodeOffsetX = e.clientX - rect.left;
+            nodeOffsetY = e.clientY - rect.top;
+            
+            node.classList.add('dragging');
+        });
+    });
+    
+    document.addEventListener('mousemove', (e) => {
+        if (!draggedNode) return;
+        
+        const canvas = document.getElementById('pipelineCanvas');
+        const canvasRect = canvas.getBoundingClientRect();
+        
+        // Calcola posizione relativa al canvas considerando lo zoom
+        const x = (e.clientX - canvasRect.left - nodeOffsetX) / pipelineState.scale;
+        const y = (e.clientY - canvasRect.top - nodeOffsetY) / pipelineState.scale;
+        
+        draggedNode.style.left = Math.max(0, x) + 'px';
+        draggedNode.style.top = Math.max(0, y) + 'px';
+        
+        // Ridisegna connessioni in tempo reale
+        drawPipelineConnections();
+    });
+    
+    document.addEventListener('mouseup', () => {
+        if (draggedNode) {
+            draggedNode.classList.remove('dragging');
+            draggedNode = null;
+        }
     });
 }
 
@@ -969,6 +1198,10 @@ document.addEventListener('DOMContentLoaded', function() {
             drawPipelineConnections();
         }
     }, 200));
+    
+    // Inizializza pan e drag della pipeline
+    initPipelinePan();
+    initNodeDragging();
 });
 
 async function loadProgetti() {
