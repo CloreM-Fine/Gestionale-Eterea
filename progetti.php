@@ -568,11 +568,11 @@ include __DIR__ . '/includes/header.php';
     </div>
 </div>
 
-<!-- Vista Pipeline (Workflow Stile n8n) - Light Mode -->
+<!-- Vista Pipeline (Workflow Stile n8n) - Light Mode ORIZZONTALE -->
 <div id="pipelineContainer" class="hidden relative" style="height: calc(100vh - 200px); min-height: 600px; background-color: #f8f9fa; background-image: radial-gradient(#d1d5db 1px, transparent 1px); background-size: 20px 20px; overflow: hidden;">
     
     <!-- Canvas per Pan & Zoom -->
-    <div id="pipelineCanvas" style="position: absolute; width: 2000px; height: 1500px; left: 50%; top: 0; transform: translateX(-50%); transform-origin: center top;">
+    <div id="pipelineCanvas" style="position: absolute; width: 3000px; height: 1200px; left: 50px; top: 50px; transform-origin: left top;">
         <!-- SVG per le connessioni -->
         <svg id="pipelineConnections" style="position: absolute; width: 100%; height: 100%; pointer-events: none; z-index: 1;">
             <defs>
@@ -582,9 +582,16 @@ include __DIR__ . '/includes/header.php';
             </defs>
         </svg>
         
-        <!-- Nodi posizionati assolutamente -->
-        <!-- Row 1: Da Iniziare (centro, alto) -->
-        <div id="node-da_iniziare" class="pipeline-node" style="left: 840px; top: 50px;">
+        <!-- Nodi posizionati assolutamente - Layout ORIZZONTALE -->
+        <!-- 
+            Layout:
+            [DA INIZIARE] → [IN CORSO] → [IN CONSEGNA] → [COMPLETATI] → [ARCHIVIATI]
+                                 ↑
+                           [IN PAUSA]
+        -->
+        
+        <!-- Col 1: Da Iniziare -->
+        <div id="node-da_iniziare" class="pipeline-node" style="left: 50px; top: 300px;">
             <div class="node-header bg-slate-600">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -595,8 +602,8 @@ include __DIR__ . '/includes/header.php';
             <div id="pipeline-da_iniziare" class="node-content"></div>
         </div>
         
-        <!-- Row 2: In Corso (sinistra) | In Pausa (destra) -->
-        <div id="node-in_corso" class="pipeline-node" style="left: 440px; top: 350px;">
+        <!-- Col 2: In Corso -->
+        <div id="node-in_corso" class="pipeline-node" style="left: 450px; top: 300px;">
             <div class="node-header bg-cyan-600">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
@@ -608,7 +615,8 @@ include __DIR__ . '/includes/header.php';
             <div id="pipeline-in_corso" class="node-content"></div>
         </div>
         
-        <div id="node-in_pausa" class="pipeline-node" style="left: 1240px; top: 350px;">
+        <!-- Col 2 (sopra): In Pausa -->
+        <div id="node-in_pausa" class="pipeline-node" style="left: 450px; top: 50px;">
             <div class="node-header bg-amber-600">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -619,8 +627,8 @@ include __DIR__ . '/includes/header.php';
             <div id="pipeline-in_pausa" class="node-content"></div>
         </div>
         
-        <!-- Row 3: In Consegna (centro) -->
-        <div id="node-in_consegna" class="pipeline-node" style="left: 840px; top: 650px;">
+        <!-- Col 3: In Consegna -->
+        <div id="node-in_consegna" class="pipeline-node" style="left: 850px; top: 300px;">
             <div class="node-header bg-emerald-600">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -631,8 +639,8 @@ include __DIR__ . '/includes/header.php';
             <div id="pipeline-in_consegna" class="node-content"></div>
         </div>
         
-        <!-- Row 4: Completati (centro, basso) -->
-        <div id="node-completato" class="pipeline-node" style="left: 840px; top: 950px;">
+        <!-- Col 4: Completati -->
+        <div id="node-completato" class="pipeline-node" style="left: 1250px; top: 300px;">
             <div class="node-header bg-purple-600">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
@@ -641,6 +649,18 @@ include __DIR__ . '/includes/header.php';
                 <span class="node-count" id="count-completato">0</span>
             </div>
             <div id="pipeline-completato" class="node-content"></div>
+        </div>
+        
+        <!-- Col 5: Archiviati -->
+        <div id="node-archiviato" class="pipeline-node" style="left: 1650px; top: 300px;">
+            <div class="node-header bg-gray-500">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/>
+                </svg>
+                <span>Archiviati</span>
+                <span class="node-count" id="count-archiviato">0</span>
+            </div>
+            <div id="pipeline-archiviato" class="node-content"></div>
         </div>
     </div>
     
@@ -663,8 +683,7 @@ include __DIR__ . '/includes/header.php';
             </svg>
         </button>
     </div>
-        </div>
-    </div>
+</div>
 </div>
 
 <!-- Modal Nuovo/Edit Progetto -->
@@ -904,6 +923,8 @@ function togglePipeline() {
         btn.classList.add('bg-slate-600', 'hover:bg-slate-700');
         progettiContainer.classList.add('hidden');
         pipelineContainer.classList.remove('hidden');
+        // Reset view per layout orizzontale
+        pipelineResetView();
         renderPipeline();
     } else {
         btn.classList.remove('bg-slate-600', 'hover:bg-slate-700');
@@ -913,11 +934,12 @@ function togglePipeline() {
     }
 }
 
-// Renderizza vista Pipeline (Workflow n8n style)
+// Renderizza vista Pipeline (Workflow n8n style) - ORIZZONTALE con Archiviati
 function renderPipeline() {
-    const stati = ['da_iniziare', 'in_corso', 'in_pausa', 'in_consegna', 'completato'];
+    // Tutti gli stati inclusi archiviati
+    const stati = ['da_iniziare', 'in_corso', 'in_pausa', 'in_consegna', 'completato', 'archiviato'];
     
-    // Svuota nodi
+    // Svuota tutti i nodi
     stati.forEach(stato => {
         const colonna = document.getElementById(`pipeline-${stato}`);
         if (colonna) colonna.innerHTML = '';
@@ -925,17 +947,11 @@ function renderPipeline() {
         if (counter) counter.textContent = '0';
     });
     
-    // Filtra progetti visibili
-    const progettiFiltrati = allProgetti.filter(p => {
-        if (mostraArchiviati) return p.stato_progetto === 'archiviato';
-        return p.stato_progetto !== 'archiviato';
-    });
-    
-    // Raggruppa per stato
+    // Raggruppa TUTTI i progetti per stato (non filtriamo più qui)
     const progettiPerStato = {};
     stati.forEach(stato => progettiPerStato[stato] = []);
     
-    progettiFiltrati.forEach(p => {
+    allProgetti.forEach(p => {
         const stato = p.stato_progetto || 'da_iniziare';
         if (progettiPerStato[stato]) {
             progettiPerStato[stato].push(p);
@@ -999,16 +1015,22 @@ function drawPipelineConnections() {
     const existingLines = svg.querySelectorAll('.pipeline-connection');
     existingLines.forEach(l => l.remove());
     
+    // Connessioni orizzontali
     const connections = [
         { from: 'node-da_iniziare', to: 'node-in_corso', type: 'main' },
-        { from: 'node-da_iniziare', to: 'node-in_pausa', type: 'alt' },
         { from: 'node-in_corso', to: 'node-in_consegna', type: 'main' },
-        { from: 'node-in_pausa', to: 'node-in_consegna', type: 'main' },
-        { from: 'node-in_consegna', to: 'node-completato', type: 'main' }
+        { from: 'node-in_consegna', to: 'node-completato', type: 'main' },
+        { from: 'node-completato', to: 'node-archiviato', type: 'main' },
+        // Branch: In Corso ↔ In Pausa (bidirezionale)
+        { from: 'node-in_corso', to: 'node-in_pausa', type: 'alt' },
+        { from: 'node-in_pausa', to: 'node-in_corso', type: 'alt' }
     ];
     
     // Ottieni zoom scale
     const scale = pipelineState.scale;
+    
+    const nodeWidth = 320;
+    const nodeHeight = 50; // Header height
     
     connections.forEach(conn => {
         const fromNode = document.getElementById(conn.from);
@@ -1021,18 +1043,58 @@ function drawPipelineConnections() {
         const toLeft = parseInt(toNode.style.left) || 0;
         const toTop = parseInt(toNode.style.top) || 0;
         
-        const nodeWidth = 320;
-        const nodeHeight = 50; // Header height approx
+        let x1, y1, x2, y2;
         
-        const x1 = fromLeft + nodeWidth / 2;
-        const y1 = fromTop + fromNode.offsetHeight;
-        const x2 = toLeft + nodeWidth / 2;
-        const y2 = toTop;
+        // Determina direzione connessione
+        const dx = toLeft - fromLeft;
+        const dy = toTop - fromTop;
+        
+        if (Math.abs(dx) > Math.abs(dy)) {
+            // Connessione orizzontale (più larga che alta)
+            if (dx > 0) {
+                // Da sinistra a destra
+                x1 = fromLeft + nodeWidth;
+                y1 = fromTop + fromNode.offsetHeight / 2;
+                x2 = toLeft;
+                y2 = toTop + toNode.offsetHeight / 2;
+            } else {
+                // Da destra a sinistra
+                x1 = fromLeft;
+                y1 = fromTop + fromNode.offsetHeight / 2;
+                x2 = toLeft + nodeWidth;
+                y2 = toTop + toNode.offsetHeight / 2;
+            }
+        } else {
+            // Connessione verticale (più alta che larga)
+            if (dy > 0) {
+                // Dall'alto verso il basso
+                x1 = fromLeft + nodeWidth / 2;
+                y1 = fromTop + fromNode.offsetHeight;
+                x2 = toLeft + nodeWidth / 2;
+                y2 = toTop;
+            } else {
+                // Dal basso verso l'alto
+                x1 = fromLeft + nodeWidth / 2;
+                y1 = fromTop;
+                x2 = toLeft + nodeWidth / 2;
+                y2 = toTop + toNode.offsetHeight;
+            }
+        }
         
         // Crea path curvo (bezier)
         const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        const controlY = Math.abs(y2 - y1) / 2;
-        const d = `M ${x1} ${y1} C ${x1} ${y1 + controlY}, ${x2} ${y2 - controlY}, ${x2} ${y2}`;
+        
+        // Controlli bezier basati sulla direzione
+        let d;
+        if (Math.abs(dx) > Math.abs(dy)) {
+            // Curva orizzontale
+            const controlX = Math.abs(x2 - x1) / 2;
+            d = `M ${x1} ${y1} C ${x1 + controlX} ${y1}, ${x2 - controlX} ${y2}, ${x2} ${y2}`;
+        } else {
+            // Curva verticale
+            const controlY = Math.abs(y2 - y1) / 2;
+            d = `M ${x1} ${y1} C ${x1} ${y1 + controlY}, ${x2} ${y2 - controlY}, ${x2} ${y2}`;
+        }
         
         path.setAttribute('d', d);
         path.setAttribute('class', 'pipeline-connection');
@@ -1047,9 +1109,9 @@ function drawPipelineConnections() {
 // ============================================
 
 let pipelineState = {
-    scale: 1,
-    panX: 0,
-    panY: 0,
+    scale: 0.85,  // Zoom iniziale per vedere tutta la pipeline
+    panX: 30,     // Margine sinistro
+    panY: 100,    // Centrato verticalmente
     isPanning: false,
     startX: 0,
     startY: 0
@@ -1066,9 +1128,9 @@ function pipelineZoomOut() {
 }
 
 function pipelineResetView() {
-    pipelineState.scale = 1;
-    pipelineState.panX = 0;
-    pipelineState.panY = 0;
+    pipelineState.scale = 0.9; // Zoom leggermente ridotto per vedere tutto
+    pipelineState.panX = 50;   // Margine sinistro
+    pipelineState.panY = 50;   // Margine superiore
     updatePipelineTransform();
 }
 
@@ -1076,7 +1138,8 @@ function updatePipelineTransform() {
     const canvas = document.getElementById('pipelineCanvas');
     if (!canvas) return;
     
-    canvas.style.transform = `translate(calc(-50% + ${pipelineState.panX}px), ${pipelineState.panY}px) scale(${pipelineState.scale})`;
+    // Transform semplice con pan e zoom (origine top-left)
+    canvas.style.transform = `translate(${pipelineState.panX}px, ${pipelineState.panY}px) scale(${pipelineState.scale})`;
     document.getElementById('zoomLevel').textContent = Math.round(pipelineState.scale * 100) + '%';
     
     // Ridisegna connessioni dopo il render
