@@ -325,6 +325,168 @@ include __DIR__ . '/includes/header.php';
         margin-left: -160px;
     }
 }
+
+/* ============================================
+   PIPELINE WORKFLOW STILE n8n
+   ============================================ */
+
+.pipeline-node {
+    width: 320px;
+    background: #1e293b;
+    border-radius: 12px;
+    border: 2px solid #334155;
+    overflow: hidden;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+}
+
+.pipeline-node:hover {
+    border-color: #475569;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+    transform: translateY(-2px);
+}
+
+.node-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    color: white;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.node-header svg {
+    flex-shrink: 0;
+}
+
+.node-count {
+    margin-left: auto;
+    background: rgba(255,255,255,0.2);
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    min-width: 28px;
+    text-align: center;
+}
+
+.node-content {
+    padding: 12px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+/* Mini card progetto per pipeline */
+.pipeline-project-card {
+    background: #334155;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+}
+
+.pipeline-project-card:hover {
+    background: #475569;
+    border-color: #64748b;
+    transform: translateX(4px);
+}
+
+.pipeline-project-card:last-child {
+    margin-bottom: 0;
+}
+
+.pipeline-project-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
+.pipeline-project-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.pipeline-project-title {
+    color: #f1f5f9;
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.pipeline-project-client {
+    color: #94a3b8;
+    font-size: 11px;
+    margin-left: 16px;
+    margin-bottom: 6px;
+}
+
+.pipeline-project-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-left: 16px;
+    font-size: 11px;
+    color: #64748b;
+}
+
+.pipeline-project-price {
+    color: #10b981;
+    font-weight: 600;
+}
+
+/* Connessioni SVG */
+.pipeline-connection {
+    fill: none;
+    stroke: #475569;
+    stroke-width: 2;
+}
+
+.pipeline-connection.active {
+    stroke: #0891b2;
+    stroke-width: 3;
+}
+
+/* Custom scrollbar per nodi */
+.node-content::-webkit-scrollbar {
+    width: 4px;
+}
+
+.node-content::-webkit-scrollbar-track {
+    background: #1e293b;
+}
+
+.node-content::-webkit-scrollbar-thumb {
+    background: #475569;
+    border-radius: 2px;
+}
+
+/* Responsive pipeline */
+@media (max-width: 1024px) {
+    .pipeline-node {
+        width: 280px;
+    }
+}
+
+@media (max-width: 768px) {
+    #pipelineContainer {
+        overflow-x: auto;
+    }
+    
+    #pipelineContainer > .relative {
+        min-width: 800px;
+    }
+    
+    .pipeline-node {
+        width: 260px;
+    }
+}
 </style>
 
 <!-- Lista Progetti -->
@@ -335,76 +497,84 @@ include __DIR__ . '/includes/header.php';
     </div>
 </div>
 
-<!-- Vista Pipeline (Kanban) -->
-<div id="pipelineContainer" class="hidden overflow-x-auto pb-4">
-    <div class="flex gap-4 min-w-max">
-        <!-- Colonna: Da Iniziare -->
-        <div class="w-80 flex-shrink-0">
-            <div class="bg-slate-100 rounded-xl p-4">
-                <div class="flex items-center gap-2 mb-4">
-                    <div class="w-3 h-3 rounded-full bg-slate-400"></div>
-                    <h3 class="font-semibold text-slate-700">Da Iniziare</h3>
-                    <span class="ml-auto text-xs bg-slate-200 text-slate-600 px-2 py-1 rounded-full" id="count-da_iniziare">0</span>
+<!-- Vista Pipeline (Workflow Stile n8n) -->
+<div id="pipelineContainer" class="hidden relative" style="min-height: 800px; background-color: #0f172a; background-image: radial-gradient(#334155 1px, transparent 1px); background-size: 20px 20px;">
+    <!-- SVG per le connessioni -->
+    <svg id="pipelineConnections" class="absolute inset-0 w-full h-full pointer-events-none" style="z-index: 1;">
+        <defs>
+            <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                <polygon points="0 0, 10 3, 0 6" fill="#64748b" />
+            </marker>
+        </defs>
+    </svg>
+    
+    <!-- Container nodi -->
+    <div class="relative z-10 p-8" style="min-height: 800px;">
+        <!-- Row 1: Da Iniziare -->
+        <div class="flex justify-center mb-16">
+            <div id="node-da_iniziare" class="pipeline-node" data-x="50%" data-y="50">
+                <div class="node-header bg-slate-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <span>Da Iniziare</span>
+                    <span class="node-count" id="count-da_iniziare">0</span>
                 </div>
-                <div id="pipeline-da_iniziare" class="space-y-3 min-h-[200px]">
-                    <!-- Progetti qui -->
-                </div>
+                <div id="pipeline-da_iniziare" class="node-content"></div>
             </div>
         </div>
         
-        <!-- Colonna: In Corso -->
-        <div class="w-80 flex-shrink-0">
-            <div class="bg-cyan-50 rounded-xl p-4 border border-cyan-100">
-                <div class="flex items-center gap-2 mb-4">
-                    <div class="w-3 h-3 rounded-full bg-cyan-500"></div>
-                    <h3 class="font-semibold text-cyan-800">In Corso</h3>
-                    <span class="ml-auto text-xs bg-cyan-100 text-cyan-700 px-2 py-1 rounded-full" id="count-in_corso">0</span>
+        <!-- Row 2: In Corso | In Pausa -->
+        <div class="flex justify-center gap-32 mb-16">
+            <div id="node-in_corso" class="pipeline-node" data-x="35%" data-y="300">
+                <div class="node-header bg-cyan-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <span>In Corso</span>
+                    <span class="node-count" id="count-in_corso">0</span>
                 </div>
-                <div id="pipeline-in_corso" class="space-y-3 min-h-[200px]">
-                    <!-- Progetti qui -->
+                <div id="pipeline-in_corso" class="node-content"></div>
+            </div>
+            
+            <div id="node-in_pausa" class="pipeline-node" data-x="65%" data-y="300">
+                <div class="node-header bg-amber-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <span>In Pausa</span>
+                    <span class="node-count" id="count-in_pausa">0</span>
                 </div>
+                <div id="pipeline-in_pausa" class="node-content"></div>
             </div>
         </div>
         
-        <!-- Colonna: In Pausa -->
-        <div class="w-80 flex-shrink-0">
-            <div class="bg-amber-50 rounded-xl p-4 border border-amber-100">
-                <div class="flex items-center gap-2 mb-4">
-                    <div class="w-3 h-3 rounded-full bg-amber-500"></div>
-                    <h3 class="font-semibold text-amber-800">In Pausa</h3>
-                    <span class="ml-auto text-xs bg-amber-100 text-amber-700 px-2 py-1 rounded-full" id="count-in_pausa">0</span>
+        <!-- Row 3: In Consegna -->
+        <div class="flex justify-center mb-16">
+            <div id="node-in_consegna" class="pipeline-node" data-x="50%" data-y="550">
+                <div class="node-header bg-emerald-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <span>In Consegna</span>
+                    <span class="node-count" id="count-in_consegna">0</span>
                 </div>
-                <div id="pipeline-in_pausa" class="space-y-3 min-h-[200px]">
-                    <!-- Progetti qui -->
-                </div>
+                <div id="pipeline-in_consegna" class="node-content"></div>
             </div>
         </div>
         
-        <!-- Colonna: In Consegna -->
-        <div class="w-80 flex-shrink-0">
-            <div class="bg-emerald-50 rounded-xl p-4 border border-emerald-100">
-                <div class="flex items-center gap-2 mb-4">
-                    <div class="w-3 h-3 rounded-full bg-emerald-500"></div>
-                    <h3 class="font-semibold text-emerald-800">In Consegna</h3>
-                    <span class="ml-auto text-xs bg-emerald-100 text-emerald-700 px-2 py-1 rounded-full" id="count-in_consegna">0</span>
+        <!-- Row 4: Completati -->
+        <div class="flex justify-center">
+            <div id="node-completato" class="pipeline-node" data-x="50%" data-y="800">
+                <div class="node-header bg-purple-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                    </svg>
+                    <span>Completati</span>
+                    <span class="node-count" id="count-completato">0</span>
                 </div>
-                <div id="pipeline-in_consegna" class="space-y-3 min-h-[200px]">
-                    <!-- Progetti qui -->
-                </div>
-            </div>
-        </div>
-        
-        <!-- Colonna: Completati -->
-        <div class="w-80 flex-shrink-0">
-            <div class="bg-purple-50 rounded-xl p-4 border border-purple-100">
-                <div class="flex items-center gap-2 mb-4">
-                    <div class="w-3 h-3 rounded-full bg-purple-500"></div>
-                    <h3 class="font-semibold text-purple-800">Completati</h3>
-                    <span class="ml-auto text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full" id="count-completato">0</span>
-                </div>
-                <div id="pipeline-completato" class="space-y-3 min-h-[200px]">
-                    <!-- Progetti qui -->
-                </div>
+                <div id="pipeline-completato" class="node-content"></div>
             </div>
         </div>
     </div>
@@ -656,11 +826,11 @@ function togglePipeline() {
     }
 }
 
-// Renderizza vista Pipeline
+// Renderizza vista Pipeline (Workflow n8n style)
 function renderPipeline() {
     const stati = ['da_iniziare', 'in_corso', 'in_pausa', 'in_consegna', 'completato'];
     
-    // Svuota colonne
+    // Svuota nodi
     stati.forEach(stato => {
         const colonna = document.getElementById(`pipeline-${stato}`);
         if (colonna) colonna.innerHTML = '';
@@ -685,7 +855,7 @@ function renderPipeline() {
         }
     });
     
-    // Renderizza card per ogni colonna
+    // Renderizza card per ogni nodo
     stati.forEach(stato => {
         const colonna = document.getElementById(`pipeline-${stato}`);
         const counter = document.getElementById(`count-${stato}`);
@@ -698,45 +868,83 @@ function renderPipeline() {
             colonna.appendChild(card);
         });
     });
+    
+    // Disegna le connessioni dopo che il DOM è aggiornato
+    setTimeout(drawPipelineConnections, 100);
 }
 
-// Crea card per pipeline
+// Crea card progetto per pipeline workflow
 function createPipelineCard(p) {
     const div = document.createElement('div');
-    div.className = 'bg-white rounded-lg p-3 shadow-sm border border-slate-200 hover:shadow-md transition-shadow cursor-pointer';
+    div.className = 'pipeline-project-card';
     div.onclick = () => window.location.href = `progetto_dettaglio.php?id=${p.id}`;
     
-    const colore = p.colore_tag || '#FFFFFF';
-    const statoLabel = {
-        'da_iniziare': 'Da Iniziare',
-        'in_corso': 'In Corso',
-        'in_pausa': 'In Pausa',
-        'in_consegna': 'In Consegna',
-        'completato': 'Completato'
-    }[p.stato_progetto] || p.stato_progetto;
+    const colore = p.colore_tag || '#10b981';
+    const scadenza = p.data_consegna_prevista 
+        ? new Date(p.data_consegna_prevista).toLocaleDateString('it-IT', {day: '2-digit', month: '2-digit'})
+        : 'N/D';
+    const prezzo = p.prezzo_totale 
+        ? '€' + parseFloat(p.prezzo_totale).toLocaleString('it-IT', {minimumFractionDigits: 0, maximumFractionDigits: 0})
+        : '-';
     
     div.innerHTML = `
-        <div class="flex items-start gap-2 mb-2">
-            <div class="w-3 h-3 rounded-full flex-shrink-0 mt-1" style="background-color: ${colore}"></div>
-            <div class="flex-1 min-w-0">
-                <h4 class="font-medium text-slate-800 text-sm truncate">${escapeHtml(p.titolo)}</h4>
-                <p class="text-xs text-slate-500 truncate">${escapeHtml(p.cliente_nome || 'Nessun cliente')}</p>
-            </div>
+        <div class="pipeline-project-header">
+            <div class="pipeline-project-dot" style="background-color: ${colore}"></div>
+            <div class="pipeline-project-title">${escapeHtml(p.titolo)}</div>
         </div>
-        <div class="flex items-center justify-between text-xs text-slate-400">
-            <span>${p.data_consegna_prevista ? new Date(p.data_consegna_prevista).toLocaleDateString('it-IT') : 'Nessuna scadenza'}</span>
-            <span class="font-medium">${p.prezzo_totale ? '€' + parseFloat(p.prezzo_totale).toLocaleString('it-IT') : ''}</span>
+        <div class="pipeline-project-client">${escapeHtml(p.cliente_nome || 'Nessun cliente')}</div>
+        <div class="pipeline-project-meta">
+            <span>📅 ${scadenza}</span>
+            <span class="pipeline-project-price">${prezzo}</span>
         </div>
-        ${p.partecipanti ? `
-        <div class="flex -space-x-1 mt-2">
-            ${p.partecipanti.split(',').slice(0, 3).map(() => `
-                <div class="w-5 h-5 rounded-full bg-slate-200 border-2 border-white"></div>
-            `).join('')}
-        </div>
-        ` : ''}
     `;
     
     return div;
+}
+
+// Disegna le connessioni SVG tra i nodi
+function drawPipelineConnections() {
+    const svg = document.getElementById('pipelineConnections');
+    if (!svg) return;
+    
+    // Pulisci linee esistenti (tranne defs)
+    const existingLines = svg.querySelectorAll('.pipeline-connection');
+    existingLines.forEach(l => l.remove());
+    
+    const connections = [
+        { from: 'node-da_iniziare', to: 'node-in_corso', type: 'main' },
+        { from: 'node-da_iniziare', to: 'node-in_pausa', type: 'alt' },
+        { from: 'node-in_corso', to: 'node-in_consegna', type: 'main' },
+        { from: 'node-in_pausa', to: 'node-in_consegna', type: 'main' },
+        { from: 'node-in_consegna', to: 'node-completato', type: 'main' }
+    ];
+    
+    connections.forEach(conn => {
+        const fromNode = document.getElementById(conn.from);
+        const toNode = document.getElementById(conn.to);
+        if (!fromNode || !toNode) return;
+        
+        const fromRect = fromNode.getBoundingClientRect();
+        const toRect = toNode.getBoundingClientRect();
+        const svgRect = svg.getBoundingClientRect();
+        
+        // Calcola punti di connessione (relativi al SVG)
+        const x1 = fromRect.left + fromRect.width / 2 - svgRect.left;
+        const y1 = fromRect.bottom - svgRect.top;
+        const x2 = toRect.left + toRect.width / 2 - svgRect.left;
+        const y2 = toRect.top - svgRect.top;
+        
+        // Crea path curvo (bezier)
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        const controlY = (y2 - y1) / 2;
+        const d = `M ${x1} ${y1} C ${x1} ${y1 + controlY}, ${x2} ${y2 - controlY}, ${x2} ${y2}`;
+        
+        path.setAttribute('d', d);
+        path.setAttribute('class', 'pipeline-connection');
+        path.setAttribute('marker-end', 'url(#arrowhead)');
+        
+        svg.appendChild(path);
+    });
 }
 
 // Carica progetti
@@ -754,6 +962,13 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById(id).addEventListener('input', debounce(loadProgetti, 300));
         }
     });
+    
+    // Ridisegna connessioni pipeline al resize
+    window.addEventListener('resize', debounce(() => {
+        if (vistaPipeline) {
+            drawPipelineConnections();
+        }
+    }, 200));
 });
 
 async function loadProgetti() {
