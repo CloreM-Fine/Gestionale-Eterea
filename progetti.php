@@ -1041,86 +1041,121 @@ function drawPipelineConnections() {
     const existingLines = svg.querySelectorAll('.pipeline-connection');
     existingLines.forEach(l => l.remove());
     
-    // Connessioni orizzontali
+    const nodeWidth = 320;
+    
+    // Per ogni nodo, calcola il centro attuale (considerando il transform durante il drag)
+    function getNodeCenter(node) {
+        const left = parseInt(node.style.left) || 0;
+        const top = parseInt(node.style.top) || 0;
+        
+        // Se il nodo è in drag, considera anche il transform
+        let translateX = 0, translateY = 0;
+        if (node.classList.contains('dragging')) {
+            const transform = node.style.transform;
+            const match = transform.match(/translate3d\(([-\d.]+)px,\s*([-\d.]+)px/);
+            if (match) {
+                translateX = parseFloat(match[1]);
+                translateY = parseFloat(match[2]);
+            }
+        }
+        
+        return {
+            x: left + translateX + nodeWidth / 2,
+            y: top + translateY + node.offsetHeight / 2,
+            width: nodeWidth,
+            height: node.offsetHeight,
+            left: left + translateX,
+            top: top + translateY
+        };
+    }
+    
+    // Definisci le connessioni con anchor points specifici
     const connections = [
-        { from: 'node-da_iniziare', to: 'node-in_corso', type: 'main' },
-        { from: 'node-in_corso', to: 'node-in_consegna', type: 'main' },
-        { from: 'node-in_consegna', to: 'node-completato', type: 'main' },
-        { from: 'node-completato', to: 'node-archiviato', type: 'main' },
-        // Branch: In Corso ↔ In Pausa (bidirezionale)
-        { from: 'node-in_corso', to: 'node-in_pausa', type: 'alt' },
-        { from: 'node-in_pausa', to: 'node-in_corso', type: 'alt' }
+        // Flusso principale orizzontale
+        { from: 'node-da_iniziare', to: 'node-in_corso', fromAnchor: 'right', toAnchor: 'left' },
+        { from: 'node-in_corso', to: 'node-in_consegna', fromAnchor: 'right', toAnchor: 'left' },
+        { from: 'node-in_consegna', to: 'node-completato', fromAnchor: 'right', toAnchor: 'left' },
+        { from: 'node-completato', to: 'node-archiviato', fromAnchor: 'right', toAnchor: 'left' },
+        // Branch In Corso ↔ In Pausa (con offset per evitare sovrapposizione)
+        { from: 'node-in_corso', to: 'node-in_pausa', fromAnchor: 'top', toAnchor: 'bottom', offset: -40 },
+        { from: 'node-in_pausa', to: 'node-in_corso', fromAnchor: 'bottom', toAnchor: 'top', offset: 40 }
     ];
     
-    // Ottieni zoom scale
-    const scale = pipelineState.scale;
-    
-    const nodeWidth = 320;
-    const nodeHeight = 50; // Header height
-    
-    connections.forEach(conn => {
+    connections.forEach((conn, index) => {
         const fromNode = document.getElementById(conn.from);
         const toNode = document.getElementById(conn.to);
         if (!fromNode || !toNode) return;
         
-        // Usa le posizioni CSS direttamente (relative al canvas)
-        const fromLeft = parseInt(fromNode.style.left) || 0;
-        const fromTop = parseInt(fromNode.style.top) || 0;
-        const toLeft = parseInt(toNode.style.left) || 0;
-        const toTop = parseInt(toNode.style.top) || 0;
+        const fromCenter = getNodeCenter(fromNode);
+        const toCenter = getNodeCenter(toNode);
         
         let x1, y1, x2, y2;
         
-        // Determina direzione connessione
-        const dx = toLeft - fromLeft;
-        const dy = toTop - fromTop;
-        
-        if (Math.abs(dx) > Math.abs(dy)) {
-            // Connessione orizzontale (più larga che alta)
-            if (dx > 0) {
-                // Da sinistra a destra
-                x1 = fromLeft + nodeWidth;
-                y1 = fromTop + fromNode.offsetHeight / 2;
-                x2 = toLeft;
-                y2 = toTop + toNode.offsetHeight / 2;
-            } else {
-                // Da destra a sinistra
-                x1 = fromLeft;
-                y1 = fromTop + fromNode.offsetHeight / 2;
-                x2 = toLeft + nodeWidth;
-                y2 = toTop + toNode.offsetHeight / 2;
-            }
-        } else {
-            // Connessione verticale (più alta che larga)
-            if (dy > 0) {
-                // Dall'alto verso il basso
-                x1 = fromLeft + nodeWidth / 2;
-                y1 = fromTop + fromNode.offsetHeight;
-                x2 = toLeft + nodeWidth / 2;
-                y2 = toTop;
-            } else {
-                // Dal basso verso l'alto
-                x1 = fromLeft + nodeWidth / 2;
-                y1 = fromTop;
-                x2 = toLeft + nodeWidth / 2;
-                y2 = toTop + toNode.offsetHeight;
-            }
+        // Calcola punti di connessione basati sugli anchor
+        switch (conn.fromAnchor) {
+            case 'right':
+                x1 = fromCenter.left + fromCenter.width;
+                y1 = fromCenter.y + (conn.offset || 0);
+                break;
+            case 'left':
+                x1 = fromCenter.left;
+                y1 = fromCenter.y + (conn.offset || 0);
+                break;
+            case 'top':
+                x1 = fromCenter.x + (conn.offset || 0);
+                y1 = fromCenter.top;
+                break;
+            case 'bottom':
+                x1 = fromCenter.x + (conn.offset || 0);
+                y1 = fromCenter.top + fromCenter.height;
+                break;
         }
         
-        // Crea path curvo (bezier)
+        switch (conn.toAnchor) {
+            case 'right':
+                x2 = toCenter.left + toCenter.width;
+                y2 = toCenter.y + (conn.offset || 0);
+                break;
+            case 'left':
+                x2 = toCenter.left;
+                y2 = toCenter.y + (conn.offset || 0);
+                break;
+            case 'top':
+                x2 = toCenter.x + (conn.offset || 0);
+                y2 = toCenter.top;
+                break;
+            case 'bottom':
+                x2 = toCenter.x + (conn.offset || 0);
+                y2 = toCenter.top + toCenter.height;
+                break;
+        }
+        
+        // Crea path con curva di Bezier più ampia
         const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
         
-        // Controlli bezier basati sulla direzione
-        let d;
+        // Calcola punti di controllo per curve morbide
+        const dx = x2 - x1;
+        const dy = y2 - y1;
+        
+        let cp1x, cp1y, cp2x, cp2y;
+        
         if (Math.abs(dx) > Math.abs(dy)) {
-            // Curva orizzontale
-            const controlX = Math.abs(x2 - x1) / 2;
-            d = `M ${x1} ${y1} C ${x1 + controlX} ${y1}, ${x2 - controlX} ${y2}, ${x2} ${y2}`;
+            // Connessione prevalentemente orizzontale
+            const tension = 0.5;
+            cp1x = x1 + dx * tension;
+            cp1y = y1;
+            cp2x = x2 - dx * tension;
+            cp2y = y2;
         } else {
-            // Curva verticale
-            const controlY = Math.abs(y2 - y1) / 2;
-            d = `M ${x1} ${y1} C ${x1} ${y1 + controlY}, ${x2} ${y2 - controlY}, ${x2} ${y2}`;
+            // Connessione prevalentemente verticale
+            const tension = 0.5;
+            cp1x = x1;
+            cp1y = y1 + dy * tension;
+            cp2x = x2;
+            cp2y = y2 - dy * tension;
         }
+        
+        const d = `M ${x1} ${y1} C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${x2} ${y2}`;
         
         path.setAttribute('d', d);
         path.setAttribute('class', 'pipeline-connection');
