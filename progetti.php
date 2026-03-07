@@ -469,6 +469,23 @@ include __DIR__ . '/includes/header.php';
     font-weight: 600;
 }
 
+/* Badge stato pagamento */
+.pipeline-project-payment {
+    margin-top: 8px;
+    margin-left: 16px;
+}
+
+.payment-badge {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 9999px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+    white-space: nowrap;
+}
+
 /* Connessioni SVG */
 .pipeline-connection {
     fill: none;
@@ -1016,6 +1033,26 @@ function createPipelineCard(p) {
         ? '€' + parseFloat(p.prezzo_totale).toLocaleString('it-IT', {minimumFractionDigits: 0, maximumFractionDigits: 0})
         : '-';
     
+    // Stato pagamento
+    const statoPagamento = p.stato_pagamento || 'da_pagare';
+    const statoPagamentoLabel = STATI_PAGAMENTO[statoPagamento] || statoPagamento;
+    const statoPagamentoColor = COLORI_STATO_PAGAMENTO[statoPagamento] || 'gray';
+    
+    // Colori badge
+    const badgeColors = {
+        'emerald': { bg: '#d1fae5', text: '#065f46' },
+        'green': { bg: '#d1fae5', text: '#065f46' },
+        'cyan': { bg: '#cffafe', text: '#155e75' },
+        'blue': { bg: '#dbeafe', text: '#1e40af' },
+        'amber': { bg: '#fef3c7', text: '#92400e' },
+        'yellow': { bg: '#fef3c7', text: '#92400e' },
+        'red': { bg: '#fee2e2', text: '#991b1b' },
+        'gray': { bg: '#f3f4f6', text: '#374151' },
+        'slate': { bg: '#f1f5f9', text: '#475569' },
+        'purple': { bg: '#f3e8ff', text: '#6b21a8' }
+    };
+    const badgeColor = badgeColors[statoPagamentoColor] || badgeColors['gray'];
+    
     div.innerHTML = `
         <div class="pipeline-project-header">
             <div class="pipeline-project-dot" style="background-color: ${colore}"></div>
@@ -1025,6 +1062,11 @@ function createPipelineCard(p) {
         <div class="pipeline-project-meta">
             <span>📅 ${scadenza}</span>
             <span class="pipeline-project-price">${prezzo}</span>
+        </div>
+        <div class="pipeline-project-payment">
+            <span class="payment-badge" style="background-color: ${badgeColor.bg}; color: ${badgeColor.text};">
+                ${statoPagamentoLabel}
+            </span>
         </div>
     `;
     
