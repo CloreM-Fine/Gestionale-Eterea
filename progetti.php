@@ -1376,7 +1376,9 @@ async function loadProgetti() {
     const colore = document.getElementById('coloreFilter').value;
     
     let url = 'api/progetti.php?action=list';
-    url += '&archiviati=' + (mostraArchiviati ? '1' : '0');
+    // Nella pipeline carichiamo SEMPRE tutti i progetti (inclusi archiviati)
+    // per permettere la visualizzazione completa del workflow
+    url += '&archiviati=1';
     if (search) url += '&search=' + encodeURIComponent(search);
     if (stato) url += '&stato=' + encodeURIComponent(stato);
     if (cliente) url += '&cliente=' + encodeURIComponent(cliente);
@@ -1444,12 +1446,19 @@ let allProgetti = [];
 function renderProgetti(progetti) {
     console.log('renderProgetti called', progetti?.length, 'items');
     
-    // Salva riferimento globale per la pipeline
+    // Salva riferimento globale per la pipeline (tutti i progetti)
     allProgetti = progetti || [];
     
     // Se in vista pipeline, aggiorna anche quella
     if (vistaPipeline) {
         renderPipeline();
+    }
+    
+    // Filtra progetti per la vista griglia
+    // Se mostraArchiviati è false, escludi gli archiviati dalla griglia
+    let progettiDaMostrare = progetti || [];
+    if (!mostraArchiviati) {
+        progettiDaMostrare = progettiDaMostrare.filter(p => p.stato_progetto !== 'archiviato');
     }
     
     const container = document.getElementById('progettiContainer');
@@ -1459,7 +1468,7 @@ function renderProgetti(progetti) {
         return;
     }
     
-    if (!progetti || progetti.length === 0) {
+    if (!progettiDaMostrare || progettiDaMostrare.length === 0) {
         container.innerHTML = `
             <div class="text-center py-12">
                 <div class="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -1481,7 +1490,7 @@ function renderProgetti(progetti) {
         
         try {
             // Raggruppa per cliente
-            const grouped = progetti.reduce((acc, p) => {
+            const grouped = progettiDaMostrare.reduce((acc, p) => {
                 const key = p.cliente_id || 'no-cliente';
                 const name = p.cliente_nome || 'Senza cliente';
                 const logo = p.cliente_logo || null;
@@ -1558,7 +1567,7 @@ function renderProgetti(progetti) {
     console.log('Rendering normal grid view');
     container.className = 'grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6';
     try {
-        container.innerHTML = progetti.map(p => renderProgettoCard(p)).join('');
+        container.innerHTML = progettiDaMostrare.map(p => renderProgettoCard(p)).join('');
     } catch (e) {
         console.error('Error in normal rendering:', e);
         container.innerHTML = '<div class="text-center py-12 text-red-500">Errore nel caricamento progetti</div>';
