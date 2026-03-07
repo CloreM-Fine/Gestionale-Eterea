@@ -471,8 +471,14 @@ include __DIR__ . '/includes/header.php';
 
 /* Badge stato pagamento */
 .pipeline-project-payment {
-    margin-top: 8px;
     margin-left: 16px;
+}
+
+.pipeline-project-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 8px;
 }
 
 .payment-badge {
@@ -484,6 +490,47 @@ include __DIR__ . '/includes/header.php';
     text-transform: uppercase;
     letter-spacing: 0.025em;
     white-space: nowrap;
+}
+
+/* Avatars partecipanti */
+.pipeline-project-avatars {
+    display: flex;
+    align-items: center;
+    gap: -4px;
+}
+
+.pipeline-avatar {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    color: white;
+    border: 2px solid white;
+    margin-left: -6px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.pipeline-avatar:first-child {
+    margin-left: 0;
+}
+
+.pipeline-avatar-more {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    font-weight: 600;
+    color: #64748b;
+    background-color: #e2e8f0;
+    border: 2px solid white;
+    margin-left: -6px;
 }
 
 /* Connessioni SVG */
@@ -1053,6 +1100,38 @@ function createPipelineCard(p) {
     };
     const badgeColor = badgeColors[statoPagamentoColor] || badgeColors['gray'];
     
+    // Avatars partecipanti
+    let avatarsHtml = '';
+    if (p.partecipanti) {
+        let partecipantiIds = [];
+        try {
+            // Prova a fare il parse come JSON
+            partecipantiIds = JSON.parse(p.partecipanti);
+        } catch (e) {
+            // Se fallisce, tratta come stringa separata da virgole
+            partecipantiIds = p.partecipanti.split(',').filter(id => id.trim());
+        }
+        
+        if (partecipantiIds.length > 0) {
+            avatarsHtml = `<div class="pipeline-project-avatars">`;
+            partecipantiIds.slice(0, 3).forEach(userId => {
+                const user = USERS[userId];
+                if (user) {
+                    const iniziale = user.nome.charAt(0).toUpperCase();
+                    avatarsHtml += `
+                        <div class="pipeline-avatar" style="background-color: ${user.colore};" title="${escapeHtml(user.nome)}">
+                            ${iniziale}
+                        </div>
+                    `;
+                }
+            });
+            if (partecipantiIds.length > 3) {
+                avatarsHtml += `<div class="pipeline-avatar-more">+${partecipantiIds.length - 3}</div>`;
+            }
+            avatarsHtml += `</div>`;
+        }
+    }
+    
     div.innerHTML = `
         <div class="pipeline-project-header">
             <div class="pipeline-project-dot" style="background-color: ${colore}"></div>
@@ -1063,10 +1142,13 @@ function createPipelineCard(p) {
             <span>📅 ${scadenza}</span>
             <span class="pipeline-project-price">${prezzo}</span>
         </div>
-        <div class="pipeline-project-payment">
-            <span class="payment-badge" style="background-color: ${badgeColor.bg}; color: ${badgeColor.text};">
-                ${statoPagamentoLabel}
-            </span>
+        <div class="pipeline-project-footer">
+            <div class="pipeline-project-payment">
+                <span class="payment-badge" style="background-color: ${badgeColor.bg}; color: ${badgeColor.text};">
+                    ${statoPagamentoLabel}
+                </span>
+            </div>
+            ${avatarsHtml}
         </div>
     `;
     
