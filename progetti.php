@@ -1111,10 +1111,17 @@ function createPipelineCard(p) {
         let partecipantiIds = [];
         try {
             // Prova a fare il parse come JSON
-            partecipantiIds = JSON.parse(p.partecipanti);
+            const parsed = JSON.parse(p.partecipanti);
+            // Se è un array, usalo direttamente
+            if (Array.isArray(parsed)) {
+                partecipantiIds = parsed;
+            } else {
+                // Se è una stringa, tratta come separata da virgole
+                partecipantiIds = String(parsed).split(',').filter(id => id.trim());
+            }
         } catch (e) {
             // Se fallisce, tratta come stringa separata da virgole
-            partecipantiIds = p.partecipanti.split(',').filter(id => id.trim());
+            partecipantiIds = String(p.partecipanti).split(',').filter(id => id.trim());
         }
         
         if (partecipantiIds.length > 0) {
