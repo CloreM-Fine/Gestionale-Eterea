@@ -1378,7 +1378,7 @@ async function loadProgetti() {
     let url = 'api/progetti.php?action=list';
     // Nella pipeline carichiamo SEMPRE tutti i progetti (inclusi archiviati)
     // per permettere la visualizzazione completa del workflow
-    url += '&archiviati=1';
+    url += '&archiviati=all';
     if (search) url += '&search=' + encodeURIComponent(search);
     if (stato) url += '&stato=' + encodeURIComponent(stato);
     if (cliente) url += '&cliente=' + encodeURIComponent(cliente);
@@ -1455,10 +1455,15 @@ function renderProgetti(progetti) {
     }
     
     // Filtra progetti per la vista griglia
-    // Se mostraArchiviati è false, escludi gli archiviati dalla griglia
+    // Se mostraArchiviati è false: mostra solo non-archiviati
+    // Se mostraArchiviati è true: mostra solo archiviati
     let progettiDaMostrare = progetti || [];
     if (!mostraArchiviati) {
+        // Modalità default: nascondi archiviati
         progettiDaMostrare = progettiDaMostrare.filter(p => p.stato_progetto !== 'archiviato');
+    } else {
+        // Modalità archiviati: mostra SOLO archiviati
+        progettiDaMostrare = progettiDaMostrare.filter(p => p.stato_progetto === 'archiviato');
     }
     
     const container = document.getElementById('progettiContainer');

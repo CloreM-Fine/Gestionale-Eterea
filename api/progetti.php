@@ -83,10 +83,15 @@ function listProgetti(): void {
         $where = [];
         $params = [];
         
-        // Filtro archiviati: di default nascondi archiviati, se richiesto mostra solo archiviati
-        $mostraArchiviati = !empty($_GET['archiviati']) && $_GET['archiviati'] === '1';
-        if ($mostraArchiviati) {
+        // Filtro archiviati: 
+        // - default: nascondi archiviati (stato != 'archiviato')
+        // - archiviati=1: mostra SOLO archiviati (stato = 'archiviato')  
+        // - archiviati=all: mostra TUTTI (nessun filtro sullo stato)
+        $mostraArchiviati = $_GET['archiviati'] ?? '0';
+        if ($mostraArchiviati === '1') {
             $where[] = "p.stato_progetto = 'archiviato'";
+        } elseif ($mostraArchiviati === 'all') {
+            // Mostra tutti i progetti, nessun filtro
         } else {
             $where[] = "p.stato_progetto != 'archiviato'";
         }
