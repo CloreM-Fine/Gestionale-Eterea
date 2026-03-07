@@ -73,9 +73,9 @@ include __DIR__ . '/includes/header.php';
 </div>
 
 <!-- Filtri -->
-<div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 mb-6">
+<div id="filtriSection" class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 mb-6">
     <!-- Mobile: Accordion Header -->
-    <button type="button" onclick="toggleFiltriMobile()" class="sm:hidden w-full flex items-center justify-between mb-2">
+    <button type="button" id="filtriMobileBtn" onclick="toggleFiltriMobile()" class="sm:hidden w-full flex items-center justify-between mb-2">
         <span class="text-sm font-medium text-slate-700 flex items-center gap-2">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
@@ -1007,12 +1007,15 @@ function togglePipeline() {
     const btn = document.getElementById('btnPipeline');
     const progettiContainer = document.getElementById('progettiContainer');
     const pipelineContainer = document.getElementById('pipelineContainer');
+    const filtriSection = document.getElementById('filtriSection');
     
     if (vistaPipeline) {
         btn.classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
         btn.classList.add('bg-slate-600', 'hover:bg-slate-700');
         progettiContainer.classList.add('hidden');
         pipelineContainer.classList.remove('hidden');
+        // Nascondi barra filtri in modalità pipeline
+        if (filtriSection) filtriSection.classList.add('hidden');
         // Reset view per layout orizzontale
         pipelineResetView();
         renderPipeline();
@@ -1021,6 +1024,8 @@ function togglePipeline() {
         btn.classList.add('bg-indigo-600', 'hover:bg-indigo-700');
         progettiContainer.classList.remove('hidden');
         pipelineContainer.classList.add('hidden');
+        // Mostra barra filtri tornando alla griglia
+        if (filtriSection) filtriSection.classList.remove('hidden');
     }
 }
 
