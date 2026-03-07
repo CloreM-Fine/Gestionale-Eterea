@@ -351,22 +351,27 @@ include __DIR__ . '/includes/header.php';
     border: 2px solid #e2e8f0;
     overflow: hidden;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    transition: all 0.3s ease;
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
     position: absolute;
     cursor: grab;
     user-select: none;
+    /* Ottimizzazione GPU */
+    backface-visibility: hidden;
+    -webkit-font-smoothing: antialiased;
 }
 
 .pipeline-node:hover {
     border-color: #cbd5e1;
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.15), 0 4px 6px -2px rgba(0, 0, 0, 0.1);
-    transform: translateY(-2px);
 }
 
 .pipeline-node.dragging {
     cursor: grabbing;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
-    z-index: 100;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(59, 130, 246, 0.5);
+    z-index: 1000;
+    border-color: #3b82f6;
+    /* Nessuna transition durante il drag per massima fluidità */
+    transition: none;
 }
 
 .node-header {
@@ -469,11 +474,29 @@ include __DIR__ . '/includes/header.php';
     fill: none;
     stroke: #94a3b8;
     stroke-width: 2;
+    /* Transizione fluida quando i nodi si muovono */
+    transition: d 0.1s ease-out;
 }
 
 .pipeline-connection.active {
     stroke: #0891b2;
     stroke-width: 3;
+}
+
+/* Animazione per nuove connessioni */
+@keyframes connectionDraw {
+    from {
+        stroke-dasharray: 1000;
+        stroke-dashoffset: 1000;
+    }
+    to {
+        stroke-dasharray: 1000;
+        stroke-dashoffset: 0;
+    }
+}
+
+.pipeline-connection.animate {
+    animation: connectionDraw 0.3s ease-out;
 }
 
 /* Controlli Zoom */
@@ -581,6 +604,9 @@ include __DIR__ . '/includes/header.php';
                 </marker>
             </defs>
         </svg>
+        
+        <!-- Ghost node per feedback drag (inizialmente nascosto) -->
+        <div id="pipelineGhost" class="pipeline-node" style="display: none; opacity: 0.4; border-style: dashed; z-index: 99;"></div>
         
         <!-- Nodi posizionati assolutamente - Layout ORIZZONTALE -->
         <!-- 
@@ -1138,12 +1164,12 @@ function updatePipelineTransform() {
     const canvas = document.getElementById('pipelineCanvas');
     if (!canvas) return;
     
-    // Transform semplice con pan e zoom (origine top-left)
-    canvas.style.transform = `translate(${pipelineState.panX}px, ${pipelineState.panY}px) scale(${pipelineState.scale})`;
+    // Transform con GPU acceleration (translate3d)
+    canvas.style.transform = `translate3d(${pipelineState.panX}px, ${pipelineState.panY}px, 0) scale(${pipelineState.scale})`;
     document.getElementById('zoomLevel').textContent = Math.round(pipelineState.scale * 100) + '%';
     
     // Ridisegna connessioni dopo il render
-    setTimeout(drawPipelineConnections, 50);
+    requestAnimationFrame(drawPipelineConnections);
 }
 
 // Inizializza pan del canvas
@@ -1151,6 +1177,8 @@ function initPipelinePan() {
     const container = document.getElementById('pipelineContainer');
     const canvas = document.getElementById('pipelineCanvas');
     if (!container || !canvas) return;
+    
+    let panRafId = null;
     
     // Pan con middle mouse o space+drag
     container.addEventListener('mousedown', (e) => {
@@ -1160,6 +1188,7 @@ function initPipelinePan() {
             pipelineState.startX = e.clientX - pipelineState.panX;
             pipelineState.startY = e.clientY - pipelineState.panY;
             container.style.cursor = 'grabbing';
+            canvas.style.willChange = 'transform';
         }
     });
     
@@ -1168,12 +1197,22 @@ function initPipelinePan() {
         
         pipelineState.panX = e.clientX - pipelineState.startX;
         pipelineState.panY = e.clientY - pipelineState.startY;
-        updatePipelineTransform();
+        
+        // RAF per pan fluido
+        if (!panRafId) {
+            panRafId = requestAnimationFrame(() => {
+                updatePipelineTransform();
+                panRafId = null;
+            });
+        }
     });
     
     document.addEventListener('mouseup', () => {
-        pipelineState.isPanning = false;
-        container.style.cursor = 'grab';
+        if (pipelineState.isPanning) {
+            pipelineState.isPanning = false;
+            container.style.cursor = 'grab';
+            canvas.style.willChange = 'auto';
+        }
     });
     
     // Zoom con wheel
@@ -1188,52 +1227,114 @@ function initPipelinePan() {
 }
 
 // ============================================
-// DRAG & DROP NODI
+// DRAG & DROP NODI - ULTRA FLUIDO con GPU acceleration
 // ============================================
 
 let draggedNode = null;
-let nodeOffsetX = 0;
-let nodeOffsetY = 0;
+let nodeStartX = 0;
+let nodeStartY = 0;
+let dragStartMouseX = 0;
+let dragStartMouseY = 0;
+let rafId = null;
+let ghostNode = null;
 
 function initNodeDragging() {
+    ghostNode = document.getElementById('pipelineGhost');
     const nodes = document.querySelectorAll('.pipeline-node');
     
     nodes.forEach(node => {
         const header = node.querySelector('.node-header');
-        if (!header) return;
+        if (!header || node.id === 'pipelineGhost') return;
         
         header.addEventListener('mousedown', (e) => {
             e.stopPropagation(); // Non attivare il pan
+            e.preventDefault();  // Prevenire selezione testo
             
             draggedNode = node;
-            const rect = node.getBoundingClientRect();
-            nodeOffsetX = e.clientX - rect.left;
-            nodeOffsetY = e.clientY - rect.top;
             
+            // Salva posizione iniziale del nodo
+            nodeStartX = parseInt(node.style.left) || 0;
+            nodeStartY = parseInt(node.style.top) || 0;
+            
+            // Salva posizione iniziale del mouse
+            dragStartMouseX = e.clientX;
+            dragStartMouseY = e.clientY;
+            
+            // Mostra ghost node alla posizione originale
+            if (ghostNode) {
+                ghostNode.style.display = 'block';
+                ghostNode.style.left = nodeStartX + 'px';
+                ghostNode.style.top = nodeStartY + 'px';
+                ghostNode.style.width = node.offsetWidth + 'px';
+                ghostNode.style.height = node.offsetHeight + 'px';
+            }
+            
+            // Aggiungi classe per styling drag
             node.classList.add('dragging');
+            
+            // Ottimizzazione GPU
+            node.style.willChange = 'transform';
         });
     });
     
     document.addEventListener('mousemove', (e) => {
         if (!draggedNode) return;
         
-        const canvas = document.getElementById('pipelineCanvas');
-        const canvasRect = canvas.getBoundingClientRect();
+        // Calcola delta considerando lo zoom
+        const deltaX = (e.clientX - dragStartMouseX) / pipelineState.scale;
+        const deltaY = (e.clientY - dragStartMouseY) / pipelineState.scale;
         
-        // Calcola posizione relativa al canvas considerando lo zoom
-        const x = (e.clientX - canvasRect.left - nodeOffsetX) / pipelineState.scale;
-        const y = (e.clientY - canvasRect.top - nodeOffsetY) / pipelineState.scale;
+        // Nuova posizione target
+        const targetX = Math.max(0, nodeStartX + deltaX);
+        const targetY = Math.max(0, nodeStartY + deltaY);
         
-        draggedNode.style.left = Math.max(0, x) + 'px';
-        draggedNode.style.top = Math.max(0, y) + 'px';
+        // Snap-to-grid (10px per default)
+        const snapSize = 10;
+        const snappedX = Math.round(targetX / snapSize) * snapSize;
+        const snappedY = Math.round(targetY / snapSize) * snapSize;
         
-        // Ridisegna connessioni in tempo reale
-        drawPipelineConnections();
+        // Applica transform per GPU acceleration (60fps smooth)
+        const translateX = snappedX - nodeStartX;
+        const translateY = snappedY - nodeStartY;
+        draggedNode.style.transform = `translate3d(${translateX}px, ${translateY}px, 0)`;
+        
+        // Throttle del ridisegno connessioni con RAF
+        if (!rafId) {
+            rafId = requestAnimationFrame(() => {
+                drawPipelineConnections();
+                rafId = null;
+            });
+        }
     });
     
     document.addEventListener('mouseup', () => {
         if (draggedNode) {
+            // Commit della posizione finale
+            const transform = draggedNode.style.transform;
+            const match = transform.match(/translate3d\(([-\d.]+)px,\s*([-\d.]+)px/);
+            
+            if (match) {
+                const translateX = parseFloat(match[1]);
+                const translateY = parseFloat(match[2]);
+                
+                // Applica posizione finale a left/top
+                draggedNode.style.left = (nodeStartX + translateX) + 'px';
+                draggedNode.style.top = (nodeStartY + translateY) + 'px';
+            }
+            
+            // Reset transform
+            draggedNode.style.transform = '';
+            draggedNode.style.willChange = 'auto';
             draggedNode.classList.remove('dragging');
+            
+            // Nascondi ghost
+            if (ghostNode) {
+                ghostNode.style.display = 'none';
+            }
+            
+            // Ridisegna connessioni finali
+            drawPipelineConnections();
+            
             draggedNode = null;
         }
     });
