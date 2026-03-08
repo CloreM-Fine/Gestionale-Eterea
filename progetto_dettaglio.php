@@ -345,85 +345,163 @@ include __DIR__ . '/includes/header.php';
 <div id="editProgettoModal" class="fixed inset-0 z-[60] hidden">
     <div class="absolute inset-0 bg-black/50" onclick="closeModal('editProgettoModal')"></div>
     <div class="absolute inset-0 flex items-end sm:items-center justify-center p-0 sm:p-4">
-        <div class="bg-white w-full max-w-lg sm:rounded-2xl rounded-t-2xl shadow-2xl max-h-[85vh] sm:max-h-[90vh] overflow-hidden flex flex-col">
-            <div class="p-3 sm:p-5 border-b border-slate-100 flex items-center justify-between flex-shrink-0">
-                <h3 class="text-sm sm:text-lg font-bold text-slate-800">Modifica Progetto</h3>
-                <button onclick="closeModal('editProgettoModal')" class="text-slate-400 hover:text-slate-600 p-1 min-h-[44px] min-w-[44px] flex items-center justify-center">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="bg-white w-full max-w-2xl sm:rounded-2xl rounded-t-2xl shadow-2xl max-h-[85vh] sm:max-h-[90vh] overflow-hidden flex flex-col">
+            <div class="p-4 sm:p-6 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white z-10">
+                <h2 class="text-lg sm:text-xl font-bold text-slate-800">Modifica Progetto</h2>
+                <button onclick="closeModal('editProgettoModal')" class="p-2 -mr-2 text-slate-400 hover:text-slate-600 min-h-[44px] min-w-[44px] flex items-center justify-center">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                     </svg>
                 </button>
             </div>
             
-            <form id="editProgettoForm" class="p-3 sm:p-5 space-y-3 sm:space-y-4 overflow-y-auto flex-1">
-                <input type="hidden" name="id" id="editProgettoId" value="<?php echo e($progettoId); ?>">
+            <form id="editProgettoForm" class="p-4 sm:p-6 overflow-y-auto flex-1">
+                <input type="hidden" name="id" id="editProgettoId">
                 
-                <div>
-                    <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-1.5">Titolo *</label>
-                    <input type="text" name="titolo" id="editProgettoTitolo" required
-                           class="w-full px-3 sm:px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none text-sm sm:text-base min-h-[44px]">
-                </div>
-                
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div class="space-y-5">
+                    <!-- Titolo -->
                     <div>
-                        <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-1.5">Cliente</label>
-                        <select name="cliente_id" id="editProgettoCliente" class="w-full px-3 sm:px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none text-sm sm:text-base min-h-[44px] bg-white">
-                            <option value="">Nessun cliente</option>
-                            <?php foreach ($clienti as $cliente): ?>
-                            <option value="<?php echo e($cliente['id']); ?>"><?php echo e($cliente['ragione_sociale']); ?></option>
+                        <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-2">Titolo *</label>
+                        <input type="text" name="titolo" id="editProgettoTitolo" required
+                               class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none min-h-[44px]"
+                               placeholder="Nome del progetto">
+                    </div>
+                    
+                    <!-- Cliente -->
+                    <div>
+                        <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-2">Cliente</label>
+                        <select name="cliente_id" id="editProgettoCliente" class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none min-h-[44px]">
+                            <option value="">Seleziona cliente...</option>
+                            <?php foreach ($clienti as $c): ?>
+                            <option value="<?php echo $c['id']; ?>"><?php echo e($c['ragione_sociale']); ?></option>
                             <?php endforeach; ?>
                         </select>
                     </div>
+                    
+                    <!-- Descrizione -->
                     <div>
-                        <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-1.5">Stato</label>
-                        <select name="stato_progetto" id="editProgettoStato" class="w-full px-3 sm:px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none text-sm sm:text-base min-h-[44px] bg-white">
-                            <?php foreach (STATI_PROGETTO as $key => $label): ?>
-                            <option value="<?php echo e($key); ?>"><?php echo e($label); ?></option>
+                        <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-2">Descrizione</label>
+                        <textarea name="descrizione" id="editProgettoDescrizione" rows="3"
+                                  class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none resize-none"
+                                  placeholder="Descrizione del progetto..."></textarea>
+                    </div>
+                    
+                    <!-- Tipologie -->
+                    <div>
+                        <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-2">Tipologie</label>
+                        <div class="flex flex-wrap gap-2">
+                            <?php foreach (TIPOLOGIE_PROGETTO as $tipo): ?>
+                            <label class="inline-flex items-center px-3 py-1.5 rounded-full border border-slate-200 cursor-pointer hover:bg-slate-50 transition-colors has-[:checked]:bg-cyan-50 has-[:checked]:border-cyan-500 has-[:checked]:text-cyan-700">
+                                <input type="checkbox" name="tipologie[]" value="<?php echo $tipo; ?>" id="editTipo<?php echo str_replace(' ', '_', $tipo); ?>" class="sr-only">
+                                <span class="text-xs sm:text-sm"><?php echo e($tipo); ?></span>
+                            </label>
                             <?php endforeach; ?>
-                        </select>
+                        </div>
                     </div>
-                </div>
-                
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    
+                    <!-- Prezzo e Stati -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-2">Prezzo Totale</label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-2.5 text-slate-400">€</span>
+                                <input type="number" name="prezzo_totale" id="editProgettoPrezzo" step="0.01" min="0"
+                                       class="w-full pl-8 pr-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none min-h-[44px]"
+                                       placeholder="0.00">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-2">Stato Progetto</label>
+                            <select name="stato_progetto" id="editProgettoStato" class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none min-h-[44px]">
+                                <?php foreach (STATI_PROGETTO as $key => $label): ?>
+                                <option value="<?php echo e($key); ?>"><?php echo e($label); ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-2">Stato Pagamento</label>
+                            <select name="stato_pagamento" id="editProgettoStatoPagamento" class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none min-h-[44px]">
+                                <?php foreach (STATI_PAGAMENTO as $key => $label): ?>
+                                <option value="<?php echo e($key); ?>"><?php echo e($label); ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Partecipanti -->
                     <div>
-                        <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-1.5">Data Inizio</label>
-                        <input type="date" name="data_inizio" id="editProgettoDataInizio"
-                               class="w-full px-3 sm:px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none text-sm sm:text-base min-h-[44px]">
+                        <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-2">Partecipanti</label>
+                        <div class="flex flex-wrap gap-3">
+                            <?php foreach (USERS as $id => $u): ?>
+                            <label class="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-200 cursor-pointer hover:bg-slate-50 transition-colors has-[:checked]:bg-slate-100 has-[:checked]:border-slate-300">
+                                <input type="checkbox" name="partecipanti[]" value="<?php echo $id; ?>" id="editPartecipante<?php echo $id; ?>" class="rounded text-cyan-600 focus:ring-cyan-500">
+                                <span class="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-medium" style="background-color: <?php echo $u['colore']; ?>">
+                                    <?php echo substr($u['nome'], 0, 1); ?>
+                                </span>
+                                <span class="text-xs sm:text-sm"><?php echo e($u['nome']); ?></span>
+                            </label>
+                            <?php endforeach; ?>
+                        </div>
                     </div>
+                    
+                    <!-- Tag Colore -->
                     <div>
-                        <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-1.5">Data Consegna Prevista</label>
-                        <input type="date" name="data_consegna_prevista" id="editProgettoDataConsegna"
-                               class="w-full px-3 sm:px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none text-sm sm:text-base min-h-[44px]">
+                        <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-2">Tag Colore Progetto</label>
+                        <div class="flex flex-wrap gap-2">
+                            <?php
+                            $coloriTag = [
+                                '#FFFFFF' => ['nome' => 'Bianco'],
+                                '#BAE6FD' => ['nome' => 'Ciano'],
+                                '#BFDBFE' => ['nome' => 'Blu'],
+                                '#BBF7D0' => ['nome' => 'Verde'],
+                                '#D9F99D' => ['nome' => 'Lime'],
+                                '#FDE68A' => ['nome' => 'Giallo'],
+                                '#FED7AA' => ['nome' => 'Arancione'],
+                                '#FECACA' => ['nome' => 'Rosso'],
+                                '#FBCFE8' => ['nome' => 'Rosa'],
+                                '#E9D5FF' => ['nome' => 'Viola'],
+                                '#C4B5FD' => ['nome' => 'Indaco'],
+                                '#CBD5E1' => ['nome' => 'Grigio'],
+                                '#99F6E4' => ['nome' => 'Turchese'],
+                                '#F5D0FE' => ['nome' => 'Fucsia'],
+                            ];
+                            foreach ($coloriTag as $hex => $info): ?>
+                            <label class="relative cursor-pointer group">
+                                <input type="radio" name="colore_tag" value="<?php echo $hex; ?>" id="editColore<?php echo str_replace('#', '', $hex); ?>"
+                                       class="peer sr-only">
+                                <div class="w-10 h-10 rounded-lg border-2 border-slate-200 peer-checked:border-cyan-500 peer-checked:ring-2 peer-checked:ring-cyan-200 transition-all"
+                                     style="background-color: <?php echo $hex; ?>;"
+                                     title="<?php echo $info['nome']; ?>">
+                                </div>
+                            </label>
+                            <?php endforeach; ?>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-1">Il colore verrà applicato come sfondo della card progetto</p>
                     </div>
-                </div>
-                
-                <div>
-                    <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-1.5">Prezzo Totale (€)</label>
-                    <input type="number" name="prezzo_totale" id="editProgettoPrezzo" step="0.01" min="0"
-                           class="w-full px-3 sm:px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none text-sm sm:text-base min-h-[44px]">
-                </div>
-                
-                <div>
-                    <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-2">Partecipanti</label>
-                    <div class="grid grid-cols-1 sm:flex sm:flex-wrap gap-2 p-2 sm:p-3 border border-slate-200 rounded-lg bg-slate-50">
-                        <?php foreach (USERS as $id => $u): ?>
-                        <label class="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-200 cursor-pointer hover:bg-white transition-colors bg-white min-h-[44px]">
-                            <input type="checkbox" name="partecipanti[]" value="<?php echo $id; ?>" id="editPartecipante<?php echo $id; ?>" class="rounded text-cyan-600 focus:ring-cyan-500 w-5 h-5 flex-shrink-0">
-                            <span class="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-medium flex-shrink-0" style="background-color: <?php echo $u['colore']; ?>">
-                                <?php echo substr($u['nome'], 0, 1); ?>
-                            </span>
-                            <span class="text-sm truncate"><?php echo e($u['nome']); ?></span>
-                        </label>
-                        <?php endforeach; ?>
+                    
+                    <!-- Date -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-2">Data Inizio</label>
+                            <input type="date" name="data_inizio" id="editProgettoDataInizio"
+                                   class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none min-h-[44px]">
+                        </div>
+                        <div>
+                            <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-2">Data Consegna Prevista</label>
+                            <input type="date" name="data_consegna_prevista" id="editProgettoDataConsegna"
+                                   class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none min-h-[44px]">
+                        </div>
                     </div>
                 </div>
             </form>
             
-            <div class="p-4 sm:p-6 border-t border-slate-100 flex flex-row justify-end gap-2 sm:gap-3">
-                <button type="button" onclick="closeModal('editProgettoModal')" class="flex-1 sm:flex-none px-4 py-2.5 sm:py-2 text-slate-600 hover:text-slate-800 font-medium min-h-[44px] rounded-lg hover:bg-slate-100 transition-colors text-sm sm:text-base">
+            <div class="p-3 sm:p-6 border-t border-slate-100 flex flex-row justify-end gap-2 sticky bottom-0 bg-white z-10">
+                <button type="button" onclick="closeModal('editProgettoModal')" 
+                        class="px-3 py-2 sm:px-4 sm:py-2 text-sm sm:text-base text-slate-600 hover:text-slate-800 font-medium rounded-lg hover:bg-slate-100 transition-colors">
                     Annulla
                 </button>
-                <button type="button" onclick="saveProgettoChanges()" class="flex-1 sm:flex-none px-4 sm:px-6 py-2.5 sm:py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg font-medium min-h-[44px] transition-colors text-sm sm:text-base">
+                <button type="button" onclick="saveProgettoChanges()" 
+                        class="px-4 py-2 sm:px-6 sm:py-2 text-sm sm:text-base bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg font-medium transition-colors">
                     Salva Modifiche
                 </button>
             </div>
@@ -2791,24 +2869,43 @@ function openEditProgettoModal() {
     // Popola il form con i dati del progetto
     const progetto = progettoData;
     
+    document.getElementById('editProgettoId').value = progetto.id || '';
     document.getElementById('editProgettoTitolo').value = progetto.titolo || '';
     document.getElementById('editProgettoCliente').value = progetto.cliente_id || '';
     document.getElementById('editProgettoStato').value = progetto.stato_progetto || 'da_iniziare';
+    document.getElementById('editProgettoStatoPagamento').value = progetto.stato_pagamento || 'da_pagare';
     document.getElementById('editProgettoDataInizio').value = progetto.data_inizio || '';
     document.getElementById('editProgettoDataConsegna').value = progetto.data_consegna_prevista || '';
     document.getElementById('editProgettoPrezzo').value = progetto.prezzo_totale || '';
+    document.getElementById('editProgettoDescrizione').value = progetto.descrizione || '';
+    
+    // Reset e imposta tipologie
+    document.querySelectorAll('input[name="tipologie[]"]').forEach(cb => {
+        cb.checked = false;
+    });
+    if (progetto.tipologie && Array.isArray(progetto.tipologie)) {
+        progetto.tipologie.forEach(tipo => {
+            const safeId = tipo.replace(/ /g, '_');
+            const cb = document.getElementById('editTipo' + safeId);
+            if (cb) cb.checked = true;
+        });
+    }
     
     // Reset e imposta partecipanti
     document.querySelectorAll('input[name="partecipanti[]"]').forEach(cb => {
         cb.checked = false;
     });
-    
     if (progetto.partecipanti && Array.isArray(progetto.partecipanti)) {
         progetto.partecipanti.forEach(id => {
             const cb = document.getElementById('editPartecipante' + id);
             if (cb) cb.checked = true;
         });
     }
+    
+    // Imposta colore tag
+    const colore = progetto.colore_tag || '#FFFFFF';
+    const radioColore = document.querySelector('input[name="colore_tag"][value="' + colore + '"]');
+    if (radioColore) radioColore.checked = true;
     
     openModal('editProgettoModal');
 }

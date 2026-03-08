@@ -76,7 +76,7 @@ switch ($method) {
 /**
  * Lista progetti con filtri
  */
-function listProgetti(): void {
+function listProgetti() {
     global $pdo;
     
     try {
@@ -210,7 +210,7 @@ function listProgetti(): void {
 /**
  * Dettaglio progetto
  */
-function getProgetto(string $id): void {
+function getProgetto($id) {
     global $pdo;
     
     try {
@@ -288,7 +288,7 @@ function getProgetto(string $id): void {
 /**
  * Crea nuovo progetto
  */
-function createProgetto(): void {
+function createProgetto() {
     global $pdo;
     
     // Validazione
@@ -367,7 +367,7 @@ function createProgetto(): void {
 /**
  * Aggiorna progetto
  */
-function updateProgetto(string $id): void {
+function updateProgetto($id) {
     global $pdo;
     
     // Verifica esistenza e leggi stato attuale
@@ -478,7 +478,7 @@ function updateProgetto(string $id): void {
 /**
  * Elimina progetto
  */
-function deleteProgetto(string $id): void {
+function deleteProgetto($id) {
     global $pdo;
     
     // Debug
@@ -516,7 +516,7 @@ function deleteProgetto(string $id): void {
 /**
  * Distribuisci economia progetto
  */
-function distribuisciProgetto(string $id, bool $includiCassa = true, bool $includiPassivo = false, array $utentiEsclusi = []): void {
+function distribuisciProgetto($id, $includiCassa = true, $includiPassivo = false, $utentiEsclusi = []) {
     global $pdo;
     
     try {
@@ -567,7 +567,7 @@ function distribuisciProgetto(string $id, bool $includiCassa = true, bool $inclu
 /**
  * Revoca distribuzione economia progetto
  */
-function revocaDistribuzione(string $id): void {
+function revocaDistribuzione($id) {
     global $pdo;
     
     try {
@@ -627,7 +627,7 @@ function revocaDistribuzione(string $id): void {
 /**
  * Lista documenti di un progetto
  */
-function listDocumenti(string $progettoId): void {
+function listDocumenti($progettoId) {
     global $pdo;
     
     try {
@@ -651,7 +651,7 @@ function listDocumenti(string $progettoId): void {
 /**
  * Upload documento progetto
  */
-function uploadDocumento(): void {
+function uploadDocumento() {
     global $pdo;
     
     $progettoId = $_POST['progetto_id'] ?? '';
@@ -752,7 +752,7 @@ function uploadDocumento(): void {
 /**
  * Elimina documento progetto
  */
-function deleteDocumento(string $id): void {
+function deleteDocumento($id) {
     global $pdo;
     
     $progettoId = $_POST['progetto_id'] ?? '';
