@@ -19,13 +19,22 @@ include __DIR__ . '/includes/header.php';
             <h1 class="text-xl sm:text-2xl font-bold text-slate-800">Clienti</h1>
             <p class="text-sm text-slate-500 mt-1">Gestisci la rubrica clienti</p>
         </div>
-        <button onclick="openModal('clienteModal'); resetClienteForm();" 
-                class="w-full sm:w-auto bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-3 sm:py-2.5 rounded-lg font-medium flex items-center justify-center gap-2 transition-colors min-h-[44px]">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-            </svg>
-            Nuovo Cliente
-        </button>
+        <div class="flex gap-2">
+            <button onclick="showTimelineGenerale()" 
+                    class="flex-1 sm:flex-none bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-3 sm:py-2.5 rounded-lg font-medium flex items-center justify-center gap-2 transition-colors min-h-[44px]">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                Timeline
+            </button>
+            <button onclick="openModal('clienteModal'); resetClienteForm();" 
+                    class="flex-1 sm:flex-none bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-3 sm:py-2.5 rounded-lg font-medium flex items-center justify-center gap-2 transition-colors min-h-[44px]">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                </svg>
+                Nuovo Cliente
+            </button>
+        </div>
     </div>
 </div>
 
@@ -257,6 +266,139 @@ include __DIR__ . '/includes/header.php';
                 <button type="button" onclick="editClienteFromDetail()" 
                         class="w-full sm:w-auto px-6 py-3 sm:py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg font-medium min-h-[44px]">
                     Modifica
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Timeline Cliente -->
+<div id="timelineModal" class="fixed inset-0 z-[60] hidden">
+    <div class="absolute inset-0 bg-black/60" onclick="closeModal('timelineModal')"></div>
+    <div class="absolute inset-0 flex items-end sm:items-center justify-center p-0 sm:p-4">
+        <div class="bg-white w-full max-w-4xl sm:rounded-2xl rounded-t-2xl shadow-2xl max-h-[90vh] overflow-hidden flex flex-col">
+            <!-- Header -->
+            <div class="p-4 sm:p-6 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white z-10">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500 to-cyan-600 flex items-center justify-center text-white flex-shrink-0">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="text-lg sm:text-xl font-bold text-slate-800">Timeline Generale</h2>
+                        <p class="text-sm text-slate-500">Panoramica attività studio</p>
+                    </div>
+                </div>
+                <button onclick="closeModal('timelineModal')" class="p-2 -mr-2 text-slate-400 hover:text-slate-600 min-h-[44px] min-w-[44px] flex items-center justify-center">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            
+            <!-- Content -->
+            <div id="timelineContent" class="flex-1 overflow-y-auto bg-slate-50">
+                <!-- Loading State -->
+                <div id="timelineLoading" class="p-8 text-center">
+                    <div class="animate-spin w-10 h-10 border-3 border-cyan-500 border-t-transparent rounded-full mx-auto"></div>
+                    <p class="text-slate-500 mt-3">Caricamento timeline...</p>
+                </div>
+                
+                <!-- Stats Cards -->
+                <div id="timelineStats" class="hidden p-4 sm:p-6">
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
+                        <!-- Clienti Totali -->
+                        <div class="bg-white p-4 rounded-xl border border-slate-200">
+                            <div class="flex items-center gap-2 mb-2">
+                                <div class="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center">
+                                    <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                    </svg>
+                                </div>
+                                <span class="text-xs text-slate-500 font-medium">Clienti</span>
+                            </div>
+                            <p class="text-lg font-bold text-slate-800" id="statClientiTotali">-</p>
+                            <p class="text-xs text-slate-400">in archivio</p>
+                        </div>
+                        
+                        <!-- Progetti -->
+                        <div class="bg-white p-4 rounded-xl border border-slate-200">
+                            <div class="flex items-center gap-2 mb-2">
+                                <div class="w-8 h-8 rounded-lg bg-cyan-100 flex items-center justify-center">
+                                    <svg class="w-4 h-4 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
+                                    </svg>
+                                </div>
+                                <span class="text-xs text-slate-500 font-medium">Progetti</span>
+                            </div>
+                            <p class="text-lg font-bold text-slate-800" id="statProgettiTotali">-</p>
+                            <div class="flex items-center gap-1 text-xs mt-1 flex-wrap">
+                                <span class="text-emerald-600 font-medium" id="statProgettiCompletati">-</span>
+                                <span class="text-slate-300">|</span>
+                                <span class="text-cyan-600 font-medium" id="statProgettiInCorso">-</span>
+                                <span class="text-slate-300">|</span>
+                                <span class="text-slate-500 font-medium" id="statProgettiDaIniziare">-</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Fatturato -->
+                        <div class="bg-white p-4 rounded-xl border border-slate-200">
+                            <div class="flex items-center gap-2 mb-2">
+                                <div class="w-8 h-8 rounded-lg bg-violet-100 flex items-center justify-center">
+                                    <svg class="w-4 h-4 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                </div>
+                                <span class="text-xs text-slate-500 font-medium">Fatturato</span>
+                            </div>
+                            <p class="text-lg font-bold text-slate-800" id="statTotaleFatturato">-</p>
+                            <div class="flex items-center gap-1 text-xs mt-1">
+                                <span class="text-emerald-600 font-medium" id="statTotalePagato">-</span>
+                                <span class="text-slate-300">|</span>
+                                <span class="text-amber-600 font-medium" id="statTotaleDaRiscuotere">-</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Preventivi -->
+                        <div class="bg-white p-4 rounded-xl border border-slate-200">
+                            <div class="flex items-center gap-2 mb-2">
+                                <div class="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center">
+                                    <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                    </svg>
+                                </div>
+                                <span class="text-xs text-slate-500 font-medium">Preventivi</span>
+                            </div>
+                            <p class="text-lg font-bold text-slate-800" id="statNumeroPreventivi">-</p>
+                            <p class="text-xs text-slate-400">generati</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Timeline Workflow -->
+                    <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
+                        <div class="p-4 border-b border-slate-100">
+                            <h3 class="font-semibold text-slate-800 flex items-center gap-2">
+                                <svg class="w-5 h-5 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                                </svg>
+                                Cronologia Attività
+                            </h3>
+                        </div>
+                        <div class="p-4 sm:p-6">
+                            <div id="timelineEvents" class="relative">
+                                <!-- Timeline verrà popolata qui -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Footer -->
+            <div class="p-3 sm:p-6 border-t border-slate-100 flex flex-row justify-end gap-2 sticky bottom-0 bg-white z-10">
+                <button type="button" onclick="closeModal('timelineModal')" 
+                        class="px-4 py-2 sm:px-6 sm:py-2 text-sm sm:text-base text-slate-600 hover:text-slate-800 font-medium rounded-lg hover:bg-slate-100 transition-colors">
+                    Chiudi
                 </button>
             </div>
         </div>
@@ -839,6 +981,147 @@ function debounce(func, wait) {
         clearTimeout(timeout);
         timeout = setTimeout(later, wait);
     };
+}
+
+// ============================================
+// TIMELINE CLIENTE
+// ============================================
+
+async function showTimelineGenerale() {
+    // Reset modal
+    document.getElementById('timelineLoading').classList.remove('hidden');
+    document.getElementById('timelineStats').classList.add('hidden');
+    
+    openModal('timelineModal');
+    
+    try {
+        const response = await fetch('api/clienti.php?action=timeline_generale');
+        const data = await response.json();
+        
+        if (!data.success) {
+            showToast(data.message || 'Errore caricamento timeline', 'error');
+            closeModal('timelineModal');
+            return;
+        }
+        
+        const timeline = data.data;
+        renderTimelineGenerale(timeline);
+        
+    } catch (error) {
+        console.error('Errore:', error);
+        showToast('Errore di connessione', 'error');
+        closeModal('timelineModal');
+    }
+}
+
+function renderTimelineGenerale(timeline) {
+    const stats = timeline.statistiche;
+    const events = timeline.timeline;
+    
+    // Statistiche
+    document.getElementById('statClientiTotali').textContent = stats.clienti_totali;
+    
+    document.getElementById('statProgettiTotali').textContent = stats.progetti_totali;
+    document.getElementById('statProgettiCompletati').textContent = stats.progetti_completati + ' compl.';
+    document.getElementById('statProgettiInCorso').textContent = stats.progetti_in_corso + ' in corso';
+    document.getElementById('statProgettiDaIniziare').textContent = stats.progetti_da_iniziare + ' da iniziare';
+    
+    document.getElementById('statTotaleFatturato').textContent = '€' + stats.totale_fatturato.toLocaleString('it-IT', {minimumFractionDigits: 0, maximumFractionDigits: 0});
+    document.getElementById('statTotalePagato').textContent = '€' + stats.totale_pagato.toLocaleString('it-IT', {minimumFractionDigits: 0, maximumFractionDigits: 0}) + ' pag.';
+    document.getElementById('statTotaleDaRiscuotere').textContent = '€' + stats.totale_da_riscuotere.toLocaleString('it-IT', {minimumFractionDigits: 0, maximumFractionDigits: 0}) + ' da ric.';
+    
+    document.getElementById('statNumeroPreventivi').textContent = stats.numero_preventivi;
+    
+    // Timeline Events
+    const eventsContainer = document.getElementById('timelineEvents');
+    
+    if (events.length === 0) {
+        eventsContainer.innerHTML = `
+            <div class="text-center py-8">
+                <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <svg class="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+                <p class="text-slate-500">Nessun evento nella timeline</p>
+            </div>
+        `;
+    } else {
+        const iconColors = {
+            'emerald': { bg: 'bg-emerald-100', text: 'text-emerald-600', border: 'border-emerald-200' },
+            'cyan': { bg: 'bg-cyan-100', text: 'text-cyan-600', border: 'border-cyan-200' },
+            'green': { bg: 'bg-green-100', text: 'text-green-600', border: 'border-green-200' },
+            'amber': { bg: 'bg-amber-100', text: 'text-amber-600', border: 'border-amber-200' },
+            'slate': { bg: 'bg-slate-100', text: 'text-slate-600', border: 'border-slate-200' }
+        };
+        
+        const icons = {
+            'user-plus': '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>',
+            'folder': '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>',
+            'check-circle': '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>',
+            'document-text': '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>'
+        };
+        
+        eventsContainer.innerHTML = `
+            <div class="relative">
+                <!-- Linea verticale -->
+                <div class="absolute left-5 sm:left-6 top-0 bottom-0 w-0.5 bg-slate-200"></div>
+                
+                ${events.map(event => {
+                    const colors = iconColors[event.colore] || iconColors.cyan;
+                    const iconSvg = icons[event.icona] || icons['folder'];
+                    const data = new Date(event.data);
+                    const dataFormattata = data.toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' });
+                    const oraFormattata = data.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+                    
+                    const isClickable = event.progetto_id || event.preventivo_id;
+                    const clickAttr = event.progetto_id 
+                        ? `onclick="window.open('progetto_dettaglio.php?id=${event.progetto_id}', '_blank')" style="cursor: pointer;"` 
+                        : event.preventivo_id 
+                            ? `onclick="window.open('preventivi.php?open=${event.preventivo_id}', '_blank')" style="cursor: pointer;"` 
+                            : '';
+                    
+                    return `
+                        <div class="relative flex gap-4 sm:gap-6 pb-6 last:pb-0" ${clickAttr}>
+                            <!-- Icona -->
+                            <div class="relative z-10 flex-shrink-0">
+                                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl ${colors.bg} ${colors.text} border-2 ${colors.border} flex items-center justify-center ${isClickable ? 'hover:scale-110 transition-transform' : ''}">
+                                    <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        ${iconSvg}
+                                    </svg>
+                                </div>
+                            </div>
+                            
+                            <!-- Contenuto -->
+                            <div class="flex-1 min-w-0 pt-1 sm:pt-2 ${isClickable ? 'hover:bg-slate-50 -mx-2 px-2 py-1 rounded-lg transition-colors' : ''}">
+                                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-4">
+                                    <h4 class="font-semibold text-slate-800 text-sm sm:text-base">${event.titolo}</h4>
+                                    <div class="flex items-center gap-2 text-xs text-slate-400">
+                                        <span>${dataFormattata}</span>
+                                        <span class="hidden sm:inline">•</span>
+                                        <span class="hidden sm:inline">${oraFormattata}</span>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-slate-500 mt-1">${event.descrizione}</p>
+                                ${isClickable ? `
+                                    <p class="text-xs text-cyan-600 mt-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                                        </svg>
+                                        Clicca per aprire
+                                    </p>
+                                ` : ''}
+                            </div>
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+        `;
+    }
+    
+    // Mostra contenuto
+    document.getElementById('timelineLoading').classList.add('hidden');
+    document.getElementById('timelineStats').classList.remove('hidden');
 }
 </script>
 

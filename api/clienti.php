@@ -18,6 +18,10 @@ switch ($method) {
             listClienti();
         } elseif ($action === 'search') {
             searchClienti();
+        } elseif ($action === 'timeline' && isset($_GET['id'])) {
+            getTimelineCliente($_GET['id']);
+        } elseif ($action === 'timeline_generale') {
+            getTimelineGenerale();
         } else {
             jsonResponse(false, null, 'Azione non valida');
         }
@@ -49,7 +53,7 @@ switch ($method) {
 /**
  * Lista clienti
  */
-function listClienti(): void {
+function listClienti() {
     global $pdo;
     
     try {
@@ -99,7 +103,7 @@ function listClienti(): void {
 /**
  * Ricerca clienti (per autocomplete)
  */
-function searchClienti(): void {
+function searchClienti() {
     global $pdo;
     
     $q = $_GET['q'] ?? '';
@@ -129,7 +133,7 @@ function searchClienti(): void {
 /**
  * Dettaglio cliente
  */
-function getCliente(string $id): void {
+function getCliente($id) {
     global $pdo;
     
     try {
@@ -173,7 +177,7 @@ function getCliente(string $id): void {
 /**
  * Crea nuovo cliente
  */
-function createCliente(): void {
+function createCliente() {
     global $pdo;
     
     // Validazione
@@ -258,7 +262,7 @@ function createCliente(): void {
 /**
  * Aggiorna cliente
  */
-function updateCliente(string $id): void {
+function updateCliente($id) {
     global $pdo;
     
     // Verifica esistenza
@@ -352,7 +356,7 @@ function updateCliente(string $id): void {
 /**
  * Elimina cliente
  */
-function deleteCliente(string $id): void {
+function deleteCliente($id) {
     global $pdo;
     
     try {
@@ -389,5 +393,342 @@ function deleteCliente(string $id): void {
     } catch (PDOException $e) {
         error_log("Errore eliminazione cliente: " . $e->getMessage());
         jsonResponse(false, null, 'Errore eliminazione cliente');
+    }
+}
+
+/**
+ * Timeline cliente - statistiche e storico
+ */
+function getTimelineCliente($id) {
+    global $pdo;
+    
+    try {
+        // Cliente base
+        $stmt = $pdo->prepare("SELECT id, ragione_sociale, logo_path, tipo, created_at FROM clienti WHERE id = ?");
+        $stmt->execute([$id]);
+        $cliente = $stmt->fetch();
+        
+        if (!$cliente) {
+            jsonResponse(false, null, 'Cliente non trovato');
+        }
+        
+        // Progetti con dettagli
+        $stmt = $pdo->prepare("
+            SELECT p.id, p.titolo, p.stato_progetto, p.prezzo_totale, p.stato_pagamento,
+                   p.created_at as data_creazione, p.data_consegna_effettiva,
+                   COUNT(t.id) as num_task
+            FROM progetti p
+            LEFT JOIN task t ON p.id = t.progetto_id
+            WHERE p.cliente_id = ?
+            GROUP BY p.id
+            ORDER BY p.created_at ASC
+        ");
+        $stmt->execute([$id]);
+        $progetti = $stmt->fetchAll();
+        
+        // Preventivi associati
+        $stmt = $pdo->prepare("
+            SELECT ps.id, ps.numero, ps.totale, ps.created_at, ps.stato, ps.file_path
+            FROM preventivi_salvati ps
+            WHERE ps.cliente_id = ? OR (
+                ps.cliente_nome = (SELECT ragione_sociale FROM clienti WHERE id = ?)
+            )
+            ORDER BY ps.created_at DESC
+        ");
+        $stmt->execute([$id, $id]);
+        $preventivi = $stmt->fetchAll();
+        
+        // Calcola statistiche
+        $progettiCompletati = 0;
+        $progettiInCorso = 0;
+        $totaleSpeso = 0;
+        $totalePagato = 0;
+        $progettiTimeline = [];
+        
+        foreach ($progetti as $p) {
+            $prezzo = floatval($p['prezzo_totale'] ?? 0);
+            
+            if (in_array($p['stato_progetto'], ['consegnato', 'archiviato', 'completato'])) {
+                $progettiCompletati++;
+                $totaleSpeso += $prezzo;
+                
+                if ($p['stato_pagamento'] === 'pagamento_completato') {
+                    $totalePagato += $prezzo;
+                }
+            } else {
+                $progettiInCorso++;
+            }
+            
+            $progettiTimeline[] = [
+                'id' => $p['id'],
+                'titolo' => $p['titolo'],
+                'stato' => $p['stato_progetto'],
+                'prezzo' => $prezzo,
+                'stato_pagamento' => $p['stato_pagamento'],
+                'data' => $p['data_creazione'],
+                'num_task' => $p['num_task']
+            ];
+        }
+        
+        // Calcola tempo da cliente
+        $dataCreazione = new DateTime($cliente['created_at']);
+        $oggi = new DateTime();
+        $diff = $dataCreazione->diff($oggi);
+        
+        $tempoDaCliente = '';
+        if ($diff->y > 0) {
+            $tempoDaCliente = $diff->y . ' ' . ($diff->y == 1 ? 'anno' : 'anni');
+            if ($diff->m > 0) {
+                $tempoDaCliente .= ' e ' . $diff->m . ' ' . ($diff->m == 1 ? 'mese' : 'mesi');
+            }
+        } elseif ($diff->m > 0) {
+            $tempoDaCliente = $diff->m . ' ' . ($diff->m == 1 ? 'mese' : 'mesi');
+            if ($diff->d > 0) {
+                $tempoDaCliente .= ' e ' . $diff->d . ' ' . ($diff->d == 1 ? 'giorno' : 'giorni');
+            }
+        } else {
+            $tempoDaCliente = $diff->d . ' ' . ($diff->d == 1 ? 'giorno' : 'giorni');
+        }
+        
+        // Timeline events (progetti + preventivi ordinati per data)
+        $events = [];
+        
+        // Data inserimento cliente
+        $events[] = [
+            'tipo' => 'cliente_creato',
+            'data' => $cliente['created_at'],
+            'titolo' => 'Cliente aggiunto al sistema',
+            'descrizione' => $cliente['ragione_sociale'] . ' registrato come ' . $cliente['tipo'],
+            'icona' => 'user-plus',
+            'colore' => 'emerald'
+        ];
+        
+        // Progetti nella timeline
+        foreach ($progetti as $p) {
+            $events[] = [
+                'tipo' => 'progetto_creato',
+                'data' => $p['data_creazione'],
+                'titolo' => 'Nuovo progetto: ' . $p['titolo'],
+                'descrizione' => 'Stato: ' . ucfirst(str_replace('_', ' ', $p['stato_progetto'])) . ' - €' . number_format($p['prezzo_totale'], 2, ',', '.'),
+                'icona' => 'folder',
+                'colore' => 'cyan',
+                'progetto_id' => $p['id']
+            ];
+            
+            if ($p['data_consegna_effettiva']) {
+                $events[] = [
+                    'tipo' => 'progetto_consegnato',
+                    'data' => $p['data_consegna_effettiva'],
+                    'titolo' => 'Progetto consegnato: ' . $p['titolo'],
+                    'descrizione' => 'Progetto completato e consegnato al cliente',
+                    'icona' => 'check-circle',
+                    'colore' => 'green',
+                    'progetto_id' => $p['id']
+                ];
+            }
+        }
+        
+        // Preventivi nella timeline
+        foreach ($preventivi as $prev) {
+            $events[] = [
+                'tipo' => 'preventivo_creato',
+                'data' => $prev['created_at'],
+                'titolo' => 'Preventivo ' . $prev['numero'],
+                'descrizione' => 'Totale: €' . number_format($prev['totale'], 2, ',', '.') . ' - Stato: ' . ucfirst($prev['stato'] ?? 'Bozza'),
+                'icona' => 'document-text',
+                'colore' => 'amber',
+                'preventivo_id' => $prev['id']
+            ];
+        }
+        
+        // Ordina eventi per data
+        usort($events, function($a, $b) {
+            return strtotime($b['data']) - strtotime($a['data']);
+        });
+        
+        $timeline = [
+            'cliente' => [
+                'id' => $cliente['id'],
+                'ragione_sociale' => $cliente['ragione_sociale'],
+                'logo_path' => $cliente['logo_path'],
+                'tipo' => $cliente['tipo'],
+                'data_inserimento' => $cliente['created_at']
+            ],
+            'statistiche' => [
+                'tempo_da_cliente' => $tempoDaCliente,
+                'progetti_totali' => count($progetti),
+                'progetti_completati' => $progettiCompletati,
+                'progetti_in_corso' => $progettiInCorso,
+                'totale_speso' => $totaleSpeso,
+                'totale_pagato' => $totalePagato,
+                'totale_da_riscuotere' => $totaleSpeso - $totalePagato,
+                'numero_preventivi' => count($preventivi)
+            ],
+            'progetti' => $progettiTimeline,
+            'preventivi' => $preventivi,
+            'timeline' => $events
+        ];
+        
+        jsonResponse(true, $timeline);
+        
+    } catch (PDOException $e) {
+        error_log("Errore timeline cliente: " . $e->getMessage());
+        jsonResponse(false, null, 'Errore caricamento timeline');
+    }
+}
+
+/**
+ * Timeline generale - tutti i progetti e clienti
+ */
+function getTimelineGenerale() {
+    global $pdo;
+    
+    try {
+        // Clienti totali
+        $stmt = $pdo->query("SELECT COUNT(*) as totale FROM clienti");
+        $clientiTotali = $stmt->fetch()['totale'];
+        
+        // Clienti per mese (ultimi 12 mesi)
+        $stmt = $pdo->query("
+            SELECT DATE_FORMAT(created_at, '%Y-%m') as mese, COUNT(*) as num
+            FROM clienti
+            WHERE created_at >= DATE_SUB(NOW(), INTERVAL 12 MONTH)
+            GROUP BY DATE_FORMAT(created_at, '%Y-%m')
+            ORDER BY mese ASC
+        ");
+        $clientiPerMese = $stmt->fetchAll();
+        
+        // Progetti con dettagli
+        $stmt = $pdo->query("
+            SELECT p.id, p.titolo, p.stato_progetto, p.prezzo_totale, p.stato_pagamento,
+                   p.created_at as data_creazione, p.data_consegna_effettiva,
+                   c.id as cliente_id, c.ragione_sociale as cliente_nome, c.logo_path as cliente_logo,
+                   COUNT(t.id) as num_task
+            FROM progetti p
+            LEFT JOIN clienti c ON p.cliente_id = c.id
+            LEFT JOIN task t ON p.id = t.progetto_id
+            GROUP BY p.id
+            ORDER BY p.created_at DESC
+            LIMIT 100
+        ");
+        $progetti = $stmt->fetchAll();
+        
+        // Preventivi
+        $stmt = $pdo->query("
+            SELECT ps.id, ps.numero, ps.totale, ps.created_at, ps.stato, ps.file_path,
+                   c.id as cliente_id, c.ragione_sociale as cliente_nome
+            FROM preventivi_salvati ps
+            LEFT JOIN clienti c ON ps.cliente_id = c.id
+            ORDER BY ps.created_at DESC
+            LIMIT 50
+        ");
+        $preventivi = $stmt->fetchAll();
+        
+        // Calcola statistiche
+        $progettiCompletati = 0;
+        $progettiInCorso = 0;
+        $progettiDaIniziare = 0;
+        $totaleFatturato = 0;
+        $totalePagato = 0;
+        $totaleDaRiscuotere = 0;
+        
+        foreach ($progetti as $p) {
+            $prezzo = floatval($p['prezzo_totale'] ?? 0);
+            
+            if (in_array($p['stato_progetto'], ['consegnato', 'archiviato', 'completato'])) {
+                $progettiCompletati++;
+                $totaleFatturato += $prezzo;
+                
+                if ($p['stato_pagamento'] === 'pagamento_completato') {
+                    $totalePagato += $prezzo;
+                } else {
+                    $totaleDaRiscuotere += $prezzo;
+                }
+            } elseif ($p['stato_progetto'] === 'in_corso') {
+                $progettiInCorso++;
+            } elseif ($p['stato_progetto'] === 'da_iniziare') {
+                $progettiDaIniziare++;
+            }
+        }
+        
+        // Timeline events (progetti + preventivi + clienti ordinati per data)
+        $events = [];
+        
+        // Progetti nella timeline
+        foreach ($progetti as $p) {
+            $events[] = [
+                'tipo' => 'progetto_' . $p['stato_progetto'],
+                'data' => $p['data_creazione'],
+                'titolo' => $p['titolo'],
+                'descrizione' => ($p['cliente_nome'] ? $p['cliente_nome'] . ' - ' : '') . 
+                                '€' . number_format($p['prezzo_totale'], 2, ',', '.') . ' - ' . 
+                                ucfirst(str_replace('_', ' ', $p['stato_progetto'])),
+                'icona' => 'folder',
+                'colore' => $p['stato_progetto'] === 'consegnato' ? 'green' : 
+                            ($p['stato_progetto'] === 'in_corso' ? 'cyan' : 'slate'),
+                'progetto_id' => $p['id'],
+                'cliente_nome' => $p['cliente_nome'],
+                'cliente_logo' => $p['cliente_logo']
+            ];
+            
+            if ($p['data_consegna_effettiva']) {
+                $events[] = [
+                    'tipo' => 'progetto_consegnato',
+                    'data' => $p['data_consegna_effettiva'],
+                    'titolo' => '✓ ' . $p['titolo'] . ' consegnato',
+                    'descrizione' => 'Progetto completato per ' . ($p['cliente_nome'] ?: 'Cliente'),
+                    'icona' => 'check-circle',
+                    'colore' => 'emerald',
+                    'progetto_id' => $p['id'],
+                    'cliente_nome' => $p['cliente_nome'],
+                    'cliente_logo' => $p['cliente_logo']
+                ];
+            }
+        }
+        
+        // Preventivi nella timeline
+        foreach ($preventivi as $prev) {
+            $events[] = [
+                'tipo' => 'preventivo_creato',
+                'data' => $prev['created_at'],
+                'titolo' => 'Preventivo ' . $prev['numero'],
+                'descrizione' => ($prev['cliente_nome'] ? $prev['cliente_nome'] . ' - ' : '') .
+                                '€' . number_format($prev['totale'], 2, ',', '.'),
+                'icona' => 'document-text',
+                'colore' => 'amber',
+                'preventivo_id' => $prev['id'],
+                'cliente_nome' => $prev['cliente_nome']
+            ];
+        }
+        
+        // Ordina eventi per data (più recenti prima)
+        usort($events, function($a, $b) {
+            return strtotime($b['data']) - strtotime($a['data']);
+        });
+        
+        // Prendi solo i primi 50 eventi
+        $events = array_slice($events, 0, 50);
+        
+        $timeline = [
+            'statistiche' => [
+                'clienti_totali' => $clientiTotali,
+                'progetti_totali' => count($progetti),
+                'progetti_completati' => $progettiCompletati,
+                'progetti_in_corso' => $progettiInCorso,
+                'progetti_da_iniziare' => $progettiDaIniziare,
+                'totale_fatturato' => $totaleFatturato,
+                'totale_pagato' => $totalePagato,
+                'totale_da_riscuotere' => $totaleDaRiscuotere,
+                'numero_preventivi' => count($preventivi),
+                'clienti_per_mese' => $clientiPerMese
+            ],
+            'timeline' => $events
+        ];
+        
+        jsonResponse(true, $timeline);
+        
+    } catch (PDOException $e) {
+        error_log("Errore timeline generale: " . $e->getMessage());
+        jsonResponse(false, null, 'Errore caricamento timeline');
     }
 }
