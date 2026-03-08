@@ -328,6 +328,105 @@ include __DIR__ . '/includes/header.php';
                 </div>
                 <?php endif; ?>
             <?php endif; ?>
+            
+            <!-- Pulsante Modifica Progetto -->
+            <button onclick="openEditProgettoModal()" 
+                    class="px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg font-medium flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                </svg>
+                Modifica Progetto
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Modifica Progetto -->
+<div id="editProgettoModal" class="fixed inset-0 z-[60] hidden">
+    <div class="absolute inset-0 bg-black/50" onclick="closeModal('editProgettoModal')"></div>
+    <div class="absolute inset-0 flex items-end sm:items-center justify-center p-0 sm:p-4">
+        <div class="bg-white w-full max-w-lg sm:rounded-2xl rounded-t-2xl shadow-2xl max-h-[85vh] sm:max-h-[90vh] overflow-hidden flex flex-col">
+            <div class="p-3 sm:p-5 border-b border-slate-100 flex items-center justify-between flex-shrink-0">
+                <h3 class="text-sm sm:text-lg font-bold text-slate-800">Modifica Progetto</h3>
+                <button onclick="closeModal('editProgettoModal')" class="text-slate-400 hover:text-slate-600 p-1 min-h-[44px] min-w-[44px] flex items-center justify-center">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            
+            <form id="editProgettoForm" class="p-3 sm:p-5 space-y-3 sm:space-y-4 overflow-y-auto flex-1">
+                <input type="hidden" name="id" id="editProgettoId" value="<?php echo e($progettoId); ?>">
+                
+                <div>
+                    <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-1.5">Titolo *</label>
+                    <input type="text" name="titolo" id="editProgettoTitolo" required
+                           class="w-full px-3 sm:px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none text-sm sm:text-base min-h-[44px]">
+                </div>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-1.5">Cliente</label>
+                        <select name="cliente_id" id="editProgettoCliente" class="w-full px-3 sm:px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none text-sm sm:text-base min-h-[44px] bg-white">
+                            <option value="">Nessun cliente</option>
+                            <?php foreach ($clienti as $cliente): ?>
+                            <option value="<?php echo e($cliente['id']); ?>"><?php echo e($cliente['ragione_sociale']); ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-1.5">Stato</label>
+                        <select name="stato_progetto" id="editProgettoStato" class="w-full px-3 sm:px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none text-sm sm:text-base min-h-[44px] bg-white">
+                            <?php foreach (STATI_PROGETTO as $key => $label): ?>
+                            <option value="<?php echo e($key); ?>"><?php echo e($label); ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-1.5">Data Inizio</label>
+                        <input type="date" name="data_inizio" id="editProgettoDataInizio"
+                               class="w-full px-3 sm:px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none text-sm sm:text-base min-h-[44px]">
+                    </div>
+                    <div>
+                        <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-1.5">Data Consegna Prevista</label>
+                        <input type="date" name="data_consegna_prevista" id="editProgettoDataConsegna"
+                               class="w-full px-3 sm:px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none text-sm sm:text-base min-h-[44px]">
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-1.5">Prezzo Totale (€)</label>
+                    <input type="number" name="prezzo_totale" id="editProgettoPrezzo" step="0.01" min="0"
+                           class="w-full px-3 sm:px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none text-sm sm:text-base min-h-[44px]">
+                </div>
+                
+                <div>
+                    <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-2">Partecipanti</label>
+                    <div class="grid grid-cols-1 sm:flex sm:flex-wrap gap-2 p-2 sm:p-3 border border-slate-200 rounded-lg bg-slate-50">
+                        <?php foreach (USERS as $id => $u): ?>
+                        <label class="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-200 cursor-pointer hover:bg-white transition-colors bg-white min-h-[44px]">
+                            <input type="checkbox" name="partecipanti[]" value="<?php echo $id; ?>" id="editPartecipante<?php echo $id; ?>" class="rounded text-cyan-600 focus:ring-cyan-500 w-5 h-5 flex-shrink-0">
+                            <span class="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-medium flex-shrink-0" style="background-color: <?php echo $u['colore']; ?>">
+                                <?php echo substr($u['nome'], 0, 1); ?>
+                            </span>
+                            <span class="text-sm truncate"><?php echo e($u['nome']); ?></span>
+                        </label>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            </form>
+            
+            <div class="p-4 sm:p-6 border-t border-slate-100 flex flex-row justify-end gap-2 sm:gap-3">
+                <button type="button" onclick="closeModal('editProgettoModal')" class="flex-1 sm:flex-none px-4 py-2.5 sm:py-2 text-slate-600 hover:text-slate-800 font-medium min-h-[44px] rounded-lg hover:bg-slate-100 transition-colors text-sm sm:text-base">
+                    Annulla
+                </button>
+                <button type="button" onclick="saveProgettoChanges()" class="flex-1 sm:flex-none px-4 sm:px-6 py-2.5 sm:py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg font-medium min-h-[44px] transition-colors text-sm sm:text-base">
+                    Salva Modifiche
+                </button>
+            </div>
         </div>
     </div>
 </div>
@@ -2635,6 +2734,118 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     observer.observe(document.getElementById('content-controllo'), { attributes: true, attributeFilter: ['class'] });
 });
+
+// ============================================
+// UTILITY FUNCTIONS
+// ============================================
+
+function openModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.add('hidden');
+        document.body.style.overflow = '';
+    }
+}
+
+function showToast(message, type = 'info') {
+    const toast = document.createElement('div');
+    const colors = {
+        success: 'bg-emerald-500',
+        error: 'bg-red-500',
+        warning: 'bg-amber-500',
+        info: 'bg-cyan-500'
+    };
+    
+    toast.className = `fixed bottom-4 right-4 ${colors[type] || colors.info} text-white px-6 py-3 rounded-lg shadow-lg z-[100] fade-in flex items-center gap-2`;
+    toast.innerHTML = `
+        <span>${message}</span>
+        <button onclick="this.parentElement.remove()" class="ml-2 hover:opacity-80">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+        </button>
+    `;
+    
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        if (toast.parentElement) {
+            toast.remove();
+        }
+    }, 4000);
+}
+
+// ============================================
+// MODIFICA PROGETTO
+// ============================================
+
+function openEditProgettoModal() {
+    // Popola il form con i dati del progetto
+    const progetto = progettoData;
+    
+    document.getElementById('editProgettoTitolo').value = progetto.titolo || '';
+    document.getElementById('editProgettoCliente').value = progetto.cliente_id || '';
+    document.getElementById('editProgettoStato').value = progetto.stato_progetto || 'da_iniziare';
+    document.getElementById('editProgettoDataInizio').value = progetto.data_inizio || '';
+    document.getElementById('editProgettoDataConsegna').value = progetto.data_consegna_prevista || '';
+    document.getElementById('editProgettoPrezzo').value = progetto.prezzo_totale || '';
+    
+    // Reset e imposta partecipanti
+    document.querySelectorAll('input[name="partecipanti[]"]').forEach(cb => {
+        cb.checked = false;
+    });
+    
+    if (progetto.partecipanti && Array.isArray(progetto.partecipanti)) {
+        progetto.partecipanti.forEach(id => {
+            const cb = document.getElementById('editPartecipante' + id);
+            if (cb) cb.checked = true;
+        });
+    }
+    
+    openModal('editProgettoModal');
+}
+
+async function saveProgettoChanges() {
+    const form = document.getElementById('editProgettoForm');
+    const formData = new FormData(form);
+    formData.append('action', 'update');
+    formData.append('id', progettoId);
+    
+    // Aggiungi CSRF token
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+    formData.append('csrf_token', csrfToken);
+    
+    try {
+        const response = await fetch('api/progetti.php', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showToast('Progetto aggiornato con successo', 'success');
+            closeModal('editProgettoModal');
+            // Ricarica la pagina per mostrare le modifiche
+            setTimeout(() => {
+                window.location.reload();
+            }, 800);
+        } else {
+            showToast(data.message || 'Errore durante l\'aggiornamento', 'error');
+        }
+    } catch (error) {
+        console.error('Errore:', error);
+        showToast('Errore di connessione', 'error');
+    }
+}
 </script>
 
 <?php include __DIR__ . '/includes/footer.php'; ?>
