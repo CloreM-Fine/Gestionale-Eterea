@@ -583,16 +583,15 @@ function getTimelineCliente($id) {
 function getTimelineGenerale() {
     global $pdo;
     
-    // Disabilita visualizzazione errori per avere JSON valido
-    $oldErrorReporting = error_reporting(0);
-    ini_set('display_errors', 0);
-    
     // Assicura che l'output sia sempre JSON
     header('Content-Type: application/json');
     
     try {
         // Clienti totali
         $stmt = $pdo->query("SELECT COUNT(*) as totale FROM clienti");
+        if ($stmt === false) {
+            throw new Exception('Query clienti fallita');
+        }
         $clientiTotali = $stmt->fetch()['totale'];
         
         // Clienti per mese (ultimi 12 mesi) - compatibile MySQL 5.7
@@ -605,9 +604,10 @@ function getTimelineGenerale() {
                 GROUP BY YEAR(created_at), MONTH(created_at)
                 ORDER BY YEAR(created_at) ASC, MONTH(created_at) ASC
             ");
-            $clientiPerMese = $stmt->fetchAll();
+            if ($stmt !== false) {
+                $clientiPerMese = $stmt->fetchAll();
+            }
         } catch (Exception $e) {
-            // Ignora errore se colonna created_at non esiste
             $clientiPerMese = [];
         }
         
@@ -623,7 +623,9 @@ function getTimelineGenerale() {
                 ORDER BY p.created_at DESC
                 LIMIT 100
             ");
-            $progetti = $stmt->fetchAll();
+            if ($stmt !== false) {
+                $progetti = $stmt->fetchAll();
+            }
         } catch (Exception $e) {
             $progetti = [];
         }
@@ -633,7 +635,7 @@ function getTimelineGenerale() {
         try {
             // Verifica se tabella esiste
             $stmt = $pdo->query("SHOW TABLES LIKE 'preventivi_salvati'");
-            if ($stmt->rowCount() > 0) {
+            if ($stmt !== false && $stmt->rowCount() > 0) {
                 $stmt = $pdo->query("
                     SELECT ps.id, ps.numero, ps.totale, ps.created_at, ps.stato, ps.file_path,
                            c.id as cliente_id, c.ragione_sociale as cliente_nome
@@ -642,7 +644,9 @@ function getTimelineGenerale() {
                     ORDER BY ps.created_at DESC
                     LIMIT 50
                 ");
-                $preventivi = $stmt->fetchAll();
+                if ($stmt !== false) {
+                    $preventivi = $stmt->fetchAll();
+                }
             }
         } catch (Exception $e) {
             $preventivi = [];
@@ -763,8 +767,5 @@ function getTimelineGenerale() {
         error_log("Errore critico timeline generale: " . $e->getMessage());
         echo json_encode(['success' => false, 'message' => 'Errore critico: ' . $e->getMessage()]);
         exit;
-    } finally {
-        // Ripristina error reporting
-        error_reporting($oldErrorReporting);
     }
 }
