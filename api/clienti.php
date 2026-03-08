@@ -583,18 +583,21 @@ function getTimelineCliente($id) {
 function getTimelineGenerale() {
     global $pdo;
     
+    // Assicura che l'output sia sempre JSON
+    header('Content-Type: application/json');
+    
     try {
         // Clienti totali
         $stmt = $pdo->query("SELECT COUNT(*) as totale FROM clienti");
         $clientiTotali = $stmt->fetch()['totale'];
         
-        // Clienti per mese (ultimi 12 mesi)
+        // Clienti per mese (ultimi 12 mesi) - compatibile MySQL 5.7
         $stmt = $pdo->query("
-            SELECT DATE_FORMAT(created_at, '%Y-%m') as mese, COUNT(*) as num
+            SELECT CONCAT(YEAR(created_at), '-', LPAD(MONTH(created_at), 2, '0')) as mese, COUNT(*) as num
             FROM clienti
-            WHERE created_at >= DATE_SUB(NOW(), INTERVAL 12 MONTH)
-            GROUP BY DATE_FORMAT(created_at, '%Y-%m')
-            ORDER BY mese ASC
+            WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)
+            GROUP BY YEAR(created_at), MONTH(created_at)
+            ORDER BY YEAR(created_at) ASC, MONTH(created_at) ASC
         ");
         $clientiPerMese = $stmt->fetchAll();
         
@@ -728,7 +731,10 @@ function getTimelineGenerale() {
         jsonResponse(true, $timeline);
         
     } catch (PDOException $e) {
+        error_log("Errore timeline generale PDO: " . $e->getMessage());
+        jsonResponse(false, null, 'Errore database: ' . $e->getMessage());
+    } catch (Exception $e) {
         error_log("Errore timeline generale: " . $e->getMessage());
-        jsonResponse(false, null, 'Errore caricamento timeline');
+        jsonResponse(false, null, 'Errore: ' . $e->getMessage());
     }
 }
