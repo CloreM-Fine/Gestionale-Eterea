@@ -50,18 +50,45 @@ function getEvents(): void {
     $end = $_GET['end'] ?? date('Y-m-t');
     
     try {
+        // Verifica se la colonna cliente_id esiste
+        $hasClienteId = false;
+        try {
+            $pdo->query("SELECT cliente_id FROM appuntamenti LIMIT 1");
+            $hasClienteId = true;
+        } catch (PDOException $e) {
+            // Colonna non esiste, creiamola
+            try {
+                $pdo->exec("ALTER TABLE appuntamenti ADD COLUMN cliente_id VARCHAR(20) DEFAULT NULL");
+                $hasClienteId = true;
+            } catch (PDOException $e2) {
+                error_log("Impossibile aggiungere colonna cliente_id: " . $e2->getMessage());
+            }
+        }
+        
         // Appuntamenti
-        $stmt = $pdo->prepare("
-            SELECT a.*, p.titolo as progetto_titolo, u.nome as utente_nome, u.colore as utente_colore, u.avatar as utente_avatar,
-                   a.partecipanti as partecipanti_json,
-                   c.ragione_sociale as cliente_nome
-            FROM appuntamenti a
-            LEFT JOIN progetti p ON a.progetto_id = p.id
-            LEFT JOIN utenti u ON a.utente_id = u.id
-            LEFT JOIN clienti c ON a.cliente_id = c.id
-            WHERE DATE(a.data_inizio) BETWEEN ? AND ?
-            ORDER BY a.data_inizio ASC
-        ");
+        if ($hasClienteId) {
+            $stmt = $pdo->prepare("
+                SELECT a.*, p.titolo as progetto_titolo, u.nome as utente_nome, u.colore as utente_colore, u.avatar as utente_avatar,
+                       a.partecipanti as partecipanti_json,
+                       c.ragione_sociale as cliente_nome
+                FROM appuntamenti a
+                LEFT JOIN progetti p ON a.progetto_id = p.id
+                LEFT JOIN utenti u ON a.utente_id = u.id
+                LEFT JOIN clienti c ON a.cliente_id = c.id
+                WHERE DATE(a.data_inizio) BETWEEN ? AND ?
+                ORDER BY a.data_inizio ASC
+            ");
+        } else {
+            $stmt = $pdo->prepare("
+                SELECT a.*, p.titolo as progetto_titolo, u.nome as utente_nome, u.colore as utente_colore, u.avatar as utente_avatar,
+                       a.partecipanti as partecipanti_json
+                FROM appuntamenti a
+                LEFT JOIN progetti p ON a.progetto_id = p.id
+                LEFT JOIN utenti u ON a.utente_id = u.id
+                WHERE DATE(a.data_inizio) BETWEEN ? AND ?
+                ORDER BY a.data_inizio ASC
+            ");
+        }
         $stmt->execute([$start, $end]);
         $events = $stmt->fetchAll();
         
