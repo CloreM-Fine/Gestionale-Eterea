@@ -116,7 +116,7 @@ function getEvents() {
 /**
  * Crea evento
  */
-function createEvent(): void {
+function createEvent() {
     global $pdo;
     
     $titolo = trim($_POST['titolo'] ?? '');
@@ -213,7 +213,7 @@ function createEvent(): void {
 /**
  * Aggiorna evento
  */
-function updateEvent(string $id): void {
+function updateEvent($id) {
     global $pdo;
     
     try {
@@ -282,7 +282,7 @@ function updateEvent(string $id): void {
 /**
  * Elimina evento
  */
-function deleteEvent(string $id): void {
+function deleteEvent($id) {
     global $pdo;
     
     try {
