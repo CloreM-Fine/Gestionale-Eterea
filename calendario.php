@@ -1004,6 +1004,17 @@ async function deleteEvent(eventId) {
         }
     });
 }
+
+// Utility: escape HTML per sicurezza
+function escapeHtml(text) {
+    if (!text) return '';
+    return text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
 </script>
 
 <?php include __DIR__ . '/includes/footer.php'; ?>
