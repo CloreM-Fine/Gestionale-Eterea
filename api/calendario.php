@@ -53,10 +53,12 @@ function getEvents(): void {
         // Appuntamenti
         $stmt = $pdo->prepare("
             SELECT a.*, p.titolo as progetto_titolo, u.nome as utente_nome, u.colore as utente_colore, u.avatar as utente_avatar,
-                   a.partecipanti as partecipanti_json
+                   a.partecipanti as partecipanti_json,
+                   c.nome as cliente_nome, c.cognome as cliente_cognome, c.azienda as cliente_azienda
             FROM appuntamenti a
             LEFT JOIN progetti p ON a.progetto_id = p.id
             LEFT JOIN utenti u ON a.utente_id = u.id
+            LEFT JOIN clienti c ON a.cliente_id = c.id
             WHERE DATE(a.data_inizio) BETWEEN ? AND ?
             ORDER BY a.data_inizio ASC
         ");
@@ -129,26 +131,66 @@ function createEvent(): void {
     try {
         $id = generateEntityId('evt');
         $partecipanti = json_encode($_POST['partecipanti'] ?? []);
+        $clienteId = $_POST['cliente_id'] ?? null;
         
-        $stmt = $pdo->prepare("
-            INSERT INTO appuntamenti (
-                id, titolo, tipo, data_inizio, data_fine, progetto_id, task_id, utente_id, note, partecipanti, created_by
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ");
+        // Verifica se la colonna cliente_id esiste
+        $hasClienteId = false;
+        try {
+            $pdo->query("SELECT cliente_id FROM appuntamenti LIMIT 1");
+            $hasClienteId = true;
+        } catch (PDOException $e) {
+            // Colonna non esiste, la creiamo
+            try {
+                $pdo->exec("ALTER TABLE appuntamenti ADD COLUMN cliente_id VARCHAR(20) DEFAULT NULL");
+                $hasClienteId = true;
+            } catch (PDOException $e2) {
+                error_log("Impossibile aggiungere colonna cliente_id: " . $e2->getMessage());
+            }
+        }
         
-        $stmt->execute([
-            $id,
-            $titolo,
-            $_POST['tipo'] ?? 'appuntamento',
-            $dataInizio,
-            $_POST['data_fine'] ?: null,
-            $_POST['progetto_id'] ?: null,
-            $_POST['task_id'] ?: null,
-            $_POST['utente_id'] ?: null,
-            $_POST['note'] ?? '',
-            $partecipanti,
-            $_SESSION['user_id']
-        ]);
+        if ($hasClienteId) {
+            $stmt = $pdo->prepare("
+                INSERT INTO appuntamenti (
+                    id, titolo, tipo, data_inizio, data_fine, progetto_id, task_id, utente_id, note, partecipanti, created_by, cliente_id
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ");
+            
+            $stmt->execute([
+                $id,
+                $titolo,
+                $_POST['tipo'] ?? 'appuntamento',
+                $dataInizio,
+                $_POST['data_fine'] ?: null,
+                $_POST['progetto_id'] ?: null,
+                $_POST['task_id'] ?: null,
+                $_POST['utente_id'] ?: null,
+                $_POST['note'] ?? '',
+                $partecipanti,
+                $_SESSION['user_id'],
+                $clienteId ?: null
+            ]);
+        } else {
+            // Fallback senza cliente_id
+            $stmt = $pdo->prepare("
+                INSERT INTO appuntamenti (
+                    id, titolo, tipo, data_inizio, data_fine, progetto_id, task_id, utente_id, note, partecipanti, created_by
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ");
+            
+            $stmt->execute([
+                $id,
+                $titolo,
+                $_POST['tipo'] ?? 'appuntamento',
+                $dataInizio,
+                $_POST['data_fine'] ?: null,
+                $_POST['progetto_id'] ?: null,
+                $_POST['task_id'] ?: null,
+                $_POST['utente_id'] ?: null,
+                $_POST['note'] ?? '',
+                $partecipanti,
+                $_SESSION['user_id']
+            ]);
+        }
         
         logTimeline($_SESSION['user_id'], 'creato_appuntamento', 'appuntamento', $id, "Creato: {$titolo}");
         
@@ -178,25 +220,58 @@ function updateEvent(string $id): void {
     
     try {
         $partecipanti = json_encode($_POST['partecipanti'] ?? []);
+        $clienteId = $_POST['cliente_id'] ?? null;
         
-        $stmt = $pdo->prepare("
-            UPDATE appuntamenti SET
-                titolo = ?,
-                data_inizio = ?,
-                data_fine = ?,
-                note = ?,
-                partecipanti = ?
-            WHERE id = ?
-        ");
+        // Verifica se la colonna cliente_id esiste
+        $hasClienteId = false;
+        try {
+            $pdo->query("SELECT cliente_id FROM appuntamenti LIMIT 1");
+            $hasClienteId = true;
+        } catch (PDOException $e) {
+            // Colonna non esiste
+        }
         
-        $stmt->execute([
-            $_POST['titolo'],
-            $_POST['data_inizio'],
-            $_POST['data_fine'] ?: null,
-            $_POST['note'] ?? '',
-            $partecipanti,
-            $id
-        ]);
+        if ($hasClienteId) {
+            $stmt = $pdo->prepare("
+                UPDATE appuntamenti SET
+                    titolo = ?,
+                    data_inizio = ?,
+                    data_fine = ?,
+                    note = ?,
+                    partecipanti = ?,
+                    cliente_id = ?
+                WHERE id = ?
+            ");
+            
+            $stmt->execute([
+                $_POST['titolo'],
+                $_POST['data_inizio'],
+                $_POST['data_fine'] ?: null,
+                $_POST['note'] ?? '',
+                $partecipanti,
+                $clienteId ?: null,
+                $id
+            ]);
+        } else {
+            $stmt = $pdo->prepare("
+                UPDATE appuntamenti SET
+                    titolo = ?,
+                    data_inizio = ?,
+                    data_fine = ?,
+                    note = ?,
+                    partecipanti = ?
+                WHERE id = ?
+            ");
+            
+            $stmt->execute([
+                $_POST['titolo'],
+                $_POST['data_inizio'],
+                $_POST['data_fine'] ?: null,
+                $_POST['note'] ?? '',
+                $partecipanti,
+                $id
+            ]);
+        }
         
         jsonResponse(true, null, 'Appuntamento aggiornato');
         

@@ -9,6 +9,15 @@ require_once __DIR__ . '/includes/auth_check.php';
 
 $pageTitle = 'Calendario';
 
+// Recupera clienti per il selettore
+$clienti = [];
+try {
+    $stmt = $pdo->query("SELECT id, nome, cognome, azienda FROM clienti ORDER BY nome, cognome");
+    $clienti = $stmt->fetchAll();
+} catch (PDOException $e) {
+    error_log('Errore recupero clienti: ' . $e->getMessage());
+}
+
 include __DIR__ . '/includes/header.php';
 ?>
 
@@ -110,6 +119,24 @@ include __DIR__ . '/includes/header.php';
     </div>
 </div>
 
+<!-- Prossimi Appuntamenti (1 settimana) -->
+<div class="mt-4 sm:mt-6 bg-white rounded-xl sm:rounded-2xl shadow-sm border border-slate-200 p-3 sm:p-4">
+    <div class="flex items-center justify-between mb-3">
+        <h3 class="text-xs sm:text-sm font-semibold text-slate-700 flex items-center gap-2">
+            <svg class="w-4 h-4 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
+            Prossimi Appuntamenti (7 giorni)
+        </h3>
+        <span id="prossimiCount" class="text-xs bg-cyan-100 text-cyan-700 px-2 py-1 rounded-full">0</span>
+    </div>
+    <div id="prossimiAppuntamenti" class="flex gap-3 overflow-x-auto pb-2 scrollbar-thin">
+        <div class="text-center py-4 text-slate-400 text-sm w-full">
+            Caricamento appuntamenti...
+        </div>
+    </div>
+</div>
+
 <!-- Legenda Tipi Evento -->
 <div class="mt-4 sm:mt-6 bg-white rounded-xl sm:rounded-2xl shadow-sm border border-slate-200 p-3 sm:p-4">
     <h3 class="text-xs sm:text-sm font-semibold text-slate-700 mb-2 sm:mb-3">Tipi di Evento</h3>
@@ -165,6 +192,22 @@ include __DIR__ . '/includes/header.php';
                             <option value="promemoria">Promemoria</option>
                         </select>
                     </div>
+                </div>
+                
+                <!-- Cliente (opzionale) -->
+                <div>
+                    <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-1.5">Cliente (opzionale)</label>
+                    <select name="cliente_id" class="w-full px-3 sm:px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none text-sm sm:text-base min-h-[44px] bg-white">
+                        <option value="">-- Seleziona cliente --</option>
+                        <?php foreach ($clienti as $cliente): 
+                            $nomeCliente = trim(($cliente['nome'] ?? '') . ' ' . ($cliente['cognome'] ?? ''));
+                            if ($cliente['azienda']) {
+                                $nomeCliente = $cliente['azienda'] . ($nomeCliente ? ' (' . $nomeCliente . ')' : '');
+                            }
+                        ?>
+                        <option value="<?php echo e($cliente['id']); ?>"><?php echo e($nomeCliente); ?></option>
+                        <?php endforeach; ?>
+                    </select>
                 </div>
                 
                 <!-- Data/Ora - Layout mobile-friendly -->
@@ -268,6 +311,62 @@ include __DIR__ . '/includes/header.php';
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
 }
+
+/* Scrollbar per prossimi appuntamenti */
+.scrollbar-thin::-webkit-scrollbar {
+    height: 6px;
+}
+.scrollbar-thin::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 3px;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* Card prossimi appuntamenti */
+.appuntamento-card {
+    min-width: 250px;
+    max-width: 300px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+.appuntamento-card:hover {
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+    transform: translateY(-2px);
+}
+.appuntamento-card .data-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: #f1f5f9;
+    color: #475569;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 9999px;
+}
+.appuntamento-card .cliente-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: #dbeafe;
+    color: #1e40af;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 3px 8px;
+    border-radius: 9999px;
+    margin-top: 6px;
+}
 </style>
 
 <!-- Modal Lista Eventi Giorno -->
@@ -316,6 +415,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const todayEvents = eventsData.filter(e => e.data_inizio.startsWith(todayStr));
         updateDaySidebar(todayStr, todayEvents, today);
         updateMobileDaySidebar(todayStr, todayEvents, today);
+        // Carica prossimi appuntamenti
+        loadProssimiAppuntamenti();
     });
     
     // Controlla se arriva dalla dashboard con data preselezionata
@@ -701,6 +802,12 @@ async function openEditEventModal(eventId) {
     document.querySelector('[name="tipo"]').value = event.tipo || 'appuntamento';
     document.querySelector('[name="note"]').value = event.note || '';
     
+    // Popola cliente se presente
+    const clienteSelect = document.querySelector('[name="cliente_id"]');
+    if (clienteSelect && event.cliente_id) {
+        clienteSelect.value = event.cliente_id;
+    }
+    
     const dataInizio = event.data_inizio.split(' ');
     document.getElementById('eventDataInizioDate').value = dataInizio[0];
     document.getElementById('eventDataInizioTime').value = dataInizio[1] ? dataInizio[1].substring(0, 5) : '09:00';
@@ -725,6 +832,112 @@ function combineDateTime() {
     }
     if (endDate && endTime) {
         document.getElementById('eventDataFine').value = endDate + 'T' + endTime;
+    }
+}
+
+// Carica prossimi appuntamenti (7 giorni)
+async function loadProssimiAppuntamenti() {
+    const container = document.getElementById('prossimiAppuntamenti');
+    const countBadge = document.getElementById('prossimiCount');
+    
+    if (!container) return;
+    
+    try {
+        // Calcola date: oggi e +7 giorni
+        const today = new Date();
+        const nextWeek = new Date(today);
+        nextWeek.setDate(today.getDate() + 7);
+        
+        const startStr = today.toISOString().split('T')[0];
+        const endStr = nextWeek.toISOString().split('T')[0];
+        
+        const response = await fetch(`api/calendario.php?action=events&start=${startStr}&end=${endStr}`);
+        const data = await response.json();
+        
+        if (!data.success || !data.data || data.data.length === 0) {
+            container.innerHTML = `
+                <div class="text-center py-6 text-slate-400 text-sm w-full">
+                    <svg class="w-8 h-8 mx-auto mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                    Nessun appuntamento nei prossimi 7 giorni
+                </div>
+            `;
+            if (countBadge) countBadge.textContent = '0';
+            return;
+        }
+        
+        // Filtra solo eventi futuri (da oggi in poi) ed escludi scadenze progetti
+        const now = new Date();
+        const appuntamenti = data.data
+            .filter(e => {
+                const eventDate = new Date(e.data_inizio);
+                return eventDate >= new Date(today.setHours(0,0,0,0)) && 
+                       e.tipo !== 'scadenza_progetto' &&
+                       !e.id.startsWith('prj_');
+            })
+            .sort((a, b) => new Date(a.data_inizio) - new Date(b.data_inizio))
+            .slice(0, 10); // Massimo 10 eventi
+        
+        if (countBadge) countBadge.textContent = appuntamenti.length;
+        
+        if (appuntamenti.length === 0) {
+            container.innerHTML = `
+                <div class="text-center py-6 text-slate-400 text-sm w-full">
+                    Nessun appuntamento nei prossimi 7 giorni
+                </div>
+            `;
+            return;
+        }
+        
+        // Genera HTML delle card
+        const html = appuntamenti.map(event => {
+            const eventDate = new Date(event.data_inizio);
+            const dateStr = eventDate.toLocaleDateString('it-IT', { 
+                weekday: 'short', 
+                day: 'numeric', 
+                month: 'short' 
+            });
+            const timeStr = eventDate.toLocaleTimeString('it-IT', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+            
+            const colorClass = coloriTipo[event.tipo] || 'bg-gray-500';
+            
+            // Costruisci nome cliente
+            let clienteNome = '';
+            if (event.cliente_nome || event.cliente_cognome) {
+                clienteNome = ((event.cliente_nome || '') + ' ' + (event.cliente_cognome || '')).trim();
+            }
+            if (event.cliente_azienda) {
+                clienteNome = event.cliente_azienda + (clienteNome ? ' (' + clienteNome + ')' : '');
+            }
+            
+            return `
+                <div class="appuntamento-card" onclick="openEditEventModal('${event.id}')">
+                    <div class="flex items-start justify-between mb-2">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full ${colorClass}"></span>
+                            <span class="text-xs font-medium text-slate-600">${dateStr}</span>
+                        </div>
+                        <span class="data-badge">${timeStr}</span>
+                    </div>
+                    <h4 class="font-semibold text-slate-800 text-sm truncate">${escapeHtml(event.titolo)}</h4>
+                    ${clienteNome ? `<div class="cliente-badge"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>${escapeHtml(clienteNome)}</div>` : ''}
+                </div>
+            `;
+        }).join('');
+        
+        container.innerHTML = html;
+        
+    } catch (error) {
+        console.error('Errore caricamento prossimi appuntamenti:', error);
+        container.innerHTML = `
+            <div class="text-center py-6 text-slate-400 text-sm w-full">
+                Errore caricamento appuntamenti
+            </div>
+        `;
     }
 }
 
