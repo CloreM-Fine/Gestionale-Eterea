@@ -54,7 +54,7 @@ function getEvents(): void {
         $stmt = $pdo->prepare("
             SELECT a.*, p.titolo as progetto_titolo, u.nome as utente_nome, u.colore as utente_colore, u.avatar as utente_avatar,
                    a.partecipanti as partecipanti_json,
-                   c.nome as cliente_nome, c.cognome as cliente_cognome, c.azienda as cliente_azienda
+                   c.ragione_sociale as cliente_nome
             FROM appuntamenti a
             LEFT JOIN progetti p ON a.progetto_id = p.id
             LEFT JOIN utenti u ON a.utente_id = u.id

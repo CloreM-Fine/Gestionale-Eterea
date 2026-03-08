@@ -12,7 +12,7 @@ $pageTitle = 'Calendario';
 // Recupera clienti per il selettore
 $clienti = [];
 try {
-    $stmt = $pdo->query("SELECT id, nome, cognome, azienda FROM clienti ORDER BY nome, cognome");
+    $stmt = $pdo->query("SELECT id, ragione_sociale FROM clienti ORDER BY ragione_sociale");
     $clienti = $stmt->fetchAll();
 } catch (PDOException $e) {
     error_log('Errore recupero clienti: ' . $e->getMessage());
@@ -199,13 +199,8 @@ include __DIR__ . '/includes/header.php';
                     <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-1.5">Cliente (opzionale)</label>
                     <select name="cliente_id" class="w-full px-3 sm:px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none text-sm sm:text-base min-h-[44px] bg-white">
                         <option value="">-- Seleziona cliente --</option>
-                        <?php foreach ($clienti as $cliente): 
-                            $nomeCliente = trim(($cliente['nome'] ?? '') . ' ' . ($cliente['cognome'] ?? ''));
-                            if ($cliente['azienda']) {
-                                $nomeCliente = $cliente['azienda'] . ($nomeCliente ? ' (' . $nomeCliente . ')' : '');
-                            }
-                        ?>
-                        <option value="<?php echo e($cliente['id']); ?>"><?php echo e($nomeCliente); ?></option>
+                        <?php foreach ($clienti as $cliente): ?>
+                        <option value="<?php echo e($cliente['id']); ?>"><?php echo e($cliente['ragione_sociale']); ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
@@ -905,14 +900,8 @@ async function loadProssimiAppuntamenti() {
             
             const colorClass = coloriTipo[event.tipo] || 'bg-gray-500';
             
-            // Costruisci nome cliente
-            let clienteNome = '';
-            if (event.cliente_nome || event.cliente_cognome) {
-                clienteNome = ((event.cliente_nome || '') + ' ' + (event.cliente_cognome || '')).trim();
-            }
-            if (event.cliente_azienda) {
-                clienteNome = event.cliente_azienda + (clienteNome ? ' (' + clienteNome + ')' : '');
-            }
+            // Nome cliente
+            const clienteNome = event.cliente_nome || '';
             
             return `
                 <div class="appuntamento-card" onclick="openEditEventModal('${event.id}')">
