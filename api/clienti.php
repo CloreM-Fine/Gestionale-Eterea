@@ -583,6 +583,10 @@ function getTimelineCliente($id) {
 function getTimelineGenerale() {
     global $pdo;
     
+    // Disabilita visualizzazione errori per avere JSON valido
+    $oldErrorReporting = error_reporting(0);
+    ini_set('display_errors', 0);
+    
     // Assicura che l'output sia sempre JSON
     header('Content-Type: application/json');
     
@@ -592,40 +596,57 @@ function getTimelineGenerale() {
         $clientiTotali = $stmt->fetch()['totale'];
         
         // Clienti per mese (ultimi 12 mesi) - compatibile MySQL 5.7
-        $stmt = $pdo->query("
-            SELECT CONCAT(YEAR(created_at), '-', LPAD(MONTH(created_at), 2, '0')) as mese, COUNT(*) as num
-            FROM clienti
-            WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)
-            GROUP BY YEAR(created_at), MONTH(created_at)
-            ORDER BY YEAR(created_at) ASC, MONTH(created_at) ASC
-        ");
-        $clientiPerMese = $stmt->fetchAll();
+        $clientiPerMese = [];
+        try {
+            $stmt = $pdo->query("
+                SELECT CONCAT(YEAR(created_at), '-', LPAD(MONTH(created_at), 2, '0')) as mese, COUNT(*) as num
+                FROM clienti
+                WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)
+                GROUP BY YEAR(created_at), MONTH(created_at)
+                ORDER BY YEAR(created_at) ASC, MONTH(created_at) ASC
+            ");
+            $clientiPerMese = $stmt->fetchAll();
+        } catch (Exception $e) {
+            // Ignora errore se colonna created_at non esiste
+            $clientiPerMese = [];
+        }
         
         // Progetti con dettagli
-        $stmt = $pdo->query("
-            SELECT p.id, p.titolo, p.stato_progetto, p.prezzo_totale, p.stato_pagamento,
-                   p.created_at as data_creazione, p.data_consegna_effettiva,
-                   c.id as cliente_id, c.ragione_sociale as cliente_nome, c.logo_path as cliente_logo,
-                   COUNT(t.id) as num_task
-            FROM progetti p
-            LEFT JOIN clienti c ON p.cliente_id = c.id
-            LEFT JOIN task t ON p.id = t.progetto_id
-            GROUP BY p.id
-            ORDER BY p.created_at DESC
-            LIMIT 100
-        ");
-        $progetti = $stmt->fetchAll();
+        $progetti = [];
+        try {
+            $stmt = $pdo->query("
+                SELECT p.id, p.titolo, p.stato_progetto, p.prezzo_totale, p.stato_pagamento,
+                       p.created_at as data_creazione, p.data_consegna_effettiva,
+                       c.id as cliente_id, c.ragione_sociale as cliente_nome, c.logo_path as cliente_logo
+                FROM progetti p
+                LEFT JOIN clienti c ON p.cliente_id = c.id
+                ORDER BY p.created_at DESC
+                LIMIT 100
+            ");
+            $progetti = $stmt->fetchAll();
+        } catch (Exception $e) {
+            $progetti = [];
+        }
         
-        // Preventivi
-        $stmt = $pdo->query("
-            SELECT ps.id, ps.numero, ps.totale, ps.created_at, ps.stato, ps.file_path,
-                   c.id as cliente_id, c.ragione_sociale as cliente_nome
-            FROM preventivi_salvati ps
-            LEFT JOIN clienti c ON ps.cliente_id = c.id
-            ORDER BY ps.created_at DESC
-            LIMIT 50
-        ");
-        $preventivi = $stmt->fetchAll();
+        // Preventivi - verifica esistenza tabella
+        $preventivi = [];
+        try {
+            // Verifica se tabella esiste
+            $stmt = $pdo->query("SHOW TABLES LIKE 'preventivi_salvati'");
+            if ($stmt->rowCount() > 0) {
+                $stmt = $pdo->query("
+                    SELECT ps.id, ps.numero, ps.totale, ps.created_at, ps.stato, ps.file_path,
+                           c.id as cliente_id, c.ragione_sociale as cliente_nome
+                    FROM preventivi_salvati ps
+                    LEFT JOIN clienti c ON ps.cliente_id = c.id
+                    ORDER BY ps.created_at DESC
+                    LIMIT 50
+                ");
+                $preventivi = $stmt->fetchAll();
+            }
+        } catch (Exception $e) {
+            $preventivi = [];
+        }
         
         // Calcola statistiche
         $progettiCompletati = 0;
@@ -732,9 +753,18 @@ function getTimelineGenerale() {
         
     } catch (PDOException $e) {
         error_log("Errore timeline generale PDO: " . $e->getMessage());
-        jsonResponse(false, null, 'Errore database: ' . $e->getMessage());
+        echo json_encode(['success' => false, 'message' => 'Errore database: ' . $e->getMessage()]);
+        exit;
     } catch (Exception $e) {
         error_log("Errore timeline generale: " . $e->getMessage());
-        jsonResponse(false, null, 'Errore: ' . $e->getMessage());
+        echo json_encode(['success' => false, 'message' => 'Errore: ' . $e->getMessage()]);
+        exit;
+    } catch (Throwable $e) {
+        error_log("Errore critico timeline generale: " . $e->getMessage());
+        echo json_encode(['success' => false, 'message' => 'Errore critico: ' . $e->getMessage()]);
+        exit;
+    } finally {
+        // Ripristina error reporting
+        error_reporting($oldErrorReporting);
     }
 }
