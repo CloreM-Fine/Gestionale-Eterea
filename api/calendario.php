@@ -255,24 +255,38 @@ function completeEvent($id) {
     
     try {
         // Verifica esistenza colonna completato e crea se necessario
+        $colonnaEsiste = false;
         try {
             $pdo->query("SELECT completato FROM appuntamenti LIMIT 1");
+            $colonnaEsiste = true;
         } catch (PDOException $e) {
             // Colonna non esiste, creala
             try {
-                $pdo->exec("ALTER TABLE appuntamenti ADD COLUMN completato TINYINT(1) DEFAULT 0");
+                $pdo->exec("ALTER TABLE appuntamenti ADD COLUMN completato TINYINT(1) NOT NULL DEFAULT 0");
+                $colonnaEsiste = true;
             } catch (PDOException $e2) {
-                // Ignora errore
+                error_log("Errore creazione colonna: " . $e2->getMessage());
             }
         }
         
-        $stmt = $pdo->prepare("UPDATE appuntamenti SET completato = 1 WHERE id = ?");
-        $stmt->execute([$id]);
+        if (!$colonnaEsiste) {
+            jsonResponse(false, null, 'Errore: colonna non disponibile');
+            return;
+        }
         
-        jsonResponse(true, null, 'Appuntamento completato');
+        $stmt = $pdo->prepare("UPDATE appuntamenti SET completato = 1 WHERE id = ?");
+        $result = $stmt->execute([$id]);
+        
+        if ($result && $stmt->rowCount() > 0) {
+            jsonResponse(true, null, 'Appuntamento completato');
+        } elseif ($result) {
+            jsonResponse(true, null, 'Evento già completato o non trovato');
+        } else {
+            jsonResponse(false, null, 'Errore aggiornamento');
+        }
         
     } catch (PDOException $e) {
         error_log("Errore completamento evento: " . $e->getMessage());
-        jsonResponse(false, null, 'Errore completamento evento');
+        jsonResponse(false, null, 'Errore completamento: ' . $e->getMessage());
     }
 }
