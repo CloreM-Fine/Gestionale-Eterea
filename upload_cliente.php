@@ -15,13 +15,19 @@ if (session_status() === PHP_SESSION_NONE) {
 
 $token = $_GET['token'] ?? '';
 $error = '';
-$success = '';
+$success = isset($_GET['success']) && $_GET['success'] === '1';
 $clienteNome = '';
 $isValid = false;
 $existingImages = [];
+$justSubmitted = false;
+
+// Verifica se è stato appena inviato (per non mostrare immagini precedenti)
+if ($success) {
+    $justSubmitted = true;
+}
 
 // Verifica token
-if (!empty($token)) {
+if (!empty($token) && !$justSubmitted) {
     try {
         $stmt = $pdo->prepare("
             SELECT c.*, cl.ragione_sociale as cliente_nome
@@ -51,6 +57,28 @@ if (!empty($token)) {
     } catch (PDOException $e) {
         error_log("Errore verifica token: " . $e->getMessage());
         $error = 'Errore di sistema. Riprova più tardi.';
+    }
+} elseif ($justSubmitted) {
+    // Dopo invio, mostra comunque il form vuoto con un nuovo link
+    // Ma per sicurezza verifichiamo il token per mostrare il nome cliente
+    try {
+        $stmt = $pdo->prepare("
+            SELECT c.*, cl.ragione_sociale as cliente_nome
+            FROM cliente_contenuti c
+            LEFT JOIN clienti cl ON c.cliente_id = cl.id
+            WHERE c.token = ? AND c.stato = 'attivo'
+        ");
+        $stmt->execute([$token]);
+        $contenuto = $stmt->fetch();
+        
+        if ($contenuto) {
+            $isValid = true;
+            $clienteNome = $contenuto['cliente_nome'] ?? 'Cliente';
+            // Non mostrare immagini esistenti dopo invio - form pulito
+            $existingImages = [];
+        }
+    } catch (PDOException $e) {
+        $error = 'Errore di sistema.';
     }
 } else {
     $error = 'Link mancante.';
@@ -87,13 +115,68 @@ $csrfToken = generateCsrfToken();
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>body { font-family: 'Inter', sans-serif; }</style>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        
+        /* Editor WYSIWYG Styles */
+        .editor-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            padding: 8px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-bottom: none;
+            border-radius: 8px 8px 0 0;
+        }
+        .editor-toolbar button {
+            padding: 6px 10px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        .editor-toolbar button:hover {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+        }
+        .editor-toolbar button.active {
+            background: #0891b2;
+            color: white;
+            border-color: #0891b2;
+        }
+        .editor-content {
+            min-height: 200px;
+            padding: 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 0 0 8px 8px;
+            outline: none;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .editor-content:focus {
+            border-color: #0891b2;
+            box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.1);
+        }
+        .editor-content h2 { font-size: 1.5em; font-weight: bold; margin: 1em 0 0.5em; }
+        .editor-content h3 { font-size: 1.25em; font-weight: bold; margin: 1em 0 0.5em; }
+        .editor-content p { margin: 0.5em 0; }
+        .editor-content ul { list-style-type: disc; padding-left: 2em; margin: 0.5em 0; }
+        .editor-content ol { list-style-type: decimal; padding-left: 2em; margin: 0.5em 0; }
+        .editor-content blockquote { border-left: 4px solid #e2e8f0; padding-left: 1em; margin: 0.5em 0; color: #64748b; }
+        .editor-content b, .editor-content strong { font-weight: bold; }
+        .editor-content i, .editor-content em { font-style: italic; }
+        .editor-content u { text-decoration: underline; }
+        .editor-content s, .editor-content strike { text-decoration: line-through; }
+    </style>
 </head>
 <body class="bg-slate-50 min-h-screen">
     
     <!-- Header -->
     <header class="bg-white border-b border-slate-200">
-        <div class="max-w-2xl lg:max-w-7xl mx-auto px-4 py-4">
+        <div class="max-w-7xl mx-auto px-4 py-4">
             <div class="flex items-center gap-3">
                 <img src="assets/favicons/apple-touch-icon.png" alt="Eterea Studio" class="w-10 h-10 rounded-xl">
                 <div>
@@ -105,11 +188,11 @@ $csrfToken = generateCsrfToken();
     </header>
     
     <!-- Main Content -->
-    <main class="max-w-2xl lg:max-w-6xl mx-auto px-4 lg:px-8 py-8">
+    <main class="max-w-7xl mx-auto px-4 lg:px-8 py-8">
         
         <?php if (!empty($error)): ?>
         <!-- Errore -->
-        <div class="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
+        <div class="max-w-2xl mx-auto bg-red-50 border border-red-200 rounded-xl p-6 text-center">
             <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -119,9 +202,9 @@ $csrfToken = generateCsrfToken();
             <p class="text-red-600"><?php echo e($error); ?></p>
         </div>
         
-        <?php elseif (!empty($success)): ?>
+        <?php elseif ($success): ?>
         <!-- Successo -->
-        <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-6 text-center">
+        <div class="max-w-2xl mx-auto bg-emerald-50 border border-emerald-200 rounded-xl p-6 text-center">
             <div class="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg class="w-8 h-8 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
@@ -129,17 +212,17 @@ $csrfToken = generateCsrfToken();
             </div>
             <h2 class="text-lg font-semibold text-emerald-800 mb-2">Contenuto inviato!</h2>
             <p class="text-emerald-600 mb-4">Grazie! I tuoi contenuti sono stati inviati con successo allo studio.</p>
-            <button onclick="location.reload()" class="px-6 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium">
+            <a href="?token=<?php echo e($token); ?>" class="inline-block px-6 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium">
                 Carica altro
-            </button>
+            </a>
         </div>
         
         <?php elseif ($isValid): ?>
-        <!-- Layout a due colonne -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <!-- Colonna sinistra: Form -->
-            <div class="lg:col-span-2">
-                <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <!-- Layout a due colonne: form largo, assistenza stretta -->
+        <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+            <!-- Colonna sinistra: Form (più larga) -->
+            <div class="lg:col-span-4">
+                <div class="max-w-3xl mx-auto bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
                     <div class="p-6 border-b border-slate-100">
                         <h2 class="text-xl font-bold text-slate-800">Ciao <?php echo e($clienteNome); ?>!</h2>
                         <p class="text-slate-500 mt-1">Carica qui le immagini e il testo per il tuo progetto.</p>
@@ -158,27 +241,76 @@ $csrfToken = generateCsrfToken();
                                    placeholder="Es: Mario Rossi">
                         </div>
                 
-                <!-- Titolo -->
-                <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-2">Titolo *</label>
-                    <input type="text" name="titolo" required
-                           class="w-full px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none"
-                           placeholder="Es: Foto evento aziendale, Materiale per campagna...">
-                </div>
-                
-                <!-- Testo -->
-                <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-2">Descrizione</label>
-                    <textarea name="testo" rows="4"
-                              class="w-full px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none resize-none"
-                              placeholder="Descrivi brevemente il contenuto che stai caricando..."></textarea>
-                </div>
+                        <!-- Titolo -->
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-2">Titolo *</label>
+                            <input type="text" name="titolo" required
+                                   class="w-full px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none"
+                                   placeholder="Es: Foto evento aziendale, Materiale per campagna...">
+                        </div>
+                        
+                        <!-- Testo con Editor WYSIWYG -->
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-2">Descrizione</label>
+                            
+                            <!-- Toolbar Editor -->
+                            <div class="editor-toolbar">
+                                <button type="button" data-command="bold" title="Grassetto (Ctrl+B)">
+                                    <b>B</b>
+                                </button>
+                                <button type="button" data-command="italic" title="Corsivo (Ctrl+I)">
+                                    <i>I</i>
+                                </button>
+                                <button type="button" data-command="underline" title="Sottolineato (Ctrl+U)">
+                                    <u>U</u>
+                                </button>
+                                <button type="button" data-command="strikeThrough" title="Barrato">
+                                    <s>S</s>
+                                </button>
+                                <span class="w-px h-6 bg-slate-300 mx-1"></span>
+                                <button type="button" data-command="formatBlock" data-value="H2" title="Titolo grande">
+                                    H1
+                                </button>
+                                <button type="button" data-command="formatBlock" data-value="H3" title="Sottotitolo">
+                                    H2
+                                </button>
+                                <span class="w-px h-6 bg-slate-300 mx-1"></span>
+                                <button type="button" data-command="insertUnorderedList" title="Elenco puntato">
+                                    • Lista
+                                </button>
+                                <button type="button" data-command="insertOrderedList" title="Elenco numerato">
+                                    1. Lista
+                                </button>
+                                <span class="w-px h-6 bg-slate-300 mx-1"></span>
+                                <button type="button" data-command="justifyLeft" title="Allinea a sinistra">
+                                    ⬅️
+                                </button>
+                                <button type="button" data-command="justifyCenter" title="Centra">
+                                    ↔️
+                                </button>
+                                <button type="button" data-command="justifyRight" title="Allinea a destra">
+                                    ➡️
+                                </button>
+                                <span class="w-px h-6 bg-slate-300 mx-1"></span>
+                                <button type="button" data-command="removeFormat" title="Rimuovi formattazione">
+                                    🧹
+                                </button>
+                            </div>
+                            
+                            <!-- Editor Content -->
+                            <div id="richTextEditor" class="editor-content" contenteditable="true" 
+                                 placeholder="Descrivi brevemente il contenuto che stai caricando...">
+                            </div>
+                            
+                            <!-- Hidden textarea per inviare il contenuto -->
+                            <textarea name="testo" id="testoHidden" class="hidden"></textarea>
+                        </div>
                 
                 <!-- Immagini Esistenti -->
                 <?php if (!empty($existingImages)): ?>
                 <div>
                     <label class="block text-sm font-medium text-slate-700 mb-2">Immagini già caricate (<?php echo count($existingImages); ?>/10)</label>
-                    <div class="grid grid-cols-4 gap-2">
+                    <div class="grid grid-cols-5 gap-2">
                         <?php foreach ($existingImages as $img): ?>
                         <div class="aspect-square rounded-lg overflow-hidden bg-slate-100">
                             <img src="assets/uploads/clienti_contenuti/<?php echo e($img); ?>" alt="" class="w-full h-full object-cover">
@@ -211,7 +343,7 @@ $csrfToken = generateCsrfToken();
                            class="hidden" onchange="handleFileSelect(this)">
                     
                     <!-- Preview -->
-                    <div id="previewContainer" class="grid grid-cols-4 gap-2 mt-4 hidden"></div>
+                    <div id="previewContainer" class="grid grid-cols-5 gap-2 mt-4 hidden"></div>
                     
                     <p id="fileError" class="text-sm text-red-500 mt-2 hidden"></p>
                 </div>
@@ -236,46 +368,46 @@ $csrfToken = generateCsrfToken();
                 </div>
             </div>
             
-            <!-- Colonna destra: Assistenza -->
+            <!-- Colonna destra: Assistenza (più stretta) -->
             <div class="lg:col-span-1">
                 <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden sticky top-4">
-                    <div class="p-6 border-b border-slate-100 bg-cyan-50">
-                        <h3 class="font-bold text-slate-800 flex items-center gap-2">
-                            <svg class="w-5 h-5 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="p-4 border-b border-slate-100 bg-cyan-50">
+                        <h3 class="font-bold text-slate-800 flex items-center gap-2 text-sm">
+                            <svg class="w-4 h-4 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"/>
                             </svg>
                             Assistenza
                         </h3>
                     </div>
-                    <div class="p-6 space-y-4">
-                        <p class="text-sm text-slate-600">
-                            Hai bisogno di aiuto? Contatta lo studio direttamente.
+                    <div class="p-4 space-y-3">
+                        <p class="text-xs text-slate-600">
+                            Hai bisogno di aiuto? Contatta lo studio.
                         </p>
                         
                         <!-- Telefono -->
-                        <a href="tel:+393465728606" class="flex items-center gap-3 p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
-                            <div class="w-10 h-10 bg-cyan-100 rounded-full flex items-center justify-center flex-shrink-0">
-                                <svg class="w-5 h-5 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <a href="tel:+393465728606" class="flex items-center gap-2 p-2 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
+                            <div class="w-8 h-8 bg-cyan-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                <svg class="w-4 h-4 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
                                 </svg>
                             </div>
                             <div>
                                 <p class="text-xs text-slate-500">Telefono</p>
-                                <p class="font-medium text-slate-800">346 572 8606</p>
+                                <p class="font-medium text-slate-800 text-sm">346 572 8606</p>
                             </div>
                         </a>
                         
                         <!-- WhatsApp -->
                         <a href="https://wa.me/393465728606" target="_blank" rel="noopener noreferrer" 
-                           class="flex items-center gap-3 p-3 bg-emerald-50 rounded-lg hover:bg-emerald-100 transition-colors">
-                            <div class="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center flex-shrink-0">
-                                <svg class="w-5 h-5 text-emerald-600" fill="currentColor" viewBox="0 0 24 24">
+                           class="flex items-center gap-2 p-2 bg-emerald-50 rounded-lg hover:bg-emerald-100 transition-colors">
+                            <div class="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                <svg class="w-4 h-4 text-emerald-600" fill="currentColor" viewBox="0 0 24 24">
                                     <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
                                 </svg>
                             </div>
                             <div>
                                 <p class="text-xs text-slate-500">WhatsApp</p>
-                                <p class="font-medium text-emerald-700">Scrivimi su WhatsApp</p>
+                                <p class="font-medium text-emerald-700 text-sm">Scrivimi</p>
                             </div>
                         </a>
                     </div>
@@ -287,13 +419,152 @@ $csrfToken = generateCsrfToken();
     </main>
     
     <!-- Footer -->
-    <footer class="max-w-2xl lg:max-w-7xl mx-auto px-4 py-6 text-center">
+    <footer class="max-w-7xl mx-auto px-4 py-6 text-center">
         <p class="text-sm text-slate-400">© <?php echo date('Y'); ?> Eterea Studio - Tutti i diritti riservati</p>
     </footer>
     
     <script>
     let selectedFiles = [];
     const maxFiles = <?php echo $remaining ?? 10; ?>;
+    
+    // ========== EDITOR WYSIWYG ==========
+    const editor = document.getElementById('richTextEditor');
+    const hiddenTextarea = document.getElementById('testoHidden');
+    const toolbarButtons = document.querySelectorAll('.editor-toolbar button');
+    
+    // Aggiorna textarea nascosta quando l'editor cambia
+    editor.addEventListener('input', () => {
+        hiddenTextarea.value = editor.innerHTML;
+    });
+    
+    // Gestione pulsanti toolbar
+    toolbarButtons.forEach(button => {
+        button.addEventListener('click', (e) => {
+            e.preventDefault();
+            const command = button.dataset.command;
+            const value = button.dataset.value || null;
+            
+            document.execCommand(command, false, value);
+            editor.focus();
+            
+            // Aggiorna stato pulsanti
+            updateToolbarState();
+            hiddenTextarea.value = editor.innerHTML;
+        });
+    });
+    
+    // Aggiorna stato pulsanti (active/inactive)
+    function updateToolbarState() {
+        toolbarButtons.forEach(button => {
+            const command = button.dataset.command;
+            if (document.queryCommandState(command)) {
+                button.classList.add('active');
+            } else {
+                button.classList.remove('active');
+            }
+        });
+    }
+    
+    // Aggiorna stato quando il cursore si muove
+    editor.addEventListener('keyup', updateToolbarState);
+    editor.addEventListener('mouseup', updateToolbarState);
+    editor.addEventListener('click', updateToolbarState);
+    
+    // Gestione incolla: mantieni formattazione base ma pulisci stili esterni
+    editor.addEventListener('paste', (e) => {
+        e.preventDefault();
+        
+        // Ottieni il testo HTML dagli appunti
+        let html = '';
+        if (e.clipboardData && e.clipboardData.getData) {
+            html = e.clipboardData.getData('text/html') || e.clipboardData.getData('text/plain');
+        } else if (window.clipboardData && window.clipboardData.getData) {
+            html = window.clipboardData.getData('Text');
+        }
+        
+        // Pulisci HTML mantenendo solo tag consentiti
+        const allowedTags = ['b', 'i', 'u', 'strong', 'em', 'p', 'br', 'h1', 'h2', 'h3', 'h4', 'ul', 'ol', 'li', 'blockquote'];
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = html;
+        
+        // Funzione ricorsiva per pulire i nodi
+        function cleanNode(node) {
+            if (node.nodeType === Node.TEXT_NODE) {
+                return node.textContent;
+            }
+            if (node.nodeType === Node.ELEMENT_NODE) {
+                const tagName = node.tagName.toLowerCase();
+                if (allowedTags.includes(tagName)) {
+                    const cleaned = document.createElement(tagName);
+                    // Copia solo il testo interno, ignora stili inline
+                    Array.from(node.childNodes).forEach(child => {
+                        const cleanedChild = cleanNode(child);
+                        if (cleanedChild) {
+                            if (typeof cleanedChild === 'string') {
+                                cleaned.appendChild(document.createTextNode(cleanedChild));
+                            } else {
+                                cleaned.appendChild(cleanedChild);
+                            }
+                        }
+                    });
+                    return cleaned;
+                } else {
+                    // Tag non consentito: estrai solo il testo
+                    return node.textContent;
+                }
+            }
+            return '';
+        }
+        
+        const fragment = document.createDocumentFragment();
+        Array.from(tempDiv.childNodes).forEach(node => {
+            const cleaned = cleanNode(node);
+            if (cleaned) {
+                if (typeof cleaned === 'string') {
+                    fragment.appendChild(document.createTextNode(cleaned));
+                } else {
+                    fragment.appendChild(cleaned);
+                }
+            }
+        });
+        
+        // Inserisci il contenuto pulito
+        const selection = window.getSelection();
+        if (selection.rangeCount > 0) {
+            const range = selection.getRangeAt(0);
+            range.deleteContents();
+            range.insertNode(fragment);
+            
+            // Sposta cursore dopo il contenuto incollato
+            range.collapse(false);
+            selection.removeAllRanges();
+            selection.addRange(range);
+        }
+        
+        hiddenTextarea.value = editor.innerHTML;
+        updateToolbarState();
+    });
+    
+    // Shortcuts tastiera
+    editor.addEventListener('keydown', (e) => {
+        if (e.ctrlKey || e.metaKey) {
+            switch(e.key.toLowerCase()) {
+                case 'b':
+                    e.preventDefault();
+                    document.execCommand('bold', false, null);
+                    break;
+                case 'i':
+                    e.preventDefault();
+                    document.execCommand('italic', false, null);
+                    break;
+                case 'u':
+                    e.preventDefault();
+                    document.execCommand('underline', false, null);
+                    break;
+            }
+        }
+        hiddenTextarea.value = editor.innerHTML;
+    });
     
     function handleFileSelect(input) {
         const files = Array.from(input.files);
@@ -386,6 +657,9 @@ $csrfToken = generateCsrfToken();
     document.getElementById('uploadForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         
+        // Aggiorna textarea nascosta con contenuto editor
+        hiddenTextarea.value = editor.innerHTML;
+        
         const btn = document.getElementById('submitBtn');
         const originalText = btn.innerHTML;
         btn.disabled = true;
@@ -402,7 +676,7 @@ $csrfToken = generateCsrfToken();
             const data = await response.json();
             
             if (data.success) {
-                // Reindirizza a pagina di successo (senza mostrare immagini precedenti)
+                // Reindirizza a pagina di successo (form pulito)
                 window.location.href = window.location.pathname + '?token=<?php echo e($token); ?>&success=1';
             } else {
                 alert(data.message || 'Errore durante l\'invio');

@@ -511,17 +511,23 @@ function renderEvents() {
         if (container) {
             const color = coloriTipo[event.tipo] || 'bg-slate-500';
             
+            // Stile per eventi completati
+            const isCompletato = event.completato == 1;
+            const opacityClass = isCompletato ? 'opacity-50' : '';
+            const strikethroughClass = isCompletato ? 'line-through' : '';
+            const completatoIcon = isCompletato ? '✓ ' : '';
+            
             // Su mobile mostriamo solo i puntini colorati
             if (isMobile) {
                 container.innerHTML += `
-                    <div class="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full ${color} flex-shrink-0" title="${event.titolo}"></div>
+                    <div class="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full ${color} flex-shrink-0 ${opacityClass}" title="${event.titolo}${isCompletato ? ' (Completato)' : ''}"></div>
                 `;
             } else {
                 // Desktop: titolo + indicatore
                 const titoloBreve = event.titolo.length > 12 ? event.titolo.substring(0, 12) + '...' : event.titolo;
                 container.innerHTML += `
-                    <div class="flex items-center gap-1 text-xs rounded ${color} text-white px-1.5 py-0.5 truncate cursor-pointer" title="${event.titolo}">
-                        <span class="truncate">${titoloBreve}</span>
+                    <div class="flex items-center gap-1 text-xs rounded ${color} text-white px-1.5 py-0.5 truncate cursor-pointer ${opacityClass}" title="${event.titolo}${isCompletato ? ' (Completato)' : ''}">
+                        <span class="truncate ${strikethroughClass}">${completatoIcon}${titoloBreve}</span>
                     </div>
                 `;
             }
@@ -597,7 +603,14 @@ function openDayEventsModal(dateStr, dayEvents, date) {
                         ${e.note ? `<p class="text-xs text-slate-400 mt-1 line-clamp-2">📝 ${e.note}</p>` : ''}
                     </div>
                     <div class="flex items-center gap-1 flex-shrink-0">
-                        ${isEditable ? `
+                        ${isEditable && !e.completato ? `
+                            <button onclick="completaEvento('${e.id}')" 
+                                    class="text-slate-400 hover:text-emerald-500 transition-colors p-2 min-h-[44px] min-w-[44px] flex items-center justify-center"
+                                    title="Completato">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                </svg>
+                            </button>
                             <button onclick="closeModal('dayEventsModal'); openEditEventModal('${e.id}')" 
                                     class="text-slate-400 hover:text-cyan-600 transition-colors p-2 min-h-[44px] min-w-[44px] flex items-center justify-center"
                                     title="Modifica">
@@ -605,6 +618,12 @@ function openDayEventsModal(dateStr, dayEvents, date) {
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                                 </svg>
                             </button>
+                        ` : isEditable ? `
+                            <span class="text-emerald-500 p-2" title="Completato">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                </svg>
+                            </span>
                         ` : ''}
                         <button onclick="deleteEvent('${e.id}')" 
                                 class="text-slate-400 hover:text-red-500 transition-colors p-2 min-h-[44px] min-w-[44px] flex items-center justify-center"
@@ -743,6 +762,16 @@ function updateDaySidebar(dateStr, dayEvents, date) {
                     </div>
                     ${isEditable ? `
                         <div class="flex items-center justify-end gap-2 mt-3 pt-3 border-t border-slate-100">
+                            ${!e.completato ? `
+                            <button onclick="completaEvento('${e.id}')" 
+                                    class="text-xs text-emerald-600 hover:text-emerald-700 font-medium px-3 py-2 hover:bg-emerald-50 rounded-lg transition-colors min-h-[36px]" title="Segna come completato">
+                                ✓ Completato
+                            </button>
+                            ` : `
+                            <span class="text-xs text-emerald-600 font-medium px-3 py-2 bg-emerald-50 rounded-lg min-h-[36px] flex items-center">
+                                ✓ Completato
+                            </span>
+                            `}
                             <button onclick="openEditEventModal('${e.id}')" 
                                     class="text-xs text-cyan-600 hover:text-cyan-700 font-medium px-3 py-2 hover:bg-cyan-50 rounded-lg transition-colors min-h-[36px]">
                                 Modifica
@@ -862,14 +891,15 @@ async function loadProssimiAppuntamenti() {
             return;
         }
         
-        // Filtra solo eventi futuri (da oggi in poi) ed escludi scadenze progetti
+        // Filtra solo eventi futuri (da oggi in poi), escludi scadenze progetti e completati
         const now = new Date();
         const appuntamenti = data.data
             .filter(e => {
                 const eventDate = new Date(e.data_inizio);
                 return eventDate >= new Date(today.setHours(0,0,0,0)) && 
                        e.tipo !== 'scadenza_progetto' &&
-                       !e.id.startsWith('prj_');
+                       !e.id.startsWith('prj_') &&
+                       !e.completato;
             })
             .sort((a, b) => new Date(a.data_inizio) - new Date(b.data_inizio))
             .slice(0, 10); // Massimo 10 eventi
@@ -1003,6 +1033,32 @@ async function deleteEvent(eventId) {
             showToast('Errore di connessione', 'error');
         }
     });
+}
+
+async function completaEvento(eventId) {
+    if (!eventId) {
+        showToast('ID evento mancante', 'error');
+        return;
+    }
+    
+    try {
+        const response = await fetch('api/calendario.php?action=complete&id=' + encodeURIComponent(eventId), {
+            method: 'POST'
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showToast('Appuntamento completato', 'success');
+            // Ricarica eventi e prossimi appuntamenti
+            loadEvents();
+            loadProssimiAppuntamenti();
+        } else {
+            showToast(data.message || 'Errore completamento', 'error');
+        }
+    } catch (error) {
+        showToast('Errore di connessione', 'error');
+    }
 }
 
 // Utility: escape HTML per sicurezza
