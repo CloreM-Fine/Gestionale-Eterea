@@ -34,13 +34,22 @@ try {
             <h1 class="text-xl sm:text-2xl font-bold text-slate-800">Blog Clienti</h1>
             <p class="text-sm text-slate-500 mt-1">Gestisci contenuti caricati dai clienti</p>
         </div>
-        <button onclick="openGeneraLinkModal()" 
-                class="w-full sm:w-auto bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-3 sm:py-2.5 rounded-lg font-medium flex items-center justify-center gap-2 transition-colors min-h-[44px]">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
-            </svg>
-            Genera Link
-        </button>
+        <div class="flex gap-2">
+            <button onclick="mostraArchiviati()" id="btnArchiviati"
+                    class="flex-1 sm:flex-none bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-3 sm:py-2.5 rounded-lg font-medium flex items-center justify-center gap-2 transition-colors min-h-[44px]">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/>
+                </svg>
+                Archiviati
+            </button>
+            <button onclick="openGeneraLinkModal()" 
+                    class="flex-1 sm:flex-none bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-3 sm:py-2.5 rounded-lg font-medium flex items-center justify-center gap-2 transition-colors min-h-[44px]">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
+                </svg>
+                Genera Link
+            </button>
+        </div>
     </div>
 </div>
 
@@ -260,6 +269,7 @@ try {
 <script>
 let contenutiData = [];
 let currentContenutoId = null;
+let mostraSoloArchiviati = false;
 
 document.addEventListener('DOMContentLoaded', function() {
     loadContenuti();
@@ -267,13 +277,45 @@ document.addEventListener('DOMContentLoaded', function() {
     loadLinks();
 });
 
+function mostraArchiviati() {
+    mostraSoloArchiviati = !mostraSoloArchiviati;
+    
+    const btn = document.getElementById('btnArchiviati');
+    if (mostraSoloArchiviati) {
+        btn.classList.remove('bg-slate-100', 'text-slate-700');
+        btn.classList.add('bg-amber-100', 'text-amber-700');
+        btn.innerHTML = `
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+            Torna ai contenuti
+        `;
+    } else {
+        btn.classList.add('bg-slate-100', 'text-slate-700');
+        btn.classList.remove('bg-amber-100', 'text-amber-700');
+        btn.innerHTML = `
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/>
+            </svg>
+            Archiviati
+        `;
+    }
+    
+    loadContenuti();
+}
+
 async function loadContenuti() {
     const clienteId = document.getElementById('filtroCliente').value;
-    const stato = document.getElementById('filtroStato').value;
     
     let url = 'api/blog_clienti.php?action=list';
     if (clienteId) url += '&cliente_id=' + encodeURIComponent(clienteId);
-    if (stato) url += '&stato=' + encodeURIComponent(stato);
+    
+    // Gestione filtro archiviati
+    if (mostraSoloArchiviati) {
+        url += '&stato=archiviato';
+    } else {
+        url += '&stato=attivo';
+    }
     
     try {
         const response = await fetch(url);
@@ -406,17 +448,31 @@ function renderContenuti(contenuti) {
     const container = document.getElementById('contenutiContainer');
     
     if (contenuti.length === 0) {
-        container.innerHTML = `
-            <div class="text-center py-12 bg-white rounded-xl border border-slate-200">
-                <div class="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <svg class="w-10 h-10 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
-                    </svg>
+        if (mostraSoloArchiviati) {
+            container.innerHTML = `
+                <div class="text-center py-12 bg-white rounded-xl border border-slate-200">
+                    <div class="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-10 h-10 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-medium text-slate-600">Nessun contenuto archiviato</h3>
+                    <p class="text-slate-400 mt-1">Gli elementi archiviati appariranno qui</p>
                 </div>
-                <h3 class="text-lg font-medium text-slate-600">Nessun contenuto</h3>
-                <p class="text-slate-400 mt-1">Genera un link e invialo al cliente per ricevere contenuti</p>
-            </div>
-        `;
+            `;
+        } else {
+            container.innerHTML = `
+                <div class="text-center py-12 bg-white rounded-xl border border-slate-200">
+                    <div class="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-10 h-10 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-medium text-slate-600">Nessun contenuto</h3>
+                    <p class="text-slate-400 mt-1">Genera un link e invialo al cliente per ricevere contenuti</p>
+                </div>
+            `;
+        }
         return;
     }
     
@@ -440,7 +496,7 @@ function renderContenuti(contenuti) {
                     ${items.map(c => {
                         const immagini = JSON.parse(c.immagini || '[]');
                         const hasImmagini = immagini.length > 0;
-                        const isUnread = !c.letto;
+                        const isUnread = !c.letto && !mostraSoloArchiviati;
                         
                         return `
                             <div class="p-4 hover:bg-slate-50 cursor-pointer transition-colors ${isUnread ? 'bg-amber-50/50' : ''}" 
@@ -679,9 +735,10 @@ async function archiviaContenuto() {
         const data = await response.json();
         
         if (data.success) {
-            showToast('Contenuto archiviato', 'success');
+            showToast('Contenuto archiviato e spostato nella sezione Archiviati', 'success');
             closeModal('dettaglioContenutoModal');
             loadContenuti();
+            loadStats(); // Aggiorna anche le statistiche
         } else {
             showToast(data.message || 'Errore', 'error');
         }
