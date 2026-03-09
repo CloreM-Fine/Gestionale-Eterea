@@ -6,6 +6,13 @@
 
 require_once __DIR__ . '/includes/functions.php';
 
+// Avvia sessione per CSRF token (pagina pubblica ma serve sessione)
+if (session_status() === PHP_SESSION_NONE) {
+    ini_set('session.cookie_httponly', 1);
+    ini_set('session.use_only_cookies', 1);
+    session_start();
+}
+
 $token = $_GET['token'] ?? '';
 $error = '';
 $success = '';
@@ -67,11 +74,9 @@ $csrfToken = generateCsrfToken();
     
     <!-- Header -->
     <header class="bg-white border-b border-slate-200">
-        <div class="max-w-2xl mx-auto px-4 py-4">
+        <div class="max-w-2xl lg:max-w-5xl mx-auto px-4 py-4">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-xl flex items-center justify-center text-white font-bold text-lg">
-                    E
-                </div>
+                <img src="assets/favicons/apple-touch-icon.png" alt="Eterea Studio" class="w-10 h-10 rounded-xl">
                 <div>
                     <h1 class="font-bold text-slate-800">Eterea Studio</h1>
                     <p class="text-xs text-slate-500">Carica contenuti</p>
@@ -81,7 +86,7 @@ $csrfToken = generateCsrfToken();
     </header>
     
     <!-- Main Content -->
-    <main class="max-w-2xl mx-auto px-4 py-8">
+    <main class="max-w-2xl lg:max-w-5xl mx-auto px-4 py-8">
         
         <?php if (!empty($error)): ?>
         <!-- Errore -->
@@ -203,7 +208,7 @@ $csrfToken = generateCsrfToken();
     </main>
     
     <!-- Footer -->
-    <footer class="max-w-2xl mx-auto px-4 py-6 text-center">
+    <footer class="max-w-2xl lg:max-w-5xl mx-auto px-4 py-6 text-center">
         <p class="text-sm text-slate-400">© <?php echo date('Y'); ?> Eterea Studio - Tutti i diritti riservati</p>
     </footer>
     

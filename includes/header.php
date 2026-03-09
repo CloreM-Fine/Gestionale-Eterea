@@ -514,11 +514,12 @@ try {
                 <?php if (($_SESSION['user_id'] ?? '') === 'ucwurog3xr8tf'): ?>
                 <li>
                     <a href="blog_clienti.php" 
-                       class="flex items-center gap-3 px-3 py-3 rounded-lg transition-colors <?php echo $currentPage === 'blog_clienti' ? 'bg-cyan-600 text-white' : 'text-slate-300 hover:bg-slate-700 hover:text-white'; ?>">
+                       class="flex items-center gap-3 px-3 py-3 rounded-lg transition-colors <?php echo $currentPage === 'blog_clienti' ? 'bg-cyan-600 text-white' : 'text-slate-300 hover:bg-slate-700 hover:text-white'; ?> relative">
                         <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
                         </svg>
                         <span class="sidebar-text">Blog Clienti</span>
+                        <span id="blogClientiBadge" class="hidden absolute right-2 top-1/2 -translate-y-1/2 min-w-[20px] h-5 px-1.5 bg-amber-500 text-white text-xs font-bold rounded-full flex items-center justify-center">0</span>
                     </a>
                 </li>
                 <?php endif; ?>
@@ -982,6 +983,46 @@ document.addEventListener('DOMContentLoaded', aggiornaBadgeScadenze);
 
 // Esponi funzione globalmente per essere chiamata da altre pagine
 window.updateScadenzeBadge = aggiornaBadgeScadenze;
+
+// ============================================
+// BADGE BLOG CLIENTI - Notifica nuovi contenuti
+// ============================================
+
+async function aggiornaBadgeBlogClienti() {
+    try {
+        const response = await fetch('api/blog_clienti.php?action=count_unread', { credentials: 'same-origin' });
+        const data = await response.json();
+        
+        if (!data.success) return;
+        
+        const count = data.data.count;
+        const badge = document.getElementById('blogClientiBadge');
+        
+        if (badge) {
+            if (count > 0) {
+                badge.textContent = count > 99 ? '99+' : count;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+    } catch (error) {
+        console.error('Errore aggiornamento badge blog clienti:', error);
+    }
+}
+
+// Aggiorna ogni 2 minuti
+setInterval(aggiornaBadgeBlogClienti, 2 * 60 * 1000);
+
+// Aggiorna quando la pagina è visibile
+document.addEventListener('visibilitychange', function() {
+    if (!document.hidden) {
+        aggiornaBadgeBlogClienti();
+    }
+});
+
+// Aggiorna al caricamento della pagina
+document.addEventListener('DOMContentLoaded', aggiornaBadgeBlogClienti);
 
 // ============================================
 // CSRF PROTECTION - Aggiunge token a tutte le richieste POST

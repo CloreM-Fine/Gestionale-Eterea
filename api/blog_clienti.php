@@ -5,7 +5,6 @@
  */
 
 require_once __DIR__ . '/../includes/functions.php';
-require_once __DIR__ . '/../includes/auth_check.php';
 
 $method = $_SERVER['REQUEST_METHOD'];
 $action = $_GET['action'] ?? $_POST['action'] ?? '';
@@ -14,6 +13,9 @@ $action = $_GET['action'] ?? $_POST['action'] ?? '';
 $isPublicAction = in_array($action, ['get_by_token', 'upload_contenuto']);
 
 if (!$isPublicAction) {
+    // Richiedi autenticazione per azioni protette
+    require_once __DIR__ . '/../includes/auth_check.php';
+    
     // Accesso solo per Lorenzo
     $userId = $_SESSION['user_id'] ?? '';
     if ($userId !== 'ucwurog3xr8tf') {
@@ -29,6 +31,8 @@ switch ($method) {
             getStats();
         } elseif ($action === 'get_by_token' && isset($_GET['token'])) {
             getByToken($_GET['token']);
+        } elseif ($action === 'count_unread') {
+            countUnread();
         } else {
             jsonResponse(false, null, 'Azione non valida');
         }
@@ -143,6 +147,24 @@ function getStats() {
     } catch (PDOException $e) {
         error_log("Errore stats: " . $e->getMessage());
         jsonResponse(false, null, 'Errore caricamento statistiche');
+    }
+}
+
+/**
+ * Conta contenuti non letti (per badge notifica)
+ */
+function countUnread() {
+    global $pdo;
+    
+    try {
+        $stmt = $pdo->query("SELECT COUNT(*) FROM cliente_contenuti WHERE letto = 0 AND stato = 'attivo'");
+        $count = $stmt->fetchColumn();
+        
+        jsonResponse(true, ['count' => (int)$count]);
+        
+    } catch (PDOException $e) {
+        error_log("Errore count unread: " . $e->getMessage());
+        jsonResponse(false, null, 'Errore');
     }
 }
 
