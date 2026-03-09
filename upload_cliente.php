@@ -66,6 +66,25 @@ $csrfToken = generateCsrfToken();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="<?php echo $csrfToken; ?>">
     <title>Carica Contenuti - Eterea Studio</title>
+    
+    <!-- Favicon -->
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/favicons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/favicons/favicon-16x16.png">
+    <link rel="manifest" href="assets/favicons/site.webmanifest">
+    <link rel="shortcut icon" href="assets/favicons/favicon.ico">
+    
+    <!-- Open Graph / Meta per condivisione link -->
+    <meta property="og:title" content="Carica Contenuti - Eterea Studio">
+    <meta property="og:description" content="Carica qui le immagini e il testo per il tuo progetto con Eterea Studio">
+    <meta property="og:image" content="<?php echo BASE_URL; ?>/assets/favicons/android-chrome-512x512.png">
+    <meta property="og:url" content="<?php echo BASE_URL . $_SERVER['REQUEST_URI']; ?>">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Carica Contenuti - Eterea Studio">
+    <meta name="twitter:description" content="Carica qui le immagini e il testo per il tuo progetto con Eterea Studio">
+    <meta name="twitter:image" content="<?php echo BASE_URL; ?>/assets/favicons/android-chrome-512x512.png">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>body { font-family: 'Inter', sans-serif; }</style>
