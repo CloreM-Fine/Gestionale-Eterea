@@ -511,7 +511,7 @@ try {
                         <span class="sidebar-text">Report</span>
                     </a>
                 </li>
-                <?php if (($_SESSION['user_id'] ?? '') === 'ugv7adudxudhx'): ?>
+                <?php if (($_SESSION['user_id'] ?? '') === 'ucwurog3xr8tf'): ?>
                 <li>
                     <a href="blog_clienti.php" 
                        class="flex items-center gap-3 px-3 py-3 rounded-lg transition-colors <?php echo $currentPage === 'blog_clienti' ? 'bg-cyan-600 text-white' : 'text-slate-300 hover:bg-slate-700 hover:text-white'; ?>">
@@ -788,7 +788,7 @@ try {
             <span>Report</span>
         </a>
         
-        <?php if (($_SESSION['user_id'] ?? '') === 'ugv7adudxudhx'): ?>
+        <?php if (($_SESSION['user_id'] ?? '') === 'ucwurog3xr8tf'): ?>
         <!-- Blog Clienti -->
         <a href="blog_clienti.php" class="mobile-menu-item <?php echo $currentPage === 'blog_clienti' ? 'active' : ''; ?>">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">

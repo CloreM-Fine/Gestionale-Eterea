@@ -16,7 +16,7 @@ $isPublicAction = in_array($action, ['get_by_token', 'upload_contenuto']);
 if (!$isPublicAction) {
     // Accesso solo per Lorenzo
     $userId = $_SESSION['user_id'] ?? '';
-    if ($userId !== 'ugv7adudxudhx') {
+    if ($userId !== 'ucwurog3xr8tf') {
         jsonResponse(false, null, 'Accesso non autorizzato');
     }
 }

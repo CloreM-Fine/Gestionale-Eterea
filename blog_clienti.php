@@ -9,7 +9,7 @@ require_once __DIR__ . '/includes/auth_check.php';
 
 // Accesso solo per Lorenzo Puccetti
 $userId = $_SESSION['user_id'] ?? '';
-if ($userId !== 'ugv7adudxudhx') {
+if ($userId !== 'ucwurog3xr8tf') {
     header('Location: dashboard.php');
     exit;
 }
