@@ -747,7 +747,7 @@ function switchTab(tabName) {
                         <input type="hidden" name="progetto_id" value="<?php echo $progettoId; ?>">
                         
                         <div>
-                            <label class="block text-sm font-medium text-slate-700 mb-2">File PDF, ZIP o Immagine (max 5MB)</label>
+                            <label class="block text-sm font-medium text-slate-700 mb-2">File PDF, ZIP o Immagine (max 8MB)</label>
                             <input type="file" name="documento" id="documentoInput" accept=".pdf,.zip,.png,.jpeg,.jpg,.webp,application/zip,image/png,image/jpeg,image/webp" 
                                    class="w-full text-base text-slate-600 file:mr-4 file:py-3 file:px-4 file:rounded-lg file:border-0 file:font-medium file:bg-cyan-50 file:text-cyan-700 hover:file:bg-cyan-100"
                                    onchange="validateDocumento(this)">
@@ -797,7 +797,7 @@ function switchTab(tabName) {
                             <ul class="text-sm text-amber-700 mt-1 space-y-1">
                                 <li>• Massimo 5 documenti per progetto</li>
                                 <li>• Formato accettato: PDF o ZIP</li>
-                                <li>• Dimensione massima: 5MB per file</li>
+                                <li>• Dimensione massima: 8MB per file</li>
                             </ul>
                         </div>
                     </div>
@@ -2189,9 +2189,9 @@ function validateDocumento(input) {
             return;
         }
         
-        // Verifica dimensione (5MB)
-        if (file.size > 5 * 1024 * 1024) {
-            errorEl.textContent = 'Il file non deve superare i 5MB';
+        // Verifica dimensione (8MB)
+        if (file.size > 8 * 1024 * 1024) {
+            errorEl.textContent = 'Il file non deve superare gli 8MB';
             errorEl.classList.remove('hidden');
             input.value = '';
             previewEl.classList.add('hidden');

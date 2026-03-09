@@ -715,9 +715,9 @@ function uploadDocumento() {
         return;
     }
     
-    // Verifica dimensione (5MB)
-    if ($file['size'] > 5 * 1024 * 1024) {
-        jsonResponse(false, null, 'Il file non deve superare i 5MB');
+    // Verifica dimensione (8MB)
+    if ($file['size'] > 8 * 1024 * 1024) {
+        jsonResponse(false, null, 'Il file non deve superare gli 8MB');
         return;
     }
     
