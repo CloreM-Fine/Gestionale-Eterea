@@ -319,10 +319,14 @@ function uploadContenuto() {
         jsonResponse(false, null, 'Token mancante');
     }
     
+    if (empty($titolo)) {
+        jsonResponse(false, null, 'Inserisci un titolo');
+    }
+    
     try {
-        // Verifica token - permetti riutilizzo link già usato
+        // Verifica token - ottiene cliente_id
         $stmt = $pdo->prepare("
-            SELECT id, cliente_id, immagini FROM cliente_contenuti 
+            SELECT id, cliente_id, titolo, immagini FROM cliente_contenuti 
             WHERE token = ? AND stato = 'attivo'
         ");
         $stmt->execute([$token]);
@@ -332,7 +336,8 @@ function uploadContenuto() {
             jsonResponse(false, null, 'Link non valido o scaduto');
         }
         
-        $contenutoId = $contenuto['id'];
+        $clienteId = $contenuto['cliente_id'];
+        $isLinkGiaUsato = !empty($contenuto['titolo']);
         
         // Gestisci upload immagini
         $immagini = [];
@@ -342,27 +347,15 @@ function uploadContenuto() {
             mkdir($uploadDir, 0755, true);
         }
         
-        // Conta immagini già caricate
-        $stmt = $pdo->prepare("SELECT immagini FROM cliente_contenuti WHERE id = ?");
-        $stmt->execute([$contenutoId]);
-        $existing = $stmt->fetch();
-        $existingImages = json_decode($existing['immagini'] ?? '[]', true);
-        $currentCount = count($existingImages);
-        
-        // Max 10 immagini totali
+        // Max 10 immagini per invio
         $maxImages = 10;
-        $remainingSlots = $maxImages - $currentCount;
-        
-        if ($remainingSlots <= 0) {
-            jsonResponse(false, null, 'Limite di 10 immagini raggiunto');
-        }
         
         // Processa nuove immagini
         if (!empty($_FILES['immagini'])) {
             $files = $_FILES['immagini'];
             $fileCount = is_array($files['name']) ? count($files['name']) : 1;
             
-            for ($i = 0; $i < min($fileCount, $remainingSlots); $i++) {
+            for ($i = 0; $i < min($fileCount, $maxImages); $i++) {
                 $fileName = is_array($files['name']) ? $files['name'][$i] : $files['name'];
                 $fileTmp = is_array($files['tmp_name']) ? $files['tmp_name'][$i] : $files['tmp_name'];
                 $fileError = is_array($files['error']) ? $files['error'][$i] : $files['error'];
@@ -396,22 +389,41 @@ function uploadContenuto() {
             }
         }
         
-        // Merge con immagini esistenti
-        $allImmagini = array_merge($existingImages, $immagini);
+        $immaginiJson = json_encode($immagini);
         
-        // Aggiorna contenuto
-        $stmt = $pdo->prepare("
-            UPDATE cliente_contenuti 
-            SET titolo = ?, autore = ?, testo = ?, immagini = ?, letto = 0
-            WHERE id = ?
-        ");
-        $stmt->execute([
-            $titolo ?: 'Contenuto del cliente',
-            $autore ?: null,
-            $testo,
-            json_encode($allImmagini),
-            $contenutoId
-        ]);
+        if ($isLinkGiaUsato) {
+            // Link già usato: crea NUOVO contenuto separato
+            $newToken = bin2hex(random_bytes(16));
+            $newId = generateEntityId('cc');
+            
+            $stmt = $pdo->prepare("
+                INSERT INTO cliente_contenuti (id, cliente_id, token, titolo, autore, testo, immagini, stato, letto, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, 'attivo', 0, NOW())
+            ");
+            $stmt->execute([
+                $newId,
+                $clienteId,
+                $newToken,
+                $titolo,
+                $autore,
+                $testo,
+                $immaginiJson
+            ]);
+        } else {
+            // Primo uso del link: aggiorna record esistente
+            $stmt = $pdo->prepare("
+                UPDATE cliente_contenuti 
+                SET titolo = ?, autore = ?, testo = ?, immagini = ?, letto = 0
+                WHERE id = ?
+            ");
+            $stmt->execute([
+                $titolo,
+                $autore,
+                $testo,
+                $immaginiJson,
+                $contenuto['id']
+            ]);
+        }
         
         jsonResponse(true, null, 'Contenuto caricato con successo!');
         
