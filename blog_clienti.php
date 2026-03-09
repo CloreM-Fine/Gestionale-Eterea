@@ -348,6 +348,7 @@ function renderContenuti(contenuti) {
                                         <p class="text-sm text-slate-500 mt-1 line-clamp-2">${c.testo || 'Nessun testo'}</p>
                                         <div class="flex items-center gap-3 mt-2 text-xs text-slate-400">
                                             <span>${new Date(c.created_at).toLocaleDateString('it-IT')}</span>
+                                            ${c.autore ? `<span>di ${c.autore}</span>` : ''}
                                             ${hasImmagini ? `<span>${immagini.length} immagine/i</span>` : ''}
                                         </div>
                                     </div>
@@ -435,6 +436,16 @@ async function showDettaglio(id) {
     
     let html = '';
     
+    // Info autore e data
+    if (contenuto.autore) {
+        html += `<div class="flex items-center gap-2 mb-4 text-sm text-slate-500">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+            </svg>
+            <span>Caricato da: <strong>${contenuto.autore}</strong></span>
+        </div>`;
+    }
+    
     if (contenuto.titolo) {
         html += `<h3 class="text-xl font-bold text-slate-800 mb-4">${contenuto.titolo}</h3>`;
     }
@@ -444,15 +455,30 @@ async function showDettaglio(id) {
     }
     
     if (immagini.length > 0) {
-        html += `<div class="grid grid-cols-2 sm:grid-cols-3 gap-3">`;
-        immagini.forEach(img => {
+        html += `<div class="mb-4">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-sm font-medium text-slate-700">${immagini.length} immagine/i</span>
+                <button onclick="downloadAllImages()" class="text-sm text-cyan-600 hover:text-cyan-700 flex items-center gap-1">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                    </svg>
+                    Scarica tutte
+                </button>
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">`;
+        immagini.forEach((img, index) => {
             html += `
-                <div class="aspect-square rounded-lg overflow-hidden bg-slate-100 cursor-pointer hover:opacity-90" onclick="openImageModal('assets/uploads/clienti_contenuti/${img}')">
-                    <img src="assets/uploads/clienti_contenuti/${img}" alt="" class="w-full h-full object-cover">
+                <div class="aspect-square rounded-lg overflow-hidden bg-slate-100 relative group">
+                    <img src="assets/uploads/clienti_contenuti/${img}" alt="" class="w-full h-full object-cover cursor-pointer" onclick="openImageModal('assets/uploads/clienti_contenuti/${img}')">
+                    <a href="assets/uploads/clienti_contenuti/${img}" download="${img}" class="absolute bottom-2 right-2 p-2 bg-white/90 hover:bg-white rounded-lg shadow-sm opacity-0 group-hover:opacity-100 transition-opacity" title="Scarica">
+                        <svg class="w-4 h-4 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                        </svg>
+                    </a>
                 </div>
             `;
         });
-        html += `</div>`;
+        html += `</div></div>`;
     }
     
     document.getElementById('dettaglioContent').innerHTML = html;
@@ -473,6 +499,28 @@ async function showDettaglio(id) {
     if (!contenuto.letto) {
         segnaLetto(id);
     }
+}
+
+function downloadAllImages() {
+    const contenuto = contenutiData.find(c => c.id === currentContenutoId);
+    if (!contenuto) return;
+    
+    const immagini = JSON.parse(contenuto.immagini || '[]');
+    if (immagini.length === 0) return;
+    
+    // Scarica tutte le immagini una per una
+    immagini.forEach((img, index) => {
+        setTimeout(() => {
+            const link = document.createElement('a');
+            link.href = `assets/uploads/clienti_contenuti/${img}`;
+            link.download = img;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }, index * 200); // Delay per evitare blocchi del browser
+    });
+    
+    showToast('Download avviato', 'success');
 }
 
 async function segnaLetto(id) {

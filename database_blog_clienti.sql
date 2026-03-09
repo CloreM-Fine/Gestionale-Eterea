@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS `cliente_contenuti` (
     `cliente_id` VARCHAR(20) NOT NULL,
     `token` VARCHAR(64) NOT NULL,
     `titolo` VARCHAR(255) DEFAULT NULL,
+    `autore` VARCHAR(255) DEFAULT NULL,
     `testo` TEXT,
     `immagini` JSON,
     `stato` ENUM('attivo', 'archiviato', 'eliminato') DEFAULT 'attivo',
@@ -22,6 +23,24 @@ CREATE TABLE IF NOT EXISTS `cliente_contenuti` (
     KEY `letto` (`letto`),
     KEY `created_at` (`created_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Aggiungi colonna autore se tabella esiste già (ALTER TABLE per aggiornamenti)
+SET @dbname = DATABASE();
+SET @tablename = 'cliente_contenuti';
+SET @columnname = 'autore';
+SET @preparedStatement = (SELECT IF(
+    (
+        SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_SCHEMA = @dbname
+        AND TABLE_NAME = @tablename
+        AND COLUMN_NAME = @columnname
+    ) = 0,
+    CONCAT('ALTER TABLE ', @tablename, ' ADD COLUMN ', @columnname, ' VARCHAR(255) DEFAULT NULL AFTER titolo;'),
+    'SELECT 1;'
+));
+PREPARE alterIfNotExists FROM @preparedStatement;
+EXECUTE alterIfNotExists;
+DEALLOCATE PREPARE alterIfNotExists;
 
 -- Tabella per i link generati (opzionale, per tracciare i link creati)
 CREATE TABLE IF NOT EXISTS `cliente_link` (

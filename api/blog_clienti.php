@@ -247,6 +247,9 @@ function uploadContenuto() {
     $token = $_POST['token'] ?? '';
     $titolo = trim($_POST['titolo'] ?? '');
     $testo = trim($_POST['testo'] ?? '');
+    $autoreNome = trim($_POST['autore_nome'] ?? '');
+    $autoreCognome = trim($_POST['autore_cognome'] ?? '');
+    $autore = trim($autoreNome . ' ' . $autoreCognome);
     
     if (empty($token)) {
         jsonResponse(false, null, 'Token mancante');
@@ -335,11 +338,12 @@ function uploadContenuto() {
         // Aggiorna contenuto
         $stmt = $pdo->prepare("
             UPDATE cliente_contenuti 
-            SET titolo = ?, testo = ?, immagini = ?, letto = 0
+            SET titolo = ?, autore = ?, testo = ?, immagini = ?, letto = 0
             WHERE id = ?
         ");
         $stmt->execute([
             $titolo ?: 'Contenuto del cliente',
+            $autore ?: null,
             $testo,
             json_encode($allImmagini),
             $contenutoId

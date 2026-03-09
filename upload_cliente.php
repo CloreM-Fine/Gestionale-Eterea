@@ -128,6 +128,22 @@ $csrfToken = generateCsrfToken();
                 <input type="hidden" name="token" value="<?php echo e($token); ?>">
                 <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
                 
+                <!-- Autore -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-2">Nome *</label>
+                        <input type="text" name="autore_nome" required
+                               class="w-full px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none"
+                               placeholder="Il tuo nome">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-2">Cognome *</label>
+                        <input type="text" name="autore_cognome" required
+                               class="w-full px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none"
+                               placeholder="Il tuo cognome">
+                    </div>
+                </div>
+                
                 <!-- Titolo -->
                 <div>
                     <label class="block text-sm font-medium text-slate-700 mb-2">Titolo *</label>
@@ -324,8 +340,8 @@ $csrfToken = generateCsrfToken();
             const data = await response.json();
             
             if (data.success) {
-                // Mostra messaggio successo
-                location.reload();
+                // Reindirizza a pagina di successo (senza mostrare immagini precedenti)
+                window.location.href = window.location.pathname + '?token=<?php echo e($token); ?>&success=1';
             } else {
                 alert(data.message || 'Errore durante l\'invio');
                 btn.disabled = false;
