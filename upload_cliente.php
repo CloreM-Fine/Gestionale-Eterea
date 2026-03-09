@@ -74,7 +74,7 @@ $csrfToken = generateCsrfToken();
     
     <!-- Header -->
     <header class="bg-white border-b border-slate-200">
-        <div class="max-w-2xl lg:max-w-5xl mx-auto px-4 py-4">
+        <div class="max-w-2xl lg:max-w-7xl mx-auto px-4 py-4">
             <div class="flex items-center gap-3">
                 <img src="assets/favicons/apple-touch-icon.png" alt="Eterea Studio" class="w-10 h-10 rounded-xl">
                 <div>
@@ -86,7 +86,7 @@ $csrfToken = generateCsrfToken();
     </header>
     
     <!-- Main Content -->
-    <main class="max-w-2xl lg:max-w-5xl mx-auto px-4 py-8">
+    <main class="max-w-2xl lg:max-w-6xl mx-auto px-4 lg:px-8 py-8">
         
         <?php if (!empty($error)): ?>
         <!-- Errore -->
@@ -124,6 +124,7 @@ $csrfToken = generateCsrfToken();
             </div>
             
             <form id="uploadForm" class="p-6 space-y-6">
+                <input type="hidden" name="action" value="upload_contenuto">
                 <input type="hidden" name="token" value="<?php echo e($token); ?>">
                 <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
                 
@@ -208,7 +209,7 @@ $csrfToken = generateCsrfToken();
     </main>
     
     <!-- Footer -->
-    <footer class="max-w-2xl lg:max-w-5xl mx-auto px-4 py-6 text-center">
+    <footer class="max-w-2xl lg:max-w-7xl mx-auto px-4 py-6 text-center">
         <p class="text-sm text-slate-400">© <?php echo date('Y'); ?> Eterea Studio - Tutti i diritti riservati</p>
     </footer>
     
