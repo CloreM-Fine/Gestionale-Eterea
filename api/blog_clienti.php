@@ -61,6 +61,8 @@ switch ($method) {
             cambiaStato($_POST['id'], 'attivo');
         } elseif ($action === 'elimina' && isset($_POST['id'])) {
             eliminaContenuto($_POST['id']);
+        } elseif ($action === 'elimina_link' && isset($_POST['id'])) {
+            eliminaLink($_POST['id']);
         } else {
             jsonResponse(false, null, 'Azione non valida');
         }
@@ -495,5 +497,41 @@ function eliminaContenuto($id) {
     } catch (PDOException $e) {
         error_log("Errore elimina contenuto: " . $e->getMessage());
         jsonResponse(false, null, 'Errore eliminazione');
+    }
+}
+
+/**
+ * Elimina un link (e i suoi contenuti associati)
+ */
+function eliminaLink($id) {
+    global $pdo;
+    
+    try {
+        // Recupera immagini associate per eliminarle fisicamente
+        $stmt = $pdo->prepare("SELECT immagini FROM cliente_contenuti WHERE id = ?");
+        $stmt->execute([$id]);
+        $row = $stmt->fetch();
+        
+        if ($row) {
+            $immagini = json_decode($row['immagini'] ?? '[]', true);
+            $uploadDir = __DIR__ . '/../assets/uploads/clienti_contenuti/';
+            
+            foreach ($immagini as $img) {
+                $path = $uploadDir . $img;
+                if (file_exists($path)) {
+                    unlink($path);
+                }
+            }
+        }
+        
+        // Elimina record
+        $stmt = $pdo->prepare("DELETE FROM cliente_contenuti WHERE id = ?");
+        $stmt->execute([$id]);
+        
+        jsonResponse(true, null);
+        
+    } catch (PDOException $e) {
+        error_log("Errore elimina link: " . $e->getMessage());
+        jsonResponse(false, null, 'Errore eliminazione link');
     }
 }

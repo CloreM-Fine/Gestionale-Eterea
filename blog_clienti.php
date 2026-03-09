@@ -426,6 +426,13 @@ function renderLinks(links) {
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
                                         </svg>
                                     </a>
+                                    <button onclick="eliminaLink('${link.id}', '${link.cliente_nome || 'Cliente'}')" 
+                                            class="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" 
+                                            title="Elimina link">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                        </svg>
+                                    </button>
                                 </div>
                             </div>
                         `;
@@ -773,7 +780,7 @@ async function ripristinaContenuto() {
 
 async function eliminaContenuto() {
     if (!currentContenutoId) return;
-    if (!confirm('Sei sicuro di voler eliminare questo contenuto?')) return;
+    if (!confirm('Sei sicuro di voler eliminare questo contenuto?\n\nIl link rimarrà attivo per nuovi invii.')) return;
     
     try {
         const response = await fetch('api/blog_clienti.php', {
@@ -785,7 +792,7 @@ async function eliminaContenuto() {
         const data = await response.json();
         
         if (data.success) {
-            showToast('Contenuto eliminato', 'success');
+            showToast('Contenuto eliminato - Il link rimane attivo', 'success');
             closeModal('dettaglioContenutoModal');
             loadContenuti();
             loadStats();
@@ -795,6 +802,62 @@ async function eliminaContenuto() {
     } catch (error) {
         showToast('Errore di connessione', 'error');
     }
+}
+
+async function eliminaLink(id, clienteNome) {
+    if (!confirm(`Eliminare il link di ${clienteNome}?\n\nQuesta azione non può essere annullata.`)) return;
+    
+    try {
+        const response = await fetch('api/blog_clienti.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `action=elimina_link&id=${id}&csrf_token=${document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''}`
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showToast('Link eliminato', 'success');
+            loadLinks();
+        } else {
+            showToast(data.message || 'Errore', 'error');
+        }
+    } catch (error) {
+        showToast('Errore di connessione', 'error');
+    }
+}
+
+// Modal immagine
+function openImageModal(src) {
+    // Crea modal dinamicamente se non esiste
+    let modal = document.getElementById('imagePreviewModal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'imagePreviewModal';
+        modal.className = 'fixed inset-0 z-[70] hidden';
+        modal.innerHTML = `
+            <div class="absolute inset-0 bg-black/80" onclick="closeImageModal()"></div>
+            <div class="absolute inset-0 flex items-center justify-center p-4">
+                <div class="relative max-w-4xl max-h-[90vh]">
+                    <button onclick="closeImageModal()" class="absolute -top-10 right-0 p-2 text-white hover:text-slate-300">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                    <img id="imagePreviewImg" src="" alt="Preview" class="max-w-full max-h-[85vh] object-contain rounded-lg">
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    }
+    
+    document.getElementById('imagePreviewImg').src = src;
+    modal.classList.remove('hidden');
+}
+
+function closeImageModal() {
+    const modal = document.getElementById('imagePreviewModal');
+    if (modal) modal.classList.add('hidden');
 }
 </script>
 
