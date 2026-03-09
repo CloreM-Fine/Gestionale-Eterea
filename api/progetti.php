@@ -667,8 +667,8 @@ function uploadDocumento() {
         $stmt->execute([$progettoId]);
         $count = (int)$stmt->fetchColumn();
         
-        if ($count >= 5) {
-            jsonResponse(false, null, 'Limite massimo di 5 documenti raggiunto');
+        if ($count >= 10) {
+            jsonResponse(false, null, 'Limite massimo di 10 documenti raggiunto');
             return;
         }
     } catch (PDOException $e) {

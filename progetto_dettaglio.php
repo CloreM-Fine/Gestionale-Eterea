@@ -752,7 +752,7 @@ function switchTab(tabName) {
                                    class="w-full text-base text-slate-600 file:mr-4 file:py-3 file:px-4 file:rounded-lg file:border-0 file:font-medium file:bg-cyan-50 file:text-cyan-700 hover:file:bg-cyan-100"
                                    onchange="validateDocumento(this)">
                             <p class="text-xs text-slate-500 mt-2">
-                                Massimo 5 documenti per progetto. Formato: PDF, ZIP, PNG, JPEG, JPG, WEBP
+                                Massimo 10 documenti per progetto. Formato: PDF, ZIP, PNG, JPEG, JPG, WEBP
                             </p>
                             <p id="documentoError" class="text-xs text-red-500 mt-1 hidden"></p>
                         </div>
@@ -765,7 +765,7 @@ function switchTab(tabName) {
                         </div>
                         
                         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                            <span id="documentiCounter" class="text-sm text-slate-500">0/5 documenti</span>
+                            <span id="documentiCounter" class="text-sm text-slate-500">0/10 documenti</span>
                             <button type="button" onclick="uploadDocumento()" 
                                     class="w-full sm:w-auto px-4 py-3 min-h-[44px] bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg font-medium flex items-center justify-center gap-2">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -795,7 +795,7 @@ function switchTab(tabName) {
                         <div>
                             <p class="font-medium text-amber-800 text-sm">Limiti Upload</p>
                             <ul class="text-sm text-amber-700 mt-1 space-y-1">
-                                <li>• Massimo 5 documenti per progetto</li>
+                                <li>• Massimo 10 documenti per progetto</li>
                                 <li>• Formato accettato: PDF o ZIP</li>
                                 <li>• Dimensione massima: 8MB per file</li>
                             </ul>
@@ -2218,7 +2218,7 @@ async function loadDocumenti() {
             const documenti = data.data || [];
             
             // Aggiorna contatori
-            counter.textContent = `${documenti.length}/5 documenti`;
+            counter.textContent = `${documenti.length}/10 documenti`;
             badge.textContent = documenti.length;
             
             // Disabilita upload se max raggiunto
