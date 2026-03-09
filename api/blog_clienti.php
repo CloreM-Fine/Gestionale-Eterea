@@ -74,12 +74,13 @@ switch ($method) {
 
 /**
  * Lista contenuti con filtri
+ * Mostra SOLO i record che hanno effettivamente del contenuto (titolo o immagini)
  */
 function listContenuti() {
     global $pdo;
     
     try {
-        $where = ["c.stato != 'eliminato'"];
+        $where = ["c.stato != 'eliminato'", "(c.titolo IS NOT NULL AND c.titolo != '')"];
         $params = [];
         
         if (!empty($_GET['cliente_id'])) {
@@ -466,31 +467,44 @@ function cambiaStato($id, $stato) {
 }
 
 /**
- * Elimina contenuto
+ * Elimina contenuto - mantiene il link attivo per nuovi invii
+ * Non elimina il record, solo resetta i dati del contenuto
  */
 function eliminaContenuto($id) {
     global $pdo;
     
     try {
         // Recupera immagini per eliminarle fisicamente
-        $stmt = $pdo->prepare("SELECT immagini FROM cliente_contenuti WHERE id = ?");
+        $stmt = $pdo->prepare("SELECT immagini, token FROM cliente_contenuti WHERE id = ?");
         $stmt->execute([$id]);
         $row = $stmt->fetch();
         
-        if ($row) {
-            $immagini = json_decode($row['immagini'] ?? '[]', true);
-            $uploadDir = __DIR__ . '/../assets/uploads/clienti_contenuti/';
-            
-            foreach ($immagini as $img) {
-                $path = $uploadDir . $img;
-                if (file_exists($path)) {
-                    unlink($path);
-                }
+        if (!$row) {
+            jsonResponse(false, null, 'Contenuto non trovato');
+            return;
+        }
+        
+        // Elimina file immagini
+        $immagini = json_decode($row['immagini'] ?? '[]', true);
+        $uploadDir = __DIR__ . '/../assets/uploads/clienti_contenuti/';
+        foreach ($immagini as $img) {
+            $path = $uploadDir . $img;
+            if (file_exists($path)) {
+                unlink($path);
             }
         }
         
-        // Elimina record
-        $stmt = $pdo->prepare("DELETE FROM cliente_contenuti WHERE id = ?");
+        // RESET del contenuto (non eliminare il record!)
+        // Mantieni token, cliente_id, stato='attivo' per permettere nuovi invii
+        $stmt = $pdo->prepare("
+            UPDATE cliente_contenuti 
+            SET titolo = NULL, 
+                testo = NULL, 
+                immagini = '[]', 
+                autore = NULL,
+                letto = 0
+            WHERE id = ?
+        ");
         $stmt->execute([$id]);
         
         jsonResponse(true, null);
