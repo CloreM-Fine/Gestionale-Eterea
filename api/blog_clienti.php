@@ -33,6 +33,8 @@ switch ($method) {
             getByToken($_GET['token']);
         } elseif ($action === 'count_unread') {
             countUnread();
+        } elseif ($action === 'list_links') {
+            listLinks();
         } else {
             jsonResponse(false, null, 'Azione non valida');
         }
@@ -169,7 +171,43 @@ function countUnread() {
 }
 
 /**
- * Genera link per cliente
+ * Lista link generati
+ */
+function listLinks() {
+    global $pdo;
+    
+    try {
+        $stmt = $pdo->query("
+            SELECT c.id, c.token, c.cliente_id, c.created_at, c.titolo,
+                   cl.ragione_sociale as cliente_nome,
+                   CASE 
+                       WHEN c.titolo IS NOT NULL AND c.titolo != '' THEN 'usato'
+                       WHEN c.immagini IS NOT NULL AND c.immagini != '[]' THEN 'usato'
+                       ELSE 'libero'
+                   END as stato_link
+            FROM cliente_contenuti c
+            LEFT JOIN clienti cl ON c.cliente_id = cl.id
+            WHERE c.stato = 'attivo'
+            ORDER BY c.created_at DESC
+            LIMIT 100
+        ");
+        $links = $stmt->fetchAll();
+        
+        // Aggiungi URL completo
+        foreach ($links as &$link) {
+            $link['url'] = BASE_URL . '/upload_cliente.php?token=' . $link['token'];
+        }
+        
+        jsonResponse(true, $links);
+        
+    } catch (PDOException $e) {
+        error_log("Errore lista links: " . $e->getMessage());
+        jsonResponse(false, null, 'Errore caricamento link');
+    }
+}
+
+/**
+ * Genera link per cliente (o recupera esistente)
  */
 function generaLink() {
     global $pdo;
@@ -183,13 +221,36 @@ function generaLink() {
     
     try {
         // Verifica cliente esiste
-        $stmt = $pdo->prepare("SELECT id FROM clienti WHERE id = ?");
+        $stmt = $pdo->prepare("SELECT ragione_sociale FROM clienti WHERE id = ?");
         $stmt->execute([$clienteId]);
-        if (!$stmt->fetch()) {
+        $cliente = $stmt->fetch();
+        if (!$cliente) {
             jsonResponse(false, null, 'Cliente non trovato');
         }
         
-        // Genera token univoco
+        // Verifica se esiste già un link per questo cliente (vuoto, mai utilizzato)
+        $stmt = $pdo->prepare("
+            SELECT id, token FROM cliente_contenuti 
+            WHERE cliente_id = ? AND stato = 'attivo' AND (titolo IS NULL OR titolo = '') AND (immagini IS NULL OR immagini = '[]')
+            ORDER BY created_at DESC
+            LIMIT 1
+        ");
+        $stmt->execute([$clienteId]);
+        $esistente = $stmt->fetch();
+        
+        if ($esistente) {
+            // Restituisci link esistente
+            $url = BASE_URL . '/upload_cliente.php?token=' . $esistente['token'];
+            jsonResponse(true, [
+                'url' => $url, 
+                'token' => $esistente['token'],
+                'esistente' => true,
+                'message' => 'Link esistente recuperato per ' . $cliente['ragione_sociale']
+            ]);
+            return;
+        }
+        
+        // Genera nuovo token
         $token = bin2hex(random_bytes(32));
         $id = generateEntityId('ccnt');
         
@@ -202,7 +263,12 @@ function generaLink() {
         // URL pubblico
         $url = BASE_URL . '/upload_cliente.php?token=' . $token;
         
-        jsonResponse(true, ['url' => $url, 'token' => $token]);
+        jsonResponse(true, [
+            'url' => $url, 
+            'token' => $token,
+            'esistente' => false,
+            'message' => 'Nuovo link generato per ' . $cliente['ragione_sociale']
+        ]);
         
     } catch (PDOException $e) {
         error_log("Errore genera link: " . $e->getMessage());

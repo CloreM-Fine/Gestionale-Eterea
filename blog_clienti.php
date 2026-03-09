@@ -96,6 +96,29 @@ try {
     </div>
 </div>
 
+<!-- Link Generati -->
+<div class="bg-white rounded-xl shadow-sm border border-slate-200 mb-6 overflow-hidden">
+    <div class="p-4 border-b border-slate-100 flex items-center justify-between">
+        <div class="flex items-center gap-2 text-slate-700">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
+            </svg>
+            <span class="font-medium">Link Generati</span>
+        </div>
+        <button onclick="loadLinks()" class="text-sm text-cyan-600 hover:text-cyan-700 flex items-center gap-1">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+            </svg>
+            Aggiorna
+        </button>
+    </div>
+    <div class="p-4">
+        <div id="linksContainer" class="space-y-2">
+            <p class="text-center text-slate-400 py-4">Caricamento link...</p>
+        </div>
+    </div>
+</div>
+
 <!-- Lista Contenuti -->
 <div id="contenutiContainer" class="space-y-4">
     <div class="text-center py-12">
@@ -241,6 +264,7 @@ let currentContenutoId = null;
 document.addEventListener('DOMContentLoaded', function() {
     loadContenuti();
     loadStats();
+    loadLinks();
 });
 
 async function loadContenuti() {
@@ -282,6 +306,100 @@ async function loadStats() {
     } catch (error) {
         console.error('Errore stats:', error);
     }
+}
+
+async function loadLinks() {
+    try {
+        const response = await fetch('api/blog_clienti.php?action=list_links');
+        const data = await response.json();
+        
+        if (data.success) {
+            renderLinks(data.data);
+        }
+    } catch (error) {
+        console.error('Errore caricamento link:', error);
+        document.getElementById('linksContainer').innerHTML = '<p class="text-center text-slate-400 py-4">Errore caricamento link</p>';
+    }
+}
+
+function renderLinks(links) {
+    const container = document.getElementById('linksContainer');
+    
+    if (links.length === 0) {
+        container.innerHTML = `
+            <div class="text-center py-6 text-slate-400">
+                <svg class="w-12 h-12 mx-auto mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
+                </svg>
+                <p>Nessun link generato</p>
+                <p class="text-sm">Clicca "Genera Link" per crearne uno</p>
+            </div>
+        `;
+        return;
+    }
+    
+    // Raggruppa per cliente
+    const perCliente = {};
+    links.forEach(link => {
+        const nome = link.cliente_nome || 'Cliente sconosciuto';
+        if (!perCliente[nome]) perCliente[nome] = [];
+        perCliente[nome].push(link);
+    });
+    
+    let html = '';
+    for (const [clienteNome, items] of Object.entries(perCliente)) {
+        html += `
+            <div class="border border-slate-200 rounded-lg overflow-hidden">
+                <div class="p-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+                    <span class="font-medium text-slate-700">${clienteNome}</span>
+                    <span class="text-xs text-slate-500">${items.length} link</span>
+                </div>
+                <div class="divide-y divide-slate-100">
+                    ${items.map(link => {
+                        const isLibero = link.stato_link === 'libero';
+                        const data = new Date(link.created_at).toLocaleDateString('it-IT');
+                        return `
+                            <div class="p-3 flex items-center justify-between gap-3">
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xs px-2 py-0.5 rounded-full ${isLibero ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">
+                                            ${isLibero ? 'Libero' : 'Usato'}
+                                        </span>
+                                        <span class="text-xs text-slate-400">${data}</span>
+                                    </div>
+                                    <p class="text-xs text-slate-500 mt-1 truncate">Token: ${link.token.substring(0, 20)}...</p>
+                                </div>
+                                <div class="flex items-center gap-1">
+                                    <button onclick="copiaLinkEsistente('${link.url}')" 
+                                            class="p-2 text-cyan-600 hover:bg-cyan-50 rounded-lg transition-colors" 
+                                            title="Copia link">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                                        </svg>
+                                    </button>
+                                    <a href="${link.url}" target="_blank" 
+                                       class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+                                       title="Apri link">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                                        </svg>
+                                    </a>
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            </div>
+        `;
+    }
+    
+    container.innerHTML = html;
+}
+
+function copiaLinkEsistente(url) {
+    navigator.clipboard.writeText(url).then(() => {
+        showToast('Link copiato!', 'success');
+    });
 }
 
 function renderContenuti(contenuti) {
@@ -394,7 +512,16 @@ async function generaLink() {
             closeModal('generaLinkModal');
             document.getElementById('linkGeneratoUrl').value = data.data.url;
             openModal('linkGeneratoModal');
-            showToast('Link generato con successo', 'success');
+            
+            // Aggiorna lista link
+            loadLinks();
+            
+            // Mostra messaggio appropriato
+            if (data.data.esistente) {
+                showToast('Link esistente recuperato', 'success');
+            } else {
+                showToast('Link generato con successo', 'success');
+            }
         } else {
             showToast(data.message || 'Errore generazione link', 'error');
         }
