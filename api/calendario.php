@@ -24,8 +24,13 @@ switch ($method) {
             createEvent();
         } elseif ($action === 'update' && isset($_POST['id'])) {
             updateEvent($_POST['id']);
-        } elseif ($action === 'complete' && isset($_POST['id'])) {
-            completeEvent($_POST['id']);
+        } elseif ($action === 'complete') {
+            $id = $_POST['id'] ?? $_GET['id'] ?? null;
+            if ($id) {
+                completeEvent($id);
+            } else {
+                jsonResponse(false, null, 'ID mancante');
+            }
         } elseif ($action === 'delete') {
             $id = $_POST['id'] ?? $_GET['id'] ?? null;
             if ($id) {
