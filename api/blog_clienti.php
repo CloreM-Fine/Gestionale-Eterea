@@ -320,16 +320,16 @@ function uploadContenuto() {
     }
     
     try {
-        // Verifica token
+        // Verifica token - permetti riutilizzo link già usato
         $stmt = $pdo->prepare("
-            SELECT id, cliente_id FROM cliente_contenuti 
-            WHERE token = ? AND stato = 'attivo' AND (titolo IS NULL OR titolo = '')
+            SELECT id, cliente_id, immagini FROM cliente_contenuti 
+            WHERE token = ? AND stato = 'attivo'
         ");
         $stmt->execute([$token]);
         $contenuto = $stmt->fetch();
         
         if (!$contenuto) {
-            jsonResponse(false, null, 'Link non valido o già utilizzato');
+            jsonResponse(false, null, 'Link non valido o scaduto');
         }
         
         $contenutoId = $contenuto['id'];
