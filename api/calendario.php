@@ -254,12 +254,16 @@ function completeEvent($id) {
     global $pdo;
     
     try {
-        // Verifica esistenza colonna completato
+        // Verifica esistenza colonna completato e crea se necessario
         try {
-            $stmt = $pdo->prepare("ALTER TABLE appuntamenti ADD COLUMN IF NOT EXISTS completato TINYINT(1) DEFAULT 0");
-            $stmt->execute();
+            $pdo->query("SELECT completato FROM appuntamenti LIMIT 1");
         } catch (PDOException $e) {
-            // Colonna potrebbe già esistere, ignora errore
+            // Colonna non esiste, creala
+            try {
+                $pdo->exec("ALTER TABLE appuntamenti ADD COLUMN completato TINYINT(1) DEFAULT 0");
+            } catch (PDOException $e2) {
+                // Ignora errore
+            }
         }
         
         $stmt = $pdo->prepare("UPDATE appuntamenti SET completato = 1 WHERE id = ?");
