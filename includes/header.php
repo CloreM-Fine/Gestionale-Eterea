@@ -511,6 +511,17 @@ try {
                         <span class="sidebar-text">Report</span>
                     </a>
                 </li>
+                <?php if (($_SESSION['user_id'] ?? '') === 'ugv7adudxudhx'): ?>
+                <li>
+                    <a href="blog_clienti.php" 
+                       class="flex items-center gap-3 px-3 py-3 rounded-lg transition-colors <?php echo $currentPage === 'blog_clienti' ? 'bg-cyan-600 text-white' : 'text-slate-300 hover:bg-slate-700 hover:text-white'; ?>">
+                        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
+                        </svg>
+                        <span class="sidebar-text">Blog Clienti</span>
+                    </a>
+                </li>
+                <?php endif; ?>
                 <li>
                     <a href="impostazioni.php" 
                        class="flex items-center gap-3 px-3 py-3 rounded-lg transition-colors <?php echo $currentPage === 'impostazioni' ? 'bg-cyan-600 text-white' : 'text-slate-300 hover:bg-slate-700 hover:text-white'; ?>">
@@ -776,6 +787,16 @@ try {
             </svg>
             <span>Report</span>
         </a>
+        
+        <?php if (($_SESSION['user_id'] ?? '') === 'ugv7adudxudhx'): ?>
+        <!-- Blog Clienti -->
+        <a href="blog_clienti.php" class="mobile-menu-item <?php echo $currentPage === 'blog_clienti' ? 'active' : ''; ?>">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
+            </svg>
+            <span>Blog Clienti</span>
+        </a>
+        <?php endif; ?>
         
         <!-- Impostazioni -->
         <a href="impostazioni.php" class="mobile-menu-item <?php echo $currentPage === 'impostazioni' ? 'active' : ''; ?>">
