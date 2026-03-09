@@ -49,10 +49,11 @@ if (!empty($token) && !$justSubmitted) {
             $clienteNome = $contenuto['cliente_nome'] ?? 'Cliente';
             $existingImages = json_decode($contenuto['immagini'] ?? '[]', true);
             
-            // Se ha già titolo, il link è già stato usato
+            // Se ha già titolo, il link è già stato usato - nascondi immagini precedenti
+            // per dare un'esperienza pulita al cliente che vuole caricare altro
             if (!empty($contenuto['titolo'])) {
-                // Permetti aggiunta immagini se < 10
-                if (count($existingImages) >= 10) {
+                $existingImages = []; // Non mostrare immagini vecchie nel form
+                if (count(json_decode($contenuto['immagini'] ?? '[]', true)) >= 10) {
                     $error = 'Hai già caricato il numero massimo di immagini. Contatta lo studio per ulteriori informazioni.';
                     $isValid = false;
                 }
@@ -228,7 +229,7 @@ $csrfToken = generateCsrfToken();
         <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
             <!-- Colonna sinistra: Form (più larga) -->
             <div class="lg:col-span-4">
-                <div class="max-w-3xl mx-auto bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
                     <div class="p-6 border-b border-slate-100">
                         <h2 class="text-xl font-bold text-slate-800">Ciao <?php echo e($clienteNome); ?>!</h2>
                         <p class="text-slate-500 mt-1">Carica qui le immagini e il testo per il tuo progetto.</p>
