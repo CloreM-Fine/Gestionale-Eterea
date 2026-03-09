@@ -313,9 +313,7 @@ function uploadContenuto() {
     $token = $_POST['token'] ?? '';
     $titolo = trim($_POST['titolo'] ?? '');
     $testo = trim($_POST['testo'] ?? '');
-    $autoreNome = trim($_POST['autore_nome'] ?? '');
-    $autoreCognome = trim($_POST['autore_cognome'] ?? '');
-    $autore = trim($autoreNome . ' ' . $autoreCognome);
+    $autore = trim($_POST['autore'] ?? '');
     
     if (empty($token)) {
         jsonResponse(false, null, 'Token mancante');
