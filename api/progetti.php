@@ -685,14 +685,33 @@ function uploadDocumento() {
     
     $file = $_FILES['documento'];
     
-    // Verifica tipo (PDF o ZIP)
+    // Verifica tipo (PDF, ZIP o Immagini)
     $finfo = finfo_open(FILEINFO_MIME_TYPE);
     $mimeType = finfo_file($finfo, $file['tmp_name']);
     finfo_close($finfo);
     
-    $allowedMimeTypes = ['application/pdf', 'application/zip', 'application/x-zip-compressed'];
-    if (!in_array($mimeType, $allowedMimeTypes)) {
-        jsonResponse(false, null, 'Il file deve essere PDF o ZIP');
+    $allowedMimeTypes = [
+        'application/pdf', 
+        'application/zip', 
+        'application/x-zip-compressed',
+        'image/png',
+        'image/jpeg',
+        'image/webp'
+    ];
+    
+    // Verifica anche per estensione
+    $fileName = strtolower($file['name']);
+    $allowedExtensions = ['.pdf', '.zip', '.png', '.jpeg', '.jpg', '.webp'];
+    $hasAllowedExtension = false;
+    foreach ($allowedExtensions as $ext) {
+        if (substr($fileName, -strlen($ext)) === $ext) {
+            $hasAllowedExtension = true;
+            break;
+        }
+    }
+    
+    if (!in_array($mimeType, $allowedMimeTypes) && !$hasAllowedExtension) {
+        jsonResponse(false, null, 'Il file deve essere PDF, ZIP, PNG, JPEG, JPG o WEBP');
         return;
     }
     

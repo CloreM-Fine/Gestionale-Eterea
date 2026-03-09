@@ -747,12 +747,12 @@ function switchTab(tabName) {
                         <input type="hidden" name="progetto_id" value="<?php echo $progettoId; ?>">
                         
                         <div>
-                            <label class="block text-sm font-medium text-slate-700 mb-2">File PDF o ZIP (max 5MB)</label>
-                            <input type="file" name="documento" id="documentoInput" accept=".pdf,.zip,application/zip" 
+                            <label class="block text-sm font-medium text-slate-700 mb-2">File PDF, ZIP o Immagine (max 5MB)</label>
+                            <input type="file" name="documento" id="documentoInput" accept=".pdf,.zip,.png,.jpeg,.jpg,.webp,application/zip,image/png,image/jpeg,image/webp" 
                                    class="w-full text-base text-slate-600 file:mr-4 file:py-3 file:px-4 file:rounded-lg file:border-0 file:font-medium file:bg-cyan-50 file:text-cyan-700 hover:file:bg-cyan-100"
                                    onchange="validateDocumento(this)">
                             <p class="text-xs text-slate-500 mt-2">
-                                Massimo 5 documenti per progetto. Formato: PDF o ZIP
+                                Massimo 5 documenti per progetto. Formato: PDF, ZIP, PNG, JPEG, JPG, WEBP
                             </p>
                             <p id="documentoError" class="text-xs text-red-500 mt-1 hidden"></p>
                         </div>
@@ -2167,10 +2167,22 @@ function validateDocumento(input) {
     if (input.files && input.files[0]) {
         const file = input.files[0];
         
-        // Verifica tipo (PDF o ZIP)
-        const allowedTypes = ['application/pdf', 'application/zip', 'application/x-zip-compressed'];
-        if (!allowedTypes.includes(file.type) && !file.name.toLowerCase().endsWith('.zip')) {
-            errorEl.textContent = 'Il file deve essere PDF o ZIP';
+        // Verifica tipo (PDF, ZIP o Immagini)
+        const allowedTypes = [
+            'application/pdf', 
+            'application/zip', 
+            'application/x-zip-compressed',
+            'image/png',
+            'image/jpeg',
+            'image/jpg',
+            'image/webp'
+        ];
+        const allowedExtensions = ['.pdf', '.zip', '.png', '.jpeg', '.jpg', '.webp'];
+        const fileName = file.name.toLowerCase();
+        const hasAllowedExtension = allowedExtensions.some(ext => fileName.endsWith(ext));
+        
+        if (!allowedTypes.includes(file.type) && !hasAllowedExtension) {
+            errorEl.textContent = 'Il file deve essere PDF, ZIP, PNG, JPEG, JPG o WEBP';
             errorEl.classList.remove('hidden');
             input.value = '';
             previewEl.classList.add('hidden');
