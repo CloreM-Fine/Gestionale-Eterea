@@ -1,0 +1,55 @@
+# =====================================================
+# ETEREA GESTIONALE - Sicurezza uploads clienti
+# Protezione cartella upload contenuti clienti
+# =====================================================
+
+# Disabilita esecuzione PHP in questa cartella
+<IfModule mod_php.c>
+    php_flag engine off
+</IfModule>
+
+# Disabilita esecuzione script
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{REQUEST_FILENAME} -f
+    RewriteRule \.(php|php\.|php3|php4|php5|phtml|pl|py|jsp|asp|aspx|cgi|sh|bash|exe|dll)$ - [F,L,NC]
+</IfModule>
+
+# Header di sicurezza
+<IfModule mod_headers.c>
+    # Disabilita caching per file sensibili
+    <FilesMatch "\.(php|exe|sh|bash|pl|py)$">
+        Header set Cache-Control "no-store, no-cache, must-revalidate"
+        Header set Pragma "no-cache"
+        Header set Expires "0"
+    </FilesMatch>
+</IfModule>
+
+# Nega accesso a file nascosti
+<FilesMatch "^\.">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Permetti solo accesso diretto ai file immagine
+<FilesMatch "\.(jpg|jpeg|png|gif|webp)$">
+    Order allow,deny
+    Allow from all
+</FilesMatch>
+
+# Nega accesso a tutti gli altri file
+<FilesMatch "\.(php|php3|php4|php5|phtml|pl|py|jsp|asp|aspx|cgi|sh|bash|exe|dll|htaccess|htpasswd)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Disabilita directory listing
+Options -Indexes
+
+# Imposta il tipo MIME corretto per le immagini
+<IfModule mod_mime.c>
+    AddType image/jpeg .jpg .jpeg
+    AddType image/png .png
+    AddType image/gif .gif
+    AddType image/webp .webp
+</IfModule>
