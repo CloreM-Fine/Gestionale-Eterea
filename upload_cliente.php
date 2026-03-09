@@ -162,6 +162,8 @@ $csrfToken = generateCsrfToken();
             outline: none;
             font-size: 14px;
             line-height: 1.6;
+            resize: vertical;
+            overflow: auto;
         }
         .editor-content:focus {
             border-color: #0891b2;
@@ -282,6 +284,17 @@ $csrfToken = generateCsrfToken();
                                     H2
                                 </button>
                                 <span class="w-px h-6 bg-slate-300 mx-1"></span>
+                                <!-- Selettore grandezza testo -->
+                                <select id="fontSizeSelector" class="px-2 py-1 border border-slate-300 rounded text-sm bg-white" title="Dimensione testo">
+                                    <option value="">Size</option>
+                                    <option value="2">10px</option>
+                                    <option value="3">12px</option>
+                                    <option value="4">14px</option>
+                                    <option value="5">18px</option>
+                                    <option value="6">24px</option>
+                                    <option value="7">36px</option>
+                                </select>
+                                <span class="w-px h-6 bg-slate-300 mx-1"></span>
                                 <button type="button" data-command="insertUnorderedList" title="Elenco puntato">
                                     • Lista
                                 </button>
@@ -353,6 +366,27 @@ $csrfToken = generateCsrfToken();
                     <div id="previewContainer" class="grid grid-cols-5 gap-2 mt-4 hidden"></div>
                     
                     <p id="fileError" class="text-sm text-red-500 mt-2 hidden"></p>
+                </div>
+                
+                <!-- Legenda Editor -->
+                <div class="bg-slate-50 border border-slate-200 rounded-lg p-4">
+                    <p class="text-xs font-medium text-slate-600 mb-2">Legenda editor:</p>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs text-slate-500">
+                        <div class="flex items-center gap-1"><b>B</b> = Grassetto</div>
+                        <div class="flex items-center gap-1"><i>I</i> = Corsivo</div>
+                        <div class="flex items-center gap-1"><u>U</u> = Sottolineato</div>
+                        <div class="flex items-center gap-1"><s>S</s> = Barrato</div>
+                        <div class="flex items-center gap-1">H1 = Titolo grande</div>
+                        <div class="flex items-center gap-1">H2 = Sottotitolo</div>
+                        <div class="flex items-center gap-1">• Lista = Elenco puntato</div>
+                        <div class="flex items-center gap-1">1. Lista = Elenco numerato</div>
+                        <div class="flex items-center gap-1">⬅️ = Sinistra</div>
+                        <div class="flex items-center gap-1">↔️ = Centro</div>
+                        <div class="flex items-center gap-1">➡️ = Destra</div>
+                        <div class="flex items-center gap-1">🧹 = Pulisci</div>
+                        <div class="flex items-center gap-1">Size = Dimensione testo</div>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-2 italic">💡 Trascina l'angolo in basso a destra per ridimensionare l'area di testo</p>
                 </div>
                 
                 <!-- Info -->
@@ -459,6 +493,19 @@ $csrfToken = generateCsrfToken();
             hiddenTextarea.value = editor.innerHTML;
         });
     });
+    
+    // Gestione selettore grandezza testo
+    const fontSizeSelector = document.getElementById('fontSizeSelector');
+    if (fontSizeSelector) {
+        fontSizeSelector.addEventListener('change', (e) => {
+            const size = e.target.value;
+            if (size) {
+                document.execCommand('fontSize', false, size);
+                editor.focus();
+                hiddenTextarea.value = editor.innerHTML;
+            }
+        });
+    }
     
     // Aggiorna stato pulsanti (active/inactive)
     function updateToolbarState() {
