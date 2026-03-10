@@ -126,20 +126,45 @@ function getStats() {
     global $pdo;
     
     try {
-        // Totali
-        $stmt = $pdo->query("SELECT COUNT(*) FROM cliente_contenuti WHERE stato != 'eliminato'");
+        // Totali (SOLO con contenuto effettivo - titolo non vuoto)
+        $stmt = $pdo->query("
+            SELECT COUNT(*) 
+            FROM cliente_contenuti 
+            WHERE stato != 'eliminato'
+              AND titolo IS NOT NULL 
+              AND titolo != ''
+        ");
         $totali = $stmt->fetchColumn();
         
-        // Da leggere
-        $stmt = $pdo->query("SELECT COUNT(*) FROM cliente_contenuti WHERE letto = 0 AND stato = 'attivo'");
+        // Da leggere (SOLO con contenuto effettivo)
+        $stmt = $pdo->query("
+            SELECT COUNT(*) 
+            FROM cliente_contenuti 
+            WHERE letto = 0 
+              AND stato = 'attivo'
+              AND titolo IS NOT NULL 
+              AND titolo != ''
+        ");
         $daLeggere = $stmt->fetchColumn();
         
-        // Clienti attivi (con contenuti)
-        $stmt = $pdo->query("SELECT COUNT(DISTINCT cliente_id) FROM cliente_contenuti WHERE stato != 'eliminato'");
+        // Clienti attivi (con contenuti effettivi)
+        $stmt = $pdo->query("
+            SELECT COUNT(DISTINCT cliente_id) 
+            FROM cliente_contenuti 
+            WHERE stato != 'eliminato'
+              AND titolo IS NOT NULL 
+              AND titolo != ''
+        ");
         $clientiAttivi = $stmt->fetchColumn();
         
-        // Ultimi 7 giorni
-        $stmt = $pdo->query("SELECT COUNT(*) FROM cliente_contenuti WHERE created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)");
+        // Ultimi 7 giorni (SOLO con contenuto effettivo)
+        $stmt = $pdo->query("
+            SELECT COUNT(*) 
+            FROM cliente_contenuti 
+            WHERE created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+              AND titolo IS NOT NULL 
+              AND titolo != ''
+        ");
         $recenti = $stmt->fetchColumn();
         
         jsonResponse(true, [
@@ -162,7 +187,15 @@ function countUnread() {
     global $pdo;
     
     try {
-        $stmt = $pdo->query("SELECT COUNT(*) FROM cliente_contenuti WHERE letto = 0 AND stato = 'attivo'");
+        // Conta SOLO i contenuti effettivamente inviati (con titolo) e non letti
+        $stmt = $pdo->query("
+            SELECT COUNT(*) 
+            FROM cliente_contenuti 
+            WHERE letto = 0 
+              AND stato = 'attivo'
+              AND titolo IS NOT NULL 
+              AND titolo != ''
+        ");
         $count = $stmt->fetchColumn();
         
         jsonResponse(true, ['count' => (int)$count]);
