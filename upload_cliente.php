@@ -227,12 +227,10 @@ $csrfToken = generateCsrfToken();
         </div>
         
         <?php elseif ($isValid): ?>
-        <!-- Layout a due colonne: form largo centrato, assistenza stretta -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            <!-- Colonna sinistra vuota per centraggio -->
-            <div class="hidden lg:block lg:col-span-1"></div>
-            <!-- Colonna centrale: Form -->
-            <div class="lg:col-span-8">
+        <!-- Layout desktop: form largo a sinistra, assistenza a destra -->
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <!-- Colonna form (3/4 schermo) -->
+            <div class="lg:col-span-3">
                 <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
                     <div class="p-6 border-b border-slate-100">
                         <h2 class="text-xl font-bold text-slate-800">Ciao <?php echo e($clienteNome); ?>!</h2>
@@ -411,8 +409,8 @@ $csrfToken = generateCsrfToken();
                 </div>
             </div>
             
-            <!-- Colonna destra: Assistenza -->
-            <div class="lg:col-span-3">
+            <!-- Colonna destra: Assistenza (1/4 schermo) -->
+            <div class="lg:col-span-1">
                 <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden sticky top-4">
                     <div class="p-4 border-b border-slate-100 bg-cyan-50">
                         <h3 class="font-bold text-slate-800 flex items-center gap-2 text-sm">
