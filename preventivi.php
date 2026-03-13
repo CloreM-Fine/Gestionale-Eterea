@@ -2199,6 +2199,10 @@ async function generaPreventivo() {
         // Recupera sezioni aggiuntive
         const sezioniAggiuntive = getSezioniAggiuntive();
         
+        // Calcola frequenza globale (se c'è almeno un servizio mensile, frequenza = 3)
+        const hasMensile = preventivoVoci.some(v => v.frequenza === 3 || v.frequenza === '3');
+        const frequenzaGlobale = hasMensile ? 3 : 1;
+        
         const response = await fetch('api/preventivi.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -2213,6 +2217,7 @@ async function generaPreventivo() {
                 sconto_globale: document.getElementById('prevScontoGlobale').value,
                 data_scadenza: document.getElementById('prevScadenza').value,
                 mostra_burocrazia: mostraBurocrazia,
+                frequenza: frequenzaGlobale,
                 sezioni_aggiuntive: JSON.stringify(sezioniAggiuntive)
             })
         });
@@ -2288,6 +2293,11 @@ async function salvaPreventivoGestionale() {
     const formData = new FormData();
     const preventivoId = document.getElementById('preventivoId').value;
     
+    // Calcola frequenza globale (se c'è almeno un servizio mensile, frequenza = 3)
+    const hasMensile = preventivoVoci.some(v => v.frequenza === 3 || v.frequenza === '3');
+    const frequenzaGlobale = hasMensile ? 3 : 1;
+    const frequenzaTesto = hasMensile ? 'Mensile' : 'Una tantum';
+    
     formData.append('action', 'salva_preventivo');
     if (preventivoId) {
         formData.append('preventivo_id', preventivoId);
@@ -2303,6 +2313,8 @@ async function salvaPreventivoGestionale() {
     formData.append('servizi', JSON.stringify(preventivoVoci));
     formData.append('subtotale', subtotale.toFixed(2));
     formData.append('totale', totale.toFixed(2));
+    formData.append('frequenza', frequenzaGlobale);
+    formData.append('frequenza_testo', frequenzaTesto);
     formData.append('mostra_burocrazia', mostraBurocrazia);
     formData.append('sezioni_aggiuntive', JSON.stringify(sezioniAggiuntive));
     
