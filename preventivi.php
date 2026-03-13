@@ -124,17 +124,26 @@ include __DIR__ . '/includes/header.php';
     scrollbar-width: none;
 }
 
-/* Line clamp per descrizioni */
+/* Line clamp per descrizioni collassate */
 .line-clamp-2 {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+    max-height: 3em;
 }
 
-/* Container carosello */
+/* Container carosello - full width */
 #caroselloPreventivi {
+    width: 100%;
     max-width: 100%;
+}
+
+/* Forza nuova riga dopo la griglia */
+.carosello-wrapper {
+    width: 100%;
+    clear: both;
+    margin-top: 1.5rem;
 }
 </style>
 <script>
@@ -819,10 +828,11 @@ function renderPreventiviSalvati(preventivi) {
     html += primiTre.map(p => renderPreventivoCard(p)).join('');
     html += '</div>';
     
-    // Carosello orizzontale per i rimanenti
+    // Carosello orizzontale per i rimanenti - separato in nuova riga
     if (rimanenti.length > 0) {
+        html += '</div>'; // Chiudi la griglia
         html += `
-            <div class="mt-6">
+            <div class="carosello-wrapper">
                 <div class="flex items-center gap-2 mb-3">
                     <h4 class="text-sm font-medium text-slate-600">Altri preventivi</h4>
                     <span class="text-xs text-slate-400">(${rimanenti.length})</span>
@@ -848,6 +858,7 @@ function renderPreventiviSalvati(preventivi) {
                 </div>
             </div>
         `;
+        return html; // Ritorna subito, abbiamo già chiuso la griglia
     }
     
     container.innerHTML = html;
@@ -1765,33 +1776,22 @@ function escapeHtml(text) {
  * Toggle espandi/collassa descrizione servizio
  */
 function toggleDesc(id) {
-    console.log('toggleDesc chiamato con id:', id);
     const container = document.getElementById(`desc-${id}`);
-    console.log('Container trovato:', container);
-    
-    if (!container) {
-        console.error('Container non trovato per id:', id);
-        return;
-    }
+    if (!container) return;
     
     const text = container.querySelector('.desc-text');
     const btn = container.querySelector('.desc-btn');
     const span = btn.querySelector('span');
     const svg = btn.querySelector('svg');
     
-    console.log('Text element:', text);
-    console.log('Ha line-clamp-2:', text.classList.contains('line-clamp-2'));
-    
     if (text.classList.contains('line-clamp-2')) {
         // Espandi
         text.classList.remove('line-clamp-2');
-        text.style.display = 'block';
         span.textContent = 'Collassa';
         svg.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>';
     } else {
         // Collassa
         text.classList.add('line-clamp-2');
-        text.style.display = '-webkit-box';
         span.textContent = 'Espandi';
         svg.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>';
     }
