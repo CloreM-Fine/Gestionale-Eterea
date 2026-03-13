@@ -770,6 +770,8 @@ function renderPreventiviSalvati(preventivi) {
         const data = new Date(p.created_at).toLocaleDateString('it-IT');
         const servizi = JSON.parse(p.servizi_json || '[]');
         const numServizi = servizi.length;
+        const hasMensile = servizi.some(s => s.frequenza === 3 || s.frequenza === '3');
+        const suffixMensile = hasMensile ? '/Mensile' : '';
         
         return `
             <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 hover:shadow-md transition-shadow">
@@ -782,7 +784,7 @@ function renderPreventiviSalvati(preventivi) {
                 </div>
                 
                 <div class="text-sm text-slate-600 mb-3">
-                    ${numServizi} servizi • Totale: €${parseFloat(p.totale).toFixed(2)}
+                    ${numServizi} servizi • Totale: €${parseFloat(p.totale).toFixed(2)}${suffixMensile}
                 </div>
                 
                 <div class="flex gap-2">
@@ -856,7 +858,7 @@ async function visualizzaPreventivoSalvato(id) {
                             ` : ''}
                             <div class="flex justify-between text-lg font-bold mt-3">
                                 <span>Totale:</span>
-                                <span class="" class="text-cyan-600">€${parseFloat(p.totale).toFixed(2)}</span>
+                                <span class="text-cyan-600">€${parseFloat(p.totale).toFixed(2)}${servizi.some(s => s.frequenza === 3 || s.frequenza === '3') ? '/Mensile' : ''}</span>
                             </div>
                         </div>
                     </div>
@@ -1525,6 +1527,7 @@ function renderPreventivoServiziFromListino(categorie) {
                                        data-nome="${escapeHtml(v.tipo_servizio)}"
                                        data-descrizione="${escapeHtml(v.descrizione || '')}"
                                        data-categoria="${escapeHtml(v.categoria_nome || 'Servizi')}"
+                                       data-frequenza="${v.frequenza || '1'}"
                                        class="w-5 h-5 text-cyan-600 rounded border-slate-300 focus:ring-cyan-500 cursor-pointer"
                                        onchange="toggleServizio('${v.id}')">
                             </div>
@@ -1676,6 +1679,7 @@ function renderPreventivoServiziListino() {
                                        data-nome="${escapeHtml(v.tipo_servizio)}"
                                        data-descrizione="${escapeHtml(v.descrizione || '')}"
                                        data-categoria="${escapeHtml(cat.nome)}"
+                                       data-frequenza="${v.frequenza || '1'}"
                                        class="w-5 h-5 text-cyan-600 rounded border-slate-300 focus:ring-cyan-500 cursor-pointer"
                                        onchange="toggleServizio('${v.id}')">
                             </div>
@@ -1813,7 +1817,8 @@ function updatePreventivoPreview() {
             sconto_singolo: scontoSingolo,
             tipo_servizio: checkbox.dataset.nome || '',
             categoria_nome: checkbox.dataset.categoria || 'Servizi',
-            descrizione: checkbox.dataset.descrizione || ''
+            descrizione: checkbox.dataset.descrizione || '',
+            frequenza: checkbox.dataset.frequenza || '1'
         });
         
         // Aggiorna il totale visualizzato per questa riga
@@ -1827,6 +1832,10 @@ function updatePreventivoPreview() {
     const scontoImporto = subtotale * (scontoGlobale / 100);
     const totale = subtotale - scontoImporto;
     
+    // Controlla se c'è almeno un servizio con frequenza mensile
+    const hasMensile = preventivoVoci.some(v => v.frequenza === 3 || v.frequenza === '3');
+    const suffixMensile = hasMensile ? '/Mensile' : '';
+    
     document.getElementById('prevSubtotale').textContent = '€ ' + subtotale.toLocaleString('it-IT', {minimumFractionDigits: 2});
     
     const scontoRow = document.getElementById('prevScontoRow');
@@ -1837,7 +1846,7 @@ function updatePreventivoPreview() {
         scontoRow.style.display = 'none';
     }
     
-    document.getElementById('prevTotale').textContent = '€ ' + totale.toLocaleString('it-IT', {minimumFractionDigits: 2});
+    document.getElementById('prevTotale').textContent = '€ ' + totale.toLocaleString('it-IT', {minimumFractionDigits: 2}) + suffixMensile;
 }
 
 async function generaPreventivo() {
