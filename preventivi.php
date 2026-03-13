@@ -429,7 +429,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <div id="voceModal" class="fixed inset-0 z-[60] hidden">
     <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeModal('voceModal')"></div>
     <div class="absolute inset-0 flex items-end sm:items-center justify-center p-0 sm:p-4">
-        <div class="bg-white sm:rounded-2xl rounded-t-2xl shadow-2xl w-full max-w-lg max-h-[85vh] sm:max-h-[90vh] overflow-hidden flex flex-col">
+        <div class="bg-white sm:rounded-2xl rounded-t-2xl shadow-2xl w-full max-w-4xl max-h-[85vh] sm:max-h-[90vh] overflow-hidden flex flex-col">
             <div class="p-6 border-b border-slate-100 flex items-center justify-between">
                 <h2 class="text-xl font-bold text-slate-800" id="voceModalTitle">Nuovo Servizio</h2>
                 <button onclick="closeModal('voceModal')" class="text-slate-400 hover:text-slate-600">
@@ -2100,15 +2100,16 @@ function updatePreventivoPreview() {
 // ========== GESTIONE SEZIONI AGGIUNTIVE ==========
 let sezioniCount = 0;
 
-function aggiungiSezione() {
+function aggiungiSezioneEsistente(titolo = '', contenuto = '') {
     sezioniCount++;
     const container = document.getElementById('sezioniAggiuntive');
     const sezioneId = `sezione-${sezioniCount}`;
+    const titoloEsc = titolo ? titolo.replace(/"/g, '&quot;') : '';
     
     const sezioneHtml = `
         <div id="${sezioneId}" class="p-4 bg-slate-50 border border-slate-200 rounded-xl">
             <div class="flex items-center justify-between mb-3">
-                <input type="text" id="${sezioneId}-titolo" 
+                <input type="text" id="${sezioneId}-titolo" value="${titoloEsc}"
                        class="flex-1 px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none text-sm font-medium"
                        placeholder="Titolo della sezione (es: Note importanti, Condizioni speciali...)">
                 <button onclick="rimuoviSezione('${sezioneId}')" type="button"
@@ -2161,6 +2162,23 @@ function aggiungiSezione() {
     
     // Inizializza l'editor per questa sezione
     wysiwygEditorSezione.init(sezioneId);
+    
+    // Se c'è contenuto esistente, popola l'editor
+    if (contenuto) {
+        const editor = document.getElementById(`${sezioneId}-editor`);
+        const hiddenInput = document.getElementById(`${sezioneId}-contenuto`);
+        if (editor) {
+            editor.innerHTML = contenuto;
+        }
+        if (hiddenInput) {
+            hiddenInput.value = contenuto;
+        }
+    }
+}
+
+// Funzione originale per aggiungere una nuova sezione vuota
+function aggiungiSezione() {
+    aggiungiSezioneEsistente('', '');
 }
 
 function rimuoviSezione(sezioneId) {
@@ -2485,6 +2503,14 @@ async function modificaPreventivo(preventivoId) {
     // Parse servizi JSON
     const servizi = JSON.parse(preventivo.servizi_json || '[]');
     
+    // Parse sezioni aggiuntive
+    let sezioniAggiuntive = [];
+    try {
+        sezioniAggiuntive = JSON.parse(preventivo.sezioni_aggiuntive || '[]');
+    } catch (e) {
+        sezioniAggiuntive = [];
+    }
+    
     // Imposta l'ID del preventivo in modifica
     document.getElementById('preventivoId').value = preventivoId;
     
@@ -2511,8 +2537,18 @@ async function modificaPreventivo(preventivoId) {
         prezzo_originale: parseFloat(s.prezzo_originale) || 0,
         quantita: parseInt(s.quantita) || 1,
         sconto_singolo: parseFloat(s.sconto_singolo) || 0,
-        tipo_prezzo: s.tipo_prezzo || 'fisso'
+        tipo_prezzo: s.tipo_prezzo || 'fisso',
+        frequenza: s.frequenza || '1'
     }));
+    
+    // Reset e carica sezioni aggiuntive
+    document.getElementById('sezioniAggiuntive').innerHTML = '';
+    sezioniCount = 0;
+    if (sezioniAggiuntive && sezioniAggiuntive.length > 0) {
+        sezioniAggiuntive.forEach(sezione => {
+            aggiungiSezioneEsistente(sezione.titolo, sezione.contenuto);
+        });
+    }
     
     // Carica il listino servizi e poi seleziona quelli del preventivo
     document.getElementById('preventivoServizi').innerHTML = '<p class="text-slate-400 text-center py-4">Caricamento servizi...</p>';

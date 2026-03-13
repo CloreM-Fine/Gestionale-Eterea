@@ -663,24 +663,6 @@ BUROCRAZIA;
     $subtotaleForm = number_format($subtotale, 2, ',', '.');
     $totaleForm = number_format($totale, 2, ',', '.');
     
-    // Riga frequenza se > 1
-    $frequenzaTxt = '';
-    if ($frequenza > 1) {
-        $frequenzaNomi = [
-            1 => 'Una tantum',
-            2 => 'Settimanale',
-            3 => 'Mensile',
-            4 => 'Trimestrale',
-            5 => 'Semestrale',
-            6 => 'Annuale'
-        ];
-        $freqNome = $frequenzaNomi[$frequenza] ?? 'x' . $frequenza;
-        // Calcola il subtotale base (prima della frequenza)
-        $subtotaleBase = $subtotale / $frequenza;
-        $subtotaleBaseForm = number_format($subtotaleBase, 2, ',', '.');
-        $frequenzaTxt = "<tr><td style='text-align:right'>{$freqNome}:</td><td style='text-align:right'>x{$frequenza}</td></tr>";
-    }
-    
     $scontoGlobaleTxt = '';
     if ($scontoGlobale > 0) {
         $scontoVal = number_format($subtotale * ($scontoGlobale / 100), 2, ',', '.');
@@ -850,8 +832,11 @@ BUROCRAZIA;
             color: white;
             font-size: 12px;
             font-weight: 700;
+            border: 2px solid #151e26;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
         }
-        .totals tr:last-child td { padding: 10px 8px; }
+        .totals tr:last-child td { padding: 12px 10px; border: none; }
         
         .note {
             margin-top: 20px;
@@ -1081,7 +1066,6 @@ BUROCRAZIA;
                 <td style="text-align:right"><strong>Subtotale:</strong></td>
                 <td style="text-align:right;width:120px">€ {$subtotaleForm}</td>
             </tr>
-            {$frequenzaTxt}
             {$scontoGlobaleTxt}
             <tr>
                 <td style="text-align:right"><strong>TOTALE:</strong></td>
