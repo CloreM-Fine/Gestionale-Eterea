@@ -3122,6 +3122,10 @@ document.addEventListener('DOMContentLoaded', function() {
 // UTILITY FUNCTIONS
 // ============================================
 
+function getCsrfToken() {
+    return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+}
+
 function openModal(modalId) {
     const modal = document.getElementById(modalId);
     if (modal) {
