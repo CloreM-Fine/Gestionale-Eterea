@@ -659,8 +659,9 @@ BUROCRAZIA;
     $subtotaleForm = number_format($subtotale, 2, ',', '.');
     $totaleForm = number_format($totale, 2, ',', '.');
     
-    // Aggiungi /Mensile se frequenza è 3
-    if ($frequenza == 3) {
+    // Aggiungi /Mensile se frequenza è 3 (mensile)
+    $frequenzaInt = intval($frequenza);
+    if ($frequenzaInt === 3) {
         $totaleForm .= '/Mensile';
     }
     
