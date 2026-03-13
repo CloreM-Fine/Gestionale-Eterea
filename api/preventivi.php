@@ -307,6 +307,7 @@ function generaPreventivo(): void {
             
             $voce['quantita'] = $qty;
             $voce['sconto_singolo'] = $scontoSingolo;
+            $voce['prezzo_originale'] = $prezzoDatabase; // Prezzo listino originale
             $voce['prezzo_scontato'] = $prezzoScontato;
             $voce['totale'] = $totaleVoce;
             
@@ -635,7 +636,9 @@ BUROCRAZIA;
                     $descHtml = strip_tags($descHtml, $allowedTags);
                 }
             }
-            $prezzoForm = number_format($item['prezzo'], 2, ',', '.');
+            // Prezzo originale di listino (prima di sconti)
+            $prezzoListino = floatval($item['prezzo_originale'] ?? $item['prezzo']);
+            $prezzoListinoForm = number_format($prezzoListino, 2, ',', '.');
             
             // Gestione sconti combinati
             $scontoListino = intval($item['sconto_percentuale']);
@@ -653,7 +656,7 @@ BUROCRAZIA;
             
             $totaleRigaForm = number_format($item['totale'], 2, ',', '.');
             
-            $righe .= "<tr><td>{$tipoEsc}</td><td>{$descHtml}</td><td style='text-align:center'>{$qty}</td><td style='text-align:right'>€ {$prezzoForm}</td><td style='text-align:center'>{$sconto}</td><td style='text-align:right'><strong>€ {$totaleRigaForm}</strong></td></tr>";
+            $righe .= "<tr><td>{$tipoEsc}</td><td>{$descHtml}</td><td style='text-align:center'>{$qty}</td><td style='text-align:right'>€ {$prezzoListinoForm}</td><td style='text-align:center'>{$sconto}</td><td style='text-align:right'><strong>€ {$totaleRigaForm}</strong></td></tr>";
         }
     }
     
@@ -1314,6 +1317,7 @@ function generaHTMLPreventivoSalvato(array $voci, string $cliente, string $numer
             'tipo_servizio' => $v['tipo_servizio'] ?? $v['nome'] ?? 'Servizio',
             'descrizione' => $v['descrizione'] ?? '',
             'prezzo' => $prezzo,
+            'prezzo_originale' => floatval($v['prezzo_originale'] ?? $prezzo), // Prezzo listino originale
             'categoria_nome' => $v['categoria_nome'] ?? 'Servizi',
             'quantita' => $qty,
             'sconto_percentuale' => $scontoListino,
@@ -1323,7 +1327,7 @@ function generaHTMLPreventivoSalvato(array $voci, string $cliente, string $numer
     }
     
     // Usa la stessa funzione di generazione HTML del PDF
-    return generaHTMLPreventivo($vociFormattate, $cliente, $numero, $note, $scontoGlobale, $subtotale, $totale, $dataScadenza, $frequenza, $mostraBurocrazia, $tempiConsegna, $nonInclude);
+    return generaHTMLPreventivo($vociFormattate, $cliente, $numero, $note, $scontoGlobale, $subtotale, $totale, $dataScadenza, $frequenza, $mostraBurocrazia, $tempiConsegna, $nonInclude, [], []);
 }
 
 
