@@ -271,6 +271,8 @@ function generaPreventivo(): void {
     $dataScadenza = trim($_POST['data_scadenza'] ?? '');
     $frequenza = intval($_POST['frequenza'] ?? 1);
     $mostraBurocrazia = filter_var($_POST['mostra_burocrazia'] ?? 'true', FILTER_VALIDATE_BOOLEAN);
+    $nascondiQuantita = filter_var($_POST['nascondi_quantita'] ?? 'false', FILTER_VALIDATE_BOOLEAN);
+    $nascondiSconto = filter_var($_POST['nascondi_sconto'] ?? 'false', FILTER_VALIDATE_BOOLEAN);
     $sezioniAggiuntive = json_decode($_POST['sezioni_aggiuntive'] ?? '[]', true);
     
     if (empty($vociSelezionate)) {
@@ -365,7 +367,7 @@ function generaPreventivo(): void {
         $totaleScontato = $subtotaleConFrequenza * (1 - $scontoGlobale / 100);
         
         // Genera HTML per PDF
-        $html = generaHTMLPreventivo($voci, $clienteNome, $preventivoNum, $note, $scontoGlobale, $subtotaleConFrequenza, $totaleScontato, $dataScadenza, $frequenza, $mostraBurocrazia, $tempiConsegna, $nonInclude, $datiCliente, $sezioniAggiuntive);
+        $html = generaHTMLPreventivo($voci, $clienteNome, $preventivoNum, $note, $scontoGlobale, $subtotaleConFrequenza, $totaleScontato, $dataScadenza, $frequenza, $mostraBurocrazia, $tempiConsegna, $nonInclude, $datiCliente, $sezioniAggiuntive, $nascondiQuantita, $nascondiSconto);
         
         // Salva HTML temporaneo
         $filename = 'preventivo_' . time() . '.html';
@@ -515,7 +517,7 @@ function getTemplateCondizioniDefault(): string {
 /**
  * Genera HTML del preventivo
  */
-function generaHTMLPreventivo(array $voci, string $cliente, string $numero, string $note, float $scontoGlobale, float $subtotale, float $totale, string $dataScadenza = '', int $frequenza = 1, bool $mostraBurocrazia = true, string $tempiConsegna = '', string $nonInclude = '', array $datiCliente = [], array $sezioniAggiuntive = []): string {
+function generaHTMLPreventivo(array $voci, string $cliente, string $numero, string $note, float $scontoGlobale, float $subtotale, float $totale, string $dataScadenza = '', int $frequenza = 1, bool $mostraBurocrazia = true, string $tempiConsegna = '', string $nonInclude = '', array $datiCliente = [], array $sezioniAggiuntive = [], bool $nascondiQuantita = false, bool $nascondiSconto = false): string {
     $data = date('d/m/Y');
     $validita = $dataScadenza ? date('d/m/Y', strtotime($dataScadenza)) : date('d/m/Y', strtotime('+30 days'));
     $clienteEsc = htmlspecialchars($cliente);
@@ -661,10 +663,13 @@ BUROCRAZIA;
         $grouped[$cat][] = $v;
     }
     
+    // Calcola colspan per riga categoria in base alle colonne nascoste
+    $colspanCategoria = 6 - ($nascondiQuantita ? 1 : 0) - ($nascondiSconto ? 1 : 0);
+    
     $righe = '';
     foreach ($grouped as $categoria => $items) {
         $catEsc = htmlspecialchars($categoria);
-        $righe .= "<tr class='categoria'><td colspan='6'><strong>{$catEsc}</strong></td></tr>";
+        $righe .= "<tr class='categoria'><td colspan='{$colspanCategoria}'><strong>{$catEsc}</strong></td></tr>";
         foreach ($items as $item) {
             $qty = $item['quantita'];
             $tipoEsc = htmlspecialchars($item['tipo_servizio']);
@@ -700,7 +705,11 @@ BUROCRAZIA;
             
             $totaleRigaForm = number_format($item['totale'], 2, ',', '.');
             
-            $righe .= "<tr><td>{$tipoEsc}</td><td>{$descHtml}</td><td style='text-align:center'>{$qty}</td><td style='text-align:right'>€ {$prezzoListinoForm}</td><td style='text-align:center'>{$sconto}</td><td style='text-align:right'><strong>€ {$totaleRigaForm}</strong></td></tr>";
+            // Costruisci riga in base alle colonne visibili
+            $qtyCell = $nascondiQuantita ? '' : "<td style='text-align:center'>{$qty}</td>";
+            $scontoCell = $nascondiSconto ? '' : "<td style='text-align:center'>{$sconto}</td>";
+            
+            $righe .= "<tr><td>{$tipoEsc}</td><td>{$descHtml}</td>{$qtyCell}<td style='text-align:right'>€ {$prezzoListinoForm}</td>{$scontoCell}<td style='text-align:right'><strong>€ {$totaleRigaForm}</strong></td></tr>";
         }
     }
     
@@ -734,6 +743,12 @@ BUROCRAZIA;
             }
         }
     }
+    
+    // Calcola larghezze colonne dinamiche
+    $descWidth = 44 + ($nascondiQuantita ? 6 : 0) + ($nascondiSconto ? 8 : 0);
+    $qtyHeader = $nascondiQuantita ? '' : '<th style="width:6%;text-align:center">Q.tà</th>';
+    $scontoHeader = $nascondiSconto ? '' : '<th style="width:8%;text-align:center">Sconto</th>';
+    $tableHeader = "<tr><th style=\"width:20%\">Servizio</th><th style=\"width:{$descWidth}%\">Descrizione</th>{$qtyHeader}<th style=\"width:10%;text-align:right\">Prezzo</th>{$scontoHeader}<th style=\"width:12%;text-align:right\">Totale</th></tr>";
     
     return <<<HTML
 <!DOCTYPE html>
@@ -1093,14 +1108,7 @@ BUROCRAZIA;
     
     <table>
         <thead>
-            <tr>
-                <th style="width:20%">Servizio</th>
-                <th style="width:44%">Descrizione</th>
-                <th style="width:6%;text-align:center">Q.tà</th>
-                <th style="width:10%;text-align:right">Prezzo</th>
-                <th style="width:8%;text-align:center">Sconto</th>
-                <th style="width:12%;text-align:right">Totale</th>
-            </tr>
+            {$tableHeader}
         </thead>
         <tbody>
             {$righe}
@@ -1209,6 +1217,8 @@ function salvaPreventivoGestionale(): void {
     $frequenza = intval($_POST['frequenza'] ?? 1);
     $frequenzaTesto = $_POST['frequenza_testo'] ?? 'Una tantum';
     $mostraBurocrazia = filter_var($_POST['mostra_burocrazia'] ?? 'true', FILTER_VALIDATE_BOOLEAN);
+    $nascondiQuantita = filter_var($_POST['nascondi_quantita'] ?? 'false', FILTER_VALIDATE_BOOLEAN);
+    $nascondiSconto = filter_var($_POST['nascondi_sconto'] ?? 'false', FILTER_VALIDATE_BOOLEAN);
     $sezioniAggiuntive = json_decode($_POST['sezioni_aggiuntive'] ?? '[]', true);
     
     if (empty($clienteNome)) {
@@ -1369,7 +1379,7 @@ function salvaPreventivoGestionale(): void {
         
         // Genera il file HTML del preventivo
         $servizi = json_decode($serviziJson, true);
-        $html = generaHTMLPreventivoSalvato($servizi, $clienteNome, $numero, $note, $scontoGlobale, $subtotale, $totale, $dataScadenza, $frequenza, $mostraBurocrazia, $tempiConsegna, $nonInclude, $sezioniAggiuntive);
+        $html = generaHTMLPreventivoSalvato($servizi, $clienteNome, $numero, $note, $scontoGlobale, $subtotale, $totale, $dataScadenza, $frequenza, $mostraBurocrazia, $tempiConsegna, $nonInclude, $sezioniAggiuntive, $nascondiQuantita, $nascondiSconto);
         
         // Salva il file
         $filename = 'preventivo_' . $preventivoId . '_' . time() . '.html';
@@ -1412,7 +1422,7 @@ function salvaPreventivoGestionale(): void {
 /**
  * Genera HTML del preventivo salvato (usa stessa impaginazione del PDF)
  */
-function generaHTMLPreventivoSalvato(array $voci, string $cliente, string $numero, string $note, float $scontoGlobale, float $subtotale, float $totale, string $dataScadenza = '', int $frequenza = 1, bool $mostraBurocrazia = true, string $tempiConsegna = '', string $nonInclude = '', array $sezioniAggiuntive = []): string {
+function generaHTMLPreventivoSalvato(array $voci, string $cliente, string $numero, string $note, float $scontoGlobale, float $subtotale, float $totale, string $dataScadenza = '', int $frequenza = 1, bool $mostraBurocrazia = true, string $tempiConsegna = '', string $nonInclude = '', array $sezioniAggiuntive = [], bool $nascondiQuantita = false, bool $nascondiSconto = false): string {
     // Converte il formato dati salvati nel formato usato da generaHTMLPreventivo
     $vociFormattate = [];
     foreach ($voci as $v) {
@@ -1439,7 +1449,7 @@ function generaHTMLPreventivoSalvato(array $voci, string $cliente, string $numer
     }
     
     // Usa la stessa funzione di generazione HTML del PDF
-    return generaHTMLPreventivo($vociFormattate, $cliente, $numero, $note, $scontoGlobale, $subtotale, $totale, $dataScadenza, $frequenza, $mostraBurocrazia, $tempiConsegna, $nonInclude, [], $sezioniAggiuntive);
+    return generaHTMLPreventivo($vociFormattate, $cliente, $numero, $note, $scontoGlobale, $subtotale, $totale, $dataScadenza, $frequenza, $mostraBurocrazia, $tempiConsegna, $nonInclude, [], $sezioniAggiuntive, $nascondiQuantita, $nascondiSconto);
 }
 
 

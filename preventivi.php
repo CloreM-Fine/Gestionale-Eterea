@@ -674,6 +674,24 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                 </div>
                 
+                <!-- Opzioni Colonne -->
+                <div class="mb-4 p-4 bg-slate-50 border border-slate-200 rounded-xl">
+                    <h4 class="text-sm font-medium text-slate-800 mb-3">Opzioni colonne preventivo</h4>
+                    <div class="grid grid-cols-2 gap-4">
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" id="prevNascondiQuantita"
+                                   class="w-4 h-4 text-cyan-600 rounded border-slate-300 focus:ring-cyan-500">
+                            <span class="text-sm text-slate-700">Nascondi colonna Quantità</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" id="prevNascondiSconto"
+                                   class="w-4 h-4 text-cyan-600 rounded border-slate-300 focus:ring-cyan-500">
+                            <span class="text-sm text-slate-700">Nascondi colonna Sconto</span>
+                        </label>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-2">La colonna Descrizione si espanderà automaticamente quando le colonne sono nascoste</p>
+                </div>
+                
                 <!-- Checkbox Sezione Burocratica -->
                 <div class="mb-6 p-4 bg-slate-50 border border-slate-200 rounded-xl">
                     <label class="flex items-center gap-3 cursor-pointer">
@@ -1897,6 +1915,8 @@ function openPreventivoModal() {
     document.getElementById('prevTempiConsegna').value = '';
     document.getElementById('prevNonInclude').value = '';
     document.getElementById('prevMostraBurocrazia').checked = true;
+    document.getElementById('prevNascondiQuantita').checked = false;
+    document.getElementById('prevNascondiSconto').checked = false;
 
     
     // Reset voci preventivo
@@ -2362,6 +2382,8 @@ async function generaPreventivo() {
     
     try {
         const mostraBurocrazia = document.getElementById('prevMostraBurocrazia').checked;
+        const nascondiQuantita = document.getElementById('prevNascondiQuantita').checked;
+        const nascondiSconto = document.getElementById('prevNascondiSconto').checked;
         
         // Recupera sezioni aggiuntive
         const sezioniAggiuntive = getSezioniAggiuntive();
@@ -2384,6 +2406,8 @@ async function generaPreventivo() {
                 sconto_globale: document.getElementById('prevScontoGlobale').value,
                 data_scadenza: document.getElementById('prevScadenza').value,
                 mostra_burocrazia: mostraBurocrazia,
+                nascondi_quantita: nascondiQuantita,
+                nascondi_sconto: nascondiSconto,
                 frequenza: frequenzaGlobale,
                 sezioni_aggiuntive: JSON.stringify(sezioniAggiuntive)
             })
@@ -2453,6 +2477,8 @@ async function salvaPreventivoGestionale() {
     });
     const totale = subtotale * (1 - parseFloat(sconto || 0) / 100);
     const mostraBurocrazia = document.getElementById('prevMostraBurocrazia').checked;
+    const nascondiQuantita = document.getElementById('prevNascondiQuantita').checked;
+    const nascondiSconto = document.getElementById('prevNascondiSconto').checked;
     
     // Recupera sezioni aggiuntive
     const sezioniAggiuntive = getSezioniAggiuntive();
@@ -2483,6 +2509,8 @@ async function salvaPreventivoGestionale() {
     formData.append('frequenza', frequenzaGlobale);
     formData.append('frequenza_testo', frequenzaTesto);
     formData.append('mostra_burocrazia', mostraBurocrazia);
+    formData.append('nascondi_quantita', nascondiQuantita);
+    formData.append('nascondi_sconto', nascondiSconto);
     formData.append('sezioni_aggiuntive', JSON.stringify(sezioniAggiuntive));
     
     try {
@@ -2545,6 +2573,8 @@ async function modificaPreventivo(preventivoId) {
     document.getElementById('prevTempiConsegna').value = preventivo.tempi_consegna || '';
     document.getElementById('prevNonInclude').value = preventivo.non_include || '';
     document.getElementById('prevMostraBurocrazia').checked = preventivo.mostra_burocrazia == 1;
+    document.getElementById('prevNascondiQuantita').checked = preventivo.nascondi_quantita == 1;
+    document.getElementById('prevNascondiSconto').checked = preventivo.nascondi_sconto == 1;
     
     // Carica i servizi nel preventivo
     preventivoVoci = servizi.map(s => ({
