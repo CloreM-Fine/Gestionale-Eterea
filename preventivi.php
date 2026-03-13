@@ -304,87 +304,110 @@ document.addEventListener('DOMContentLoaded', function() {
         <h2 class="text-lg font-semibold text-slate-800">Preventivi Salvati</h2>
         <span id="countPreventiviSalvati" class="text-sm text-slate-500"></span>
     </div>
-    <div id="preventiviSalvatiContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    
+    <!-- Carosello orizzontale per i preventivi salvati -->
+    <div id="preventiviSalvatiContainer" class="relative">
         <?php if ($preventiviError): ?>
-            <div class="col-span-full text-center py-8 text-red-400">
+            <div class="text-center py-8 text-red-400">
                 <svg class="w-12 h-12 mx-auto mb-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>
                 <p>Errore caricamento: <?php echo e($preventiviError); ?></p>
             </div>
         <?php elseif (empty($preventiviSalvati)): ?>
-            <div class="col-span-full text-center py-8 text-slate-400">
+            <div class="text-center py-8 text-slate-400">
                 <svg class="w-12 h-12 mx-auto mb-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                 </svg>
                 <p>Nessun preventivo salvato</p>
             </div>
         <?php else: ?>
-            <?php foreach ($preventiviSalvati as $p): 
-                $data = date('d/m/Y', strtotime($p['created_at']));
-                $servizi = json_decode($p['servizi_json'] ?? '[]', true);
-                $numServizi = count($servizi);
-                $clienteId = $p['cliente_id'] ?? '';
-                $clienteNome = $p['cliente_nome'] ?? 'Cliente';
-                $progettoId = $p['progetto_id'] ?? '';
-                $isAssociato = !empty($progettoId);
-            ?>
-                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 hover:shadow-md transition-shadow">
-                    <div class="flex items-start justify-between mb-2">
-                        <div>
-                            <span class="text-xs text-slate-500"><?php echo e($p['numero']); ?></span>
-                            <h3 class="font-semibold text-slate-800"><?php echo e($clienteNome); ?></h3>
+            <div class="relative group">
+                <!-- Pulsante scroll sinistra -->
+                <button onclick="scrollPreventiviSalvati(-1)" id="btnScrollPrev"
+                        class="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white shadow-lg rounded-full flex items-center justify-center text-slate-600 hover:text-cyan-600 hover:shadow-xl transition-all opacity-0 group-hover:opacity-100 disabled:opacity-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                    </svg>
+                </button>
+                
+                <!-- Container scrollabile -->
+                <div id="caroselloPreventiviSalvati" class="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory" style="scroll-behavior: smooth;">
+                    <?php foreach ($preventiviSalvati as $p): 
+                        $data = date('d/m/Y', strtotime($p['created_at']));
+                        $servizi = json_decode($p['servizi_json'] ?? '[]', true);
+                        $numServizi = count($servizi);
+                        $clienteId = $p['cliente_id'] ?? '';
+                        $clienteNome = $p['cliente_nome'] ?? 'Cliente';
+                        $progettoId = $p['progetto_id'] ?? '';
+                        $isAssociato = !empty($progettoId);
+                    ?>
+                        <div class="snap-start flex-shrink-0 w-80 bg-white rounded-xl shadow-sm border border-slate-200 p-4 hover:shadow-md transition-shadow">
+                            <div class="flex items-start justify-between mb-2">
+                                <div class="min-w-0 flex-1">
+                                    <span class="text-xs text-slate-500 block truncate"><?php echo e($p['numero']); ?></span>
+                                    <h3 class="font-semibold text-slate-800 truncate" title="<?php echo e($clienteNome); ?>"><?php echo e($clienteNome); ?></h3>
+                                </div>
+                                <span class="text-xs text-slate-400 flex-shrink-0 ml-2"><?php echo $data; ?></span>
+                            </div>
+                            
+                            <div class="text-sm text-slate-600 mb-2">
+                                <?php echo $numServizi; ?> servizi • Totale: €<?php echo number_format(floatval($p['totale']), 2); ?>
+                            </div>
+                            
+                            <div class="text-xs mb-3">
+                                <?php if ($isAssociato): ?>
+                                    <span class="text-emerald-600 font-medium">✓ Associato a progetto</span>
+                                <?php else: ?>
+                                    <span class="text-amber-600 font-medium">⚠ Non associato</span>
+                                <?php endif; ?>
+                            </div>
+                            
+                            <div class="flex gap-2">
+                                <button onclick="modificaPreventivo(<?php echo $p['id']; ?>)"
+                                        class="flex-1 px-3 py-2 bg-cyan-50 hover:bg-cyan-100 text-cyan-700 rounded-lg text-sm font-medium transition-colors"
+                                        title="Modifica preventivo">
+                                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                    </svg>
+                                    Modifica
+                                </button>
+                                <button onclick="associaAProgetto(<?php echo $p['id']; ?>, '<?php echo e($clienteId); ?>', '<?php echo e($clienteNome); ?>')"
+                                        class="px-3 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-lg text-sm font-medium transition-colors"
+                                        title="Associa a progetto">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
+                                    </svg>
+                                </button>
+                                <?php if (!empty($p['file_path'])): ?>
+                                <a href="assets/uploads/preventivi/<?php echo e($p['file_path']); ?>" target="_blank"
+                                   class="px-3 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-lg text-sm font-medium transition-colors"
+                                   title="Apri file">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                                    </svg>
+                                </a>
+                                <?php endif; ?>
+                                <button onclick="eliminaPreventivo(<?php echo $p['id']; ?>)"
+                                        class="px-3 py-2 bg-red-50 hover:bg-red-100 text-red-700 rounded-lg text-sm font-medium transition-colors"
+                                        title="Elimina preventivo">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                    </svg>
+                                </button>
+                            </div>
                         </div>
-                        <span class="text-xs text-slate-400"><?php echo $data; ?></span>
-                    </div>
-                    
-                    <div class="text-sm text-slate-600 mb-2">
-                        <?php echo $numServizi; ?> servizi • Totale: €<?php echo number_format(floatval($p['totale']), 2); ?>
-                    </div>
-                    
-                    <div class="text-xs mb-3">
-                        <?php if ($isAssociato): ?>
-                            <span class="text-emerald-600 font-medium">✓ Associato a progetto</span>
-                        <?php else: ?>
-                            <span class="text-amber-600 font-medium">⚠ Non associato</span>
-                        <?php endif; ?>
-                    </div>
-                    
-                    <div class="flex gap-2">
-                        <button onclick="modificaPreventivo(<?php echo $p['id']; ?>)"
-                                class="flex-1 px-3 py-2 bg-cyan-50 hover:bg-cyan-100 text-cyan-700 rounded-lg text-sm font-medium transition-colors"
-                                title="Modifica preventivo">
-                            <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                            </svg>
-                            Modifica
-                        </button>
-                        <button onclick="associaAProgetto(<?php echo $p['id']; ?>, '<?php echo e($clienteId); ?>', '<?php echo e($clienteNome); ?>')"
-                                class="px-3 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-lg text-sm font-medium transition-colors"
-                                title="Associa a progetto">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
-                            </svg>
-                        </button>
-                        <?php if (!empty($p['file_path'])): ?>
-                        <a href="assets/uploads/preventivi/<?php echo e($p['file_path']); ?>" target="_blank"
-                           class="px-3 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-lg text-sm font-medium transition-colors"
-                           title="Apri file">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
-                            </svg>
-                        </a>
-                        <?php endif; ?>
-                        <button onclick="eliminaPreventivo(<?php echo $p['id']; ?>)"
-                                class="px-3 py-2 bg-red-50 hover:bg-red-100 text-red-700 rounded-lg text-sm font-medium transition-colors"
-                                title="Elimina preventivo">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                            </svg>
-                        </button>
-                    </div>
+                    <?php endforeach; ?>
                 </div>
-            <?php endforeach; ?>
+                
+                <!-- Pulsante scroll destra -->
+                <button onclick="scrollPreventiviSalvati(1)" id="btnScrollNext"
+                        class="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white shadow-lg rounded-full flex items-center justify-center text-slate-600 hover:text-cyan-600 hover:shadow-xl transition-all opacity-0 group-hover:opacity-100 disabled:opacity-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                </button>
+            </div>
         <?php endif; ?>
     </div>
 </div>
@@ -1289,7 +1312,20 @@ function renderPreventivi() {
                             return `
                             <tr class="hover:bg-slate-50">
                                 <td class="px-5 py-4 font-medium text-slate-800">${v.tipo_servizio}</td>
-                                <td class="px-5 py-4 text-sm text-slate-500">${v.descrizione || '-'}</td>
+                                <td class="px-5 py-4 text-sm text-slate-500">
+                                    ${v.descrizione ? `
+                                        <div class="desc-container" id="desc-listino-${v.id}">
+                                            <div class="desc-content line-clamp-2 text-sm text-slate-500 transition-all duration-200">${v.descrizione}</div>
+                                            <button type="button" onclick="toggleDescListino(${v.id})" 
+                                                    class="desc-toggle-btn text-xs text-cyan-600 hover:text-cyan-700 mt-1 flex items-center gap-1 font-medium">
+                                                <span>Espandi</span>
+                                                <svg class="w-3 h-3 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    ` : '-'}
+                                </td>
                                 <td class="px-5 py-4 text-right font-medium">€ ${parseFloat(v.prezzo).toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
                                 <td class="px-5 py-4 text-center">
                                     ${v.sconto_percentuale > 0 ? `<span class="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">-${v.sconto_percentuale}%</span>` : '-'}
@@ -1326,6 +1362,38 @@ function renderPreventivi() {
             </div>
         </div>
     `).join('');
+}
+
+// Scroll preventivi salvati orizzontalmente
+function scrollPreventiviSalvati(direction) {
+    const container = document.getElementById('caroselloPreventiviSalvati');
+    if (container) {
+        const scrollAmount = 340; // Larghezza card + gap
+        container.scrollBy({ left: direction * scrollAmount, behavior: 'smooth' });
+    }
+}
+
+// Toggle espandi/collassa descrizione nel listino
+function toggleDescListino(voceId) {
+    const container = document.getElementById(`desc-listino-${voceId}`);
+    if (!container) return;
+    
+    const content = container.querySelector('.desc-content');
+    const btn = container.querySelector('.desc-toggle-btn');
+    const span = btn.querySelector('span');
+    const svg = btn.querySelector('svg');
+    
+    if (content.classList.contains('line-clamp-2')) {
+        // Espandi
+        content.classList.remove('line-clamp-2');
+        span.textContent = 'Collassa';
+        svg.style.transform = 'rotate(180deg)';
+    } else {
+        // Collassa
+        content.classList.add('line-clamp-2');
+        span.textContent = 'Espandi';
+        svg.style.transform = 'rotate(0deg)';
+    }
 }
 
 // Calcola prezzo scontato in tempo reale
