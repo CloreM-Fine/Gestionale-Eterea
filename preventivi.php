@@ -841,7 +841,7 @@ function renderPreventiviSalvati(preventivi) {
 }
 
 /**
- * Renderizza una card preventivo
+ * Renderizza una card preventivo (stessi pulsanti della versione PHP)
  */
 function renderPreventivoCard(p, isCompact = false) {
     const data = new Date(p.created_at).toLocaleDateString('it-IT');
@@ -849,25 +849,46 @@ function renderPreventivoCard(p, isCompact = false) {
     const numServizi = servizi.length;
     const hasMensile = servizi.some(s => s.frequenza === 3 || s.frequenza === '3');
     const suffixMensile = hasMensile ? '/Mensile' : '';
+    const clienteId = p.cliente_id || '';
+    const clienteNome = p.cliente_nome || 'Cliente';
+    const progettoId = p.progetto_id || '';
+    const isAssociato = !!progettoId;
     
     return `
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 hover:shadow-md transition-shadow h-full flex flex-col">
             <div class="flex items-start justify-between mb-2">
                 <div class="min-w-0 flex-1">
                     <span class="text-xs text-slate-500 block truncate">${p.numero}</span>
-                    <h3 class="font-semibold text-slate-800 text-sm truncate" title="${p.cliente_nome}">${p.cliente_nome}</h3>
+                    <h3 class="font-semibold text-slate-800 text-sm truncate" title="${clienteNome}">${clienteNome}</h3>
                 </div>
                 <span class="text-xs text-slate-400 flex-shrink-0 ml-2">${data}</span>
             </div>
             
-            <div class="text-sm text-slate-600 mb-3">
+            <div class="text-sm text-slate-600 mb-2">
                 ${numServizi} servizi • Totale: €${parseFloat(p.totale).toFixed(2)}${suffixMensile}
             </div>
             
+            <div class="text-xs mb-3">
+                ${isAssociato ? 
+                    '<span class="text-emerald-600 font-medium">✓ Associato a progetto</span>' : 
+                    '<span class="text-amber-600 font-medium">⚠ Non associato</span>'}
+            </div>
+            
             <div class="flex gap-2 mt-auto">
-                <button onclick="visualizzaPreventivoSalvato(${p.id})" 
-                        class="flex-1 px-3 py-2 bg-cyan-600/5 hover:bg-cyan-600/10 text-cyan-600 rounded-lg text-sm font-medium transition-colors">
-                    Visualizza
+                <button onclick="modificaPreventivo(${p.id})"
+                        class="flex-1 px-3 py-2 bg-cyan-50 hover:bg-cyan-100 text-cyan-700 rounded-lg text-sm font-medium transition-colors"
+                        title="Modifica preventivo">
+                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                    </svg>
+                    Modifica
+                </button>
+                <button onclick="associaAProgetto(${p.id}, '${clienteId}', '${clienteNome}')"
+                        class="px-3 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-lg text-sm font-medium transition-colors"
+                        title="Associa a progetto">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
+                    </svg>
                 </button>
                 ${p.file_path ? `
                 <a href="assets/uploads/preventivi/${p.file_path}" target="_blank"
@@ -878,6 +899,13 @@ function renderPreventivoCard(p, isCompact = false) {
                     </svg>
                 </a>
                 ` : ''}
+                <button onclick="eliminaPreventivo(${p.id})"
+                        class="px-3 py-2 bg-red-50 hover:bg-red-100 text-red-700 rounded-lg text-sm font-medium transition-colors"
+                        title="Elimina preventivo">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                </button>
             </div>
         </div>
     `;
