@@ -124,13 +124,22 @@ include __DIR__ . '/includes/header.php';
     scrollbar-width: none;
 }
 
-/* Line clamp per descrizioni collassate */
-.line-clamp-2 {
+/* Line clamp per descrizioni collassate - compatibile con tutti i browser */
+.desc-container .desc-text.line-clamp-2 {
+    display: block !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
     display: -webkit-box !important;
     -webkit-line-clamp: 2 !important;
     -webkit-box-orient: vertical !important;
-    overflow: hidden !important;
-    max-height: 3em;
+    max-height: 2.8em;
+    line-height: 1.4em;
+}
+
+.desc-container .desc-text {
+    display: block;
+    overflow: visible;
+    max-height: none;
 }
 
 /* Container carosello - full width */
