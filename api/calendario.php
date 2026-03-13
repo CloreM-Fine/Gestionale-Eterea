@@ -126,6 +126,9 @@ function getEvents() {
         
         // Task con scadenza (solo se colonna data_scadenza esiste)
         try {
+            // Verifica prima se la colonna esiste
+            $pdo->query("SELECT data_scadenza FROM task LIMIT 1");
+            
             $stmt = $pdo->prepare("
                 SELECT t.id, t.titolo as task_titolo, t.data_scadenza, t.assegnato_a, 
                        t.stato as task_stato, t.progetto_id,
@@ -134,7 +137,8 @@ function getEvents() {
                 FROM task t
                 LEFT JOIN progetti p ON t.progetto_id = p.id
                 LEFT JOIN utenti u ON t.assegnato_a = u.id
-                WHERE DATE(t.data_scadenza) BETWEEN ? AND ?
+                WHERE t.data_scadenza IS NOT NULL 
+                AND DATE(t.data_scadenza) BETWEEN ? AND ?
                 AND t.stato != 'completato'
             ");
             $stmt->execute([$start, $end]);
@@ -158,7 +162,8 @@ function getEvents() {
                 ];
             }
         } catch (PDOException $e) {
-            // Colonna data_scadenza potrebbe non esistere, ignora
+            // Colonna data_scadenza potrebbe non esistere, ignora silenziosamente
+            error_log("Task scadenze non caricate: " . $e->getMessage());
         }
         
         jsonResponse(true, $events);

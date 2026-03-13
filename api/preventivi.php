@@ -663,6 +663,9 @@ BUROCRAZIA;
     $subtotaleForm = number_format($subtotale, 2, ',', '.');
     $totaleForm = number_format($totale, 2, ',', '.');
     
+    // Aggiungi "/MENSILE" al totale se frequenza > 1
+    $totaleLabel = ($frequenza > 1) ? 'TOTALE/MENSILE' : 'TOTALE';
+    
     $scontoGlobaleTxt = '';
     if ($scontoGlobale > 0) {
         $scontoVal = number_format($subtotale * ($scontoGlobale / 100), 2, ',', '.');
@@ -1068,7 +1071,7 @@ BUROCRAZIA;
             </tr>
             {$scontoGlobaleTxt}
             <tr>
-                <td style="text-align:right"><strong>TOTALE:</strong></td>
+                <td style="text-align:right"><strong>{$totaleLabel}:</strong></td>
                 <td style="text-align:right"><strong>€ {$totaleForm}</strong></td>
             </tr>
         </table>
