@@ -1844,24 +1844,38 @@ function escapeHtml(text) {
  * Toggle espandi/collassa descrizione servizio
  */
 function toggleDesc(id) {
+    event.preventDefault();
+    event.stopPropagation();
+    
     const container = document.getElementById(`desc-${id}`);
-    if (!container) return;
+    if (!container) {
+        console.error('Container non trovato per ID:', id);
+        return;
+    }
     
     const text = container.querySelector('.desc-text');
     const btn = container.querySelector('.desc-btn');
+    if (!text || !btn) {
+        console.error('Elementi interni non trovati:', { text: !!text, btn: !!btn });
+        return;
+    }
+    
     const span = btn.querySelector('span');
     const svg = btn.querySelector('svg');
+    const isExpanded = !text.classList.contains('line-clamp-2');
     
-    if (text.classList.contains('line-clamp-2')) {
-        // Espandi
+    if (!isExpanded) {
+        // Espandi - rimuovi il clamp
         text.classList.remove('line-clamp-2');
-        span.textContent = 'Collassa';
-        svg.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>';
+        text.style.display = 'block';
+        if (span) span.textContent = 'Collassa';
+        if (svg) svg.style.transform = 'rotate(180deg)';
     } else {
-        // Collassa
+        // Collassa - aggiungi il clamp
         text.classList.add('line-clamp-2');
-        span.textContent = 'Espandi';
-        svg.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>';
+        text.style.display = '-webkit-box';
+        if (span) span.textContent = 'Espandi';
+        if (svg) svg.style.transform = 'rotate(0deg)';
     }
 }
 
