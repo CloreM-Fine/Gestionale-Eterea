@@ -1765,20 +1765,33 @@ function escapeHtml(text) {
  * Toggle espandi/collassa descrizione servizio
  */
 function toggleDesc(id) {
+    console.log('toggleDesc chiamato con id:', id);
     const container = document.getElementById(`desc-${id}`);
+    console.log('Container trovato:', container);
+    
+    if (!container) {
+        console.error('Container non trovato per id:', id);
+        return;
+    }
+    
     const text = container.querySelector('.desc-text');
     const btn = container.querySelector('.desc-btn');
     const span = btn.querySelector('span');
     const svg = btn.querySelector('svg');
     
+    console.log('Text element:', text);
+    console.log('Ha line-clamp-2:', text.classList.contains('line-clamp-2'));
+    
     if (text.classList.contains('line-clamp-2')) {
         // Espandi
         text.classList.remove('line-clamp-2');
+        text.style.display = 'block';
         span.textContent = 'Collassa';
         svg.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>';
     } else {
         // Collassa
         text.classList.add('line-clamp-2');
+        text.style.display = '-webkit-box';
         span.textContent = 'Espandi';
         svg.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>';
     }
