@@ -1205,10 +1205,12 @@ function salvaPreventivoGestionale(): void {
                     totale = ?,
                     frequenza = ?,
                     frequenza_testo = ?,
-                    mostra_burocrazia = ?
+                    mostra_burocrazia = ?,
+                    sezioni_aggiuntive = ?
                 WHERE id = ?
             ");
             
+            $sezioniJson = json_encode($sezioniAggiuntive ?: []);
             $stmt->execute([
                 $numero,
                 $clienteId,
@@ -1224,16 +1226,18 @@ function salvaPreventivoGestionale(): void {
                 $frequenza,
                 $frequenzaTesto,
                 $mostraBurocrazia ? 1 : 0,
+                $sezioniJson,
                 $preventivoId
             ]);
         } else {
             // INSERT: Nuovo preventivo
             $stmt = $pdo->prepare("
                 INSERT INTO preventivi_salvati 
-                (numero, cliente_id, cliente_nome, data_validita, sconto_globale, note, tempi_consegna, non_include, servizi_json, subtotale, totale, frequenza, frequenza_testo, mostra_burocrazia, created_by)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                (numero, cliente_id, cliente_nome, data_validita, sconto_globale, note, tempi_consegna, non_include, servizi_json, subtotale, totale, frequenza, frequenza_testo, mostra_burocrazia, sezioni_aggiuntive, created_by)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ");
             
+            $sezioniJson = json_encode($sezioniAggiuntive ?: []);
             $stmt->execute([
                 $numero,
                 $clienteId,
@@ -1249,6 +1253,7 @@ function salvaPreventivoGestionale(): void {
                 $frequenza,
                 $frequenzaTesto,
                 $mostraBurocrazia ? 1 : 0,
+                $sezioniJson,
                 $_SESSION['user_id']
             ]);
             
@@ -1257,7 +1262,7 @@ function salvaPreventivoGestionale(): void {
         
         // Genera il file HTML del preventivo
         $servizi = json_decode($serviziJson, true);
-        $html = generaHTMLPreventivoSalvato($servizi, $clienteNome, $numero, $note, $scontoGlobale, $subtotale, $totale, $dataScadenza, $frequenza, $mostraBurocrazia, $tempiConsegna, $nonInclude);
+        $html = generaHTMLPreventivoSalvato($servizi, $clienteNome, $numero, $note, $scontoGlobale, $subtotale, $totale, $dataScadenza, $frequenza, $mostraBurocrazia, $tempiConsegna, $nonInclude, $sezioniAggiuntive);
         
         // Salva il file
         $filename = 'preventivo_' . $preventivoId . '_' . time() . '.html';
@@ -1300,7 +1305,7 @@ function salvaPreventivoGestionale(): void {
 /**
  * Genera HTML del preventivo salvato (usa stessa impaginazione del PDF)
  */
-function generaHTMLPreventivoSalvato(array $voci, string $cliente, string $numero, string $note, float $scontoGlobale, float $subtotale, float $totale, string $dataScadenza = '', int $frequenza = 1, bool $mostraBurocrazia = true, string $tempiConsegna = '', string $nonInclude = ''): string {
+function generaHTMLPreventivoSalvato(array $voci, string $cliente, string $numero, string $note, float $scontoGlobale, float $subtotale, float $totale, string $dataScadenza = '', int $frequenza = 1, bool $mostraBurocrazia = true, string $tempiConsegna = '', string $nonInclude = '', array $sezioniAggiuntive = []): string {
     // Converte il formato dati salvati nel formato usato da generaHTMLPreventivo
     $vociFormattate = [];
     foreach ($voci as $v) {
@@ -1327,7 +1332,7 @@ function generaHTMLPreventivoSalvato(array $voci, string $cliente, string $numer
     }
     
     // Usa la stessa funzione di generazione HTML del PDF
-    return generaHTMLPreventivo($vociFormattate, $cliente, $numero, $note, $scontoGlobale, $subtotale, $totale, $dataScadenza, $frequenza, $mostraBurocrazia, $tempiConsegna, $nonInclude, [], []);
+    return generaHTMLPreventivo($vociFormattate, $cliente, $numero, $note, $scontoGlobale, $subtotale, $totale, $dataScadenza, $frequenza, $mostraBurocrazia, $tempiConsegna, $nonInclude, [], $sezioniAggiuntive);
 }
 
 

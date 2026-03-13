@@ -35,6 +35,8 @@ switch ($method) {
             countUnread();
         } elseif ($action === 'list_links') {
             listLinks();
+        } elseif ($action === 'get_by_progetto' && isset($_GET['progetto_id'])) {
+            getByProgetto($_GET['progetto_id']);
         } else {
             jsonResponse(false, null, 'Azione non valida');
         }
@@ -243,12 +245,61 @@ function listLinks() {
 }
 
 /**
+ * Recupera contenuti filtrati per progetto specifico
+ */
+function getByProgetto($progettoId) {
+    global $pdo;
+    
+    try {
+        $stmt = $pdo->prepare("
+            SELECT c.*, cl.ragione_sociale as cliente_nome
+            FROM cliente_contenuti c
+            LEFT JOIN clienti cl ON c.cliente_id = cl.id
+            WHERE c.progetto_id = ? 
+              AND c.stato = 'attivo'
+              AND (c.titolo IS NOT NULL OR c.immagini IS NOT NULL)
+            ORDER BY c.data_caricamento DESC
+        ");
+        $stmt->execute([$progettoId]);
+        $contenuti = $stmt->fetchAll();
+        
+        // Processa i dati per il frontend
+        foreach ($contenuti as &$c) {
+            $c['file_url'] = null;
+            if (!empty($c['immagini'])) {
+                $immagini = json_decode($c['immagini'], true);
+                if (!empty($immagini[0])) {
+                    $c['file_url'] = BASE_URL . '/assets/uploads/clienti/' . $immagini[0];
+                }
+            }
+            // Determina tipo
+            $haTesto = !empty($c['testo']);
+            $haFile = !empty($c['immagini']) && $c['immagini'] !== '[]';
+            if ($haTesto && $haFile) {
+                $c['tipo'] = 'entrambi';
+            } elseif ($haFile) {
+                $c['tipo'] = 'file';
+            } else {
+                $c['tipo'] = 'testo';
+            }
+        }
+        
+        jsonResponse(true, $contenuti);
+        
+    } catch (PDOException $e) {
+        error_log("Errore getByProgetto: " . $e->getMessage());
+        jsonResponse(false, null, 'Errore caricamento contenuti');
+    }
+}
+
+/**
  * Genera link per cliente (o recupera esistente)
  */
 function generaLink() {
     global $pdo;
     
     $clienteId = $_POST['cliente_id'] ?? '';
+    $progettoId = $_POST['progetto_id'] ?? '';
     $note = $_POST['note'] ?? '';
     
     if (empty($clienteId)) {
@@ -264,14 +315,27 @@ function generaLink() {
             jsonResponse(false, null, 'Cliente non trovato');
         }
         
-        // Verifica se esiste già un link per questo cliente (vuoto, mai utilizzato)
-        $stmt = $pdo->prepare("
-            SELECT id, token FROM cliente_contenuti 
-            WHERE cliente_id = ? AND stato = 'attivo' AND (titolo IS NULL OR titolo = '') AND (immagini IS NULL OR immagini = '[]')
-            ORDER BY created_at DESC
-            LIMIT 1
-        ");
-        $stmt->execute([$clienteId]);
+        // Se è specificato un progetto, cerca link specifico per quel progetto
+        if (!empty($progettoId)) {
+            $stmt = $pdo->prepare("
+                SELECT id, token FROM cliente_contenuti 
+                WHERE cliente_id = ? AND progetto_id = ? AND stato = 'attivo' 
+                AND (titolo IS NULL OR titolo = '') AND (immagini IS NULL OR immagini = '[]')
+                ORDER BY created_at DESC
+                LIMIT 1
+            ");
+            $stmt->execute([$clienteId, $progettoId]);
+        } else {
+            // Cerca link generico per cliente (senza progetto)
+            $stmt = $pdo->prepare("
+                SELECT id, token FROM cliente_contenuti 
+                WHERE cliente_id = ? AND stato = 'attivo' AND (progetto_id IS NULL OR progetto_id = '')
+                AND (titolo IS NULL OR titolo = '') AND (immagini IS NULL OR immagini = '[]')
+                ORDER BY created_at DESC
+                LIMIT 1
+            ");
+            $stmt->execute([$clienteId]);
+        }
         $esistente = $stmt->fetch();
         
         if ($esistente) {
@@ -279,6 +343,7 @@ function generaLink() {
             $url = BASE_URL . '/upload_cliente.php?token=' . $esistente['token'];
             jsonResponse(true, [
                 'url' => $url, 
+                'url_completo' => $url,
                 'token' => $esistente['token'],
                 'esistente' => true,
                 'message' => 'Link esistente recuperato per ' . $cliente['ragione_sociale']
@@ -290,17 +355,27 @@ function generaLink() {
         $token = bin2hex(random_bytes(32));
         $id = generateEntityId('ccnt');
         
-        $stmt = $pdo->prepare("
-            INSERT INTO cliente_contenuti (id, cliente_id, token, stato, created_by)
-            VALUES (?, ?, ?, 'attivo', ?)
-        ");
-        $stmt->execute([$id, $clienteId, $token, $_SESSION['user_id'] ?? null]);
+        // Se c'è un progetto, includilo nell'INSERT
+        if (!empty($progettoId)) {
+            $stmt = $pdo->prepare("
+                INSERT INTO cliente_contenuti (id, cliente_id, progetto_id, token, stato, created_by)
+                VALUES (?, ?, ?, ?, 'attivo', ?)
+            ");
+            $stmt->execute([$id, $clienteId, $progettoId, $token, $_SESSION['user_id'] ?? null]);
+        } else {
+            $stmt = $pdo->prepare("
+                INSERT INTO cliente_contenuti (id, cliente_id, token, stato, created_by)
+                VALUES (?, ?, ?, 'attivo', ?)
+            ");
+            $stmt->execute([$id, $clienteId, $token, $_SESSION['user_id'] ?? null]);
+        }
         
         // URL pubblico
         $url = BASE_URL . '/upload_cliente.php?token=' . $token;
         
         jsonResponse(true, [
             'url' => $url, 
+            'url_completo' => $url,
             'token' => $token,
             'esistente' => false,
             'message' => 'Nuovo link generato per ' . $cliente['ragione_sociale']
@@ -360,9 +435,9 @@ function uploadContenuto() {
     }
     
     try {
-        // Verifica token - ottiene cliente_id
+        // Verifica token - ottiene cliente_id e progetto_id
         $stmt = $pdo->prepare("
-            SELECT id, cliente_id, titolo, immagini FROM cliente_contenuti 
+            SELECT id, cliente_id, progetto_id, titolo, immagini FROM cliente_contenuti 
             WHERE token = ? AND stato = 'attivo'
         ");
         $stmt->execute([$token]);
@@ -433,12 +508,13 @@ function uploadContenuto() {
             $newId = generateEntityId('cc');
             
             $stmt = $pdo->prepare("
-                INSERT INTO cliente_contenuti (id, cliente_id, token, titolo, autore, testo, immagini, stato, letto, created_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, 'attivo', 0, NOW())
+                INSERT INTO cliente_contenuti (id, cliente_id, progetto_id, token, titolo, autore, testo, immagini, stato, letto, created_at, data_caricamento)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'attivo', 0, NOW(), NOW())
             ");
             $stmt->execute([
                 $newId,
                 $clienteId,
+                $contenuto['progetto_id'] ?? null,
                 $newToken,
                 $titolo,
                 $autore,
@@ -449,7 +525,7 @@ function uploadContenuto() {
             // Primo uso del link: aggiorna record esistente
             $stmt = $pdo->prepare("
                 UPDATE cliente_contenuti 
-                SET titolo = ?, autore = ?, testo = ?, immagini = ?, letto = 0
+                SET titolo = ?, autore = ?, testo = ?, immagini = ?, letto = 0, data_caricamento = NOW()
                 WHERE id = ?
             ");
             $stmt->execute([

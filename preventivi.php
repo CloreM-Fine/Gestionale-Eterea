@@ -114,6 +114,15 @@ include __DIR__ . '/includes/header.php';
 #voceDescrizioneEditor i, #voceDescrizioneEditor em {
     font-style: italic;
 }
+
+/* Nascondi scrollbar per carosello */
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
+.scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
 </style>
 <script>
 // Editor WYSIWYG Custom - Self-hosted
@@ -532,7 +541,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <div id="preventivoModal" class="fixed inset-0 z-[60] hidden">
     <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeModal('preventivoModal')"></div>
     <div class="absolute inset-0 flex items-end sm:items-center justify-center p-0 sm:p-4">
-        <div class="bg-white sm:rounded-2xl rounded-t-2xl shadow-2xl w-full max-w-6xl max-h-[85vh] sm:max-h-[90vh] overflow-hidden flex flex-col">
+        <div class="bg-white sm:rounded-2xl rounded-t-2xl shadow-2xl w-full max-w-7xl max-h-[85vh] sm:max-h-[90vh] overflow-hidden flex flex-col">
             <div class="p-6 border-b border-slate-100 flex items-center justify-between">
                 <h2 id="preventivoModalTitle" class="text-xl font-bold text-slate-800">Crea Preventivo</h2>
                 <button onclick="closeModal('preventivoModal')" class="text-slate-400 hover:text-slate-600">
@@ -788,45 +797,101 @@ function renderPreventiviSalvati(preventivi) {
     
     countLabel.textContent = `${preventivi.length} preventivi`;
     
-    container.innerHTML = preventivi.map(p => {
-        const data = new Date(p.created_at).toLocaleDateString('it-IT');
-        const servizi = JSON.parse(p.servizi_json || '[]');
-        const numServizi = servizi.length;
-        const hasMensile = servizi.some(s => s.frequenza === 3 || s.frequenza === '3');
-        const suffixMensile = hasMensile ? '/Mensile' : '';
-        
-        return `
-            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 hover:shadow-md transition-shadow">
-                <div class="flex items-start justify-between mb-2">
-                    <div>
-                        <span class="text-xs text-slate-500">${p.numero}</span>
-                        <h3 class="font-semibold text-slate-800">${p.cliente_nome}</h3>
+    // Primi 3 preventivi visibili in griglia
+    const primiTre = preventivi.slice(0, 3);
+    const rimanenti = preventivi.slice(3);
+    
+    let html = '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">';
+    
+    html += primiTre.map(p => renderPreventivoCard(p)).join('');
+    html += '</div>';
+    
+    // Carosello orizzontale per i rimanenti
+    if (rimanenti.length > 0) {
+        html += `
+            <div class="mt-6">
+                <div class="flex items-center gap-2 mb-3">
+                    <h4 class="text-sm font-medium text-slate-600">Altri preventivi</h4>
+                    <span class="text-xs text-slate-400">(${rimanenti.length})</span>
+                </div>
+                <div class="relative">
+                    <div id="caroselloPreventivi" class="flex gap-4 overflow-x-auto pb-2 scrollbar-hide snap-x snap-mandatory" style="scroll-behavior: smooth;">
+                        ${rimanenti.map(p => `
+                            <div class="snap-start flex-shrink-0 w-72">
+                                ${renderPreventivoCard(p, true)}
+                            </div>
+                        `).join('')}
                     </div>
-                    <span class="text-xs text-slate-400">${data}</span>
-                </div>
-                
-                <div class="text-sm text-slate-600 mb-3">
-                    ${numServizi} servizi • Totale: €${parseFloat(p.totale).toFixed(2)}${suffixMensile}
-                </div>
-                
-                <div class="flex gap-2">
-                    <button onclick="visualizzaPreventivoSalvato(${p.id})" 
-                            class="flex-1 px-3 py-2 bg-cyan-600/5 hover:bg-cyan-600/10 text-cyan-600 rounded-lg text-sm font-medium transition-colors">
-                        Visualizza
-                    </button>
-                    ${p.file_path ? `
-                    <a href="assets/uploads/preventivi/${p.file_path}" target="_blank"
-                       class="px-3 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-lg text-sm font-medium transition-colors"
-                       title="Apri file">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
-                        </svg>
-                    </a>
+                    ${rimanenti.length > 1 ? `
+                    <div class="flex justify-center gap-2 mt-3">
+                        <button onclick="scrollCarosello(-1)" class="p-2 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                        </button>
+                        <button onclick="scrollCarosello(1)" class="p-2 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                        </button>
+                    </div>
                     ` : ''}
                 </div>
             </div>
         `;
-    }).join('');
+    }
+    
+    container.innerHTML = html;
+}
+
+/**
+ * Renderizza una card preventivo
+ */
+function renderPreventivoCard(p, isCompact = false) {
+    const data = new Date(p.created_at).toLocaleDateString('it-IT');
+    const servizi = JSON.parse(p.servizi_json || '[]');
+    const numServizi = servizi.length;
+    const hasMensile = servizi.some(s => s.frequenza === 3 || s.frequenza === '3');
+    const suffixMensile = hasMensile ? '/Mensile' : '';
+    
+    return `
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 hover:shadow-md transition-shadow h-full flex flex-col">
+            <div class="flex items-start justify-between mb-2">
+                <div class="min-w-0 flex-1">
+                    <span class="text-xs text-slate-500 block truncate">${p.numero}</span>
+                    <h3 class="font-semibold text-slate-800 text-sm truncate" title="${p.cliente_nome}">${p.cliente_nome}</h3>
+                </div>
+                <span class="text-xs text-slate-400 flex-shrink-0 ml-2">${data}</span>
+            </div>
+            
+            <div class="text-sm text-slate-600 mb-3">
+                ${numServizi} servizi • Totale: €${parseFloat(p.totale).toFixed(2)}${suffixMensile}
+            </div>
+            
+            <div class="flex gap-2 mt-auto">
+                <button onclick="visualizzaPreventivoSalvato(${p.id})" 
+                        class="flex-1 px-3 py-2 bg-cyan-600/5 hover:bg-cyan-600/10 text-cyan-600 rounded-lg text-sm font-medium transition-colors">
+                    Visualizza
+                </button>
+                ${p.file_path ? `
+                <a href="assets/uploads/preventivi/${p.file_path}" target="_blank"
+                   class="px-3 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-lg text-sm font-medium transition-colors"
+                   title="Apri file">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                    </svg>
+                </a>
+                ` : ''}
+            </div>
+        </div>
+    `;
+}
+
+/**
+ * Scroll carosello preventivi
+ */
+function scrollCarosello(direction) {
+    const container = document.getElementById('caroselloPreventivi');
+    if (container) {
+        const scrollAmount = 300;
+        container.scrollBy({ left: direction * scrollAmount, behavior: 'smooth' });
+    }
 }
 
 async function visualizzaPreventivoSalvato(id) {
@@ -1559,7 +1624,15 @@ function renderPreventivoServiziFromListino(categorie) {
                                 <div class="flex items-start justify-between gap-2">
                                     <div class="flex-1">
                                         <p class="font-semibold text-slate-800 text-sm">${v.tipo_servizio}</p>
-                                        ${v.descrizione ? `<p class="text-xs text-slate-500 mt-0.5 line-clamp-2">${v.descrizione}</p>` : ''}
+                                        ${v.descrizione ? `
+                                            <div class="desc-container" id="desc-${v.id}">
+                                                <p class="text-xs text-slate-500 mt-0.5 line-clamp-2 desc-text">${v.descrizione}</p>
+                                                <button type="button" onclick="toggleDesc('${v.id}')" class="text-xs text-cyan-600 hover:text-cyan-700 mt-1 flex items-center gap-1 desc-btn">
+                                                    <span>Espandi</span>
+                                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                                </button>
+                                            </div>
+                                        ` : ''}
                                     </div>
                                     
                                     <!-- Prezzo -->
@@ -1645,6 +1718,29 @@ function updateQty(id, delta) {
 function escapeHtml(text) {
     if (!text) return '';
     return text.replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+}
+
+/**
+ * Toggle espandi/collassa descrizione servizio
+ */
+function toggleDesc(id) {
+    const container = document.getElementById(`desc-${id}`);
+    const text = container.querySelector('.desc-text');
+    const btn = container.querySelector('.desc-btn');
+    const span = btn.querySelector('span');
+    const svg = btn.querySelector('svg');
+    
+    if (text.classList.contains('line-clamp-2')) {
+        // Espandi
+        text.classList.remove('line-clamp-2');
+        span.textContent = 'Collassa';
+        svg.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>';
+    } else {
+        // Collassa
+        text.classList.add('line-clamp-2');
+        span.textContent = 'Espandi';
+        svg.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>';
+    }
 }
 
 function openPreventivoModal() {

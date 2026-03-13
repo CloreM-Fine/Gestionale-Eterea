@@ -527,7 +527,189 @@ function switchTab(tabName) {
     tabBtn.classList.add('text-cyan-600', 'border-b-2', 'border-cyan-600');
     if (tabName === 'economia' && typeof loadTransazioni === 'function') loadTransazioni();
     if (tabName === 'documenti' && typeof loadDocumenti === 'function') loadDocumenti();
+    if (tabName === 'blog') caricaContenutiProgetto();
 }
+
+// =====================================================
+// FUNZIONI BLOG CLIENTI
+// =====================================================
+
+/**
+ * Carica i contenuti del blog per questo progetto
+ */
+function caricaContenutiProgetto() {
+    const container = document.getElementById('listaContenutiProgetto');
+    if (!container) return;
+    
+    container.innerHTML = '<div class="text-center py-8"><div class="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-cyan-600"></div><p class="text-slate-400 text-sm mt-2">Caricamento...</p></div>';
+    
+    fetch(`api/blog_clienti.php?action=get_by_progetto&progetto_id=${progettoId}&t=${Date.now()}`)
+        .then(r => r.json())
+        .then(data => {
+            if (!data.success || !data.data || data.data.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-8 sm:py-12">
+                        <div class="w-12 h-12 sm:w-16 sm:h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <svg class="w-6 h-6 sm:w-8 sm:h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                        </div>
+                        <p class="text-slate-500 text-sm">Nessun contenuto caricato</p>
+                        <p class="text-slate-400 text-xs mt-1">I contenuti caricati dal cliente appariranno qui</p>
+                    </div>`;
+                document.getElementById('blogCountBadge').textContent = '0';
+                return;
+            }
+            
+            const contenuti = data.data;
+            document.getElementById('blogCountBadge').textContent = contenuti.length;
+            
+            let html = '<div class="space-y-3">';
+            contenuti.forEach(c => {
+                const dataFormattata = c.data_caricamento ? new Date(c.data_caricamento).toLocaleDateString('it-IT', {day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '';
+                const titolo = c.titolo || 'Senza titolo';
+                const tipoIcon = getTipoIcon(c.tipo);
+                const haTesto = c.testo && c.testo.length > 0;
+                
+                html += `
+                <div class="bg-white border border-slate-200 rounded-xl p-3 sm:p-4 hover:shadow-sm transition-shadow">
+                    <div class="flex items-start gap-3">
+                        <div class="w-10 h-10 bg-cyan-50 rounded-lg flex items-center justify-center flex-shrink-0">
+                            ${tipoIcon}
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h4 class="font-medium text-slate-800 text-sm truncate">${escapeHtml(titolo)}</h4>
+                            <p class="text-xs text-slate-500 mt-0.5">${dataFormattata}</p>
+                            ${haTesto ? `<div class="mt-2 text-xs text-slate-600 line-clamp-2">${escapeHtml(stripHtml(c.testo))}</div>` : ''}
+                            ${c.file_url ? `<a href="${c.file_url}" target="_blank" class="inline-flex items-center gap-1 mt-2 text-xs text-cyan-600 hover:text-cyan-700"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg> Scarica allegato</a>` : ''}
+                        </div>
+                        <button onclick="eliminaContenuto('${c.id}')" class="p-1.5 text-slate-400 hover:text-red-500 transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        </button>
+                    </div>
+                </div>`;
+            });
+            html += '</div>';
+            container.innerHTML = html;
+        })
+        .catch(() => {
+            container.innerHTML = `<div class="text-center py-8"><p class="text-red-500 text-sm">Errore caricamento contenuti</p></div>`;
+        });
+}
+
+/**
+ * Genera un link per il cliente
+ */
+function generaLinkCliente() {
+    const btn = document.querySelector('button[onclick="generaLinkCliente()"]');
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Genero...';
+    }
+    
+    const formData = new FormData();
+    formData.append('action', 'genera_link');
+    formData.append('cliente_id', progettoData.cliente_id);
+    formData.append('progetto_id', progettoId);
+    formData.append('csrf_token', csrfToken);
+    
+    fetch('api/blog_clienti.php', {method: 'POST', body: formData})
+        .then(r => r.json())
+        .then(data => {
+            if (data.success && data.data) {
+                const linkInput = document.getElementById('linkGenerato');
+                const container = document.getElementById('linkGeneratoContainer');
+                if (linkInput && container) {
+                    linkInput.value = data.data.url_completo;
+                    container.classList.remove('hidden');
+                }
+            } else {
+                alert('Errore: ' + (data.message || 'Impossibile generare il link'));
+            }
+        })
+        .catch(() => alert('Errore di connessione'))
+        .finally(() => {
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg> Genera Link`;
+            }
+        });
+}
+
+/**
+ * Copia il link negli appunti
+ */
+function copiaLink() {
+    const input = document.getElementById('linkGenerato');
+    if (input) {
+        input.select();
+        document.execCommand('copy');
+        const btn = document.querySelector('button[onclick="copiaLink()"]');
+        if (btn) {
+            const original = btn.innerHTML;
+            btn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Copiato!';
+            setTimeout(() => btn.innerHTML = original, 2000);
+        }
+    }
+}
+
+/**
+ * Elimina un contenuto
+ */
+function eliminaContenuto(id) {
+    if (!confirm('Sei sicuro di voler eliminare questo contenuto?')) return;
+    
+    const formData = new FormData();
+    formData.append('action', 'delete');
+    formData.append('id', id);
+    formData.append('csrf_token', csrfToken);
+    
+    fetch('api/blog_clienti.php', {method: 'POST', body: formData})
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                caricaContenutiProgetto();
+            } else {
+                alert('Errore: ' + (data.message || 'Impossibile eliminare'));
+            }
+        })
+        .catch(() => alert('Errore di connessione'));
+}
+
+/**
+ * Restituisce l'icona SVG in base al tipo di contenuto
+ */
+function getTipoIcon(tipo) {
+    const icons = {
+        'testo': '<svg class="w-5 h-5 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>',
+        'file': '<svg class="w-5 h-5 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>',
+        'entrambi': '<svg class="w-5 h-5 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>'
+    };
+    return icons[tipo] || icons['testo'];
+}
+
+/**
+ * Escape HTML per sicurezza
+ */
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+/**
+ * Rimuove tag HTML dal testo
+ */
+function stripHtml(html) {
+    if (!html) return '';
+    const tmp = document.createElement('div');
+    tmp.innerHTML = html;
+    return tmp.textContent || tmp.innerText || '';
+}
+
+// Token CSRF
+const csrfToken = '<?php echo generateCsrfToken(); ?>';
 </script>
 
 <!-- Tabs -->
@@ -546,6 +728,11 @@ function switchTab(tabName) {
                 class="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-medium text-slate-500 hover:text-slate-700 whitespace-nowrap flex-shrink-0">
             Documenti
             <span id="docCountBadge" class="ml-1 sm:ml-2 px-2 py-0.5 bg-slate-100 text-slate-600 rounded-full text-xs">0</span>
+        </button>
+        <button onclick="switchTab('blog')" id="tab-blog" 
+                class="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-medium text-slate-500 hover:text-slate-700 whitespace-nowrap flex-shrink-0">
+            Blog Clienti
+            <span id="blogCountBadge" class="ml-1 sm:ml-2 px-2 py-0.5 bg-slate-100 text-slate-600 rounded-full text-xs">0</span>
         </button>
         <button onclick="switchTab('economia')" id="tab-economia" 
                 class="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-medium text-slate-500 hover:text-slate-700 whitespace-nowrap flex-shrink-0">
@@ -814,6 +1001,70 @@ function switchTab(tabName) {
                             <p class="text-xs text-slate-400" id="previewSize">0 KB</p>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tab: Blog Clienti -->
+    <div id="content-blog" class="tab-content hidden">
+        <div class="space-y-4 sm:space-y-6">
+            <!-- Header con azioni -->
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+                <div>
+                    <h3 class="text-base sm:text-lg font-semibold text-slate-800">Contenuti Cliente</h3>
+                    <p class="text-xs sm:text-sm text-slate-500">Gestisci i contenuti caricati dal cliente per questo progetto</p>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="generaLinkCliente()" class="px-3 sm:px-4 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition-colors text-xs sm:text-sm flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+                        </svg>
+                        Genera Link
+                    </button>
+                    <a href="blog_clienti.php" target="_blank" class="px-3 sm:px-4 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors text-xs sm:text-sm flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                        </svg>
+                        Vai al Blog
+                    </a>
+                </div>
+            </div>
+
+            <!-- Link Generato -->
+            <div id="linkGeneratoContainer" class="hidden">
+                <div class="bg-green-50 border border-green-200 rounded-xl p-4">
+                    <div class="flex items-start gap-3">
+                        <svg class="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <div class="flex-1 min-w-0">
+                            <p class="font-medium text-green-800 text-sm">Link generato con successo!</p>
+                            <p class="text-xs text-green-600 mt-1">Condividi questo link con il cliente per permettergli di caricare contenuti:</p>
+                            <div class="mt-3 flex gap-2">
+                                <input type="text" id="linkGenerato" readonly class="flex-1 px-3 py-2 bg-white border border-green-200 rounded-lg text-xs text-slate-700 focus:outline-none">
+                                <button onclick="copiaLink()" class="px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-xs flex items-center gap-1">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                                    </svg>
+                                    Copia
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lista Contenuti -->
+            <div id="listaContenutiProgetto" class="space-y-3">
+                <div class="text-center py-8 sm:py-12">
+                    <div class="w-12 h-12 sm:w-16 sm:h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <svg class="w-6 h-6 sm:w-8 sm:h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                    </div>
+                    <p class="text-slate-500 text-sm">Nessun contenuto caricato</p>
+                    <p class="text-slate-400 text-xs mt-1">I contenuti caricati dal cliente appariranno qui</p>
                 </div>
             </div>
         </div>
