@@ -532,7 +532,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <div id="preventivoModal" class="fixed inset-0 z-[60] hidden">
     <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeModal('preventivoModal')"></div>
     <div class="absolute inset-0 flex items-end sm:items-center justify-center p-0 sm:p-4">
-        <div class="bg-white sm:rounded-2xl rounded-t-2xl shadow-2xl w-full max-w-4xl max-h-[85vh] sm:max-h-[90vh] overflow-hidden flex flex-col">
+        <div class="bg-white sm:rounded-2xl rounded-t-2xl shadow-2xl w-full max-w-6xl max-h-[85vh] sm:max-h-[90vh] overflow-hidden flex flex-col">
             <div class="p-6 border-b border-slate-100 flex items-center justify-between">
                 <h2 id="preventivoModalTitle" class="text-xl font-bold text-slate-800">Crea Preventivo</h2>
                 <button onclick="closeModal('preventivoModal')" class="text-slate-400 hover:text-slate-600">
@@ -632,6 +632,28 @@ document.addEventListener('DOMContentLoaded', function() {
                 </h3>
                 <div id="preventivoServizi" class="space-y-3 max-h-96 overflow-y-auto border border-slate-200 rounded-xl p-3">
                     <p class="text-slate-400 text-center py-4">Caricamento servizi...</p>
+                </div>
+                
+                <!-- Sezioni Aggiuntive -->
+                <div class="mt-6 border-t border-slate-200 pt-6">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="font-semibold text-slate-800 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                            Sezioni Aggiuntive
+                        </h3>
+                        <button onclick="aggiungiSezione()" type="button"
+                                class="px-3 py-1.5 bg-cyan-50 hover:bg-cyan-100 text-cyan-600 rounded-lg text-sm font-medium flex items-center gap-1 transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                            </svg>
+                            Aggiungi Sezione
+                        </button>
+                    </div>
+                    <div id="sezioniAggiuntive" class="space-y-4">
+                        <!-- Le sezioni verranno aggiunte qui dinamicamente -->
+                    </div>
                 </div>
                 
                 <!-- Riepilogo -->
@@ -1849,6 +1871,214 @@ function updatePreventivoPreview() {
     document.getElementById('prevTotale').textContent = '€ ' + totale.toLocaleString('it-IT', {minimumFractionDigits: 2}) + suffixMensile;
 }
 
+// ========== GESTIONE SEZIONI AGGIUNTIVE ==========
+let sezioniCount = 0;
+
+function aggiungiSezione() {
+    sezioniCount++;
+    const container = document.getElementById('sezioniAggiuntive');
+    const sezioneId = `sezione-${sezioniCount}`;
+    
+    const sezioneHtml = `
+        <div id="${sezioneId}" class="p-4 bg-slate-50 border border-slate-200 rounded-xl">
+            <div class="flex items-center justify-between mb-3">
+                <input type="text" id="${sezioneId}-titolo" 
+                       class="flex-1 px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none text-sm font-medium"
+                       placeholder="Titolo della sezione (es: Note importanti, Condizioni speciali...)">
+                <button onclick="rimuoviSezione('${sezioneId}')" type="button"
+                        class="ml-2 p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="Rimuovi sezione">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                </button>
+            </div>
+            
+            <!-- Toolbar Editor -->
+            <div class="wysiwyg-toolbar mb-2">
+                <button type="button" onclick="wysiwygEditorSezione.format('${sezioneId}', 'bold')" title="Grassetto">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 12h8a4 4 0 100-8H6v8zm0 0h10a4 4 0 110 8H6v-8z"/>
+                    </svg>
+                </button>
+                <button type="button" onclick="wysiwygEditorSezione.format('${sezioneId}', 'italic')" title="Corsivo">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4M6 16l-4-4"/>
+                    </svg>
+                </button>
+                <span class="separator"></span>
+                <button type="button" onclick="wysiwygEditorSezione.insertList('${sezioneId}', 'ul')" title="Elenco puntato">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16M8 6l2 2-2 2M8 12l2 2-2 2M8 18l2 2-2 2"/>
+                    </svg>
+                </button>
+                <span class="separator"></span>
+                <select onchange="wysiwygEditorSezione.setFontSize('${sezioneId}', this.value)" class="text-sm border border-slate-300 rounded px-2 py-1 bg-white" title="Dimensione testo">
+                    <option value="">Size</option>
+                    <option value="1">8px</option>
+                    <option value="2">10px</option>
+                    <option value="3">12px</option>
+                    <option value="4">14px</option>
+                    <option value="5">18px</option>
+                    <option value="6">24px</option>
+                    <option value="7">36px</option>
+                </select>
+            </div>
+            
+            <!-- Editor Content -->
+            <div id="${sezioneId}-editor" class="sezione-editor" contenteditable="true" 
+                 placeholder="Inserisci qui il contenuto della sezione..."></div>
+            <input type="hidden" id="${sezioneId}-contenuto" name="sezioni[]">
+        </div>
+    `;
+    
+    container.insertAdjacentHTML('beforeend', sezioneHtml);
+    
+    // Inizializza l'editor per questa sezione
+    wysiwygEditorSezione.init(sezioneId);
+}
+
+function rimuoviSezione(sezioneId) {
+    const sezione = document.getElementById(sezioneId);
+    if (sezione) {
+        sezione.remove();
+    }
+}
+
+// Editor WYSIWYG per sezioni
+const wysiwygEditorSezione = {
+    init: function(sezioneId) {
+        const editor = document.getElementById(`${sezioneId}-editor`);
+        const hiddenInput = document.getElementById(`${sezioneId}-contenuto`);
+        
+        if (!editor || !hiddenInput) return;
+        
+        // Salva automaticamente il contenuto
+        editor.addEventListener('input', () => {
+            hiddenInput.value = editor.innerHTML;
+        });
+        
+        // Gestione paste
+        editor.addEventListener('paste', (e) => {
+            e.preventDefault();
+            
+            let html = '';
+            if (e.clipboardData && e.clipboardData.getData) {
+                html = e.clipboardData.getData('text/html') || e.clipboardData.getData('text/plain');
+            }
+            
+            const allowedTags = ['b', 'i', 'u', 'strong', 'em', 'p', 'br', 'h1', 'h2', 'h3', 'h4', 'ul', 'ol', 'li', 'blockquote', 'span'];
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = html;
+            
+            function cleanNode(node) {
+                if (node.nodeType === Node.TEXT_NODE) {
+                    return node.textContent;
+                }
+                if (node.nodeType === Node.ELEMENT_NODE) {
+                    const tagName = node.tagName.toLowerCase();
+                    if (allowedTags.includes(tagName)) {
+                        const cleaned = document.createElement(tagName);
+                        Array.from(node.childNodes).forEach(child => {
+                            const cleanedChild = cleanNode(child);
+                            if (cleanedChild) {
+                                if (typeof cleanedChild === 'string') {
+                                    cleaned.appendChild(document.createTextNode(cleanedChild));
+                                } else {
+                                    cleaned.appendChild(cleanedChild);
+                                }
+                            }
+                        });
+                        return cleaned;
+                    } else {
+                        return node.textContent;
+                    }
+                }
+                return '';
+            }
+            
+            const fragment = document.createDocumentFragment();
+            Array.from(tempDiv.childNodes).forEach(node => {
+                const cleaned = cleanNode(node);
+                if (cleaned) {
+                    if (typeof cleaned === 'string') {
+                        fragment.appendChild(document.createTextNode(cleaned));
+                    } else {
+                        fragment.appendChild(cleaned);
+                    }
+                }
+            });
+            
+            const selection = window.getSelection();
+            if (selection.rangeCount > 0) {
+                const range = selection.getRangeAt(0);
+                range.deleteContents();
+                range.insertNode(fragment);
+                range.collapse(false);
+                selection.removeAllRanges();
+                selection.addRange(range);
+            }
+            
+            hiddenInput.value = editor.innerHTML;
+        });
+    },
+    
+    format: function(sezioneId, command) {
+        const editor = document.getElementById(`${sezioneId}-editor`);
+        const hiddenInput = document.getElementById(`${sezioneId}-contenuto`);
+        if (!editor) return;
+        
+        editor.focus();
+        document.execCommand(command, false, null);
+        hiddenInput.value = editor.innerHTML;
+    },
+    
+    insertList: function(sezioneId, type) {
+        const editor = document.getElementById(`${sezioneId}-editor`);
+        const hiddenInput = document.getElementById(`${sezioneId}-contenuto`);
+        if (!editor) return;
+        
+        editor.focus();
+        if (type === 'ul') {
+            document.execCommand('insertUnorderedList', false, null);
+        } else {
+            document.execCommand('insertOrderedList', false, null);
+        }
+        hiddenInput.value = editor.innerHTML;
+    },
+    
+    setFontSize: function(sezioneId, size) {
+        if (!size) return;
+        const editor = document.getElementById(`${sezioneId}-editor`);
+        const hiddenInput = document.getElementById(`${sezioneId}-contenuto`);
+        if (!editor) return;
+        
+        editor.focus();
+        document.execCommand('fontSize', false, size);
+        hiddenInput.value = editor.innerHTML;
+    }
+};
+
+function getSezioniAggiuntive() {
+    const sezioni = [];
+    const container = document.getElementById('sezioniAggiuntive');
+    if (!container) return sezioni;
+    
+    container.querySelectorAll('[id^="sezione-"]').forEach(sezioneEl => {
+        const id = sezioneEl.id;
+        const titoloInput = document.getElementById(`${id}-titolo`);
+        const contenutoInput = document.getElementById(`${id}-contenuto`);
+        
+        if (titoloInput && contenutoInput && (titoloInput.value.trim() || contenutoInput.value.trim())) {
+            sezioni.push({
+                titolo: titoloInput.value.trim(),
+                contenuto: contenutoInput.value.trim()
+            });
+        }
+    });
+    
+    return sezioni;
+}
+
 async function generaPreventivo() {
     if (preventivoVoci.length === 0) {
         showToast('Seleziona almeno un servizio', 'error');
@@ -1870,6 +2100,9 @@ async function generaPreventivo() {
     try {
         const mostraBurocrazia = document.getElementById('prevMostraBurocrazia').checked;
         
+        // Recupera sezioni aggiuntive
+        const sezioniAggiuntive = getSezioniAggiuntive();
+        
         const response = await fetch('api/preventivi.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -1883,7 +2116,8 @@ async function generaPreventivo() {
                 non_include: document.getElementById('prevNonInclude').value,
                 sconto_globale: document.getElementById('prevScontoGlobale').value,
                 data_scadenza: document.getElementById('prevScadenza').value,
-                mostra_burocrazia: mostraBurocrazia
+                mostra_burocrazia: mostraBurocrazia,
+                sezioni_aggiuntive: JSON.stringify(sezioniAggiuntive)
             })
         });
         
@@ -1952,6 +2186,9 @@ async function salvaPreventivoGestionale() {
     const totale = subtotale * (1 - parseFloat(sconto || 0) / 100);
     const mostraBurocrazia = document.getElementById('prevMostraBurocrazia').checked;
     
+    // Recupera sezioni aggiuntive
+    const sezioniAggiuntive = getSezioniAggiuntive();
+    
     const formData = new FormData();
     const preventivoId = document.getElementById('preventivoId').value;
     
@@ -1971,6 +2208,7 @@ async function salvaPreventivoGestionale() {
     formData.append('subtotale', subtotale.toFixed(2));
     formData.append('totale', totale.toFixed(2));
     formData.append('mostra_burocrazia', mostraBurocrazia);
+    formData.append('sezioni_aggiuntive', JSON.stringify(sezioniAggiuntive));
     
     try {
         const response = await fetch('api/preventivi.php', {

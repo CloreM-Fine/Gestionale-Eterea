@@ -227,6 +227,7 @@ function generaPreventivo(): void {
     $dataScadenza = trim($_POST['data_scadenza'] ?? '');
     $frequenza = intval($_POST['frequenza'] ?? 1);
     $mostraBurocrazia = filter_var($_POST['mostra_burocrazia'] ?? 'true', FILTER_VALIDATE_BOOLEAN);
+    $sezioniAggiuntive = json_decode($_POST['sezioni_aggiuntive'] ?? '[]', true);
     
     if (empty($vociSelezionate)) {
         jsonResponse(false, null, 'Nessuna voce selezionata');
@@ -319,7 +320,7 @@ function generaPreventivo(): void {
         $totaleScontato = $subtotaleConFrequenza * (1 - $scontoGlobale / 100);
         
         // Genera HTML per PDF
-        $html = generaHTMLPreventivo($voci, $clienteNome, $preventivoNum, $note, $scontoGlobale, $subtotaleConFrequenza, $totaleScontato, $dataScadenza, $frequenza, $mostraBurocrazia, $tempiConsegna, $nonInclude, $datiCliente);
+        $html = generaHTMLPreventivo($voci, $clienteNome, $preventivoNum, $note, $scontoGlobale, $subtotaleConFrequenza, $totaleScontato, $dataScadenza, $frequenza, $mostraBurocrazia, $tempiConsegna, $nonInclude, $datiCliente, $sezioniAggiuntive);
         
         // Salva HTML temporaneo
         $filename = 'preventivo_' . time() . '.html';
@@ -469,7 +470,7 @@ function getTemplateCondizioniDefault(): string {
 /**
  * Genera HTML del preventivo
  */
-function generaHTMLPreventivo(array $voci, string $cliente, string $numero, string $note, float $scontoGlobale, float $subtotale, float $totale, string $dataScadenza = '', int $frequenza = 1, bool $mostraBurocrazia = true, string $tempiConsegna = '', string $nonInclude = '', array $datiCliente = []): string {
+function generaHTMLPreventivo(array $voci, string $cliente, string $numero, string $note, float $scontoGlobale, float $subtotale, float $totale, string $dataScadenza = '', int $frequenza = 1, bool $mostraBurocrazia = true, string $tempiConsegna = '', string $nonInclude = '', array $datiCliente = [], array $sezioniAggiuntive = []): string {
     $data = date('d/m/Y');
     $validita = $dataScadenza ? date('d/m/Y', strtotime($dataScadenza)) : date('d/m/Y', strtotime('+30 days'));
     $clienteEsc = htmlspecialchars($cliente);
@@ -690,6 +691,23 @@ BUROCRAZIA;
     }
     
     $noteHtml = $noteEsc ? "<div class='note'><strong>Note:</strong><br>{$noteEsc}</div>" : '';
+    
+    // Genera HTML per sezioni aggiuntive
+    $sezioniHtml = '';
+    if (!empty($sezioniAggiuntive)) {
+        foreach ($sezioniAggiuntive as $sezione) {
+            $titoloEsc = htmlspecialchars($sezione['titolo'] ?? '');
+            $contenutoEsc = $sezione['contenuto'] ?? '';
+            if (!empty($contenutoEsc)) {
+                // Permette HTML ma pulisce tag pericolosi
+                $allowedTags = '<br><p><ul><ol><li><strong><em><b><i><span><h1><h2><h3><h4><h5><h6>';
+                $contenutoEsc = strip_tags($contenutoEsc, $allowedTags);
+            }
+            if (!empty($titoloEsc) || !empty($contenutoEsc)) {
+                $sezioniHtml .= "<div class='sezione-aggiuntiva'><h4>{$titoloEsc}</h4><div class='sezione-contenuto'>{$contenutoEsc}</div></div>";
+            }
+        }
+    }
     
     return <<<HTML
 <!DOCTYPE html>
@@ -941,6 +959,35 @@ BUROCRAZIA;
             line-height: 1.4;
         }
         
+        .sezione-aggiuntiva {
+            margin-top: 15px;
+            padding: 12px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            page-break-inside: avoid;
+        }
+        .sezione-aggiuntiva h4 {
+            color: #151e26;
+            margin-bottom: 8px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .sezione-contenuto {
+            font-size: 9px;
+            color: #475569;
+            line-height: 1.5;
+        }
+        .sezione-contenuto ul, .sezione-contenuto ol {
+            margin: 5px 0;
+            padding-left: 15px;
+        }
+        .sezione-contenuto li {
+            margin: 2px 0;
+        }
+        
         .burocrazia {
             margin-top: 15px;
             padding: 12px;
@@ -1048,6 +1095,8 @@ BUROCRAZIA;
     
     {$noteHtml}
     
+    {$sezioniHtml}
+    
     <div class="condizioni">
         <h4>Condizioni Generali</h4>
         <ul>
@@ -1126,6 +1175,7 @@ function salvaPreventivoGestionale(): void {
     $frequenza = intval($_POST['frequenza'] ?? 1);
     $frequenzaTesto = $_POST['frequenza_testo'] ?? 'Una tantum';
     $mostraBurocrazia = filter_var($_POST['mostra_burocrazia'] ?? 'true', FILTER_VALIDATE_BOOLEAN);
+    $sezioniAggiuntive = json_decode($_POST['sezioni_aggiuntive'] ?? '[]', true);
     
     if (empty($clienteNome)) {
         jsonResponse(false, null, 'Il nome cliente è obbligatorio');
