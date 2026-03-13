@@ -616,15 +616,31 @@ function openDayEventsModal(dateStr, dayEvents, date) {
             const color = coloriTipo[e.tipo] || 'bg-slate-500';
             const time = e.data_inizio.includes(' ') ? e.data_inizio.split(' ')[1].substring(0, 5) : '';
             const isEditable = e.id && !e.id.startsWith('task_') && !e.id.startsWith('prj_');
+            const isTaskScadenza = e.id && e.id.startsWith('task_');
+            const isProgettoScadenza = e.id && e.id.startsWith('prj_');
+            
+            // Per scadenze task mostra info dettagliate
+            let dettagliExtra = '';
+            if (isTaskScadenza) {
+                dettagliExtra = `
+                    ${e.progetto_titolo ? `<p class="text-xs text-slate-500 mt-1 truncate">📁 <strong>Progetto:</strong> ${e.progetto_titolo}</p>` : ''}
+                    ${e.assegnato_nome ? `<p class="text-xs text-slate-500 mt-1 flex items-center gap-1">
+                        <span class="w-2 h-2 rounded-full" style="background-color: ${e.assegnato_colore || '#ccc'}"></span>
+                        <strong>Assegnato a:</strong> ${e.assegnato_nome}
+                    </p>` : ''}
+                `;
+            } else if (e.progetto_titolo) {
+                dettagliExtra = `<p class="text-xs text-slate-400 mt-1 truncate">📁 ${e.progetto_titolo}</p>`;
+            }
             
             return `
                 <div class="flex items-start gap-3 p-3 bg-slate-50 rounded-xl">
                     <div class="w-3 h-3 rounded-full ${color} mt-1.5 flex-shrink-0"></div>
                     <div class="flex-1 min-w-0">
-                        <p class="font-medium text-slate-800 text-sm">${e.titolo}</p>
-                        <p class="text-xs text-slate-500">${time} - ${e.tipo.replace('_', ' ')}</p>
-                        ${e.progetto_titolo ? `<p class="text-xs text-slate-400 mt-1 truncate">📁 ${e.progetto_titolo}</p>` : ''}
-                        ${e.note ? `<p class="text-xs text-slate-400 mt-1 line-clamp-2">📝 ${e.note}</p>` : ''}
+                        <p class="font-medium text-slate-800 text-sm">${isTaskScadenza ? e.task_titolo : e.titolo}</p>
+                        <p class="text-xs text-slate-500">${isTaskScadenza ? '⏰ Scadenza Task' : (isProgettoScadenza ? '📅 Consegna Progetto' : time + ' - ' + e.tipo.replace('_', ' '))}</p>
+                        ${dettagliExtra}
+                        ${e.note && !isTaskScadenza ? `<p class="text-xs text-slate-400 mt-1 line-clamp-2">📝 ${e.note}</p>` : ''}
                     </div>
                     <div class="flex items-center gap-1 flex-shrink-0">
                         ${isEditable && !e.completato ? `
@@ -693,13 +709,24 @@ function updateMobileDaySidebar(dateStr, dayEvents, date) {
         contentEl.innerHTML = dayEvents.slice(0, 3).map(e => {
             const color = coloriTipo[e.tipo] || 'bg-slate-500';
             const time = e.data_inizio.includes(' ') ? e.data_inizio.split(' ')[1].substring(0, 5) : '';
+            const isTaskScadenza = e.id && e.id.startsWith('task_');
+            
+            // Info extra per task
+            let taskInfo = '';
+            if (isTaskScadenza) {
+                taskInfo = `
+                    ${e.progetto_titolo ? `<span class="text-[10px] text-slate-400">📁 ${e.progetto_titolo}</span>` : ''}
+                    ${e.assegnato_nome ? `<span class="text-[10px] text-slate-400 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full" style="background-color: ${e.assegnato_colore || '#ccc'}"></span>${e.assegnato_nome}</span>` : ''}
+                `;
+            }
             
             return `
                 <div class="flex items-center gap-2 p-2 bg-slate-50 rounded-lg">
                     <div class="w-2 h-2 rounded-full ${color} flex-shrink-0"></div>
                     <div class="flex-1 min-w-0">
-                        <p class="text-xs font-medium text-slate-800 truncate">${e.titolo}</p>
-                        <p class="text-xs text-slate-500">${time}</p>
+                        <p class="text-xs font-medium text-slate-800 truncate">${isTaskScadenza ? e.task_titolo : e.titolo}</p>
+                        <p class="text-xs text-slate-500">${isTaskScadenza ? 'Scadenza Task' : time}</p>
+                        ${taskInfo ? `<div class="flex flex-wrap gap-1 mt-0.5">${taskInfo}</div>` : ''}
                     </div>
                 </div>
             `;
@@ -743,6 +770,20 @@ function updateDaySidebar(dateStr, dayEvents, date) {
             const color = coloriTipo[e.tipo] || 'bg-slate-500';
             const time = e.data_inizio.includes(' ') ? e.data_inizio.split(' ')[1].substring(0, 5) : '';
             const isEditable = e.id && !e.id.startsWith('task_') && !e.id.startsWith('prj_');
+            const isTaskScadenza = e.id && e.id.startsWith('task_');
+            const isProgettoScadenza = e.id && e.id.startsWith('prj_');
+            
+            // Per scadenze task, mostra info dettagliate
+            let dettagliTask = '';
+            if (isTaskScadenza) {
+                dettagliTask = `
+                    ${e.progetto_titolo ? `<p class="text-xs text-slate-500 mt-1">📁 <strong>Progetto:</strong> ${e.progetto_titolo}</p>` : ''}
+                    ${e.assegnato_nome ? `<p class="text-xs text-slate-500 mt-1 flex items-center gap-1">
+                        <span class="w-2 h-2 rounded-full" style="background-color: ${e.assegnato_colore || '#ccc'}"></span>
+                        <strong>Assegnato a:</strong> ${e.assegnato_nome}
+                    </p>` : ''}
+                `;
+            }
             
             let partecipantiHtml = '';
             if (e.partecipanti_list && e.partecipanti_list.length > 0) {
@@ -775,13 +816,14 @@ function updateDaySidebar(dateStr, dayEvents, date) {
                         <div class="w-3 h-3 rounded-full ${color} mt-1.5 flex-shrink-0"></div>
                         <div class="flex-1 min-w-0">
                             <div class="flex items-start justify-between gap-2">
-                                <h4 class="font-semibold text-slate-800 text-sm">${e.titolo}</h4>
+                                <h4 class="font-semibold text-slate-800 text-sm">${isTaskScadenza ? e.task_titolo : e.titolo}</h4>
                                 <span class="text-xs font-medium text-slate-500 whitespace-nowrap">${time}</span>
                             </div>
-                            <p class="text-xs text-slate-500 mt-1 capitalize">${e.tipo.replace('_', ' ')}</p>
+                            <p class="text-xs text-slate-500 mt-1 capitalize">${isTaskScadenza ? '⏰ Scadenza Task' : (isProgettoScadenza ? '📅 Consegna Progetto' : e.tipo.replace('_', ' '))}</p>
+                            ${dettagliTask}
                             ${progettoHtml}
                             ${partecipantiHtml}
-                            ${e.note ? `<div class="mt-2 text-sm text-slate-600 bg-slate-50 p-2 rounded-lg">${e.note}</div>` : ''}
+                            ${e.note && !isTaskScadenza ? `<div class="mt-2 text-sm text-slate-600 bg-slate-50 p-2 rounded-lg">${e.note}</div>` : ''}
                         </div>
                     </div>
                     ${isEditable ? `

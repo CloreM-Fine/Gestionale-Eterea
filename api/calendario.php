@@ -124,6 +124,43 @@ function getEvents() {
             ];
         }
         
+        // Task con scadenza (solo se colonna data_scadenza esiste)
+        try {
+            $stmt = $pdo->prepare("
+                SELECT t.id, t.titolo as task_titolo, t.data_scadenza, t.assegnato_a, 
+                       t.stato as task_stato, t.progetto_id,
+                       p.titolo as progetto_titolo,
+                       u.nome as assegnato_nome, u.colore as assegnato_colore
+                FROM task t
+                LEFT JOIN progetti p ON t.progetto_id = p.id
+                LEFT JOIN utenti u ON t.assegnato_a = u.id
+                WHERE DATE(t.data_scadenza) BETWEEN ? AND ?
+                AND t.stato != 'completato'
+            ");
+            $stmt->execute([$start, $end]);
+            $tasks = $stmt->fetchAll();
+            
+            foreach ($tasks as $t) {
+                $events[] = [
+                    'id' => 'task_' . $t['id'],
+                    'titolo' => 'Scadenza: ' . $t['task_titolo'],
+                    'task_titolo' => $t['task_titolo'],
+                    'data_inizio' => $t['data_scadenza'] . ' 00:00:00',
+                    'data_fine' => $t['data_scadenza'] . ' 23:59:59',
+                    'tipo' => 'scadenza_task',
+                    'progetto_id' => $t['progetto_id'],
+                    'progetto_titolo' => $t['progetto_titolo'],
+                    'assegnato_a' => $t['assegnato_a'],
+                    'assegnato_nome' => $t['assegnato_nome'],
+                    'assegnato_colore' => $t['assegnato_colore'],
+                    'note' => '',
+                    'partecipanti_list' => []
+                ];
+            }
+        } catch (PDOException $e) {
+            // Colonna data_scadenza potrebbe non esistere, ignora
+        }
+        
         jsonResponse(true, $events);
         
     } catch (PDOException $e) {
