@@ -1946,11 +1946,11 @@ function renderPreventivoServiziListino() {
                                     <div class="flex-1">
                                         <p class="font-semibold text-slate-800 text-sm">${v.tipo_servizio}</p>
                                         ${v.descrizione ? `
-                                            <div class="desc-container" id="desc-${v.id}">
-                                                <p class="text-xs text-slate-500 mt-0.5 line-clamp-2 desc-text">${v.descrizione}</p>
-                                                <button type="button" onclick="toggleDesc('${v.id}')" class="text-xs text-cyan-600 hover:text-cyan-700 mt-1 flex items-center gap-1 desc-btn">
+                                            <div class="desc-container" data-desc-id="${v.id}">
+                                                <p class="text-xs text-slate-500 mt-0.5 line-clamp-2 desc-text transition-all duration-200">${v.descrizione}</p>
+                                                <button type="button" onclick="toggleDescBtn(this)" class="text-xs text-cyan-600 hover:text-cyan-700 mt-1 flex items-center gap-1 font-medium">
                                                     <span>Espandi</span>
-                                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                                    <svg class="w-3 h-3 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                                                 </button>
                                             </div>
                                         ` : ''}
