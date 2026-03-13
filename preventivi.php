@@ -1745,11 +1745,11 @@ function renderPreventivoServiziFromListino(categorie) {
                                     <div class="flex-1">
                                         <p class="font-semibold text-slate-800 text-sm">${v.tipo_servizio}</p>
                                         ${v.descrizione ? `
-                                            <div class="desc-container" id="desc-${v.id}">
-                                                <p class="text-xs text-slate-500 mt-0.5 line-clamp-2 desc-text">${v.descrizione}</p>
-                                                <button type="button" onclick="toggleDesc('${v.id}')" class="text-xs text-cyan-600 hover:text-cyan-700 mt-1 flex items-center gap-1 desc-btn">
+                                            <div class="desc-container" data-desc-id="${v.id}">
+                                                <p class="text-xs text-slate-500 mt-0.5 line-clamp-2 desc-text transition-all duration-200">${v.descrizione}</p>
+                                                <button type="button" onclick="toggleDescBtn(this)" class="text-xs text-cyan-600 hover:text-cyan-700 mt-1 flex items-center gap-1 font-medium">
                                                     <span>Espandi</span>
-                                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                                    <svg class="w-3 h-3 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                                                 </button>
                                             </div>
                                         ` : ''}
@@ -1843,20 +1843,18 @@ function escapeHtml(text) {
 /**
  * Toggle espandi/collassa descrizione servizio
  */
-function toggleDesc(id) {
-    event.preventDefault();
-    event.stopPropagation();
-    
-    const container = document.getElementById(`desc-${id}`);
+function toggleDescBtn(btn) {
+    // Risali al container padre
+    const container = btn.closest('.desc-container');
     if (!container) {
-        console.error('Container non trovato per ID:', id);
+        console.error('Container non trovato');
         return;
     }
     
+    // Trova il paragrafo della descrizione (fratello precedente del bottone)
     const text = container.querySelector('.desc-text');
-    const btn = container.querySelector('.desc-btn');
-    if (!text || !btn) {
-        console.error('Elementi interni non trovati:', { text: !!text, btn: !!btn });
+    if (!text) {
+        console.error('Testo descrizione non trovato');
         return;
     }
     
@@ -1865,15 +1863,19 @@ function toggleDesc(id) {
     const isExpanded = !text.classList.contains('line-clamp-2');
     
     if (!isExpanded) {
-        // Espandi - rimuovi il clamp
+        // Espandi
         text.classList.remove('line-clamp-2');
-        text.style.display = 'block';
+        text.style.webkitLineClamp = 'unset';
+        text.style.webkitBoxOrient = 'unset';
+        text.style.overflow = 'visible';
         if (span) span.textContent = 'Collassa';
         if (svg) svg.style.transform = 'rotate(180deg)';
     } else {
-        // Collassa - aggiungi il clamp
+        // Collassa
         text.classList.add('line-clamp-2');
-        text.style.display = '-webkit-box';
+        text.style.webkitLineClamp = '2';
+        text.style.webkitBoxOrient = 'vertical';
+        text.style.overflow = 'hidden';
         if (span) span.textContent = 'Espandi';
         if (svg) svg.style.transform = 'rotate(0deg)';
     }
