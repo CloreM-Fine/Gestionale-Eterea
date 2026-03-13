@@ -123,6 +123,19 @@ include __DIR__ . '/includes/header.php';
     -ms-overflow-style: none;
     scrollbar-width: none;
 }
+
+/* Line clamp per descrizioni */
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Container carosello */
+#caroselloPreventivi {
+    max-width: 100%;
+}
 </style>
 <script>
 // Editor WYSIWYG Custom - Self-hosted
