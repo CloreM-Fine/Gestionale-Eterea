@@ -126,6 +126,80 @@ const wysiwygEditor = {
         this.editor.addEventListener('input', () => {
             this.hiddenInput.value = this.editor.innerHTML;
         });
+        
+        // Gestione incolla: mantieni formattazione base ma pulisci stili esterni
+        this.editor.addEventListener('paste', (e) => {
+            e.preventDefault();
+            
+            // Ottieni il testo HTML dagli appunti
+            let html = '';
+            if (e.clipboardData && e.clipboardData.getData) {
+                html = e.clipboardData.getData('text/html') || e.clipboardData.getData('text/plain');
+            } else if (window.clipboardData && window.clipboardData.getData) {
+                html = window.clipboardData.getData('Text');
+            }
+            
+            // Pulisci HTML mantenendo solo tag consentiti
+            const allowedTags = ['b', 'i', 'u', 'strong', 'em', 'p', 'br', 'h1', 'h2', 'h3', 'h4', 'ul', 'ol', 'li', 'blockquote', 'span'];
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = html;
+            
+            // Funzione ricorsiva per pulire i nodi
+            function cleanNode(node) {
+                if (node.nodeType === Node.TEXT_NODE) {
+                    return node.textContent;
+                }
+                if (node.nodeType === Node.ELEMENT_NODE) {
+                    const tagName = node.tagName.toLowerCase();
+                    if (allowedTags.includes(tagName)) {
+                        const cleaned = document.createElement(tagName);
+                        // Copia solo il testo interno, ignora stili inline
+                        Array.from(node.childNodes).forEach(child => {
+                            const cleanedChild = cleanNode(child);
+                            if (cleanedChild) {
+                                if (typeof cleanedChild === 'string') {
+                                    cleaned.appendChild(document.createTextNode(cleanedChild));
+                                } else {
+                                    cleaned.appendChild(cleanedChild);
+                                }
+                            }
+                        });
+                        return cleaned;
+                    } else {
+                        // Tag non consentito: estrai solo il testo
+                        return node.textContent;
+                    }
+                }
+                return '';
+            }
+            
+            const fragment = document.createDocumentFragment();
+            Array.from(tempDiv.childNodes).forEach(node => {
+                const cleaned = cleanNode(node);
+                if (cleaned) {
+                    if (typeof cleaned === 'string') {
+                        fragment.appendChild(document.createTextNode(cleaned));
+                    } else {
+                        fragment.appendChild(cleaned);
+                    }
+                }
+            });
+            
+            // Inserisci il contenuto pulito
+            const selection = window.getSelection();
+            if (selection.rangeCount > 0) {
+                const range = selection.getRangeAt(0);
+                range.deleteContents();
+                range.insertNode(fragment);
+                
+                // Sposta cursore dopo il contenuto incollato
+                range.collapse(false);
+                selection.removeAllRanges();
+                selection.addRange(range);
+            }
+            
+            this.hiddenInput.value = this.editor.innerHTML;
+        });
     },
     
     format: function(command) {
