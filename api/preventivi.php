@@ -659,6 +659,11 @@ BUROCRAZIA;
     $subtotaleForm = number_format($subtotale, 2, ',', '.');
     $totaleForm = number_format($totale, 2, ',', '.');
     
+    // Aggiungi /Mensile se frequenza è 3
+    if ($frequenza == 3) {
+        $totaleForm .= '/Mensile';
+    }
+    
     // Riga frequenza se > 1
     $frequenzaTxt = '';
     if ($frequenza > 1) {
@@ -1012,11 +1017,11 @@ BUROCRAZIA;
     <table>
         <thead>
             <tr>
-                <th style="width:22%">Servizio</th>
-                <th style="width:35%">Descrizione</th>
-                <th style="width:8%;text-align:center">Q.tà</th>
-                <th style="width:13%;text-align:right">Prezzo</th>
-                <th style="width:10%;text-align:center">Sconto</th>
+                <th style="width:20%">Servizio</th>
+                <th style="width:44%">Descrizione</th>
+                <th style="width:6%;text-align:center">Q.tà</th>
+                <th style="width:10%;text-align:right">Prezzo</th>
+                <th style="width:8%;text-align:center">Sconto</th>
                 <th style="width:12%;text-align:right">Totale</th>
             </tr>
         </thead>
