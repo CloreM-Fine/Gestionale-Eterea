@@ -144,6 +144,13 @@ const wysiwygEditor = {
         this.hiddenInput.value = this.editor.innerHTML;
     },
     
+    setFontSize: function(size) {
+        if (!size) return;
+        this.editor.focus();
+        document.execCommand('fontSize', false, size);
+        this.hiddenInput.value = this.editor.innerHTML;
+    },
+    
     setContent: function(html) {
         this.editor.innerHTML = html || '';
         this.hiddenInput.value = html || '';
@@ -340,6 +347,17 @@ document.addEventListener('DOMContentLoaded', function() {
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16M8 6l2 2-2 2M8 12l2 2-2 2M8 18l2 2-2 2"/>
                             </svg>
                         </button>
+                        <span class="separator"></span>
+                        <select onchange="wysiwygEditor.setFontSize(this.value)" class="text-sm border border-slate-300 rounded px-2 py-1 bg-white" title="Dimensione testo">
+                            <option value="">Size</option>
+                            <option value="1">8px</option>
+                            <option value="2">10px</option>
+                            <option value="3">12px</option>
+                            <option value="4">14px</option>
+                            <option value="5">18px</option>
+                            <option value="6">24px</option>
+                            <option value="7">36px</option>
+                        </select>
                     </div>
                     <div id="voceDescrizioneEditor" contenteditable="true"></div>
                     <input type="hidden" name="descrizione" id="voceDescrizione">
