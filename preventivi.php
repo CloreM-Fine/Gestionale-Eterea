@@ -1851,7 +1851,7 @@ function toggleDescBtn(btn) {
         return;
     }
     
-    // Trova il paragrafo della descrizione (fratello precedente del bottone)
+    // Trova il paragrafo della descrizione
     const text = container.querySelector('.desc-text');
     if (!text) {
         console.error('Testo descrizione non trovato');
@@ -1863,19 +1863,13 @@ function toggleDescBtn(btn) {
     const isExpanded = !text.classList.contains('line-clamp-2');
     
     if (!isExpanded) {
-        // Espandi
+        // Espandi - rimuovi solo la classe
         text.classList.remove('line-clamp-2');
-        text.style.webkitLineClamp = 'unset';
-        text.style.webkitBoxOrient = 'unset';
-        text.style.overflow = 'visible';
         if (span) span.textContent = 'Collassa';
         if (svg) svg.style.transform = 'rotate(180deg)';
     } else {
-        // Collassa
+        // Collassa - aggiungi la classe
         text.classList.add('line-clamp-2');
-        text.style.webkitLineClamp = '2';
-        text.style.webkitBoxOrient = 'vertical';
-        text.style.overflow = 'hidden';
         if (span) span.textContent = 'Espandi';
         if (svg) svg.style.transform = 'rotate(0deg)';
     }
