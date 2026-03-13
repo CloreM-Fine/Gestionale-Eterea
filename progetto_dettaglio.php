@@ -541,7 +541,8 @@ function caricaContenutiProgetto() {
     const container = document.getElementById('listaContenutiProgetto');
     if (!container) return;
     
-    container.innerHTML = '<div class="text-center py-8"><div class="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-cyan-600"></div><p class="text-slate-400 text-sm mt-2">Caricamento...</p></div>';
+    // Segna come caricamento in corso
+    container.dataset.loading = 'true';
     
     fetch(`api/blog_clienti.php?action=get_by_progetto&progetto_id=${progettoId}&t=${Date.now()}`)
         .then(r => r.json())
@@ -710,6 +711,41 @@ function stripHtml(html) {
 
 // Token CSRF
 const csrfToken = '<?php echo generateCsrfToken(); ?>';
+
+// =====================================================
+// AUTO REFRESH BLOG CLIENTI
+// =====================================================
+
+// Polling ogni 30 secondi quando il tab blog è attivo
+let blogPollingInterval = null;
+
+function startBlogPolling() {
+    if (blogPollingInterval) clearInterval(blogPollingInterval);
+    blogPollingInterval = setInterval(() => {
+        const blogTab = document.getElementById('content-blog');
+        if (blogTab && !blogTab.classList.contains('hidden')) {
+            caricaContenutiProgetto();
+        }
+    }, 30000); // Ogni 30 secondi
+}
+
+function stopBlogPolling() {
+    if (blogPollingInterval) {
+        clearInterval(blogPollingInterval);
+        blogPollingInterval = null;
+    }
+}
+
+// Refresh quando la finestra torna in focus
+window.addEventListener('focus', () => {
+    const blogTab = document.getElementById('content-blog');
+    if (blogTab && !blogTab.classList.contains('hidden')) {
+        caricaContenutiProgetto();
+    }
+});
+
+// Inizia il polling quando si apre la pagina
+startBlogPolling();
 </script>
 
 <!-- Tabs -->
@@ -1016,6 +1052,12 @@ const csrfToken = '<?php echo generateCsrfToken(); ?>';
                     <p class="text-xs sm:text-sm text-slate-500">Gestisci i contenuti caricati dal cliente per questo progetto</p>
                 </div>
                 <div class="flex gap-2">
+                    <button onclick="caricaContenutiProgetto()" class="px-3 sm:px-4 py-2 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-lg transition-colors text-xs sm:text-sm flex items-center gap-2" title="Aggiorna lista">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                        </svg>
+                        <span class="hidden sm:inline">Aggiorna</span>
+                    </button>
                     <button onclick="generaLinkCliente()" class="px-3 sm:px-4 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition-colors text-xs sm:text-sm flex items-center gap-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>

@@ -1189,73 +1189,149 @@ function salvaPreventivoGestionale(): void {
         $pdo->beginTransaction();
         
         if ($preventivoId) {
-            // UPDATE: Aggiorna preventivo esistente (senza updated_at per compatibilità)
-            $stmt = $pdo->prepare("
-                UPDATE preventivi_salvati SET
-                    numero = ?,
-                    cliente_id = ?,
-                    cliente_nome = ?,
-                    data_validita = ?,
-                    sconto_globale = ?,
-                    note = ?,
-                    tempi_consegna = ?,
-                    non_include = ?,
-                    servizi_json = ?,
-                    subtotale = ?,
-                    totale = ?,
-                    frequenza = ?,
-                    frequenza_testo = ?,
-                    mostra_burocrazia = ?,
-                    sezioni_aggiuntive = ?
-                WHERE id = ?
-            ");
-            
-            $sezioniJson = json_encode($sezioniAggiuntive ?: []);
-            $stmt->execute([
-                $numero,
-                $clienteId,
-                $clienteNome,
-                $dataScadenza ?: null,
-                $scontoGlobale,
-                $note,
-                $tempiConsegna,
-                $nonInclude,
-                $serviziJson,
-                $subtotale,
-                $totale,
-                $frequenza,
-                $frequenzaTesto,
-                $mostraBurocrazia ? 1 : 0,
-                $sezioniJson,
-                $preventivoId
-            ]);
+            // UPDATE: Aggiorna preventivo esistente
+            // Prova prima con sezioni_aggiuntive, se fallisce senza
+            try {
+                $stmt = $pdo->prepare("
+                    UPDATE preventivi_salvati SET
+                        numero = ?,
+                        cliente_id = ?,
+                        cliente_nome = ?,
+                        data_validita = ?,
+                        sconto_globale = ?,
+                        note = ?,
+                        tempi_consegna = ?,
+                        non_include = ?,
+                        servizi_json = ?,
+                        subtotale = ?,
+                        totale = ?,
+                        frequenza = ?,
+                        frequenza_testo = ?,
+                        mostra_burocrazia = ?,
+                        sezioni_aggiuntive = ?
+                    WHERE id = ?
+                ");
+                
+                $sezioniJson = json_encode($sezioniAggiuntive ?: []);
+                $stmt->execute([
+                    $numero,
+                    $clienteId,
+                    $clienteNome,
+                    $dataScadenza ?: null,
+                    $scontoGlobale,
+                    $note,
+                    $tempiConsegna,
+                    $nonInclude,
+                    $serviziJson,
+                    $subtotale,
+                    $totale,
+                    $frequenza,
+                    $frequenzaTesto,
+                    $mostraBurocrazia ? 1 : 0,
+                    $sezioniJson,
+                    $preventivoId
+                ]);
+            } catch (PDOException $e) {
+                // Se la colonna sezioni_aggiuntive non esiste, prova senza
+                if (strpos($e->getMessage(), 'sezioni_aggiuntive') !== false || strpos($e->getMessage(), 'Unknown column') !== false) {
+                    $stmt = $pdo->prepare("
+                        UPDATE preventivi_salvati SET
+                            numero = ?,
+                            cliente_id = ?,
+                            cliente_nome = ?,
+                            data_validita = ?,
+                            sconto_globale = ?,
+                            note = ?,
+                            tempi_consegna = ?,
+                            non_include = ?,
+                            servizi_json = ?,
+                            subtotale = ?,
+                            totale = ?,
+                            frequenza = ?,
+                            frequenza_testo = ?,
+                            mostra_burocrazia = ?
+                        WHERE id = ?
+                    ");
+                    
+                    $stmt->execute([
+                        $numero,
+                        $clienteId,
+                        $clienteNome,
+                        $dataScadenza ?: null,
+                        $scontoGlobale,
+                        $note,
+                        $tempiConsegna,
+                        $nonInclude,
+                        $serviziJson,
+                        $subtotale,
+                        $totale,
+                        $frequenza,
+                        $frequenzaTesto,
+                        $mostraBurocrazia ? 1 : 0,
+                        $preventivoId
+                    ]);
+                } else {
+                    throw $e;
+                }
+            }
         } else {
             // INSERT: Nuovo preventivo
-            $stmt = $pdo->prepare("
-                INSERT INTO preventivi_salvati 
-                (numero, cliente_id, cliente_nome, data_validita, sconto_globale, note, tempi_consegna, non_include, servizi_json, subtotale, totale, frequenza, frequenza_testo, mostra_burocrazia, sezioni_aggiuntive, created_by)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ");
-            
-            $sezioniJson = json_encode($sezioniAggiuntive ?: []);
-            $stmt->execute([
-                $numero,
-                $clienteId,
-                $clienteNome,
-                $dataScadenza ?: null,
-                $scontoGlobale,
-                $note,
-                $tempiConsegna,
-                $nonInclude,
-                $serviziJson,
-                $subtotale,
-                $totale,
-                $frequenza,
-                $frequenzaTesto,
-                $mostraBurocrazia ? 1 : 0,
-                $sezioniJson,
-                $_SESSION['user_id']
-            ]);
+            try {
+                $stmt = $pdo->prepare("
+                    INSERT INTO preventivi_salvati 
+                    (numero, cliente_id, cliente_nome, data_validita, sconto_globale, note, tempi_consegna, non_include, servizi_json, subtotale, totale, frequenza, frequenza_testo, mostra_burocrazia, sezioni_aggiuntive, created_by)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ");
+                
+                $sezioniJson = json_encode($sezioniAggiuntive ?: []);
+                $stmt->execute([
+                    $numero,
+                    $clienteId,
+                    $clienteNome,
+                    $dataScadenza ?: null,
+                    $scontoGlobale,
+                    $note,
+                    $tempiConsegna,
+                    $nonInclude,
+                    $serviziJson,
+                    $subtotale,
+                    $totale,
+                    $frequenza,
+                    $frequenzaTesto,
+                    $mostraBurocrazia ? 1 : 0,
+                    $sezioniJson,
+                    $_SESSION['user_id']
+                ]);
+            } catch (PDOException $e) {
+                // Se la colonna sezioni_aggiuntive non esiste, prova senza
+                if (strpos($e->getMessage(), 'sezioni_aggiuntive') !== false || strpos($e->getMessage(), 'Unknown column') !== false) {
+                    $stmt = $pdo->prepare("
+                        INSERT INTO preventivi_salvati 
+                        (numero, cliente_id, cliente_nome, data_validita, sconto_globale, note, tempi_consegna, non_include, servizi_json, subtotale, totale, frequenza, frequenza_testo, mostra_burocrazia, created_by)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    ");
+                    
+                    $stmt->execute([
+                        $numero,
+                        $clienteId,
+                        $clienteNome,
+                        $dataScadenza ?: null,
+                        $scontoGlobale,
+                        $note,
+                        $tempiConsegna,
+                        $nonInclude,
+                        $serviziJson,
+                        $subtotale,
+                        $totale,
+                        $frequenza,
+                        $frequenzaTesto,
+                        $mostraBurocrazia ? 1 : 0,
+                        $_SESSION['user_id']
+                    ]);
+                } else {
+                    throw $e;
+                }
+            }
             
             $preventivoId = $pdo->lastInsertId();
         }
