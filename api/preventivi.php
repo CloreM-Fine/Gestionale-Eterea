@@ -211,6 +211,44 @@ function deleteCategoria(int $id): void {
 }
 
 /**
+ * Genera un numero preventivo univoco progressivo
+ * Formato: PREV-YYYY-NNN (es: PREV-2024-001, PREV-2024-002, ...)
+ */
+function generaNumeroPreventivoUnivoco($pdo): string {
+    $anno = date('Y');
+    $prefisso = "PREV-{$anno}-";
+    
+    try {
+        // Trova l'ultimo numero usato per questo anno
+        $stmt = $pdo->prepare("
+            SELECT numero 
+            FROM preventivi_salvati 
+            WHERE numero LIKE ? 
+            ORDER BY id DESC 
+            LIMIT 1
+        ");
+        $stmt->execute([$prefisso . '%']);
+        $ultimo = $stmt->fetchColumn();
+        
+        if ($ultimo) {
+            // Estrai il numero incrementale
+            $parti = explode('-', $ultimo);
+            $numero = intval(end($parti));
+            $nuovoNumero = $numero + 1;
+        } else {
+            $nuovoNumero = 1;
+        }
+        
+        // Formatta con 3 cifre (001, 002, ...)
+        return $prefisso . str_pad($nuovoNumero, 3, '0', STR_PAD_LEFT);
+        
+    } catch (PDOException $e) {
+        // In caso di errore, usa timestamp per garantire univocità
+        return $prefisso . str_pad(mt_rand(1, 999), 3, '0', STR_PAD_LEFT);
+    }
+}
+
+/**
  * Genera preventivo PDF
  */
 function generaPreventivo(): void {
@@ -219,7 +257,13 @@ function generaPreventivo(): void {
     $vociSelezionate = json_decode($_POST['voci'] ?? '[]', true);
     $clienteId = $_POST['cliente_id'] ?? null;
     $clienteNome = trim($_POST['cliente_nome'] ?? 'Cliente');
-    $preventivoNum = trim($_POST['preventivo_num'] ?? 'PREV-' . date('Y') . '-001');
+    
+    // Genera numero preventivo univoco progressivo
+    $preventivoNum = trim($_POST['preventivo_num'] ?? '');
+    if (empty($preventivoNum)) {
+        $preventivoNum = generaNumeroPreventivoUnivoco($pdo);
+    }
+    
     $note = trim($_POST['note'] ?? '');
     $tempiConsegna = trim($_POST['tempi_consegna'] ?? '');
     $nonInclude = trim($_POST['non_include'] ?? '');
@@ -1146,6 +1190,12 @@ function salvaPreventivoGestionale(): void {
     // Recupera dati dal POST
     $preventivoId = $_POST['preventivo_id'] ?? null; // Se presente, è una modifica
     $numero = $_POST['numero'] ?? '';
+    
+    // Se è un nuovo preventivo e non c'è un numero, genera uno univoco
+    if (!$preventivoId && empty($numero)) {
+        $numero = generaNumeroPreventivoUnivoco($pdo);
+    }
+    
     $clienteId = $_POST['cliente_id'] ?? null;
     $clienteNome = $_POST['cliente_nome'] ?? '';
     $dataScadenza = $_POST['data_scadenza'] ?? null;
