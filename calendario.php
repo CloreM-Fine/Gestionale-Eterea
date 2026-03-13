@@ -452,13 +452,13 @@ function renderCalendar() {
         const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
         
         grid.innerHTML += `
-            <div class="calendar-cell h-10 sm:h-14 p-1 sm:p-2 border-r border-b border-slate-100 hover:bg-slate-50 cursor-pointer transition-colors ${isToday ? 'bg-cyan-50' : ''}"
+            <div class="calendar-cell h-10 sm:h-14 p-1 sm:p-2 border-r border-b border-slate-100 hover:bg-slate-50 cursor-pointer transition-colors overflow-hidden ${isToday ? 'bg-cyan-50' : ''}"
                  onclick="showDayEvents('${dateStr}')">
                 <div class="flex items-center justify-between mb-0.5 sm:mb-1">
                     <span class="text-xs sm:text-sm font-medium ${isToday ? 'text-cyan-600' : 'text-slate-700'}">${day}</span>
                     ${isToday ? '<span class="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-cyan-500 rounded-full"></span>' : ''}
                 </div>
-                <div id="events-${dateStr}" class="flex flex-wrap gap-0.5">
+                <div id="events-${dateStr}" class="flex flex-wrap gap-0.5 overflow-hidden" style="max-height: 28px;">
                     <!-- Eventi caricati via JS -->
                 </div>
             </div>
@@ -505,10 +505,25 @@ function renderEvents() {
     
     const isMobile = window.innerWidth < 640;
     
+    // Raggruppa eventi per data
+    const eventsByDate = {};
     eventsData.forEach(event => {
         const date = event.data_inizio.split(' ')[0];
+        if (!eventsByDate[date]) eventsByDate[date] = [];
+        eventsByDate[date].push(event);
+    });
+    
+    // Renderizza eventi per ogni data
+    Object.keys(eventsByDate).forEach(date => {
         const container = document.getElementById(`events-${date}`);
-        if (container) {
+        if (!container) return;
+        
+        const events = eventsByDate[date];
+        const maxVisible = isMobile ? 3 : 2; // Massimo eventi visibili
+        const visibleEvents = events.slice(0, maxVisible);
+        const hiddenCount = events.length - maxVisible;
+        
+        visibleEvents.forEach(event => {
             const color = coloriTipo[event.tipo] || 'bg-slate-500';
             
             // Stile per eventi completati
@@ -531,6 +546,15 @@ function renderEvents() {
                     </div>
                 `;
             }
+        });
+        
+        // Mostra indicatore "+X" se ci sono altri eventi
+        if (hiddenCount > 0) {
+            container.innerHTML += `
+                <div class="flex items-center justify-center text-xs text-slate-500 font-medium bg-slate-100 rounded px-1 py-0.5">
+                    +${hiddenCount}
+                </div>
+            `;
         }
     });
 }
