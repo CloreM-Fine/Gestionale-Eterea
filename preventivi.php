@@ -104,6 +104,13 @@ include __DIR__ . '/includes/header.php';
 #voceDescrizioneEditor ul, #voceDescrizioneEditor ol {
     margin: 8px 0;
     padding-left: 24px;
+    list-style-position: outside;
+}
+#voceDescrizioneEditor ul {
+    list-style-type: disc;
+}
+#voceDescrizioneEditor ol {
+    list-style-type: decimal;
 }
 #voceDescrizioneEditor li {
     margin: 4px 0;
@@ -113,6 +120,22 @@ include __DIR__ . '/includes/header.php';
 }
 #voceDescrizioneEditor i, #voceDescrizioneEditor em {
     font-style: italic;
+}
+
+/* Stili per editor sezioni aggiuntive */
+.sezione-editor ul, .sezione-editor ol {
+    margin: 8px 0;
+    padding-left: 24px;
+    list-style-position: outside;
+}
+.sezione-editor ul {
+    list-style-type: disc;
+}
+.sezione-editor ol {
+    list-style-type: decimal;
+}
+.sezione-editor li {
+    margin: 4px 0;
 }
 
 /* Nascondi scrollbar per carosello */
@@ -140,6 +163,27 @@ include __DIR__ . '/includes/header.php';
     display: block;
     overflow: visible;
     max-height: none;
+}
+
+/* Stili per elenchi nelle descrizioni */
+.desc-content ul, .desc-content ol,
+.desc-text ul, .desc-text ol {
+    margin: 8px 0;
+    padding-left: 24px;
+    list-style-position: outside;
+}
+
+.desc-content ul, .desc-text ul {
+    list-style-type: disc;
+}
+
+.desc-content ol, .desc-text ol {
+    list-style-type: decimal;
+}
+
+.desc-content li, .desc-text li {
+    margin: 4px 0;
+    line-height: 1.5;
 }
 
 /* Container carosello - full width */
