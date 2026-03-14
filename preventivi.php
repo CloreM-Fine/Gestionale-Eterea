@@ -218,9 +218,19 @@ const wysiwygEditor = {
             // Ottieni il testo HTML dagli appunti
             let html = '';
             if (e.clipboardData && e.clipboardData.getData) {
-                html = e.clipboardData.getData('text/html') || e.clipboardData.getData('text/plain');
-            } else if (window.clipboardData && window.clipboardData.getData) {
-                html = window.clipboardData.getData('Text');
+                // Prova prima text/html
+                html = e.clipboardData.getData('text/html');
+            }
+            
+            // Se non c'è HTML, usa text/plain
+            if (!html || html.trim() === '') {
+                if (e.clipboardData && e.clipboardData.getData) {
+                    html = e.clipboardData.getData('text/plain');
+                } else if (window.clipboardData && window.clipboardData.getData) {
+                    html = window.clipboardData.getData('Text');
+                }
+                // Converte newline in <br> per il testo semplice
+                html = html.replace(/\n/g, '<br>');
             }
             
             // Pulisci HTML mantenendo solo tag consentiti
@@ -237,7 +247,7 @@ const wysiwygEditor = {
                     const tagName = node.tagName.toLowerCase();
                     if (allowedTags.includes(tagName)) {
                         const cleaned = document.createElement(tagName);
-                        // Copia solo il testo interno, ignora stili inline
+                        // Copia i child nodes mantenendo la struttura
                         Array.from(node.childNodes).forEach(child => {
                             const cleanedChild = cleanNode(child);
                             if (cleanedChild) {
@@ -269,19 +279,14 @@ const wysiwygEditor = {
                 }
             });
             
-            // Inserisci il contenuto pulito
-            const selection = window.getSelection();
-            if (selection.rangeCount > 0) {
-                const range = selection.getRangeAt(0);
-                range.deleteContents();
-                range.insertNode(fragment);
-                
-                // Sposta cursore dopo il contenuto incollato
-                range.collapse(false);
-                selection.removeAllRanges();
-                selection.addRange(range);
-            }
+            // Inserisci il contenuto pulito usando insertHTML (più affidabile)
+            const cleanedHtml = fragment.innerHTML || Array.from(fragment.childNodes).map(n => {
+                const div = document.createElement('div');
+                div.appendChild(n.cloneNode(true));
+                return div.innerHTML;
+            }).join('');
             
+            document.execCommand('insertHTML', false, cleanedHtml);
             this.hiddenInput.value = this.editor.innerHTML;
         });
     },
