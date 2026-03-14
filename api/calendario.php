@@ -7,6 +7,23 @@
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../includes/auth_check.php';
 
+// Handler globale per catturare tutte le eccezioni non gestite
+set_exception_handler(function($e) {
+    error_log("Errore non gestito in calendario.php: " . $e->getMessage());
+    header('Content-Type: application/json');
+    echo json_encode(['success' => false, 'message' => 'Errore interno: ' . $e->getMessage()]);
+    exit;
+});
+
+// Handler per errori PHP
+set_error_handler(function($severity, $message, $file, $line) {
+    if (!(error_reporting() & $severity)) {
+        return;
+    }
+    error_log("PHP Error in calendario.php: {$message} at line {$line}");
+    throw new ErrorException($message, 0, $severity, $file, $line);
+});
+
 $method = $_SERVER['REQUEST_METHOD'];
 $action = $_GET['action'] ?? $_POST['action'] ?? '';
 
@@ -48,6 +65,18 @@ switch ($method) {
 }
 
 /**
+ * Verifica se una colonna esiste nella tabella
+ */
+function colonnaEsiste($pdo, $tabella, $colonna) {
+    try {
+        $pdo->query("SELECT {$colonna} FROM {$tabella} LIMIT 1");
+        return true;
+    } catch (PDOException $e) {
+        return false;
+    }
+}
+
+/**
  * Ottieni eventi per il calendario
  */
 function getEvents() {
@@ -57,112 +86,60 @@ function getEvents() {
     $end = $_GET['end'] ?? date('Y-m-t');
     
     try {
-        // Verifica esistenza colonne in appuntamenti
-        $colonneDaVerificare = ['completato', 'partecipanti', 'task_id', 'utente_id'];
-        foreach ($colonneDaVerificare as $col) {
-            try {
-                $pdo->query("SELECT {$col} FROM appuntamenti LIMIT 1");
-            } catch (PDOException $e) {
-                $tipo = ($col === 'completato') ? 'TINYINT(1) DEFAULT 0' : (($col === 'partecipanti') ? 'JSON NULL' : 'VARCHAR(20) NULL');
-                try {
-                    $pdo->exec("ALTER TABLE appuntamenti ADD COLUMN {$col} {$tipo}");
-                } catch (PDOException $e2) {
-                    // Ignora errore
-                }
-            }
-        }
+        $events = [];
         
-        // Verifica colonne in utenti
-        try {
-            $pdo->query("SELECT avatar FROM utenti LIMIT 1");
-        } catch (PDOException $e) {
-            try {
-                $pdo->exec("ALTER TABLE utenti ADD COLUMN avatar VARCHAR(255) NULL");
-            } catch (PDOException $e2) {
-                // Ignora errore
-            }
-        }
+        // Verifica colonne necessarie
+        $hasCompletato = colonnaEsiste($pdo, 'appuntamenti', 'completato');
+        $hasPartecipanti = colonnaEsiste($pdo, 'appuntamenti', 'partecipanti');
+        $hasTaskId = colonnaEsiste($pdo, 'appuntamenti', 'task_id');
+        $hasUtenteId = colonnaEsiste($pdo, 'appuntamenti', 'utente_id');
         
-        // Appuntamenti - query semplice con gestione errori
+        // Costruisci query appuntamenti dinamicamente
+        $colonneApp = ['id', 'titolo', 'data_inizio', 'data_fine', 'progetto_id', 'note'];
+        if ($hasCompletato) $colonneApp[] = 'completato';
+        if ($hasPartecipanti) $colonneApp[] = 'partecipanti';
+        if ($hasTaskId) $colonneApp[] = 'task_id';
+        if ($hasUtenteId) $colonneApp[] = 'utente_id';
+        
+        $colonneStr = implode(', ', $colonneApp);
+        
+        // Query appuntamenti semplice
         try {
-            $stmt = $pdo->prepare("
-                SELECT a.*, p.titolo as progetto_titolo, u.nome as utente_nome, u.colore as utente_colore, u.avatar as utente_avatar,
-                       a.partecipanti as partecipanti_json
-                FROM appuntamenti a
-                LEFT JOIN progetti p ON a.progetto_id = p.id
-                LEFT JOIN utenti u ON a.utente_id = u.id
-                WHERE DATE(a.data_inizio) BETWEEN ? AND ?
-                ORDER BY a.data_inizio ASC
-            ");
+            $stmt = $pdo->prepare("SELECT {$colonneStr} FROM appuntamenti WHERE DATE(data_inizio) BETWEEN ? AND ? ORDER BY data_inizio ASC");
             $stmt->execute([$start, $end]);
-            $events = $stmt->fetchAll();
-        } catch (PDOException $e) {
-            // Fallback: query senza join
-            $stmt = $pdo->prepare("
-                SELECT *, partecipanti as partecipanti_json
-                FROM appuntamenti
-                WHERE DATE(data_inizio) BETWEEN ? AND ?
-                ORDER BY data_inizio ASC
-            ");
-            $stmt->execute([$start, $end]);
-            $events = $stmt->fetchAll();
-        }
-        
-        // Arricchisci con dati partecipanti
-        $allUtenti = [];
-        try {
-            $utentiStmt = $pdo->query("SELECT id, nome, colore, avatar FROM utenti");
-            while ($u = $utentiStmt->fetch()) {
-                $allUtenti[$u['id']] = ['nome' => $u['nome'], 'colore' => $u['colore'], 'avatar' => $u['avatar']];
-            }
-        } catch (PDOException $e) {
-            // Ignora errore utenti
-        }
-        
-        foreach ($events as &$event) {
-            $partecipantiIds = json_decode($event['partecipanti_json'] ?? '[]', true) ?: [];
-            $event['partecipanti_list'] = [];
-            foreach ($partecipantiIds as $pid) {
-                if (isset($allUtenti[$pid])) {
-                    $event['partecipanti_list'][] = $allUtenti[$pid];
-                }
-            }
-        }
-        unset($event);
-        
-        // Progetti con consegna prevista (con fallback)
-        try {
-            $stmt = $pdo->prepare("
-                SELECT id, titolo, data_consegna_prevista, stato_progetto
-                FROM progetti
-                WHERE DATE(data_consegna_prevista) BETWEEN ? AND ?
-                AND stato_progetto NOT IN ('consegnato', 'archiviato')
-            ");
-            $stmt->execute([$start, $end]);
-            $progetti = $stmt->fetchAll();
+            $appuntamenti = $stmt->fetchAll();
             
-            foreach ($progetti as $p) {
-                $events[] = [
-                    'id' => 'prj_' . $p['id'],
-                    'titolo' => 'Consegna: ' . $p['titolo'],
-                    'data_inizio' => $p['data_consegna_prevista'] . ' 00:00:00',
-                    'data_fine' => $p['data_consegna_prevista'] . ' 23:59:59',
-                    'tipo' => 'scadenza_progetto',
-                    'progetto_id' => $p['id'],
-                    'progetto_titolo' => $p['titolo'],
-                    'note' => '',
+            foreach ($appuntamenti as $a) {
+                $event = [
+                    'id' => $a['id'],
+                    'titolo' => $a['titolo'],
+                    'data_inizio' => $a['data_inizio'],
+                    'data_fine' => $a['data_fine'],
+                    'progetto_id' => $a['progetto_id'],
+                    'note' => $a['note'] ?? '',
+                    'tipo' => 'appuntamento',
                     'partecipanti_list' => []
                 ];
+                
+                if ($hasPartecipanti && !empty($a['partecipanti'])) {
+                    $partecipantiIds = json_decode($a['partecipanti'], true) ?: [];
+                    // Qui potremmo arricchire con dati utente se necessario
+                    $event['partecipanti_list'] = $partecipantiIds;
+                }
+                
+                $events[] = $event;
             }
         } catch (PDOException $e) {
-            // Fallback: prova con colonna 'stato' invece di 'stato_progetto'
-            try {
-                $stmt = $pdo->prepare("
-                    SELECT id, titolo, data_consegna_prevista, stato as stato_progetto
-                    FROM progetti
-                    WHERE DATE(data_consegna_prevista) BETWEEN ? AND ?
-                    AND stato NOT IN ('consegnato', 'archiviato')
-                ");
+            error_log("Errore query appuntamenti: " . $e->getMessage());
+        }
+        
+        // Progetti con consegna prevista
+        try {
+            $colStato = colonnaEsiste($pdo, 'progetti', 'stato_progetto') ? 'stato_progetto' : 
+                       (colonnaEsiste($pdo, 'progetti', 'stato') ? 'stato' : null);
+            
+            if ($colStato && colonnaEsiste($pdo, 'progetti', 'data_consegna_prevista')) {
+                $stmt = $pdo->prepare("SELECT id, titolo, data_consegna_prevista FROM progetti WHERE DATE(data_consegna_prevista) BETWEEN ? AND ? AND {$colStato} NOT IN ('consegnato', 'archiviato')");
                 $stmt->execute([$start, $end]);
                 $progetti = $stmt->fetchAll();
                 
@@ -179,70 +156,50 @@ function getEvents() {
                         'partecipanti_list' => []
                     ];
                 }
-            } catch (PDOException $e2) {
-                // Ignora errori progetti
             }
+        } catch (Exception $e) {
+            error_log("Errore query progetti: " . $e->getMessage());
         }
         
-        // Task con scadenza (solo se colonna data_scadenza esiste)
+        // Task con scadenza
         try {
-            // Verifica prima se la colonna esiste
-            $pdo->query("SELECT data_scadenza FROM task LIMIT 1");
-            
-            try {
-                $stmt = $pdo->prepare("
-                    SELECT t.id, t.titolo as task_titolo, t.data_scadenza, t.assegnato_a, 
-                           t.stato as task_stato, t.progetto_id,
-                           p.titolo as progetto_titolo,
-                           u.nome as assegnato_nome, u.colore as assegnato_colore
-                    FROM task t
-                    LEFT JOIN progetti p ON t.progetto_id = p.id
-                    LEFT JOIN utenti u ON t.assegnato_a = u.id
-                    WHERE t.data_scadenza IS NOT NULL 
-                    AND DATE(t.data_scadenza) BETWEEN ? AND ?
-                    AND t.stato != 'completato'
-                ");
+            if (colonnaEsiste($pdo, 'task', 'data_scadenza')) {
+                $colStatoTask = colonnaEsiste($pdo, 'task', 'stato') ? 'stato' : null;
+                
+                if ($colStatoTask) {
+                    $stmt = $pdo->prepare("SELECT id, titolo, data_scadenza, progetto_id FROM task WHERE data_scadenza IS NOT NULL AND DATE(data_scadenza) BETWEEN ? AND ? AND {$colStatoTask} != 'completato'");
+                } else {
+                    $stmt = $pdo->prepare("SELECT id, titolo, data_scadenza, progetto_id FROM task WHERE data_scadenza IS NOT NULL AND DATE(data_scadenza) BETWEEN ? AND ?");
+                }
+                
                 $stmt->execute([$start, $end]);
                 $tasks = $stmt->fetchAll();
-            } catch (PDOException $e) {
-                // Fallback: query senza join
-                $stmt = $pdo->prepare("
-                    SELECT id, titolo as task_titolo, data_scadenza, assegnato_a, 
-                           stato as task_stato, progetto_id
-                    FROM task
-                    WHERE data_scadenza IS NOT NULL 
-                    AND DATE(data_scadenza) BETWEEN ? AND ?
-                    AND stato != 'completato'
-                ");
-                $stmt->execute([$start, $end]);
-                $tasks = $stmt->fetchAll();
+                
+                foreach ($tasks as $t) {
+                    $events[] = [
+                        'id' => 'task_' . $t['id'],
+                        'titolo' => 'Scadenza: ' . $t['titolo'],
+                        'task_titolo' => $t['titolo'],
+                        'data_inizio' => $t['data_scadenza'] . ' 00:00:00',
+                        'data_fine' => $t['data_scadenza'] . ' 23:59:59',
+                        'tipo' => 'scadenza_task',
+                        'progetto_id' => $t['progetto_id'],
+                        'progetto_titolo' => '',
+                        'assegnato_a' => '',
+                        'assegnato_nome' => '',
+                        'assegnato_colore' => '',
+                        'note' => '',
+                        'partecipanti_list' => []
+                    ];
+                }
             }
-            
-            foreach ($tasks as $t) {
-                $events[] = [
-                    'id' => 'task_' . $t['id'],
-                    'titolo' => 'Scadenza: ' . $t['task_titolo'],
-                    'task_titolo' => $t['task_titolo'],
-                    'data_inizio' => $t['data_scadenza'] . ' 00:00:00',
-                    'data_fine' => $t['data_scadenza'] . ' 23:59:59',
-                    'tipo' => 'scadenza_task',
-                    'progetto_id' => $t['progetto_id'],
-                    'progetto_titolo' => $t['progetto_titolo'] ?? '',
-                    'assegnato_a' => $t['assegnato_a'],
-                    'assegnato_nome' => $t['assegnato_nome'] ?? '',
-                    'assegnato_colore' => $t['assegnato_colore'] ?? '',
-                    'note' => '',
-                    'partecipanti_list' => []
-                ];
-            }
-        } catch (PDOException $e) {
-            // Colonna data_scadenza potrebbe non esistere, ignora silenziosamente
-            error_log("Task scadenze non caricate: " . $e->getMessage());
+        } catch (Exception $e) {
+            error_log("Errore query task: " . $e->getMessage());
         }
         
         jsonResponse(true, $events);
         
-    } catch (PDOException $e) {
+    } catch (Exception $e) {
         error_log("Errore caricamento eventi: " . $e->getMessage());
         jsonResponse(false, null, 'Errore caricamento eventi');
     }
@@ -262,56 +219,69 @@ function createEvent() {
     }
     
     try {
-        // Verifica e crea colonna partecipanti se non esiste
-        try {
-            $pdo->query("SELECT partecipanti FROM appuntamenti LIMIT 1");
-        } catch (PDOException $e) {
-            try {
-                $pdo->exec("ALTER TABLE appuntamenti ADD COLUMN partecipanti JSON NULL");
-            } catch (PDOException $e2) {
-                // Ignora errore
-            }
-        }
+        // Verifica colonne
+        $hasPartecipanti = colonnaEsiste($pdo, 'appuntamenti', 'partecipanti');
+        $hasTipo = colonnaEsiste($pdo, 'appuntamenti', 'tipo');
+        $hasCreatedBy = colonnaEsiste($pdo, 'appuntamenti', 'created_by');
+        $hasTaskId = colonnaEsiste($pdo, 'appuntamenti', 'task_id');
+        $hasUtenteId = colonnaEsiste($pdo, 'appuntamenti', 'utente_id');
         
         $id = generateEntityId('evt');
         $partecipanti = json_encode($_POST['partecipanti'] ?? []);
         
-        // Query semplice senza cliente_id per compatibilità
-        $stmt = $pdo->prepare("
-            INSERT INTO appuntamenti (
-                id, titolo, tipo, data_inizio, data_fine, progetto_id, task_id, utente_id, note, partecipanti, created_by
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ");
+        // Costruisci query dinamicamente
+        $colonne = ['id', 'titolo', 'data_inizio', 'data_fine', 'progetto_id', 'note'];
+        $valori = [$id, $titolo, $dataInizio, $_POST['data_fine'] ?: null, $_POST['progetto_id'] ?: null, $_POST['note'] ?? ''];
         
-        $stmt->execute([
-            $id,
-            $titolo,
-            $_POST['tipo'] ?? 'appuntamento',
-            $dataInizio,
-            $_POST['data_fine'] ?: null,
-            $_POST['progetto_id'] ?: null,
-            $_POST['task_id'] ?: null,
-            $_POST['utente_id'] ?: null,
-            $_POST['note'] ?? '',
-            $partecipanti,
-            $_SESSION['user_id']
-        ]);
+        if ($hasTipo) {
+            $colonne[] = 'tipo';
+            $valori[] = $_POST['tipo'] ?? 'appuntamento';
+        }
+        if ($hasTaskId) {
+            $colonne[] = 'task_id';
+            $valori[] = $_POST['task_id'] ?: null;
+        }
+        if ($hasUtenteId) {
+            $colonne[] = 'utente_id';
+            $valori[] = $_POST['utente_id'] ?: null;
+        }
+        if ($hasPartecipanti) {
+            $colonne[] = 'partecipanti';
+            $valori[] = $partecipanti;
+        }
+        if ($hasCreatedBy) {
+            $colonne[] = 'created_by';
+            $valori[] = $_SESSION['user_id'] ?? null;
+        }
         
-        logTimeline($_SESSION['user_id'], 'creato_appuntamento', 'appuntamento', $id, "Creato: {$titolo}");
+        $colonneStr = implode(', ', $colonne);
+        $placeholders = implode(', ', array_fill(0, count($colonne), '?'));
         
-        // Crea notifica per tutti gli utenti
-        creaNotifica(
-            'appuntamento',
-            'Nuovo Appuntamento',
-            "{$titolo} - " . date('d/m/Y H:i', strtotime($dataInizio)),
-            'appuntamento',
-            $id,
-            $_SESSION['user_id']
-        );
+        $stmt = $pdo->prepare("INSERT INTO appuntamenti ({$colonneStr}) VALUES ({$placeholders})");
+        $stmt->execute($valori);
+        
+        try {
+            logTimeline($_SESSION['user_id'], 'creato_appuntamento', 'appuntamento', $id, "Creato: {$titolo}");
+        } catch (Exception $e) {
+            error_log("Errore logTimeline: " . $e->getMessage());
+        }
+        
+        try {
+            creaNotifica(
+                'appuntamento',
+                'Nuovo Appuntamento',
+                "{$titolo} - " . date('d/m/Y H:i', strtotime($dataInizio)),
+                'appuntamento',
+                $id,
+                $_SESSION['user_id']
+            );
+        } catch (Exception $e) {
+            error_log("Errore creaNotifica: " . $e->getMessage());
+        }
         
         jsonResponse(true, ['id' => $id], 'Appuntamento creato');
         
-    } catch (PDOException $e) {
+    } catch (Exception $e) {
         error_log("Errore creazione evento: " . $e->getMessage());
         jsonResponse(false, null, 'Errore creazione evento: ' . $e->getMessage());
     }
@@ -324,33 +294,34 @@ function updateEvent($id) {
     global $pdo;
     
     try {
+        // Verifica colonne
+        $hasPartecipanti = colonnaEsiste($pdo, 'appuntamenti', 'partecipanti');
+        $hasTipo = colonnaEsiste($pdo, 'appuntamenti', 'tipo');
+        
         $partecipanti = json_encode($_POST['partecipanti'] ?? []);
         
-        // Query semplice senza cliente_id per compatibilità
-        $stmt = $pdo->prepare("
-            UPDATE appuntamenti SET
-                titolo = ?,
-                tipo = ?,
-                data_inizio = ?,
-                data_fine = ?,
-                note = ?,
-                partecipanti = ?
-            WHERE id = ?
-        ");
+        // Costruisci query dinamicamente
+        $set = ['titolo = ?', 'data_inizio = ?', 'data_fine = ?', 'note = ?'];
+        $valori = [$_POST['titolo'], $_POST['data_inizio'], $_POST['data_fine'] ?: null, $_POST['note'] ?? ''];
         
-        $stmt->execute([
-            $_POST['titolo'],
-            $_POST['tipo'] ?? 'appuntamento',
-            $_POST['data_inizio'],
-            $_POST['data_fine'] ?: null,
-            $_POST['note'] ?? '',
-            $partecipanti,
-            $id
-        ]);
+        if ($hasTipo) {
+            $set[] = 'tipo = ?';
+            $valori[] = $_POST['tipo'] ?? 'appuntamento';
+        }
+        if ($hasPartecipanti) {
+            $set[] = 'partecipanti = ?';
+            $valori[] = $partecipanti;
+        }
+        
+        $valori[] = $id;
+        $setStr = implode(', ', $set);
+        
+        $stmt = $pdo->prepare("UPDATE appuntamenti SET {$setStr} WHERE id = ?");
+        $stmt->execute($valori);
         
         jsonResponse(true, null, 'Appuntamento aggiornato');
         
-    } catch (PDOException $e) {
+    } catch (Exception $e) {
         error_log("Errore aggiornamento evento: " . $e->getMessage());
         jsonResponse(false, null, 'Errore aggiornamento evento: ' . $e->getMessage());
     }
@@ -368,7 +339,7 @@ function deleteEvent($id) {
         
         jsonResponse(true, null, 'Appuntamento eliminato');
         
-    } catch (PDOException $e) {
+    } catch (Exception $e) {
         error_log("Errore eliminazione evento: " . $e->getMessage());
         jsonResponse(false, null, 'Errore eliminazione evento');
     }
@@ -380,27 +351,13 @@ function deleteEvent($id) {
 function completeEvent($id) {
     global $pdo;
     
-    // Log per debug
-    error_log("completeEvent chiamato con id: " . $id);
-    
     try {
         // Verifica esistenza colonna completato
-        $colonnaEsiste = false;
-        try {
-            $check = $pdo->query("SHOW COLUMNS FROM appuntamenti LIKE 'completato'");
-            $colonnaEsiste = ($check->rowCount() > 0);
-        } catch (PDOException $e) {
-            error_log("Errore check colonna: " . $e->getMessage());
-        }
-        
-        // Crea colonna se non esiste
-        if (!$colonnaEsiste) {
+        if (!colonnaEsiste($pdo, 'appuntamenti', 'completato')) {
             try {
                 $pdo->exec("ALTER TABLE appuntamenti ADD COLUMN completato TINYINT(1) DEFAULT 0");
-                error_log("Colonna completato creata");
-            } catch (PDOException $e2) {
-                error_log("Errore creazione colonna: " . $e2->getMessage());
-                jsonResponse(false, null, 'Errore database: impossibile creare colonna');
+            } catch (PDOException $e) {
+                jsonResponse(false, null, 'Errore database: impossibile creare colonna completato');
                 return;
             }
         }
@@ -408,8 +365,6 @@ function completeEvent($id) {
         // Esegui UPDATE
         $stmt = $pdo->prepare("UPDATE appuntamenti SET completato = 1 WHERE id = ?");
         $result = $stmt->execute([$id]);
-        
-        error_log("UPDATE result: " . ($result ? 'true' : 'false') . " rowCount: " . $stmt->rowCount());
         
         if ($result && $stmt->rowCount() > 0) {
             jsonResponse(true, null, 'Appuntamento completato');
@@ -419,7 +374,7 @@ function completeEvent($id) {
             jsonResponse(false, null, 'Errore aggiornamento database');
         }
         
-    } catch (PDOException $e) {
+    } catch (Exception $e) {
         error_log("Errore completamento evento: " . $e->getMessage());
         jsonResponse(false, null, 'Errore: ' . $e->getMessage());
     }
