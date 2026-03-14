@@ -1383,6 +1383,17 @@ function renderPreventivi() {
                                             freqVal === 4 ? 'Trimestrale' :
                                             freqVal === 5 ? 'Semestrale' :
                                             freqVal === 6 ? 'Annuale' : 'Una tantum';
+                            // Colori per frequenza
+                            const freqColors = {
+                                0: 'bg-rose-100 text-rose-700',      // Oraria - rosa/rosso
+                                1: 'bg-slate-100 text-slate-700',    // Una tantum - grigio
+                                2: 'bg-emerald-100 text-emerald-700', // Settimanale - verde
+                                3: 'bg-cyan-100 text-cyan-700',      // Mensile - cyan/blu
+                                4: 'bg-violet-100 text-violet-700',  // Trimestrale - viola
+                                5: 'bg-orange-100 text-orange-700',  // Semestrale - arancione
+                                6: 'bg-amber-100 text-amber-700'     // Annuale - giallo/ambra
+                            };
+                            const freqColorClass = freqColors[freqVal] || 'bg-slate-100 text-slate-700';
                             return `
                             <tr class="hover:bg-slate-50">
                                 <td class="px-5 py-4 font-medium text-slate-800">${v.tipo_servizio}</td>
@@ -1405,7 +1416,7 @@ function renderPreventivi() {
                                     ${v.sconto_percentuale > 0 ? `<span class="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">-${v.sconto_percentuale}%</span>` : '-'}
                                 </td>
                                 <td class="px-5 py-4 text-center">
-                                    <span class="px-2 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-medium">${freqText}</span>
+                                    <span class="px-2 py-1 ${freqColorClass} rounded-full text-xs font-medium">${freqText}</span>
                                 </td>
                                 <td class="px-5 py-4 text-right font-bold text-cyan-600">€ ${prezzoFinale.toLocaleString('it-IT', {minimumFractionDigits: 2})}</td>
                                 <td class="px-5 py-4 text-center">
