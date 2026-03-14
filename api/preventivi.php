@@ -360,8 +360,8 @@ function generaPreventivo(): void {
             $subtotale += $totaleVoce;
         }
         
-        // Applica frequenza al subtotale
-        $subtotaleConFrequenza = $subtotale * $frequenza;
+        // Applica frequenza al subtotale (frequenza 0 = oraria, non moltiplica)
+        $subtotaleConFrequenza = ($frequenza === 0) ? $subtotale : $subtotale * $frequenza;
         
         // Applica sconto globale sul subtotale con frequenza
         $totaleScontato = $subtotaleConFrequenza * (1 - $scontoGlobale / 100);
@@ -716,8 +716,8 @@ BUROCRAZIA;
     $subtotaleForm = number_format($subtotale, 2, ',', '.');
     $totaleForm = number_format($totale, 2, ',', '.');
     
-    // Aggiungi "/MENSILE" al totale se frequenza > 1
-    $totaleLabel = ($frequenza > 1) ? 'TOTALE/MENSILE' : 'TOTALE';
+    // Aggiungi "/MENSILE" al totale se frequenza > 1, "/ORARIA" se frequenza = 0
+    $totaleLabel = ($frequenza === 0) ? 'TOTALE/ORARIA' : (($frequenza > 1) ? 'TOTALE/MENSILE' : 'TOTALE');
     
     $scontoGlobaleTxt = '';
     if ($scontoGlobale > 0) {

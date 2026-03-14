@@ -575,6 +575,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     </label>
                     <select name="frequenza" id="voceFrequenza"
                             class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none bg-white">
+                        <option value="0">Oraria</option>
                         <option value="1">Una tantum</option>
                         <option value="2">Settimanale</option>
                         <option value="3">Mensile</option>
@@ -965,8 +966,9 @@ function renderPreventivoCard(p, isCompact = false) {
     const data = new Date(p.created_at).toLocaleDateString('it-IT');
     const servizi = JSON.parse(p.servizi_json || '[]');
     const numServizi = servizi.length;
+    const hasOraria = servizi.some(s => s.frequenza === 0 || s.frequenza === '0');
     const hasMensile = servizi.some(s => s.frequenza === 3 || s.frequenza === '3');
-    const suffixMensile = hasMensile ? '/Mensile' : '';
+    const suffixFrequenza = hasOraria ? '/Oraria' : hasMensile ? '/Mensile' : '';
     const clienteId = p.cliente_id || '';
     const clienteNome = p.cliente_nome || 'Cliente';
     const progettoId = p.progetto_id || '';
@@ -983,7 +985,7 @@ function renderPreventivoCard(p, isCompact = false) {
             </div>
             
             <div class="text-sm text-slate-600 mb-2">
-                ${numServizi} servizi • Totale: €${parseFloat(p.totale).toFixed(2)}${suffixMensile}
+                ${numServizi} servizi • Totale: €${parseFloat(p.totale).toFixed(2)}${suffixFrequenza}
             </div>
             
             <div class="text-xs mb-3">
@@ -1091,7 +1093,7 @@ async function visualizzaPreventivoSalvato(id) {
                             ` : ''}
                             <div class="flex justify-between text-lg font-bold mt-3">
                                 <span>Totale:</span>
-                                <span class="text-cyan-600">€${parseFloat(p.totale).toFixed(2)}${servizi.some(s => s.frequenza === 3 || s.frequenza === '3') ? '/Mensile' : ''}</span>
+                                <span class="text-cyan-600">€${parseFloat(p.totale).toFixed(2)}${servizi.some(s => s.frequenza === 0 || s.frequenza === '0') ? '/Oraria' : servizi.some(s => s.frequenza === 3 || s.frequenza === '3') ? '/Mensile' : ''}</span>
                             </div>
                         </div>
                     </div>
@@ -1374,7 +1376,8 @@ function renderPreventivi() {
                         ${cat.voci.map(v => {
                             const prezzoFinale = v.prezzo * (1 - v.sconto_percentuale / 100);
                             const freqVal = parseInt(v.frequenza) || 1;
-                            const freqText = freqVal === 1 ? 'Una tantum' : 
+                            const freqText = freqVal === 0 ? 'Oraria' :
+                                            freqVal === 1 ? 'Una tantum' : 
                                             freqVal === 2 ? 'Settimanale' :
                                             freqVal === 3 ? 'Mensile' :
                                             freqVal === 4 ? 'Trimestrale' :
@@ -2163,9 +2166,10 @@ function updatePreventivoPreview() {
     const scontoImporto = subtotale * (scontoGlobale / 100);
     const totale = subtotale - scontoImporto;
     
-    // Controlla se c'è almeno un servizio con frequenza mensile
+    // Controlla se c'è almeno un servizio con frequenza oraria o mensile
+    const hasOraria = preventivoVoci.some(v => v.frequenza === 0 || v.frequenza === '0');
     const hasMensile = preventivoVoci.some(v => v.frequenza === 3 || v.frequenza === '3');
-    const suffixMensile = hasMensile ? '/Mensile' : '';
+    const suffixFrequenza = hasOraria ? '/Oraria' : hasMensile ? '/Mensile' : '';
     
     document.getElementById('prevSubtotale').textContent = '€ ' + subtotale.toLocaleString('it-IT', {minimumFractionDigits: 2});
     
@@ -2177,7 +2181,7 @@ function updatePreventivoPreview() {
         scontoRow.style.display = 'none';
     }
     
-    document.getElementById('prevTotale').textContent = '€ ' + totale.toLocaleString('it-IT', {minimumFractionDigits: 2}) + suffixMensile;
+    document.getElementById('prevTotale').textContent = '€ ' + totale.toLocaleString('it-IT', {minimumFractionDigits: 2}) + suffixFrequenza;
 }
 
 // ========== GESTIONE SEZIONI AGGIUNTIVE ==========
@@ -2432,9 +2436,10 @@ async function generaPreventivo() {
         // Recupera sezioni aggiuntive
         const sezioniAggiuntive = getSezioniAggiuntive();
         
-        // Calcola frequenza globale (se c'è almeno un servizio mensile, frequenza = 3)
+        // Calcola frequenza globale (se c'è almeno un servizio orario = 0, mensile = 3)
+        const hasOraria = preventivoVoci.some(v => v.frequenza === 0 || v.frequenza === '0');
         const hasMensile = preventivoVoci.some(v => v.frequenza === 3 || v.frequenza === '3');
-        const frequenzaGlobale = hasMensile ? 3 : 1;
+        const frequenzaGlobale = hasOraria ? 0 : hasMensile ? 3 : 1;
         
         const response = await fetch('api/preventivi.php', {
             method: 'POST',
@@ -2530,10 +2535,11 @@ async function salvaPreventivoGestionale() {
     const formData = new FormData();
     const preventivoId = document.getElementById('preventivoId').value;
     
-    // Calcola frequenza globale (se c'è almeno un servizio mensile, frequenza = 3)
+    // Calcola frequenza globale (se c'è almeno un servizio orario = 0, mensile = 3)
+    const hasOraria = preventivoVoci.some(v => v.frequenza === 0 || v.frequenza === '0');
     const hasMensile = preventivoVoci.some(v => v.frequenza === 3 || v.frequenza === '3');
-    const frequenzaGlobale = hasMensile ? 3 : 1;
-    const frequenzaTesto = hasMensile ? 'Mensile' : 'Una tantum';
+    const frequenzaGlobale = hasOraria ? 0 : hasMensile ? 3 : 1;
+    const frequenzaTesto = hasOraria ? 'Oraria' : hasMensile ? 'Mensile' : 'Una tantum';
     
     formData.append('action', 'salva_preventivo');
     if (preventivoId) {
