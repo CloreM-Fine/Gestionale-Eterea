@@ -57,13 +57,22 @@ function getEvents() {
     $end = $_GET['end'] ?? date('Y-m-t');
     
     try {
-        // Verifica esistenza colonna completato
+        // Verifica esistenza colonne
         try {
             $pdo->query("SELECT completato FROM appuntamenti LIMIT 1");
         } catch (PDOException $e) {
-            // Crea colonna se non esiste
             try {
                 $pdo->exec("ALTER TABLE appuntamenti ADD COLUMN completato TINYINT(1) DEFAULT 0");
+            } catch (PDOException $e2) {
+                // Ignora errore
+            }
+        }
+        
+        try {
+            $pdo->query("SELECT partecipanti FROM appuntamenti LIMIT 1");
+        } catch (PDOException $e) {
+            try {
+                $pdo->exec("ALTER TABLE appuntamenti ADD COLUMN partecipanti JSON NULL");
             } catch (PDOException $e2) {
                 // Ignora errore
             }
@@ -188,6 +197,17 @@ function createEvent() {
     }
     
     try {
+        // Verifica e crea colonna partecipanti se non esiste
+        try {
+            $pdo->query("SELECT partecipanti FROM appuntamenti LIMIT 1");
+        } catch (PDOException $e) {
+            try {
+                $pdo->exec("ALTER TABLE appuntamenti ADD COLUMN partecipanti JSON NULL");
+            } catch (PDOException $e2) {
+                // Ignora errore
+            }
+        }
+        
         $id = generateEntityId('evt');
         $partecipanti = json_encode($_POST['partecipanti'] ?? []);
         
