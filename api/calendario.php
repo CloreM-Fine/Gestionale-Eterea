@@ -57,45 +57,66 @@ function getEvents() {
     $end = $_GET['end'] ?? date('Y-m-t');
     
     try {
-        // Verifica esistenza colonne
+        // Verifica esistenza colonne in appuntamenti
+        $colonneDaVerificare = ['completato', 'partecipanti', 'task_id', 'utente_id'];
+        foreach ($colonneDaVerificare as $col) {
+            try {
+                $pdo->query("SELECT {$col} FROM appuntamenti LIMIT 1");
+            } catch (PDOException $e) {
+                $tipo = ($col === 'completato') ? 'TINYINT(1) DEFAULT 0' : (($col === 'partecipanti') ? 'JSON NULL' : 'VARCHAR(20) NULL');
+                try {
+                    $pdo->exec("ALTER TABLE appuntamenti ADD COLUMN {$col} {$tipo}");
+                } catch (PDOException $e2) {
+                    // Ignora errore
+                }
+            }
+        }
+        
+        // Verifica colonne in utenti
         try {
-            $pdo->query("SELECT completato FROM appuntamenti LIMIT 1");
+            $pdo->query("SELECT avatar FROM utenti LIMIT 1");
         } catch (PDOException $e) {
             try {
-                $pdo->exec("ALTER TABLE appuntamenti ADD COLUMN completato TINYINT(1) DEFAULT 0");
+                $pdo->exec("ALTER TABLE utenti ADD COLUMN avatar VARCHAR(255) NULL");
             } catch (PDOException $e2) {
                 // Ignora errore
             }
         }
         
+        // Appuntamenti - query semplice con gestione errori
         try {
-            $pdo->query("SELECT partecipanti FROM appuntamenti LIMIT 1");
+            $stmt = $pdo->prepare("
+                SELECT a.*, p.titolo as progetto_titolo, u.nome as utente_nome, u.colore as utente_colore, u.avatar as utente_avatar,
+                       a.partecipanti as partecipanti_json
+                FROM appuntamenti a
+                LEFT JOIN progetti p ON a.progetto_id = p.id
+                LEFT JOIN utenti u ON a.utente_id = u.id
+                WHERE DATE(a.data_inizio) BETWEEN ? AND ?
+                ORDER BY a.data_inizio ASC
+            ");
+            $stmt->execute([$start, $end]);
+            $events = $stmt->fetchAll();
         } catch (PDOException $e) {
-            try {
-                $pdo->exec("ALTER TABLE appuntamenti ADD COLUMN partecipanti JSON NULL");
-            } catch (PDOException $e2) {
-                // Ignora errore
-            }
+            // Fallback: query senza join
+            $stmt = $pdo->prepare("
+                SELECT *, partecipanti as partecipanti_json
+                FROM appuntamenti
+                WHERE DATE(data_inizio) BETWEEN ? AND ?
+                ORDER BY data_inizio ASC
+            ");
+            $stmt->execute([$start, $end]);
+            $events = $stmt->fetchAll();
         }
-        
-        // Appuntamenti - query semplice senza join clienti per evitare errori
-        $stmt = $pdo->prepare("
-            SELECT a.*, p.titolo as progetto_titolo, u.nome as utente_nome, u.colore as utente_colore, u.avatar as utente_avatar,
-                   a.partecipanti as partecipanti_json
-            FROM appuntamenti a
-            LEFT JOIN progetti p ON a.progetto_id = p.id
-            LEFT JOIN utenti u ON a.utente_id = u.id
-            WHERE DATE(a.data_inizio) BETWEEN ? AND ?
-            ORDER BY a.data_inizio ASC
-        ");
-        $stmt->execute([$start, $end]);
-        $events = $stmt->fetchAll();
         
         // Arricchisci con dati partecipanti
         $allUtenti = [];
-        $utentiStmt = $pdo->query("SELECT id, nome, colore, avatar FROM utenti");
-        while ($u = $utentiStmt->fetch()) {
-            $allUtenti[$u['id']] = ['nome' => $u['nome'], 'colore' => $u['colore'], 'avatar' => $u['avatar']];
+        try {
+            $utentiStmt = $pdo->query("SELECT id, nome, colore, avatar FROM utenti");
+            while ($u = $utentiStmt->fetch()) {
+                $allUtenti[$u['id']] = ['nome' => $u['nome'], 'colore' => $u['colore'], 'avatar' => $u['avatar']];
+            }
+        } catch (PDOException $e) {
+            // Ignora errore utenti
         }
         
         foreach ($events as &$event) {
@@ -109,28 +130,58 @@ function getEvents() {
         }
         unset($event);
         
-        // Progetti con consegna prevista
-        $stmt = $pdo->prepare("
-            SELECT id, titolo, data_consegna_prevista, stato_progetto
-            FROM progetti
-            WHERE DATE(data_consegna_prevista) BETWEEN ? AND ?
-            AND stato_progetto NOT IN ('consegnato', 'archiviato')
-        ");
-        $stmt->execute([$start, $end]);
-        $progetti = $stmt->fetchAll();
-        
-        foreach ($progetti as $p) {
-            $events[] = [
-                'id' => 'prj_' . $p['id'],
-                'titolo' => 'Consegna: ' . $p['titolo'],
-                'data_inizio' => $p['data_consegna_prevista'] . ' 00:00:00',
-                'data_fine' => $p['data_consegna_prevista'] . ' 23:59:59',
-                'tipo' => 'scadenza_progetto',
-                'progetto_id' => $p['id'],
-                'progetto_titolo' => $p['titolo'],
-                'note' => '',
-                'partecipanti_list' => []
-            ];
+        // Progetti con consegna prevista (con fallback)
+        try {
+            $stmt = $pdo->prepare("
+                SELECT id, titolo, data_consegna_prevista, stato_progetto
+                FROM progetti
+                WHERE DATE(data_consegna_prevista) BETWEEN ? AND ?
+                AND stato_progetto NOT IN ('consegnato', 'archiviato')
+            ");
+            $stmt->execute([$start, $end]);
+            $progetti = $stmt->fetchAll();
+            
+            foreach ($progetti as $p) {
+                $events[] = [
+                    'id' => 'prj_' . $p['id'],
+                    'titolo' => 'Consegna: ' . $p['titolo'],
+                    'data_inizio' => $p['data_consegna_prevista'] . ' 00:00:00',
+                    'data_fine' => $p['data_consegna_prevista'] . ' 23:59:59',
+                    'tipo' => 'scadenza_progetto',
+                    'progetto_id' => $p['id'],
+                    'progetto_titolo' => $p['titolo'],
+                    'note' => '',
+                    'partecipanti_list' => []
+                ];
+            }
+        } catch (PDOException $e) {
+            // Fallback: prova con colonna 'stato' invece di 'stato_progetto'
+            try {
+                $stmt = $pdo->prepare("
+                    SELECT id, titolo, data_consegna_prevista, stato as stato_progetto
+                    FROM progetti
+                    WHERE DATE(data_consegna_prevista) BETWEEN ? AND ?
+                    AND stato NOT IN ('consegnato', 'archiviato')
+                ");
+                $stmt->execute([$start, $end]);
+                $progetti = $stmt->fetchAll();
+                
+                foreach ($progetti as $p) {
+                    $events[] = [
+                        'id' => 'prj_' . $p['id'],
+                        'titolo' => 'Consegna: ' . $p['titolo'],
+                        'data_inizio' => $p['data_consegna_prevista'] . ' 00:00:00',
+                        'data_fine' => $p['data_consegna_prevista'] . ' 23:59:59',
+                        'tipo' => 'scadenza_progetto',
+                        'progetto_id' => $p['id'],
+                        'progetto_titolo' => $p['titolo'],
+                        'note' => '',
+                        'partecipanti_list' => []
+                    ];
+                }
+            } catch (PDOException $e2) {
+                // Ignora errori progetti
+            }
         }
         
         // Task con scadenza (solo se colonna data_scadenza esiste)
@@ -138,20 +189,34 @@ function getEvents() {
             // Verifica prima se la colonna esiste
             $pdo->query("SELECT data_scadenza FROM task LIMIT 1");
             
-            $stmt = $pdo->prepare("
-                SELECT t.id, t.titolo as task_titolo, t.data_scadenza, t.assegnato_a, 
-                       t.stato as task_stato, t.progetto_id,
-                       p.titolo as progetto_titolo,
-                       u.nome as assegnato_nome, u.colore as assegnato_colore
-                FROM task t
-                LEFT JOIN progetti p ON t.progetto_id = p.id
-                LEFT JOIN utenti u ON t.assegnato_a = u.id
-                WHERE t.data_scadenza IS NOT NULL 
-                AND DATE(t.data_scadenza) BETWEEN ? AND ?
-                AND t.stato != 'completato'
-            ");
-            $stmt->execute([$start, $end]);
-            $tasks = $stmt->fetchAll();
+            try {
+                $stmt = $pdo->prepare("
+                    SELECT t.id, t.titolo as task_titolo, t.data_scadenza, t.assegnato_a, 
+                           t.stato as task_stato, t.progetto_id,
+                           p.titolo as progetto_titolo,
+                           u.nome as assegnato_nome, u.colore as assegnato_colore
+                    FROM task t
+                    LEFT JOIN progetti p ON t.progetto_id = p.id
+                    LEFT JOIN utenti u ON t.assegnato_a = u.id
+                    WHERE t.data_scadenza IS NOT NULL 
+                    AND DATE(t.data_scadenza) BETWEEN ? AND ?
+                    AND t.stato != 'completato'
+                ");
+                $stmt->execute([$start, $end]);
+                $tasks = $stmt->fetchAll();
+            } catch (PDOException $e) {
+                // Fallback: query senza join
+                $stmt = $pdo->prepare("
+                    SELECT id, titolo as task_titolo, data_scadenza, assegnato_a, 
+                           stato as task_stato, progetto_id
+                    FROM task
+                    WHERE data_scadenza IS NOT NULL 
+                    AND DATE(data_scadenza) BETWEEN ? AND ?
+                    AND stato != 'completato'
+                ");
+                $stmt->execute([$start, $end]);
+                $tasks = $stmt->fetchAll();
+            }
             
             foreach ($tasks as $t) {
                 $events[] = [
@@ -162,10 +227,10 @@ function getEvents() {
                     'data_fine' => $t['data_scadenza'] . ' 23:59:59',
                     'tipo' => 'scadenza_task',
                     'progetto_id' => $t['progetto_id'],
-                    'progetto_titolo' => $t['progetto_titolo'],
+                    'progetto_titolo' => $t['progetto_titolo'] ?? '',
                     'assegnato_a' => $t['assegnato_a'],
-                    'assegnato_nome' => $t['assegnato_nome'],
-                    'assegnato_colore' => $t['assegnato_colore'],
+                    'assegnato_nome' => $t['assegnato_nome'] ?? '',
+                    'assegnato_colore' => $t['assegnato_colore'] ?? '',
                     'note' => '',
                     'partecipanti_list' => []
                 ];
