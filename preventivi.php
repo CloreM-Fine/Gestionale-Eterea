@@ -1375,7 +1375,8 @@ function renderPreventivi() {
                     <tbody class="divide-y divide-slate-100">
                         ${cat.voci.map(v => {
                             const prezzoFinale = v.prezzo * (1 - v.sconto_percentuale / 100);
-                            const freqVal = parseInt(v.frequenza) || 1;
+                            const parsedFreq = parseInt(v.frequenza);
+                            const freqVal = isNaN(parsedFreq) ? 1 : parsedFreq;
                             const freqText = freqVal === 0 ? 'Oraria' :
                                             freqVal === 1 ? 'Una tantum' : 
                                             freqVal === 2 ? 'Settimanale' :
