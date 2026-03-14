@@ -211,84 +211,63 @@ const wysiwygEditor = {
             this.hiddenInput.value = this.editor.innerHTML;
         });
         
-        // Gestione incolla: mantieni formattazione base ma pulisci stili esterni
+        // Gestione incolla: lascia che il browser incolli, poi pulisci
         this.editor.addEventListener('paste', (e) => {
-            e.preventDefault();
+            // Non prevenire il default - lascia che il browser incolli normalmente
+            // Poi puliamo dopo un breve ritardo
+            setTimeout(() => {
+                this.cleanEditorContent();
+                this.hiddenInput.value = this.editor.innerHTML;
+            }, 0);
+        });
+        
+        // Funzione per pulire il contenuto dell'editor
+        this.cleanEditorContent = function() {
+            const allowedTags = ['B', 'I', 'U', 'STRONG', 'EM', 'P', 'BR', 'H1', 'H2', 'H3', 'H4', 'UL', 'OL', 'LI', 'BLOCKQUOTE', 'SPAN', 'DIV'];
+            const allowedAttributes = ['style']; // Mantieni solo attributi style per font-size
             
-            // Ottieni il testo HTML dagli appunti
-            let html = '';
-            if (e.clipboardData && e.clipboardData.getData) {
-                // Prova prima text/html
-                html = e.clipboardData.getData('text/html');
-            }
-            
-            // Se non c'è HTML, usa text/plain
-            if (!html || html.trim() === '') {
-                if (e.clipboardData && e.clipboardData.getData) {
-                    html = e.clipboardData.getData('text/plain');
-                } else if (window.clipboardData && window.clipboardData.getData) {
-                    html = window.clipboardData.getData('Text');
-                }
-                // Converte newline in <br> per il testo semplice
-                html = html.replace(/\n/g, '<br>');
-            }
-            
-            // Pulisci HTML mantenendo solo tag consentiti
-            const allowedTags = ['b', 'i', 'u', 'strong', 'em', 'p', 'br', 'h1', 'h2', 'h3', 'h4', 'ul', 'ol', 'li', 'blockquote', 'span'];
-            const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = html;
-            
-            // Funzione ricorsiva per pulire i nodi
             function cleanNode(node) {
                 if (node.nodeType === Node.TEXT_NODE) {
-                    return node.textContent;
+                    return node;
                 }
                 if (node.nodeType === Node.ELEMENT_NODE) {
-                    const tagName = node.tagName.toLowerCase();
+                    const tagName = node.tagName;
+                    
+                    // Se il tag è consentito, mantienilo
                     if (allowedTags.includes(tagName)) {
-                        const cleaned = document.createElement(tagName);
-                        // Copia i child nodes mantenendo la struttura
-                        Array.from(node.childNodes).forEach(child => {
-                            const cleanedChild = cleanNode(child);
-                            if (cleanedChild) {
-                                if (typeof cleanedChild === 'string') {
-                                    cleaned.appendChild(document.createTextNode(cleanedChild));
-                                } else {
-                                    cleaned.appendChild(cleanedChild);
-                                }
+                        // Rimuovi attributi non consentiti
+                        Array.from(node.attributes).forEach(attr => {
+                            if (!allowedAttributes.includes(attr.name)) {
+                                node.removeAttribute(attr.name);
                             }
                         });
-                        return cleaned;
+                        
+                        // Pulisci ricorsivamente i figli
+                        Array.from(node.childNodes).forEach(child => {
+                            cleanNode(child);
+                        });
+                        return node;
                     } else {
-                        // Tag non consentito: estrai solo il testo
-                        return node.textContent;
+                        // Tag non consentito: sostituisci con il suo contenuto
+                        const fragment = document.createDocumentFragment();
+                        Array.from(node.childNodes).forEach(child => {
+                            const cleaned = cleanNode(child);
+                            if (cleaned) {
+                                fragment.appendChild(cleaned);
+                            }
+                        });
+                        node.parentNode.replaceChild(fragment, node);
+                        return null;
                     }
                 }
-                return '';
+                return null;
             }
             
-            const fragment = document.createDocumentFragment();
-            Array.from(tempDiv.childNodes).forEach(node => {
-                const cleaned = cleanNode(node);
-                if (cleaned) {
-                    if (typeof cleaned === 'string') {
-                        fragment.appendChild(document.createTextNode(cleaned));
-                    } else {
-                        fragment.appendChild(cleaned);
-                    }
-                }
+            // Pulisci tutti i nodi nell'editor
+            Array.from(this.editor.childNodes).forEach(node => {
+                cleanNode(node);
             });
-            
-            // Inserisci il contenuto pulito usando insertHTML (più affidabile)
-            const cleanedHtml = fragment.innerHTML || Array.from(fragment.childNodes).map(n => {
-                const div = document.createElement('div');
-                div.appendChild(n.cloneNode(true));
-                return div.innerHTML;
-            }).join('');
-            
-            document.execCommand('insertHTML', false, cleanedHtml);
-            this.hiddenInput.value = this.editor.innerHTML;
-        });
+        };
     },
     
     format: function(command) {
