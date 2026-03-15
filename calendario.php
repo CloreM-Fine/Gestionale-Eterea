@@ -963,8 +963,9 @@ async function openEditEventModal(eventId) {
     
     // Popola cliente se presente
     const clienteSelect = document.querySelector('[name="cliente_id"]');
-    if (clienteSelect && event.cliente_id) {
-        clienteSelect.value = event.cliente_id;
+    if (clienteSelect) {
+        clienteSelect.value = event.cliente_id || '';
+        console.log('Popolato cliente_id:', event.cliente_id);
     }
     
     // Popola partecipanti (checkbox)
@@ -1110,6 +1111,10 @@ async function saveEvent() {
     
     const form = document.getElementById('eventForm');
     const formData = new FormData(form);
+    
+    // Log per debug
+    console.log('FormData cliente_id:', formData.get('cliente_id'));
+    
     const eventId = document.getElementById('eventId').value;
     
     const titolo = formData.get('titolo');
