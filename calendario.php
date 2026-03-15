@@ -1187,6 +1187,12 @@ async function saveEvent() {
             return;
         }
         
+        // DEBUG: Mostra la risposta completa
+        console.log('=== SERVER RESPONSE ===', data);
+        if (data.data && data.data.debug) {
+            console.log('=== DEBUG INFO ===', data.data.debug);
+        }
+        
         if (data.success) {
             showToast(isUpdate ? 'Evento aggiornato' : 'Evento creato', 'success');
             closeModal('eventModal');
@@ -1218,7 +1224,7 @@ async function deleteEvent(eventId) {
             if (data.success) {
                 showToast('Evento eliminato', 'success');
                 closeModal('dayEventsModal');
-                loadEvents();
+                location.reload();
             } else {
                 showToast(data.message || 'Errore eliminazione', 'error');
             }
@@ -1243,9 +1249,7 @@ async function completaEvento(eventId) {
         
         if (data.success) {
             showToast('Appuntamento completato', 'success');
-            // Ricarica eventi e prossimi appuntamenti
-            loadEvents();
-            loadProssimiAppuntamenti();
+            location.reload();
         } else {
             showToast(data.message || 'Errore completamento', 'error');
         }

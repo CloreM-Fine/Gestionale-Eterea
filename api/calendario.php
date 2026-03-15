@@ -172,16 +172,19 @@ function createEvent() {
     $titolo = trim($_POST['titolo'] ?? '');
     $dataInizio = $_POST['data_inizio'] ?? '';
     
-    // DEBUG COMPLETO
-    error_log("DEBUG CREATE POST DATA: " . json_encode($_POST));
-    error_log("DEBUG CREATE cliente_id: " . ($_POST['cliente_id'] ?? 'NON SETTATO'));
-    error_log("DEBUG CREATE isset cliente_id: " . (isset($_POST['cliente_id']) ? 'SI' : 'NO'));
+    // DEBUG COMPLETO - incluso nella risposta
+    $debug = [];
+    $debug['post_data'] = $_POST;
+    $debug['cliente_id_raw'] = $_POST['cliente_id'] ?? 'NON SETTATO';
+    $debug['cliente_id_isset'] = isset($_POST['cliente_id']) ? 'SI' : 'NO';
     if (isset($_POST['cliente_id'])) {
-        error_log("DEBUG CREATE cliente_id value: '" . $_POST['cliente_id'] . "' (length: " . strlen($_POST['cliente_id']) . ")");
+        $debug['cliente_id_value'] = $_POST['cliente_id'];
+        $debug['cliente_id_length'] = strlen($_POST['cliente_id']);
+        $debug['cliente_id_empty'] = empty($_POST['cliente_id']) ? 'VUOTO' : 'PIENO';
     }
     
     if (empty($titolo) || empty($dataInizio)) {
-        jsonResponse(false, null, 'Titolo e data sono obbligatori');
+        jsonResponse(false, ['debug' => $debug], 'Titolo e data sono obbligatori');
         return;
     }
     
@@ -211,8 +214,14 @@ function createEvent() {
         }
         if ($hasClienteId) {
             $fields[] = 'cliente_id';
-            $values[] = $_POST['cliente_id'] ?: null;
+            // Gestione esplicita cliente_id
+            $clienteIdValue = null;
+            if (isset($_POST['cliente_id']) && $_POST['cliente_id'] !== '' && $_POST['cliente_id'] !== null) {
+                $clienteIdValue = $_POST['cliente_id'];
+            }
+            $values[] = $clienteIdValue;
             $placeholders[] = '?';
+            $debug['cliente_id_saved'] = $clienteIdValue;
         }
         if ($hasPartecipanti) {
             $fields[] = 'partecipanti';
@@ -221,14 +230,16 @@ function createEvent() {
         }
         
         $sql = "INSERT INTO appuntamenti (" . implode(', ', $fields) . ") VALUES (" . implode(', ', $placeholders) . ")";
+        $debug['sql'] = $sql;
+        $debug['values'] = $values;
         
         $stmt = $pdo->prepare($sql);
         $stmt->execute($values);
         
-        jsonResponse(true, ['id' => $values[0]], 'Appuntamento creato');
+        jsonResponse(true, ['id' => $values[0], 'debug' => $debug], 'Appuntamento creato');
     } catch (Exception $e) {
         error_log("Errore creazione: " . $e->getMessage());
-        jsonResponse(false, null, 'Errore creazione: ' . $e->getMessage());
+        jsonResponse(false, ['debug' => $debug], 'Errore creazione: ' . $e->getMessage());
     }
 }
 
