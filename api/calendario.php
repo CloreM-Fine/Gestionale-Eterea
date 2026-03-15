@@ -95,10 +95,13 @@ function getEvents() {
         try {
             $stmt = $pdo->prepare("SELECT * FROM appuntamenti WHERE DATE(data_inizio) BETWEEN ? AND ? ORDER BY data_inizio ASC");
             $stmt->execute([$start, $end]);
-            $appuntamenti = $stmt->fetchAll();
+            $appuntamenti = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
             // Log numero risultati
             error_log("Appuntamenti trovati: " . count($appuntamenti));
+            if (count($appuntamenti) > 0) {
+                error_log("Primo appuntamento: " . json_encode($appuntamenti[0]));
+            }
             
             foreach ($appuntamenti as $a) {
                 $event = [
@@ -127,7 +130,7 @@ function getEvents() {
             try {
                 $stmt = $pdo->prepare("SELECT * FROM appuntamenti WHERE data_inizio BETWEEN ? AND ? ORDER BY data_inizio ASC");
                 $stmt->execute([$start . ' 00:00:00', $end . ' 23:59:59']);
-                $appuntamenti = $stmt->fetchAll();
+                $appuntamenti = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 error_log("Appuntamenti trovati (fallback): " . count($appuntamenti));
                 
                 foreach ($appuntamenti as $a) {
