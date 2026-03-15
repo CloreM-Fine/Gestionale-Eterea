@@ -285,10 +285,19 @@ function completeEvent($id) {
     global $pdo;
     
     try {
-        $stmt = $pdo->prepare("DELETE FROM appuntamenti WHERE id = ?");
+        // Verifica se esiste la colonna completato
+        $colonne = $pdo->query("SHOW COLUMNS FROM appuntamenti")->fetchAll(PDO::FETCH_COLUMN);
+        
+        if (!in_array('completato', $colonne)) {
+            // Crea la colonna
+            $pdo->exec("ALTER TABLE appuntamenti ADD COLUMN completato TINYINT(1) DEFAULT 0");
+        }
+        
+        $stmt = $pdo->prepare("UPDATE appuntamenti SET completato = 1 WHERE id = ?");
         $stmt->execute([$id]);
         jsonResponse(true, null, 'Appuntamento completato');
     } catch (Exception $e) {
-        jsonResponse(false, null, 'Errore');
+        error_log("Errore completamento: " . $e->getMessage());
+        jsonResponse(false, null, 'Errore: ' . $e->getMessage());
     }
 }
