@@ -88,24 +88,9 @@ function getEvents() {
     try {
         $events = [];
         
-        // Verifica colonne necessarie
-        $hasCompletato = colonnaEsiste($pdo, 'appuntamenti', 'completato');
-        $hasPartecipanti = colonnaEsiste($pdo, 'appuntamenti', 'partecipanti');
-        $hasTaskId = colonnaEsiste($pdo, 'appuntamenti', 'task_id');
-        $hasUtenteId = colonnaEsiste($pdo, 'appuntamenti', 'utente_id');
-        
-        // Costruisci query appuntamenti dinamicamente
-        $colonneApp = ['id', 'titolo', 'data_inizio', 'data_fine', 'progetto_id', 'note'];
-        if ($hasCompletato) $colonneApp[] = 'completato';
-        if ($hasPartecipanti) $colonneApp[] = 'partecipanti';
-        if ($hasTaskId) $colonneApp[] = 'task_id';
-        if ($hasUtenteId) $colonneApp[] = 'utente_id';
-        
-        $colonneStr = implode(', ', $colonneApp);
-        
-        // Query appuntamenti semplice
+        // Query appuntamenti - usa SELECT * per recuperare tutti i campi
         try {
-            $stmt = $pdo->prepare("SELECT {$colonneStr} FROM appuntamenti WHERE DATE(data_inizio) BETWEEN ? AND ? ORDER BY data_inizio ASC");
+            $stmt = $pdo->prepare("SELECT * FROM appuntamenti WHERE DATE(data_inizio) BETWEEN ? AND ? ORDER BY data_inizio ASC");
             $stmt->execute([$start, $end]);
             $appuntamenti = $stmt->fetchAll();
             
@@ -117,13 +102,14 @@ function getEvents() {
                     'data_fine' => $a['data_fine'],
                     'progetto_id' => $a['progetto_id'],
                     'note' => $a['note'] ?? '',
-                    'tipo' => 'appuntamento',
+                    'tipo' => $a['tipo'] ?? 'appuntamento',
+                    'utente_id' => $a['utente_id'] ?? null,
+                    'task_id' => $a['task_id'] ?? null,
                     'partecipanti_list' => []
                 ];
                 
-                if ($hasPartecipanti && !empty($a['partecipanti'])) {
+                if (!empty($a['partecipanti'])) {
                     $partecipantiIds = json_decode($a['partecipanti'], true) ?: [];
-                    // Qui potremmo arricchire con dati utente se necessario
                     $event['partecipanti_list'] = $partecipantiIds;
                 }
                 
