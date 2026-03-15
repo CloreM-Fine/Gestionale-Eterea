@@ -658,6 +658,7 @@ function openDayEventsModal(dateStr, dayEvents, date) {
                         ${dettagliExtra}
                         ${e.note && !isTaskScadenza ? `<p class="text-xs text-slate-400 mt-1 line-clamp-2">📝 ${e.note}</p>` : ''}
                         ${e.cliente_nome ? `<p class="text-xs text-slate-500 mt-1 truncate">👤 <strong>Cliente:</strong> ${e.cliente_nome}</p>` : ''}
+                        ${e.assegnato_nome ? `<p class="text-xs text-slate-500 mt-1 flex items-center gap-1"><span class="w-2 h-2 rounded-full" style="background-color: ${e.assegnato_colore || '#ccc'}"></span><strong>Assegnato a:</strong> ${e.assegnato_nome}</p>` : ''}
                         ${e.partecipanti_dettagli && e.partecipanti_dettagli.length > 0 ? `<p class="text-xs text-slate-500 mt-1"><strong>Partecipanti:</strong> ${e.partecipanti_dettagli.map(p => p.nome).join(', ')}</p>` : ''}
                     </div>
                     <div class="flex items-center gap-1 flex-shrink-0">
@@ -738,9 +739,12 @@ function updateMobileDaySidebar(dateStr, dayEvents, date) {
                 `;
             }
             
-            // Cliente e partecipanti
+            // Cliente, assegnatario e partecipanti
             if (e.cliente_nome) {
                 taskInfo += `<span class="text-[10px] text-slate-400">👤 ${e.cliente_nome}</span>`;
+            }
+            if (e.assegnato_nome && !isTaskScadenza) {
+                taskInfo += `<span class="text-[10px] text-slate-400 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full" style="background-color: ${e.assegnato_colore || '#ccc'}"></span>${e.assegnato_nome}</span>`;
             }
             if (e.partecipanti_dettagli && e.partecipanti_dettagli.length > 0) {
                 const partecipantiText = e.partecipanti_dettagli.map(p => p.nome).join(', ');
@@ -849,6 +853,16 @@ function updateDaySidebar(dateStr, dayEvents, date) {
                     </div>`;
             }
             
+            // Assegnatario
+            let assegnatarioHtml = '';
+            if (e.assegnato_nome) {
+                assegnatarioHtml = `
+                    <div class="flex items-center gap-2 mt-1 text-xs text-slate-500">
+                        <span class="w-2 h-2 rounded-full" style="background-color: ${e.assegnato_colore || '#ccc'}"></span>
+                        <span class="truncate"><strong>Assegnato a:</strong> ${e.assegnato_nome}</span>
+                    </div>`;
+            }
+            
             // Partecipanti (usa partecipanti_dettagli se disponibile, altrimenti partecipanti_list)
             let partecipantiData = e.partecipanti_dettagli || e.partecipanti_list || [];
             if (partecipantiData.length > 0) {
@@ -876,6 +890,7 @@ function updateDaySidebar(dateStr, dayEvents, date) {
                             ${dettagliTask}
                             ${progettoHtml}
                             ${clienteHtml}
+                            ${assegnatarioHtml}
                             ${partecipantiHtml}
                             ${e.note && !isTaskScadenza ? `<div class="mt-2 text-sm text-slate-600 bg-slate-50 p-2 rounded-lg">${e.note}</div>` : ''}
                         </div>

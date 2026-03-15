@@ -63,6 +63,25 @@ function getEvents() {
         // Recupera nomi clienti e utenti
         if (count($events) > 0) {
             try {
+                // Mappa utenti assegnati (creati_by/utente_id)
+                $utentiIds = array_filter(array_column($events, 'utente_id'));
+                if (count($utentiIds) > 0) {
+                    $placeholders = implode(',', array_fill(0, count($utentiIds), '?'));
+                    $stmt = $pdo->prepare("SELECT id, nome, colore FROM utenti WHERE id IN ({$placeholders})");
+                    $stmt->execute($utentiIds);
+                    $utentiAssegnatiMap = [];
+                    while ($u = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                        $utentiAssegnatiMap[$u['id']] = $u;
+                    }
+                    foreach ($events as &$e) {
+                        if ($e['utente_id'] && isset($utentiAssegnatiMap[$e['utente_id']])) {
+                            $e['assegnato_nome'] = $utentiAssegnatiMap[$e['utente_id']]['nome'];
+                            $e['assegnato_colore'] = $utentiAssegnatiMap[$e['utente_id']]['colore'];
+                        }
+                    }
+                    unset($e);
+                }
+                
                 // Mappa clienti
                 $clientiIds = array_filter(array_column($events, 'cliente_id'));
                 if (count($clientiIds) > 0) {
@@ -203,6 +222,8 @@ function createEvent() {
 function updateEvent($id) {
     global $pdo;
     
+    error_log("DEBUG UPDATE POST: " . json_encode($_POST));
+    
     try {
         // Verifica quali colonne esistono
         $colonne = $pdo->query("SHOW COLUMNS FROM appuntamenti")->fetchAll(PDO::FETCH_COLUMN);
@@ -226,7 +247,9 @@ function updateEvent($id) {
         }
         if ($hasClienteId) {
             $fields[] = 'cliente_id = ?';
-            $values[] = $_POST['cliente_id'] ?: null;
+            $clienteId = $_POST['cliente_id'] ?? '';
+            $values[] = $clienteId !== '' ? $clienteId : null;
+            error_log("DEBUG UPDATE cliente_id: " . $clienteId . " -> " . ($clienteId !== '' ? $clienteId : 'null'));
         }
         if ($hasPartecipanti) {
             $fields[] = 'partecipanti = ?';
