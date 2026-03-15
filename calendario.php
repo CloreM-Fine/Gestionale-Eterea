@@ -1069,7 +1069,17 @@ async function saveEvent() {
             body: formData
         });
         
-        const data = await response.json();
+        // Log per debug
+        const responseText = await response.text();
+        console.log('Response:', responseText);
+        
+        let data;
+        try {
+            data = JSON.parse(responseText);
+        } catch (e) {
+            showToast('Errore risposta server: ' + responseText.substring(0, 100), 'error');
+            return;
+        }
         
         if (data.success) {
             showToast(isUpdate ? 'Evento aggiornato' : 'Evento creato', 'success');
@@ -1080,7 +1090,8 @@ async function saveEvent() {
             showToast(data.message || 'Errore salvataggio', 'error');
         }
     } catch (error) {
-        showToast('Errore di connessione', 'error');
+        console.error('Error:', error);
+        showToast('Errore di connessione: ' + error.message, 'error');
     }
 }
 

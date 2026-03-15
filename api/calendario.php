@@ -98,21 +98,46 @@ function createEvent() {
     }
     
     try {
-        $id = generateEntityId('evt');
-        $partecipanti = json_encode($_POST['partecipanti'] ?? []);
-        $stmt = $pdo->prepare("INSERT INTO appuntamenti (id, titolo, tipo, data_inizio, data_fine, progetto_id, cliente_id, note, partecipanti) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmt->execute([
-            $id,
+        // Verifica quali colonne esistono
+        $colonne = $pdo->query("SHOW COLUMNS FROM appuntamenti")->fetchAll(PDO::FETCH_COLUMN);
+        
+        $hasProgettoId = in_array('progetto_id', $colonne);
+        $hasClienteId = in_array('cliente_id', $colonne);
+        $hasPartecipanti = in_array('partecipanti', $colonne);
+        
+        $fields = ['id', 'titolo', 'tipo', 'data_inizio', 'data_fine', 'note'];
+        $values = [
+            generateEntityId('evt'),
             $titolo,
             $_POST['tipo'] ?? 'appuntamento',
             $dataInizio,
             $_POST['data_fine'] ?: null,
-            $_POST['progetto_id'] ?: null,
-            $_POST['cliente_id'] ?: null,
-            $_POST['note'] ?? '',
-            $partecipanti
-        ]);
-        jsonResponse(true, ['id' => $id], 'Appuntamento creato');
+            $_POST['note'] ?? ''
+        ];
+        $placeholders = ['?', '?', '?', '?', '?', '?'];
+        
+        if ($hasProgettoId) {
+            $fields[] = 'progetto_id';
+            $values[] = $_POST['progetto_id'] ?: null;
+            $placeholders[] = '?';
+        }
+        if ($hasClienteId) {
+            $fields[] = 'cliente_id';
+            $values[] = $_POST['cliente_id'] ?: null;
+            $placeholders[] = '?';
+        }
+        if ($hasPartecipanti) {
+            $fields[] = 'partecipanti';
+            $values[] = json_encode($_POST['partecipanti'] ?? []);
+            $placeholders[] = '?';
+        }
+        
+        $sql = "INSERT INTO appuntamenti (" . implode(', ', $fields) . ") VALUES (" . implode(', ', $placeholders) . ")";
+        
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($values);
+        
+        jsonResponse(true, ['id' => $values[0]], 'Appuntamento creato');
     } catch (Exception $e) {
         error_log("Errore creazione: " . $e->getMessage());
         jsonResponse(false, null, 'Errore creazione: ' . $e->getMessage());
@@ -123,23 +148,45 @@ function updateEvent($id) {
     global $pdo;
     
     try {
-        $partecipanti = json_encode($_POST['partecipanti'] ?? []);
-        $stmt = $pdo->prepare("UPDATE appuntamenti SET titolo = ?, tipo = ?, data_inizio = ?, data_fine = ?, progetto_id = ?, cliente_id = ?, note = ?, partecipanti = ? WHERE id = ?");
-        $stmt->execute([
+        // Verifica quali colonne esistono
+        $colonne = $pdo->query("SHOW COLUMNS FROM appuntamenti")->fetchAll(PDO::FETCH_COLUMN);
+        
+        $hasProgettoId = in_array('progetto_id', $colonne);
+        $hasClienteId = in_array('cliente_id', $colonne);
+        $hasPartecipanti = in_array('partecipanti', $colonne);
+        
+        $fields = ['titolo = ?', 'tipo = ?', 'data_inizio = ?', 'data_fine = ?', 'note = ?'];
+        $values = [
             $_POST['titolo'],
             $_POST['tipo'] ?? 'appuntamento',
             $_POST['data_inizio'],
             $_POST['data_fine'] ?: null,
-            $_POST['progetto_id'] ?: null,
-            $_POST['cliente_id'] ?: null,
-            $_POST['note'] ?? '',
-            $partecipanti,
-            $id
-        ]);
+            $_POST['note'] ?? ''
+        ];
+        
+        if ($hasProgettoId) {
+            $fields[] = 'progetto_id = ?';
+            $values[] = $_POST['progetto_id'] ?: null;
+        }
+        if ($hasClienteId) {
+            $fields[] = 'cliente_id = ?';
+            $values[] = $_POST['cliente_id'] ?: null;
+        }
+        if ($hasPartecipanti) {
+            $fields[] = 'partecipanti = ?';
+            $values[] = json_encode($_POST['partecipanti'] ?? []);
+        }
+        
+        $values[] = $id;
+        $sql = "UPDATE appuntamenti SET " . implode(', ', $fields) . " WHERE id = ?";
+        
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($values);
+        
         jsonResponse(true, null, 'Appuntamento aggiornato');
     } catch (Exception $e) {
         error_log("Errore update: " . $e->getMessage());
-        jsonResponse(false, null, 'Errore aggiornamento');
+        jsonResponse(false, null, 'Errore aggiornamento: ' . $e->getMessage());
     }
 }
 
