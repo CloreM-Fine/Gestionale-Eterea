@@ -85,6 +85,9 @@ function getEvents() {
     $start = $_GET['start'] ?? date('Y-m-01');
     $end = $_GET['end'] ?? date('Y-m-t');
     
+    // Log per debug
+    error_log("getEvents chiamato - start: {$start}, end: {$end}");
+    
     try {
         $events = [];
         
@@ -93,6 +96,9 @@ function getEvents() {
             $stmt = $pdo->prepare("SELECT * FROM appuntamenti WHERE DATE(data_inizio) BETWEEN ? AND ? ORDER BY data_inizio ASC");
             $stmt->execute([$start, $end]);
             $appuntamenti = $stmt->fetchAll();
+            
+            // Log numero risultati
+            error_log("Appuntamenti trovati: " . count($appuntamenti));
             
             foreach ($appuntamenti as $a) {
                 $event = [
@@ -117,6 +123,37 @@ function getEvents() {
             }
         } catch (PDOException $e) {
             error_log("Errore query appuntamenti: " . $e->getMessage());
+            // Fallback: prova senza DATE()
+            try {
+                $stmt = $pdo->prepare("SELECT * FROM appuntamenti WHERE data_inizio BETWEEN ? AND ? ORDER BY data_inizio ASC");
+                $stmt->execute([$start . ' 00:00:00', $end . ' 23:59:59']);
+                $appuntamenti = $stmt->fetchAll();
+                error_log("Appuntamenti trovati (fallback): " . count($appuntamenti));
+                
+                foreach ($appuntamenti as $a) {
+                    $event = [
+                        'id' => $a['id'],
+                        'titolo' => $a['titolo'],
+                        'data_inizio' => $a['data_inizio'],
+                        'data_fine' => $a['data_fine'],
+                        'progetto_id' => $a['progetto_id'],
+                        'note' => $a['note'] ?? '',
+                        'tipo' => $a['tipo'] ?? 'appuntamento',
+                        'utente_id' => $a['utente_id'] ?? null,
+                        'task_id' => $a['task_id'] ?? null,
+                        'partecipanti_list' => []
+                    ];
+                    
+                    if (!empty($a['partecipanti'])) {
+                        $partecipantiIds = json_decode($a['partecipanti'], true) ?: [];
+                        $event['partecipanti_list'] = $partecipantiIds;
+                    }
+                    
+                    $events[] = $event;
+                }
+            } catch (PDOException $e2) {
+                error_log("Errore fallback query appuntamenti: " . $e2->getMessage());
+            }
         }
         
         // Progetti con consegna prevista
