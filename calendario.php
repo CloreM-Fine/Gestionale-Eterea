@@ -197,7 +197,7 @@ include __DIR__ . '/includes/header.php';
                 <!-- Cliente (opzionale) -->
                 <div>
                     <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-1.5">Cliente (opzionale)</label>
-                    <select name="cliente_id" class="w-full px-3 sm:px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none text-sm sm:text-base min-h-[44px] bg-white">
+                    <select name="cliente_id" id="eventClienteId" class="w-full px-3 sm:px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none text-sm sm:text-base min-h-[44px] bg-white">
                         <option value="">-- Seleziona cliente --</option>
                         <?php foreach ($clienti as $cliente): ?>
                         <option value="<?php echo e($cliente['id']); ?>"><?php echo e($cliente['ragione_sociale']); ?></option>
@@ -967,18 +967,18 @@ async function openEditEventModal(eventId) {
     document.querySelector('[name="note"]').value = event.note || '';
     
     // Popola cliente se presente
-    const clienteSelect = document.querySelector('[name="cliente_id"]');
+    const clienteSelect = document.getElementById('eventClienteId');
     if (clienteSelect) {
         console.log('DEBUG cliente_id evento:', event.cliente_id);
         console.log('DEBUG opzioni disponibili:', Array.from(clienteSelect.options).map(o => o.value));
         
-        // Aspetta che le opzioni siano caricate
-        setTimeout(() => {
-            clienteSelect.value = event.cliente_id || '';
+        // Imposta direttamente il valore
+        if (event.cliente_id) {
+            clienteSelect.value = event.cliente_id;
             console.log('DEBUG valore impostato:', clienteSelect.value);
             
             // Se il valore non è stato impostato, cerca l'opzione manualmente
-            if (clienteSelect.value !== event.cliente_id && event.cliente_id) {
+            if (clienteSelect.value !== event.cliente_id) {
                 const option = Array.from(clienteSelect.options).find(o => o.value === event.cliente_id);
                 if (option) {
                     clienteSelect.selectedIndex = option.index;
@@ -987,7 +987,9 @@ async function openEditEventModal(eventId) {
                     console.log('DEBUG cliente_id non trovato nelle opzioni!');
                 }
             }
-        }, 0);
+        } else {
+            clienteSelect.value = '';
+        }
     }
     
     // Popola partecipanti (checkbox)
@@ -1133,6 +1135,10 @@ async function saveEvent() {
     
     const form = document.getElementById('eventForm');
     const formData = new FormData(form);
+    
+    // DEBUG: Controlla direttamente il select
+    const clienteSelect = document.getElementById('eventClienteId');
+    console.log('DEBUG SELECT cliente_id value:', clienteSelect ? clienteSelect.value : 'SELECT NON TROVATO');
     
     // Log per debug - TUTTI i campi
     console.log('=== DEBUG FORM DATA ===');
