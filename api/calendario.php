@@ -52,8 +52,9 @@ function getEvents() {
                 'data_fine' => $row['data_fine'],
                 'tipo' => $row['tipo'] ?? 'appuntamento',
                 'progetto_id' => $row['progetto_id'],
+                'cliente_id' => $row['cliente_id'] ?? null,
                 'note' => $row['note'] ?? '',
-                'partecipanti_list' => []
+                'partecipanti' => json_decode($row['partecipanti'] ?? '[]', true) ?: []
             ];
         }
     } catch (Exception $e) {

@@ -164,7 +164,7 @@ include __DIR__ . '/includes/header.php';
 <div id="eventModal" class="fixed inset-0 z-[60] hidden">
     <div class="absolute inset-0 bg-black/50" onclick="closeModal('eventModal')"></div>
     <div class="absolute inset-0 flex items-end sm:items-center justify-center p-0 sm:p-4">
-        <div class="bg-white w-full max-w-lg sm:rounded-2xl rounded-t-2xl shadow-2xl max-h-[85vh] sm:max-h-[90vh] overflow-hidden flex flex-col">
+        <div class="bg-white w-full max-w-2xl sm:rounded-2xl rounded-t-2xl shadow-2xl max-h-[85vh] sm:max-h-[90vh] overflow-hidden flex flex-col">
             <div class="p-3 sm:p-5 border-b border-slate-100 flex items-center justify-between flex-shrink-0">
                 <h3 class="text-sm sm:text-lg font-bold text-slate-800" id="eventModalTitle">Nuovo Evento</h3>
                 <button onclick="closeModal('eventModal')" class="text-slate-400 hover:text-slate-600 p-1 min-h-[44px] min-w-[44px] flex items-center justify-center">
@@ -896,6 +896,16 @@ async function openEditEventModal(eventId) {
     const clienteSelect = document.querySelector('[name="cliente_id"]');
     if (clienteSelect && event.cliente_id) {
         clienteSelect.value = event.cliente_id;
+    }
+    
+    // Popola partecipanti (checkbox)
+    const partecipantiCheckboxes = document.querySelectorAll('input[name="partecipanti[]"]');
+    partecipantiCheckboxes.forEach(cb => cb.checked = false); // Reset
+    if (event.partecipanti && Array.isArray(event.partecipanti)) {
+        event.partecipanti.forEach(pid => {
+            const cb = document.querySelector(`input[name="partecipanti[]"][value="${pid}"]`);
+            if (cb) cb.checked = true;
+        });
     }
     
     const dataInizio = event.data_inizio.split(' ');
