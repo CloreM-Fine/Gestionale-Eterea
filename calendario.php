@@ -953,6 +953,11 @@ async function openEditEventModal(eventId) {
         return;
     }
     
+    // DEBUG
+    console.log('=== DEBUG EVENT OBJECT ===', event);
+    console.log('cliente_id:', event.cliente_id, 'type:', typeof event.cliente_id);
+    console.log('==========================');
+    
     document.getElementById('eventForm').reset();
     document.getElementById('eventId').value = event.id;
     document.getElementById('eventModalTitle').textContent = 'Modifica Evento';
@@ -1129,8 +1134,12 @@ async function saveEvent() {
     const form = document.getElementById('eventForm');
     const formData = new FormData(form);
     
-    // Log per debug
-    console.log('FormData cliente_id:', formData.get('cliente_id'));
+    // Log per debug - TUTTI i campi
+    console.log('=== DEBUG FORM DATA ===');
+    for (let [key, value] of formData.entries()) {
+        console.log(key + ':', value);
+    }
+    console.log('========================');
     
     const eventId = document.getElementById('eventId').value;
     

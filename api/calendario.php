@@ -172,7 +172,13 @@ function createEvent() {
     $titolo = trim($_POST['titolo'] ?? '');
     $dataInizio = $_POST['data_inizio'] ?? '';
     
+    // DEBUG COMPLETO
+    error_log("DEBUG CREATE POST DATA: " . json_encode($_POST));
     error_log("DEBUG CREATE cliente_id: " . ($_POST['cliente_id'] ?? 'NON SETTATO'));
+    error_log("DEBUG CREATE isset cliente_id: " . (isset($_POST['cliente_id']) ? 'SI' : 'NO'));
+    if (isset($_POST['cliente_id'])) {
+        error_log("DEBUG CREATE cliente_id value: '" . $_POST['cliente_id'] . "' (length: " . strlen($_POST['cliente_id']) . ")");
+    }
     
     if (empty($titolo) || empty($dataInizio)) {
         jsonResponse(false, null, 'Titolo e data sono obbligatori');
