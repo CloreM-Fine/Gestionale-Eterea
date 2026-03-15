@@ -62,6 +62,7 @@ function getEvents() {
         
         // Recupera nomi clienti e utenti
         if (count($events) > 0) {
+            error_log("DEBUG: Events prima di popolare: " . json_encode(array_slice($events, 0, 2)));
             try {
                 // Mappa utenti assegnati (creati_by/utente_id)
                 $utentiIds = array_filter(array_column($events, 'utente_id'));
@@ -98,6 +99,7 @@ function getEvents() {
                         }
                     }
                     unset($e);
+                    error_log("DEBUG: Clienti trovati: " . json_encode($clientiMap));
                 }
                 
                 // Mappa utenti (partecipanti)
@@ -158,6 +160,7 @@ function getEvents() {
         error_log("Errore progetti: " . $e->getMessage());
     }
     
+    error_log("DEBUG: Risposta finale events count: " . count($events));
     jsonResponse(true, $events);
 }
 
