@@ -99,7 +99,8 @@ function createEvent() {
     
     try {
         $id = generateEntityId('evt');
-        $stmt = $pdo->prepare("INSERT INTO appuntamenti (id, titolo, tipo, data_inizio, data_fine, progetto_id, note) VALUES (?, ?, ?, ?, ?, ?, ?)");
+        $partecipanti = json_encode($_POST['partecipanti'] ?? []);
+        $stmt = $pdo->prepare("INSERT INTO appuntamenti (id, titolo, tipo, data_inizio, data_fine, progetto_id, cliente_id, note, partecipanti) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
         $stmt->execute([
             $id,
             $titolo,
@@ -107,7 +108,9 @@ function createEvent() {
             $dataInizio,
             $_POST['data_fine'] ?: null,
             $_POST['progetto_id'] ?: null,
-            $_POST['note'] ?? ''
+            $_POST['cliente_id'] ?: null,
+            $_POST['note'] ?? '',
+            $partecipanti
         ]);
         jsonResponse(true, ['id' => $id], 'Appuntamento creato');
     } catch (Exception $e) {
@@ -120,13 +123,17 @@ function updateEvent($id) {
     global $pdo;
     
     try {
-        $stmt = $pdo->prepare("UPDATE appuntamenti SET titolo = ?, tipo = ?, data_inizio = ?, data_fine = ?, note = ? WHERE id = ?");
+        $partecipanti = json_encode($_POST['partecipanti'] ?? []);
+        $stmt = $pdo->prepare("UPDATE appuntamenti SET titolo = ?, tipo = ?, data_inizio = ?, data_fine = ?, progetto_id = ?, cliente_id = ?, note = ?, partecipanti = ? WHERE id = ?");
         $stmt->execute([
             $_POST['titolo'],
             $_POST['tipo'] ?? 'appuntamento',
             $_POST['data_inizio'],
             $_POST['data_fine'] ?: null,
+            $_POST['progetto_id'] ?: null,
+            $_POST['cliente_id'] ?: null,
             $_POST['note'] ?? '',
+            $partecipanti,
             $id
         ]);
         jsonResponse(true, null, 'Appuntamento aggiornato');
