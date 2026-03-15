@@ -55,6 +55,7 @@ function getEvents() {
                 'cliente_id' => $row['cliente_id'] ?? null,
                 'cliente_nome' => '', // Popolato dopo
                 'utente_id' => $row['utente_id'] ?? null,
+                'completato' => $row['completato'] ?? 0,
                 'note' => $row['note'] ?? '',
                 'partecipanti' => json_decode($row['partecipanti'] ?? '[]', true) ?: []
             ];

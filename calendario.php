@@ -964,8 +964,25 @@ async function openEditEventModal(eventId) {
     // Popola cliente se presente
     const clienteSelect = document.querySelector('[name="cliente_id"]');
     if (clienteSelect) {
-        clienteSelect.value = event.cliente_id || '';
-        console.log('Popolato cliente_id:', event.cliente_id);
+        console.log('DEBUG cliente_id evento:', event.cliente_id);
+        console.log('DEBUG opzioni disponibili:', Array.from(clienteSelect.options).map(o => o.value));
+        
+        // Aspetta che le opzioni siano caricate
+        setTimeout(() => {
+            clienteSelect.value = event.cliente_id || '';
+            console.log('DEBUG valore impostato:', clienteSelect.value);
+            
+            // Se il valore non è stato impostato, cerca l'opzione manualmente
+            if (clienteSelect.value !== event.cliente_id && event.cliente_id) {
+                const option = Array.from(clienteSelect.options).find(o => o.value === event.cliente_id);
+                if (option) {
+                    clienteSelect.selectedIndex = option.index;
+                    console.log('DEBUG impostato manualmente via index');
+                } else {
+                    console.log('DEBUG cliente_id non trovato nelle opzioni!');
+                }
+            }
+        }, 0);
     }
     
     // Popola partecipanti (checkbox)
