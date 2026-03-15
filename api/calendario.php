@@ -45,6 +45,7 @@ function getEvents() {
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
         foreach ($rows as $row) {
+            error_log("DEBUG DB row cliente_id: " . ($row['cliente_id'] ?? 'NULL') . " per evento: " . $row['id']);
             $events[] = [
                 'id' => $row['id'],
                 'titolo' => $row['titolo'],
@@ -171,6 +172,8 @@ function createEvent() {
     $titolo = trim($_POST['titolo'] ?? '');
     $dataInizio = $_POST['data_inizio'] ?? '';
     
+    error_log("DEBUG CREATE cliente_id: " . ($_POST['cliente_id'] ?? 'NON SETTATO'));
+    
     if (empty($titolo) || empty($dataInizio)) {
         jsonResponse(false, null, 'Titolo e data sono obbligatori');
         return;
@@ -227,6 +230,7 @@ function updateEvent($id) {
     global $pdo;
     
     error_log("DEBUG UPDATE POST: " . json_encode($_POST));
+    error_log("DEBUG UPDATE cliente_id ricevuto: " . ($_POST['cliente_id'] ?? 'NON SETTATO'));
     
     try {
         // Verifica quali colonne esistono
