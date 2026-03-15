@@ -633,6 +633,22 @@ function openDayEventsModal(dateStr, dayEvents, date) {
                 dettagliExtra = `<p class="text-xs text-slate-400 mt-1 truncate">📁 ${e.progetto_titolo}</p>`;
             }
             
+            // Mostra cliente se presente
+            if (e.cliente_nome) {
+                dettagliExtra += `<p class="text-xs text-slate-500 mt-1 truncate">👤 <strong>Cliente:</strong> ${e.cliente_nome}</p>`;
+            }
+            
+            // Mostra partecipanti se presenti
+            if (e.partecipanti_dettagli && e.partecipanti_dettagli.length > 0) {
+                const partecipantiHtml = e.partecipanti_dettagli.map(p => 
+                    `<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs" style="background-color: ${p.colore}20; color: ${p.colore}">
+                        <span class="w-1.5 h-1.5 rounded-full" style="background-color: ${p.colore}"></span>
+                        ${p.nome}
+                    </span>`
+                ).join(' ');
+                dettagliExtra += `<p class="text-xs text-slate-500 mt-1 flex flex-wrap gap-1"><strong>Partecipanti:</strong> ${partecipantiHtml}</p>`;
+            }
+            
             return `
                 <div class="flex items-start gap-3 p-3 bg-slate-50 rounded-xl">
                     <div class="w-3 h-3 rounded-full ${color} mt-1.5 flex-shrink-0"></div>
@@ -641,6 +657,8 @@ function openDayEventsModal(dateStr, dayEvents, date) {
                         <p class="text-xs text-slate-500">${isTaskScadenza ? '⏰ Scadenza Task' : (isProgettoScadenza ? '📅 Consegna Progetto' : time + ' - ' + e.tipo.replace('_', ' '))}</p>
                         ${dettagliExtra}
                         ${e.note && !isTaskScadenza ? `<p class="text-xs text-slate-400 mt-1 line-clamp-2">📝 ${e.note}</p>` : ''}
+                        ${e.cliente_nome ? `<p class="text-xs text-slate-500 mt-1 truncate">👤 <strong>Cliente:</strong> ${e.cliente_nome}</p>` : ''}
+                        ${e.partecipanti_dettagli && e.partecipanti_dettagli.length > 0 ? `<p class="text-xs text-slate-500 mt-1"><strong>Partecipanti:</strong> ${e.partecipanti_dettagli.map(p => p.nome).join(', ')}</p>` : ''}
                     </div>
                     <div class="flex items-center gap-1 flex-shrink-0">
                         ${isEditable && !e.completato ? `
@@ -718,6 +736,15 @@ function updateMobileDaySidebar(dateStr, dayEvents, date) {
                     ${e.progetto_titolo ? `<span class="text-[10px] text-slate-400">📁 ${e.progetto_titolo}</span>` : ''}
                     ${e.assegnato_nome ? `<span class="text-[10px] text-slate-400 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full" style="background-color: ${e.assegnato_colore || '#ccc'}"></span>${e.assegnato_nome}</span>` : ''}
                 `;
+            }
+            
+            // Cliente e partecipanti
+            if (e.cliente_nome) {
+                taskInfo += `<span class="text-[10px] text-slate-400">👤 ${e.cliente_nome}</span>`;
+            }
+            if (e.partecipanti_dettagli && e.partecipanti_dettagli.length > 0) {
+                const partecipantiText = e.partecipanti_dettagli.map(p => p.nome).join(', ');
+                taskInfo += `<span class="text-[10px] text-slate-400">👥 ${partecipantiText}</span>`;
             }
             
             return `
@@ -810,6 +837,32 @@ function updateDaySidebar(dateStr, dayEvents, date) {
                     </div>`;
             }
             
+            // Cliente
+            let clienteHtml = '';
+            if (e.cliente_nome) {
+                clienteHtml = `
+                    <div class="flex items-center gap-2 mt-1 text-xs text-slate-500">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                        </svg>
+                        <span class="truncate">${e.cliente_nome}</span>
+                    </div>`;
+            }
+            
+            // Partecipanti (usa partecipanti_dettagli se disponibile, altrimenti partecipanti_list)
+            let partecipantiData = e.partecipanti_dettagli || e.partecipanti_list || [];
+            if (partecipantiData.length > 0) {
+                const partecipantiAvatars = partecipantiData.map(p => {
+                    const color = p.colore || '#94A3B8';
+                    if (p.avatar) {
+                        return `<div class="w-6 h-6 rounded-full overflow-hidden border-2 border-white -ml-2 first:ml-0" title="${p.nome}"><img src="assets/uploads/avatars/${p.avatar}" alt="${p.nome}" class="w-full h-full object-cover"></div>`;
+                    }
+                    const initial = p.nome.charAt(0).toUpperCase();
+                    return `<div class="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-medium -ml-2 first:ml-0 border-2 border-white" style="background-color: ${color}" title="${p.nome}">${initial}</div>`;
+                }).join('');
+                partecipantiHtml = `<div class="flex pl-2 mt-2">${partecipantiAvatars}</div>`;
+            }
+            
             return `
                 <div class="bg-white border border-slate-200 rounded-xl p-4 hover:shadow-md transition-shadow">
                     <div class="flex items-start gap-3">
@@ -822,6 +875,7 @@ function updateDaySidebar(dateStr, dayEvents, date) {
                             <p class="text-xs text-slate-500 mt-1 capitalize">${isTaskScadenza ? '⏰ Scadenza Task' : (isProgettoScadenza ? '📅 Consegna Progetto' : e.tipo.replace('_', ' '))}</p>
                             ${dettagliTask}
                             ${progettoHtml}
+                            ${clienteHtml}
                             ${partecipantiHtml}
                             ${e.note && !isTaskScadenza ? `<div class="mt-2 text-sm text-slate-600 bg-slate-50 p-2 rounded-lg">${e.note}</div>` : ''}
                         </div>
