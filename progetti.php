@@ -821,6 +821,15 @@ include __DIR__ . '/includes/header.php';
                                   placeholder="Descrizione del progetto..."></textarea>
                     </div>
                     
+                    <!-- Note -->
+                    <div>
+                        <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-2">Note</label>
+                        <textarea name="note" rows="3"
+                                  class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none resize-none"
+                                  placeholder="Note interne sul progetto..."></textarea>
+                        <p class="text-xs text-slate-500 mt-1">Note visibili solo ai membri del team</p>
+                    </div>
+                    
                     <!-- Tipologie -->
                     <div>
                         <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-2">Tipologie</label>

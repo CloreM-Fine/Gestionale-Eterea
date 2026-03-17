@@ -386,6 +386,15 @@ include __DIR__ . '/includes/header.php';
                                   placeholder="Descrizione del progetto..."></textarea>
                     </div>
                     
+                    <!-- Note -->
+                    <div>
+                        <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-2">Note</label>
+                        <textarea name="note" id="editProgettoNote" rows="3"
+                                  class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none resize-none"
+                                  placeholder="Note interne sul progetto..."></textarea>
+                        <p class="text-xs text-slate-500 mt-1">Note visibili solo ai membri del team</p>
+                    </div>
+                    
                     <!-- Tipologie -->
                     <div>
                         <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-2">Tipologie</label>
@@ -801,6 +810,18 @@ startBlogPolling();
                         <label class="text-sm text-slate-500">Descrizione</label>
                         <p class="text-slate-800 mt-2 leading-relaxed"><?php echo nl2br(e($progetto['descrizione'] ?: 'Nessuna descrizione')); ?></p>
                     </div>
+                    
+                    <?php if (!empty($progetto['note'])): ?>
+                    <div class="bg-amber-50 rounded-xl p-4 border border-amber-100">
+                        <label class="text-sm text-amber-700 flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                            </svg>
+                            Note Interne
+                        </label>
+                        <p class="text-slate-800 mt-2 leading-relaxed"><?php echo nl2br(e($progetto['note'])); ?></p>
+                    </div>
+                    <?php endif; ?>
                     
                     <div>
                         <label class="text-sm text-slate-500">Tipologie</label>
@@ -1404,6 +1425,19 @@ startBlogPolling();
                     </label>
                 </div>
                 
+                <!-- Toggle Distribuzione Uniforme -->
+                <div class="mb-4 p-3 bg-slate-50 rounded-xl border border-slate-200">
+                    <label class="flex items-center gap-3 cursor-pointer">
+                        <input type="checkbox" id="distribuzioneUniforme" onchange="ricalcolaDistribuzione()"
+                               class="w-5 h-5 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500">
+                        <div class="flex-1">
+                            <span class="font-medium text-slate-800">Distribuisci uniformemente</span>
+                            <p class="text-xs text-slate-500">Dividi l'importo in parti uguali tra i partecipanti selezionati</p>
+                        </div>
+                        <span class="text-lg">⚖️</span>
+                    </label>
+                </div>
+                
                 <!-- Selezione utenti da escludere -->
                 <div class="mb-4 p-3 bg-slate-50 rounded-xl border border-slate-200">
                     <p class="font-medium text-slate-800 mb-2">Membri da includere</p>
@@ -1450,20 +1484,22 @@ function formatCurrency(val) {
 
 // Variabile globale per memorizzare l'ultima distribuzione calcolata
 let lastDistribuzione = [];
-let lastDistribuzioneConfig = { includiCassa: true, includiPassivo: false, utentiEsclusi: [] };
+let lastDistribuzioneConfig = { includiCassa: true, includiPassivo: false, distribuzioneUniforme: false, utentiEsclusi: [] };
 
 function calcolaDistribuzione() {
     const includiCassa = document.getElementById('includiCassa')?.checked ?? true;
     const includiPassivo = document.getElementById('includiPassivo')?.checked ?? false;
+    const distribuzioneUniforme = document.getElementById('distribuzioneUniforme')?.checked ?? false;
     const utentiEsclusi = getUtentiEsclusi();
     lastDistribuzioneConfig.includiCassa = includiCassa;
     lastDistribuzioneConfig.includiPassivo = includiPassivo;
+    lastDistribuzioneConfig.distribuzioneUniforme = distribuzioneUniforme;
     lastDistribuzioneConfig.utentiEsclusi = utentiEsclusi;
     
     // Render lista utenti con checkbox
     renderUtentiDistribuzioneList();
     
-    const result = generaDistribuzione(includiCassa, includiPassivo, utentiEsclusi);
+    const result = generaDistribuzione(includiCassa, includiPassivo, distribuzioneUniforme, utentiEsclusi);
     lastDistribuzione = result.distribuzione;
     
     renderDistribuzione(result.distribuzione, result.totale);
@@ -1474,12 +1510,14 @@ function calcolaDistribuzione() {
 function ricalcolaDistribuzione() {
     const includiCassa = document.getElementById('includiCassa')?.checked ?? true;
     const includiPassivo = document.getElementById('includiPassivo')?.checked ?? false;
+    const distribuzioneUniforme = document.getElementById('distribuzioneUniforme')?.checked ?? false;
     const utentiEsclusi = getUtentiEsclusi();
     lastDistribuzioneConfig.includiCassa = includiCassa;
     lastDistribuzioneConfig.includiPassivo = includiPassivo;
+    lastDistribuzioneConfig.distribuzioneUniforme = distribuzioneUniforme;
     lastDistribuzioneConfig.utentiEsclusi = utentiEsclusi;
     
-    const result = generaDistribuzione(includiCassa, includiPassivo, utentiEsclusi);
+    const result = generaDistribuzione(includiCassa, includiPassivo, distribuzioneUniforme, utentiEsclusi);
     lastDistribuzione = result.distribuzione;
     
     renderDistribuzione(result.distribuzione, result.totale);
@@ -1527,7 +1565,7 @@ function renderUtentiDistribuzioneList() {
     }).join('');
 }
 
-function generaDistribuzione(includiCassa = true, includiPassivo = false, utentiEsclusi = []) {
+function generaDistribuzione(includiCassa = true, includiPassivo = false, distribuzioneUniforme = false, utentiEsclusi = []) {
     const totale = parseFloat(progettoData.prezzo_totale) || 0;
     const partecipanti = progettoData.partecipanti || [];
     
@@ -1543,7 +1581,30 @@ function generaDistribuzione(includiCassa = true, includiPassivo = false, utenti
     const distribuzione = [];
     const tuttiUtenti = ['ucwurog3xr8tf', 'ukl9ipuolsebn', 'u3ghz4f2lnpkx'];
     
-    // Calcola percentuali disponibili
+    // Se distribuzione uniforme: divide equamente tra i partecipanti (meno cassa se inclusa)
+    if (distribuzioneUniforme) {
+        const cassaPercent = includiCassa ? 0.10 : 0;
+        const importoRimanente = totale * (1 - cassaPercent);
+        const quotaPerPersona = importoRimanente / count;
+        const percentualePerPersona = Math.round(((1 - cassaPercent) / count) * 100);
+        
+        partecipantiEffettivi.forEach(uid => {
+            distribuzione.push({ 
+                id: uid, 
+                importo: quotaPerPersona, 
+                percentuale: percentualePerPersona, 
+                tipo: 'attivo' 
+            });
+        });
+        
+        if (includiCassa) {
+            distribuzione.push({ id: 'cassa', importo: totale * 0.10, percentuale: 10, tipo: 'cassa' });
+        }
+        
+        return { distribuzione, totale };
+    }
+    
+    // Calcola percentuali disponibili (logica originale)
     const cassaPercent = includiCassa ? 0.10 : 0;
     // Percentuale rimanente dopo la cassa (0.90 o 1.00)
     const basePercent = 1 - cassaPercent;
@@ -2343,12 +2404,13 @@ async function confermaDistribuzione() {
     try {
         const includiCassa = lastDistribuzioneConfig.includiCassa ?? true;
         const includiPassivo = lastDistribuzioneConfig.includiPassivo ?? false;
+        const distribuzioneUniforme = lastDistribuzioneConfig.distribuzioneUniforme ?? false;
         const utentiEsclusi = lastDistribuzioneConfig.utentiEsclusi ?? [];
         
         const response = await fetch('api/progetti.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `action=distribuisci&id=${progettoId}&includi_cassa=${includiCassa ? 1 : 0}&includi_passivo=${includiPassivo ? 1 : 0}&utenti_esclusi=${encodeURIComponent(JSON.stringify(utentiEsclusi))}`
+            body: `action=distribuisci&id=${progettoId}&includi_cassa=${includiCassa ? 1 : 0}&includi_passivo=${includiPassivo ? 1 : 0}&distribuzione_uniforme=${distribuzioneUniforme ? 1 : 0}&utenti_esclusi=${encodeURIComponent(JSON.stringify(utentiEsclusi))}`
         });
         
         const data = await response.json();
@@ -3187,6 +3249,7 @@ function openEditProgettoModal() {
     document.getElementById('editProgettoDataConsegna').value = progetto.data_consegna_prevista || '';
     document.getElementById('editProgettoPrezzo').value = progetto.prezzo_totale || '';
     document.getElementById('editProgettoDescrizione').value = progetto.descrizione || '';
+    document.getElementById('editProgettoNote').value = progetto.note || '';
     
     // Reset e imposta tipologie
     document.querySelectorAll('input[name="tipologie[]"]').forEach(cb => {

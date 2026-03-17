@@ -159,14 +159,40 @@ function pulisciTimeline() {
  * @param array $partecipantiIds Array degli ID dei partecipanti attivi
  * @return array Distribuzione calcolata
  */
-function calcolaDistribuzione($totale, $partecipantiIds, $includiCassa = true, $includiPassivo = false) {
+function calcolaDistribuzione($totale, $partecipantiIds, $includiCassa = true, $includiPassivo = false, $distribuzioneUniforme = false) {
     $count = count($partecipantiIds);
     $distribuzione = [];
     
     // Tutti gli utenti possibili
     $tuttiUtenti = ['ucwurog3xr8tf', 'ukl9ipuolsebn', 'u3ghz4f2lnpkx'];
     
-    // Calcola percentuali disponibili
+    // Se distribuzione uniforme: divide equamente tra i partecipanti (meno cassa se inclusa)
+    if ($distribuzioneUniforme) {
+        $cassaPercent = $includiCassa ? 0.10 : 0;
+        $importoRimanente = $totale * (1 - $cassaPercent);
+        $quotaPerPersona = round($importoRimanente / $count, 2);
+        $percentualePerPersona = round(((1 - $cassaPercent) / $count) * 100);
+        
+        foreach ($partecipantiIds as $uid) {
+            $distribuzione[$uid] = [
+                'importo' => $quotaPerPersona,
+                'percentuale' => $percentualePerPersona,
+                'tipo' => 'attivo'
+            ];
+        }
+        
+        if ($includiCassa) {
+            $distribuzione['cassa'] = [
+                'importo' => round($totale * 0.10, 2),
+                'percentuale' => 10,
+                'tipo' => 'cassa'
+            ];
+        }
+        
+        return $distribuzione;
+    }
+    
+    // Calcola percentuali disponibili (logica originale)
     $cassaPercent = $includiCassa ? 0.10 : 0;
     $basePercent = 1 - $cassaPercent; // 0.90 o 1.00
     
@@ -269,14 +295,14 @@ function calcolaDistribuzione($totale, $partecipantiIds, $includiCassa = true, $
 /**
  * Esegue la distribuzione economica e salva le transazioni
  */
-function eseguiDistribuzione($progettoId, $totale, $partecipantiIds, $includiCassa = true, $includiPassivo = false, $utentiEsclusi = []) {
+function eseguiDistribuzione($progettoId, $totale, $partecipantiIds, $includiCassa = true, $includiPassivo = false, $distribuzioneUniforme = false, $utentiEsclusi = []) {
     global $pdo;
     
     try {
         $pdo->beginTransaction();
         
-        // Calcola distribuzione (con/senza quota passiva)
-        $distribuzione = calcolaDistribuzione($totale, $partecipantiIds, $includiCassa, $includiPassivo);
+        // Calcola distribuzione (con/senza quota passiva, uniforme o standard)
+        $distribuzione = calcolaDistribuzione($totale, $partecipantiIds, $includiCassa, $includiPassivo, $distribuzioneUniforme);
         
         // Salva transazioni
         foreach ($distribuzione as $id => $dati) {

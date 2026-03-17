@@ -56,8 +56,9 @@ switch ($method) {
         } elseif ($action === 'distribuisci' && isset($_POST['id'])) {
             $includiCassa = isset($_POST['includi_cassa']) ? (bool)$_POST['includi_cassa'] : true;
             $includiPassivo = isset($_POST['includi_passivo']) ? (bool)$_POST['includi_passivo'] : false;
+            $distribuzioneUniforme = isset($_POST['distribuzione_uniforme']) ? (bool)$_POST['distribuzione_uniforme'] : false;
             $utentiEsclusi = isset($_POST['utenti_esclusi']) ? json_decode($_POST['utenti_esclusi'], true) : [];
-            distribuisciProgetto($_POST['id'], $includiCassa, $includiPassivo, $utentiEsclusi);
+            distribuisciProgetto($_POST['id'], $includiCassa, $includiPassivo, $distribuzioneUniforme, $utentiEsclusi);
         } elseif ($action === 'revoca_distribuzione' && isset($_POST['id'])) {
             revocaDistribuzione($_POST['id']);
         } elseif ($action === 'upload_documento') {
@@ -318,10 +319,10 @@ function createProgetto() {
         
         $stmt = $pdo->prepare("
             INSERT INTO progetti (
-                id, titolo, cliente_id, descrizione, tipologie, prezzo_totale,
+                id, titolo, cliente_id, descrizione, note, tipologie, prezzo_totale,
                 stato_progetto, stato_pagamento, acconto_percentuale, acconto_importo, saldo_importo,
                 partecipanti, data_inizio, data_consegna_prevista, colore_tag, created_by
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
         
         $stmt->execute([
@@ -329,6 +330,7 @@ function createProgetto() {
             $titolo,
             $clienteId ?: null,
             $_POST['descrizione'] ?? '',
+            $_POST['note'] ?? '',
             $tipologie,
             $prezzoTotale,
             $_POST['stato_progetto'] ?? 'da_iniziare',
@@ -416,6 +418,7 @@ function updateProgetto($id) {
                 titolo = ?,
                 cliente_id = ?,
                 descrizione = ?,
+                note = ?,
                 tipologie = ?,
                 prezzo_totale = ?,
                 stato_progetto = ?,
@@ -436,6 +439,7 @@ function updateProgetto($id) {
             $_POST['titolo'],
             $_POST['cliente_id'] ?: null,
             $_POST['descrizione'] ?? '',
+            $_POST['note'] ?? '',
             $tipologie,
             $prezzoTotale,
             $_POST['stato_progetto'],
@@ -516,7 +520,7 @@ function deleteProgetto($id) {
 /**
  * Distribuisci economia progetto
  */
-function distribuisciProgetto($id, $includiCassa = true, $includiPassivo = false, $utentiEsclusi = []) {
+function distribuisciProgetto($id, $includiCassa = true, $includiPassivo = false, $distribuzioneUniforme = false, $utentiEsclusi = []) {
     global $pdo;
     
     try {
@@ -551,7 +555,7 @@ function distribuisciProgetto($id, $includiCassa = true, $includiPassivo = false
         }
         
         // Esegui distribuzione (senza quota passiva per esclusi)
-        if (eseguiDistribuzione($id, $totale, array_values($partecipantiFiltrati), $includiCassa, $includiPassivo, $utentiEsclusi)) {
+        if (eseguiDistribuzione($id, $totale, array_values($partecipantiFiltrati), $includiCassa, $includiPassivo, $distribuzioneUniforme, $utentiEsclusi)) {
             logTimeline($_SESSION['user_id'], 'distribuito_economia', 'progetto', $id, "Distribuiti €{$totale}");
             jsonResponse(true, null, 'Distribuzione effettuata con successo');
         } else {
