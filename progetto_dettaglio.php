@@ -432,6 +432,29 @@ include __DIR__ . '/includes/header.php';
                                 </div>
                             </div>
                             
+                            <!-- Modalità Distribuzione -->
+                            <div class="bg-blue-50 rounded-xl p-4 border border-blue-100 mt-4">
+                                <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-3">Modalità di distribuzione</label>
+                                <div class="space-y-3">
+                                    <label class="flex items-center gap-3 cursor-pointer">
+                                        <input type="radio" name="distribuzione_automatica" value="0" id="editDistribuzioneManuale"
+                                               class="w-4 h-4 text-cyan-600 border-slate-300 focus:ring-cyan-500">
+                                        <div class="flex-1">
+                                            <span class="text-sm font-medium text-slate-800">Manuale</span>
+                                            <p class="text-xs text-slate-500">Decido io quando distribuire l'economia accumulata</p>
+                                        </div>
+                                    </label>
+                                    <label class="flex items-center gap-3 cursor-pointer">
+                                        <input type="radio" name="distribuzione_automatica" value="1" id="editDistribuzioneAutomatica"
+                                               class="w-4 h-4 text-cyan-600 border-slate-300 focus:ring-cyan-500">
+                                        <div class="flex-1">
+                                            <span class="text-sm font-medium text-slate-800">Automatica</span>
+                                            <p class="text-xs text-slate-500">Ogni mese distribuisce automaticamente il pagamento ai wallet</p>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                            
                             <!-- Configurazione Distribuzione -->
                             <div class="border-t border-slate-200 pt-4 mt-4">
                                 <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-3">Distribuzione percentuale</label>
@@ -916,7 +939,10 @@ startBlogPolling();
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                             </svg>
-                            Pagamento Mensile
+                            Pagamento Mensile - 
+                            <span class="px-2 py-0.5 rounded-full text-xs font-medium <?php echo $progetto['distribuzione_automatica'] ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700'; ?>">
+                                <?php echo $progetto['distribuzione_automatica'] ? '🔄 Automatica' : '✌️ Manuale'; ?>
+                            </span>
                         </label>
                         <div class="grid grid-cols-2 gap-3 mt-2">
                             <div>
@@ -3393,6 +3419,13 @@ function openEditProgettoModal() {
     document.getElementById('editPrezzoMensile').value = progetto.prezzo_mensile || '';
     document.getElementById('editGiornoScadenzaMensile').value = progetto.giorno_scadenza_mensile || '';
     document.getElementById('editDataInizioPagamento').value = progetto.data_inizio_pagamento || '';
+    
+    // Distribuzione automatica/manuale
+    if (progetto.distribuzione_automatica == 1) {
+        document.getElementById('editDistribuzioneAutomatica').checked = true;
+    } else {
+        document.getElementById('editDistribuzioneManuale').checked = true;
+    }
     
     // Distribuzione mensile
     const distribuzioneConfig = progetto.distribuzione_mensile_config || {};

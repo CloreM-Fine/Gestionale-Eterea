@@ -17,6 +17,12 @@ try {
 
 $pageTitle = 'Dashboard';
 
+// Esegui pagamenti mensili automatici (se oggi è il giorno di scadenza)
+eseguiPagamentiMensiliAutomatici();
+
+// Verifica scadenze pagamenti mensili (notifiche)
+verificaScadenzePagamentiMensili(3);
+
 // Ottieni statistiche
 $stats = getDashboardStats($_SESSION['user_id']);
 

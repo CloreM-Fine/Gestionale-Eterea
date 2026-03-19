@@ -320,6 +320,7 @@ function createProgetto() {
         
         // Pagamento mensile
         $pagamentoMensile = isset($_POST['pagamento_mensile']) ? 1 : 0;
+        $distribuzioneAutomatica = isset($_POST['distribuzione_automatica']) ? intval($_POST['distribuzione_automatica']) : 0;
         $prezzoMensile = floatval($_POST['prezzo_mensile'] ?? 0);
         $giornoScadenzaMensile = intval($_POST['giorno_scadenza_mensile'] ?? 0);
         $dataInizioPagamento = $_POST['data_inizio_pagamento'] ?: null;
@@ -330,8 +331,8 @@ function createProgetto() {
                 id, titolo, cliente_id, descrizione, note, tipologie, prezzo_totale,
                 stato_progetto, stato_pagamento, acconto_percentuale, acconto_importo, saldo_importo,
                 partecipanti, data_inizio, data_consegna_prevista, colore_tag, created_by,
-                pagamento_mensile, prezzo_mensile, giorno_scadenza_mensile, data_inizio_pagamento, distribuzione_mensile_config
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                pagamento_mensile, distribuzione_automatica, prezzo_mensile, giorno_scadenza_mensile, data_inizio_pagamento, distribuzione_mensile_config
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
         
         $stmt->execute([
@@ -353,6 +354,7 @@ function createProgetto() {
             $coloreTag,
             $_SESSION['user_id'],
             $pagamentoMensile,
+            $distribuzioneAutomatica,
             $prezzoMensile,
             $giornoScadenzaMensile,
             $dataInizioPagamento,
@@ -429,6 +431,7 @@ function updateProgetto($id) {
         
         // Pagamento mensile
         $pagamentoMensile = isset($_POST['pagamento_mensile']) ? 1 : 0;
+        $distribuzioneAutomatica = isset($_POST['distribuzione_automatica']) ? intval($_POST['distribuzione_automatica']) : 0;
         $prezzoMensile = floatval($_POST['prezzo_mensile'] ?? 0);
         $giornoScadenzaMensile = intval($_POST['giorno_scadenza_mensile'] ?? 0);
         $dataInizioPagamento = $_POST['data_inizio_pagamento'] ?: null;
@@ -454,6 +457,7 @@ function updateProgetto($id) {
                 data_pagamento = ?,
                 colore_tag = ?,
                 pagamento_mensile = ?,
+                distribuzione_automatica = ?,
                 prezzo_mensile = ?,
                 giorno_scadenza_mensile = ?,
                 data_inizio_pagamento = ?,
@@ -480,6 +484,7 @@ function updateProgetto($id) {
             $dataPagamento,
             $coloreTag,
             $pagamentoMensile,
+            $distribuzioneAutomatica,
             $prezzoMensile,
             $giornoScadenzaMensile,
             $dataInizioPagamento,

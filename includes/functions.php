@@ -509,6 +509,149 @@ function verificaScadenzePagamentiMensili($giorniAnticipo = 3) {
 }
 
 /**
+ * Esegue i pagamenti mensili automatici per i progetti configurati
+ * Da chiamare nel dashboard o in un cron job
+ * 
+ * @return array Pagamenti eseguiti
+ */
+function eseguiPagamentiMensiliAutomatici() {
+    global $pdo;
+    
+    try {
+        $oggi = new DateTime();
+        $giornoCorrente = intval($oggi->format('j'));
+        $meseCorrente = intval($oggi->format('n'));
+        $annoCorrente = intval($oggi->format('Y'));
+        
+        // Recupera progetti con pagamento mensile automatico attivo
+        $stmt = $pdo->query("
+            SELECT id, titolo, prezzo_mensile, giorno_scadenza_mensile, 
+                   data_inizio_pagamento, distribuzione_mensile_config, prezzo_totale
+            FROM progetti 
+            WHERE pagamento_mensile = 1 
+              AND distribuzione_automatica = 1
+              AND stato_progetto NOT IN ('archiviato', 'completato')
+        ");
+        $progetti = $stmt->fetchAll();
+        
+        $pagamentiEseguiti = [];
+        
+        foreach ($progetti as $progetto) {
+            $giornoScadenza = intval($progetto['giorno_scadenza_mensile']);
+            
+            // Esegue solo se oggi è il giorno di scadenza
+            if ($giornoScadenza !== $giornoCorrente) {
+                continue;
+            }
+            
+            // Verifica che questo pagamento non sia già stato eseguito questo mese
+            $stmtCheck = $pdo->prepare("
+                SELECT id FROM progetti_pagamenti_mensili 
+                WHERE progetto_id = ? AND mese = ? AND anno = ?
+            ");
+            $stmtCheck->execute([$progetto['id'], $meseCorrente, $annoCorrente]);
+            if ($stmtCheck->fetch()) {
+                continue; // Pagamento già eseguito questo mese
+            }
+            
+            $prezzoMensile = floatval($progetto['prezzo_mensile']);
+            $distribuzioneConfig = json_decode($progetto['distribuzione_mensile_config'] ?? '{}', true);
+            
+            if (empty($distribuzioneConfig) || $prezzoMensile <= 0) {
+                continue;
+            }
+            
+            // Inizia transazione
+            $pdo->beginTransaction();
+            
+            try {
+                // Aggiorna prezzo_totale del progetto
+                $nuovoTotale = floatval($progetto['prezzo_totale']) + $prezzoMensile;
+                $stmtUpdate = $pdo->prepare("
+                    UPDATE progetti SET prezzo_totale = ? WHERE id = ?
+                ");
+                $stmtUpdate->execute([$nuovoTotale, $progetto['id']]);
+                
+                // Esegui distribuzione ai wallet secondo config
+                foreach ($distribuzioneConfig as $id => $percentuale) {
+                    if ($percentuale <= 0) continue;
+                    
+                    $importo = round($prezzoMensile * ($percentuale / 100), 2);
+                    
+                    if ($id === 'cassa') {
+                        // Transazione cassa
+                        $stmt = $pdo->prepare("
+                            INSERT INTO transazioni_economiche 
+                            (progetto_id, tipo, importo, percentuale, descrizione, data_transazione)
+                            VALUES (?, 'cassa', ?, ?, 'Contributo cassa mensile - {$meseCorrente}/{$annoCorrente}', NOW())
+                        ");
+                        $stmt->execute([$progetto['id'], $importo, $percentuale]);
+                    } else {
+                        // Transazione wallet utente
+                        $stmt = $pdo->prepare("
+                            INSERT INTO transazioni_economiche 
+                            (progetto_id, tipo, utente_id, importo, percentuale, descrizione, data_transazione)
+                            VALUES (?, 'wallet', ?, ?, ?, 'Compenso mensile {$meseCorrente}/{$annoCorrente}', NOW())
+                        ");
+                        $stmt->execute([$progetto['id'], $id, $importo, $percentuale]);
+                        
+                        // Aggiorna saldo wallet
+                        $stmt = $pdo->prepare("
+                            UPDATE utenti SET wallet_saldo = wallet_saldo + ? WHERE id = ?
+                        ");
+                        $stmt->execute([$importo, $id]);
+                    }
+                }
+                
+                // Registra il pagamento mensile eseguito
+                $stmt = $pdo->prepare("
+                    INSERT INTO progetti_pagamenti_mensili 
+                    (progetto_id, mese, anno, importo, distribuzione_config)
+                    VALUES (?, ?, ?, ?, ?)
+                ");
+                $stmt->execute([
+                    $progetto['id'], 
+                    $meseCorrente, 
+                    $annoCorrente, 
+                    $prezzoMensile,
+                    json_encode($distribuzioneConfig)
+                ]);
+                
+                $pdo->commit();
+                
+                $pagamentiEseguiti[] = [
+                    'progetto_id' => $progetto['id'],
+                    'titolo' => $progetto['titolo'],
+                    'importo' => $prezzoMensile,
+                    'mese' => $meseCorrente,
+                    'anno' => $annoCorrente
+                ];
+                
+                // Crea notifica
+                creaNotifica(
+                    'pagamento_mensile_eseguito',
+                    'Pagamento Mensile Eseguito',
+                    "Eseguito pagamento mensile di € {$prezzoMensile} per '{$progetto['titolo']}'",
+                    'progetto',
+                    $progetto['id'],
+                    null
+                );
+                
+            } catch (Exception $e) {
+                $pdo->rollBack();
+                error_log("Errore esecuzione pagamento mensile per progetto {$progetto['id']}: " . $e->getMessage());
+            }
+        }
+        
+        return $pagamentiEseguiti;
+        
+    } catch (PDOException $e) {
+        error_log("Errore esecuzione pagamenti mensili: " . $e->getMessage());
+        return [];
+    }
+}
+
+/**
  * Ottiene il nome di un utente dal suo ID
  */
 function getUserName($userId) {

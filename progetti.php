@@ -880,6 +880,29 @@ include __DIR__ . '/includes/header.php';
                                 </div>
                             </div>
                             
+                            <!-- Modalità Distribuzione -->
+                            <div class="bg-blue-50 rounded-xl p-4 border border-blue-100">
+                                <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-3">Modalità di distribuzione</label>
+                                <div class="space-y-3">
+                                    <label class="flex items-center gap-3 cursor-pointer">
+                                        <input type="radio" name="distribuzione_automatica" value="0" checked
+                                               class="w-4 h-4 text-cyan-600 border-slate-300 focus:ring-cyan-500">
+                                        <div class="flex-1">
+                                            <span class="text-sm font-medium text-slate-800">Manuale</span>
+                                            <p class="text-xs text-slate-500">Decido io quando distribuire l'economia accumulata</p>
+                                        </div>
+                                    </label>
+                                    <label class="flex items-center gap-3 cursor-pointer">
+                                        <input type="radio" name="distribuzione_automatica" value="1"
+                                               class="w-4 h-4 text-cyan-600 border-slate-300 focus:ring-cyan-500">
+                                        <div class="flex-1">
+                                            <span class="text-sm font-medium text-slate-800">Automatica</span>
+                                            <p class="text-xs text-slate-500">Ogni mese distribuisce automaticamente il pagamento ai wallet</p>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                            
                             <!-- Configurazione Distribuzione -->
                             <div class="border-t border-slate-200 pt-4 mt-4">
                                 <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-3">Distribuzione percentuale</label>
