@@ -843,6 +843,91 @@ include __DIR__ . '/includes/header.php';
                         </div>
                     </div>
                     
+                    <!-- Pagamento Mensile -->
+                    <div class="border border-slate-200 rounded-xl p-4 bg-slate-50/50">
+                        <label class="flex items-center gap-3 cursor-pointer mb-4">
+                            <input type="checkbox" name="pagamento_mensile" id="pagamentoMensileCheck" value="1" 
+                                   onchange="togglePagamentoMensile(this)"
+                                   class="w-5 h-5 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500">
+                            <div class="flex-1">
+                                <span class="font-medium text-slate-800">Pagamento mensile ricorrente</span>
+                                <p class="text-xs text-slate-500">Il progetto ha un pagamento mensile fisso</p>
+                            </div>
+                            <span class="text-lg">📅</span>
+                        </label>
+                        
+                        <div id="pagamentoMensileFields" class="hidden space-y-4">
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                <div>
+                                    <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-2">Prezzo Mensile</label>
+                                    <div class="relative">
+                                        <span class="absolute left-3 top-2.5 text-slate-400">€</span>
+                                        <input type="number" name="prezzo_mensile" id="prezzoMensile" step="0.01" min="0"
+                                               class="w-full pl-8 pr-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none min-h-[44px]"
+                                               placeholder="0.00" onchange="calcolaTotaleMensile()">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-2">Giorno scadenza (1-31)</label>
+                                    <input type="number" name="giorno_scadenza_mensile" id="giornoScadenzaMensile" min="1" max="31"
+                                           class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none min-h-[44px]"
+                                           placeholder="Es: 1">
+                                </div>
+                                <div>
+                                    <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-2">Data inizio pagamento</label>
+                                    <input type="date" name="data_inizio_pagamento" id="dataInizioPagamento"
+                                           class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none min-h-[44px]">
+                                </div>
+                            </div>
+                            
+                            <!-- Configurazione Distribuzione -->
+                            <div class="border-t border-slate-200 pt-4 mt-4">
+                                <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-3">Distribuzione percentuale</label>
+                                <p class="text-xs text-slate-500 mb-3">Definisci come dividere il pagamento mensile (deve sommare a 100%)</p>
+                                
+                                <div class="space-y-3" id="distribuzioneMensileContainer">
+                                    <?php foreach (USERS as $uid => $user): ?>
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-medium" style="background-color: <?php echo $user['colore']; ?>">
+                                            <?php echo substr($user['nome'], 0, 1); ?>
+                                        </div>
+                                        <span class="text-sm text-slate-700 flex-1"><?php echo e($user['nome']); ?></span>
+                                        <div class="relative w-24">
+                                            <input type="number" name="distribuzione_mensile[<?php echo $uid; ?>]" 
+                                                   class="distribuzione-mensile-input w-full px-3 py-2 border border-slate-200 rounded-lg text-right text-sm"
+                                                   placeholder="0" min="0" max="100" value="0"
+                                                   onchange="validaDistribuzioneMensile()">
+                                            <span class="absolute right-3 top-2 text-slate-400 text-sm">%</span>
+                                        </div>
+                                    </div>
+                                    <?php endforeach; ?>
+                                    
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-medium bg-emerald-500">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                                            </svg>
+                                        </div>
+                                        <span class="text-sm text-slate-700 flex-1">Cassa Aziendale</span>
+                                        <div class="relative w-24">
+                                            <input type="number" name="distribuzione_mensile[cassa]" 
+                                                   class="distribuzione-mensile-input w-full px-3 py-2 border border-slate-200 rounded-lg text-right text-sm"
+                                                   placeholder="0" min="0" max="100" value="0"
+                                                   onchange="validaDistribuzioneMensile()">
+                                            <span class="absolute right-3 top-2 text-slate-400 text-sm">%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-center justify-between mt-3 pt-3 border-t border-slate-200">
+                                    <span class="text-sm text-slate-600">Totale:</span>
+                                    <span id="totaleDistribuzioneMensile" class="text-sm font-semibold text-slate-800">0%</span>
+                                </div>
+                                <p id="erroreDistribuzioneMensile" class="text-xs text-red-500 mt-1 hidden">La somma deve essere 100%</p>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <!-- Prezzo e Stati -->
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div>
@@ -2058,6 +2143,82 @@ function escapeHtml(text) {
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#039;');
 }
+
+// Toggle pagamento mensile
+function togglePagamentoMensile(checkbox) {
+    const fields = document.getElementById('pagamentoMensileFields');
+    if (checkbox.checked) {
+        fields.classList.remove('hidden');
+        // Imposta default distribuzione: 30% ciascuno + 10% cassa
+        const inputs = document.querySelectorAll('.distribuzione-mensile-input');
+        inputs.forEach((input, index) => {
+            if (input.name.includes('cassa')) {
+                input.value = 10;
+            } else {
+                input.value = 30;
+            }
+        });
+        validaDistribuzioneMensile();
+    } else {
+        fields.classList.add('hidden');
+    }
+}
+
+// Valida che la somma delle percentuali sia 100%
+function validaDistribuzioneMensile() {
+    const inputs = document.querySelectorAll('.distribuzione-mensile-input');
+    let totale = 0;
+    inputs.forEach(input => {
+        totale += parseFloat(input.value) || 0;
+    });
+    
+    const totaleEl = document.getElementById('totaleDistribuzioneMensile');
+    const erroreEl = document.getElementById('erroreDistribuzioneMensile');
+    
+    totaleEl.textContent = totale + '%';
+    
+    if (totale !== 100) {
+        totaleEl.classList.add('text-red-500');
+        totaleEl.classList.remove('text-slate-800');
+        erroreEl.classList.remove('hidden');
+        return false;
+    } else {
+        totaleEl.classList.remove('text-red-500');
+        totaleEl.classList.add('text-emerald-600');
+        erroreEl.classList.add('hidden');
+        return true;
+    }
+}
+
+// Calcola totale progetto in base ai mesi
+function calcolaTotaleMensile() {
+    const prezzoMensile = parseFloat(document.getElementById('prezzoMensile').value) || 0;
+    const dataInizio = document.getElementById('dataInizioPagamento').value;
+    
+    if (prezzoMensile > 0 && dataInizio) {
+        const inizio = new Date(dataInizio);
+        const oggi = new Date();
+        const mesiPassati = Math.max(1, Math.floor((oggi - inizio) / (1000 * 60 * 60 * 24 * 30)) + 1);
+        const totale = prezzoMensile * mesiPassati;
+        
+        // Aggiorna prezzo totale (opzionale, solo se l'utente vuole)
+        const prezzoTotaleInput = document.querySelector('input[name="prezzo_totale"]');
+        if (prezzoTotaleInput && !prezzoTotaleInput.value) {
+            prezzoTotaleInput.value = totale.toFixed(2);
+        }
+    }
+}
+
+// Override saveProgetto per validare distribuzione
+const originalSaveProgetto = saveProgetto;
+saveProgetto = function() {
+    const pagamentoMensile = document.getElementById('pagamentoMensileCheck').checked;
+    if (pagamentoMensile && !validaDistribuzioneMensile()) {
+        showToast('La distribuzione percentuale deve sommare a 100%', 'error');
+        return;
+    }
+    originalSaveProgetto();
+};
 </script>
 
 <?php include __DIR__ . '/includes/footer.php'; ?>

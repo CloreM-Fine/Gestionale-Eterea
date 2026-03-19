@@ -232,6 +232,7 @@ function getProgetto($id) {
         // Decodifica JSON
         $progetto['tipologie'] = json_decode($progetto['tipologie'] ?? '[]', true);
         $progetto['partecipanti'] = json_decode($progetto['partecipanti'] ?? '[]', true);
+        $progetto['distribuzione_mensile_config'] = json_decode($progetto['distribuzione_mensile_config'] ?? '{}', true);
         
         // Recupera avatar partecipanti
         $progetto['partecipanti_avatar'] = [];
@@ -317,12 +318,20 @@ function createProgetto() {
         
         $coloreTag = $_POST['colore_tag'] ?? '#FFFFFF';
         
+        // Pagamento mensile
+        $pagamentoMensile = isset($_POST['pagamento_mensile']) ? 1 : 0;
+        $prezzoMensile = floatval($_POST['prezzo_mensile'] ?? 0);
+        $giornoScadenzaMensile = intval($_POST['giorno_scadenza_mensile'] ?? 0);
+        $dataInizioPagamento = $_POST['data_inizio_pagamento'] ?: null;
+        $distribuzioneMensile = isset($_POST['distribuzione_mensile']) ? json_encode($_POST['distribuzione_mensile']) : null;
+        
         $stmt = $pdo->prepare("
             INSERT INTO progetti (
                 id, titolo, cliente_id, descrizione, note, tipologie, prezzo_totale,
                 stato_progetto, stato_pagamento, acconto_percentuale, acconto_importo, saldo_importo,
-                partecipanti, data_inizio, data_consegna_prevista, colore_tag, created_by
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                partecipanti, data_inizio, data_consegna_prevista, colore_tag, created_by,
+                pagamento_mensile, prezzo_mensile, giorno_scadenza_mensile, data_inizio_pagamento, distribuzione_mensile_config
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
         
         $stmt->execute([
@@ -342,7 +351,12 @@ function createProgetto() {
             $_POST['data_inizio'] ?: null,
             $_POST['data_consegna_prevista'] ?: null,
             $coloreTag,
-            $_SESSION['user_id']
+            $_SESSION['user_id'],
+            $pagamentoMensile,
+            $prezzoMensile,
+            $giornoScadenzaMensile,
+            $dataInizioPagamento,
+            $distribuzioneMensile
         ]);
         
         // Log
@@ -413,6 +427,13 @@ function updateProgetto($id) {
         
         $coloreTag = $_POST['colore_tag'] ?? '#FFFFFF';
         
+        // Pagamento mensile
+        $pagamentoMensile = isset($_POST['pagamento_mensile']) ? 1 : 0;
+        $prezzoMensile = floatval($_POST['prezzo_mensile'] ?? 0);
+        $giornoScadenzaMensile = intval($_POST['giorno_scadenza_mensile'] ?? 0);
+        $dataInizioPagamento = $_POST['data_inizio_pagamento'] ?: null;
+        $distribuzioneMensile = isset($_POST['distribuzione_mensile']) ? json_encode($_POST['distribuzione_mensile']) : null;
+        
         $stmt = $pdo->prepare("
             UPDATE progetti SET
                 titolo = ?,
@@ -431,7 +452,12 @@ function updateProgetto($id) {
                 data_consegna_prevista = ?,
                 data_consegna_effettiva = ?,
                 data_pagamento = ?,
-                colore_tag = ?
+                colore_tag = ?,
+                pagamento_mensile = ?,
+                prezzo_mensile = ?,
+                giorno_scadenza_mensile = ?,
+                data_inizio_pagamento = ?,
+                distribuzione_mensile_config = ?
             WHERE id = ?
         ");
         
@@ -453,6 +479,11 @@ function updateProgetto($id) {
             $dataConsegnaEffettiva,
             $dataPagamento,
             $coloreTag,
+            $pagamentoMensile,
+            $prezzoMensile,
+            $giornoScadenzaMensile,
+            $dataInizioPagamento,
+            $distribuzioneMensile,
             $id
         ]);
         

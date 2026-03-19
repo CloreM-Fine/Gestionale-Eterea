@@ -157,14 +157,34 @@ function pulisciTimeline() {
  * 
  * @param float $totale Importo totale del progetto
  * @param array $partecipantiIds Array degli ID dei partecipanti attivi
+ * @param bool $includiCassa Includi cassa aziendale
+ * @param bool $includiPassivo Includi quota membri non attivi
+ * @param bool $distribuzioneUniforme Dividi equamente tra i partecipanti
+ * @param array $configCustom Configurazione percentuali personalizzata (opzionale)
  * @return array Distribuzione calcolata
  */
-function calcolaDistribuzione($totale, $partecipantiIds, $includiCassa = true, $includiPassivo = false, $distribuzioneUniforme = false) {
+function calcolaDistribuzione($totale, $partecipantiIds, $includiCassa = true, $includiPassivo = false, $distribuzioneUniforme = false, $configCustom = null) {
     $count = count($partecipantiIds);
     $distribuzione = [];
     
     // Tutti gli utenti possibili
     $tuttiUtenti = ['ucwurog3xr8tf', 'ukl9ipuolsebn', 'u3ghz4f2lnpkx'];
+    
+    // Se c'è una configurazione personalizzata, usa quella
+    if ($configCustom && is_array($configCustom)) {
+        foreach ($configCustom as $id => $percentuale) {
+            if ($percentuale > 0) {
+                $importo = round($totale * ($percentuale / 100), 2);
+                $tipo = ($id === 'cassa') ? 'cassa' : 'attivo';
+                $distribuzione[$id] = [
+                    'importo' => $importo,
+                    'percentuale' => $percentuale,
+                    'tipo' => $tipo
+                ];
+            }
+        }
+        return $distribuzione;
+    }
     
     // Se distribuzione uniforme: divide equamente tra i partecipanti (meno cassa se inclusa)
     if ($distribuzioneUniforme) {
@@ -301,8 +321,18 @@ function eseguiDistribuzione($progettoId, $totale, $partecipantiIds, $includiCas
     try {
         $pdo->beginTransaction();
         
-        // Calcola distribuzione (con/senza quota passiva, uniforme o standard)
-        $distribuzione = calcolaDistribuzione($totale, $partecipantiIds, $includiCassa, $includiPassivo, $distribuzioneUniforme);
+        // Recupera configurazione pagamento mensile del progetto
+        $stmt = $pdo->prepare("SELECT pagamento_mensile, distribuzione_mensile_config FROM progetti WHERE id = ?");
+        $stmt->execute([$progettoId]);
+        $progetto = $stmt->fetch();
+        
+        $configCustom = null;
+        if ($progetto && $progetto['pagamento_mensile'] && $progetto['distribuzione_mensile_config']) {
+            $configCustom = json_decode($progetto['distribuzione_mensile_config'], true);
+        }
+        
+        // Calcola distribuzione (con/senza quota passiva, uniforme o standard, o custom)
+        $distribuzione = calcolaDistribuzione($totale, $partecipantiIds, $includiCassa, $includiPassivo, $distribuzioneUniforme, $configCustom);
         
         // Salva transazioni
         foreach ($distribuzione as $id => $dati) {
@@ -379,6 +409,102 @@ function formatDateTime($datetime, $format = 'd/m/Y H:i') {
     } catch (Exception $e) {
         // Fallback alla funzione originale
         return date($format, strtotime($datetime));
+    }
+}
+
+/**
+ * Verifica i pagamenti mensili in scadenza e crea notifiche
+ * Da chiamare nel dashboard o in un cron job
+ * 
+ * @param int $giorniAnticipo Giorni di anticipo per l'avviso (default: 3)
+ * @return array Progetti con pagamenti in scadenza
+ */
+function verificaScadenzePagamentiMensili($giorniAnticipo = 3) {
+    global $pdo;
+    
+    try {
+        $oggi = new DateTime();
+        $giornoCorrente = intval($oggi->format('j'));
+        $meseCorrente = intval($oggi->format('n'));
+        $annoCorrente = intval($oggi->format('Y'));
+        
+        // Recupera tutti i progetti con pagamento mensile attivo
+        $stmt = $pdo->query("
+            SELECT id, titolo, prezzo_mensile, giorno_scadenza_mensile, 
+                   data_inizio_pagamento, last_pagamento_mensile_notified
+            FROM progetti 
+            WHERE pagamento_mensile = 1 
+              AND stato_progetto NOT IN ('archiviato', 'completato')
+        ");
+        $progetti = $stmt->fetchAll();
+        
+        $scadenze = [];
+        
+        foreach ($progetti as $progetto) {
+            $giornoScadenza = intval($progetto['giorno_scadenza_mensile']);
+            $dataInizio = new DateTime($progetto['data_inizio_pagamento']);
+            $lastNotified = $progetto['last_pagamento_mensile_notified'] ? new DateTime($progetto['last_pagamento_mensile_notified']) : null;
+            
+            // Calcola la prossima scadenza
+            if ($giornoScadenza >= $giornoCorrente) {
+                // Scadenza nel mese corrente
+                $prossimaScadenza = new DateTime("$annoCorrente-$meseCorrente-$giornoScadenza");
+            } else {
+                // Scadenza nel prossimo mese
+                $prossimaScadenza = new DateTime("$annoCorrente-$meseCorrente-$giornoScadenza");
+                $prossimaScadenza->modify('+1 month');
+            }
+            
+            // Verifica se è ora di notificare (entro $giorniAnticipo giorni)
+            $diffGiorni = $oggi->diff($prossimaScadenza)->days;
+            $daNotificare = $prossimaScadenza >= $oggi && $diffGiorni <= $giorniAnticipo;
+            
+            // Evita notifiche duplicate nello stesso mese
+            if ($lastNotified) {
+                $lastNotifiedMonth = intval($lastNotified->format('n'));
+                $lastNotifiedYear = intval($lastNotified->format('Y'));
+                $scadenzaMonth = intval($prossimaScadenza->format('n'));
+                $scadenzaYear = intval($prossimaScadenza->format('Y'));
+                
+                if ($lastNotifiedMonth === $scadenzaMonth && $lastNotifiedYear === $scadenzaYear) {
+                    $daNotificare = false;
+                }
+            }
+            
+            if ($daNotificare) {
+                $scadenze[] = [
+                    'progetto_id' => $progetto['id'],
+                    'titolo' => $progetto['titolo'],
+                    'prezzo' => $progetto['prezzo_mensile'],
+                    'giorno_scadenza' => $giornoScadenza,
+                    'data_scadenza' => $prossimaScadenza->format('Y-m-d'),
+                    'giorni_mancanti' => $diffGiorni
+                ];
+                
+                // Crea notifica
+                creaNotifica(
+                    'scadenza_pagamento_mensile',
+                    'Scadenza Pagamento Mensile',
+                    "Il progetto '{$progetto['titolo']}' ha un pagamento di € {$progetto['prezzo_mensile']} in scadenza il {$prossimaScadenza->format('d/m/Y')}",
+                    'progetto',
+                    $progetto['id'],
+                    null // Tutti gli utenti
+                );
+                
+                // Aggiorna timestamp ultima notifica
+                $stmtUpdate = $pdo->prepare("
+                    UPDATE progetti SET last_pagamento_mensile_notified = NOW() 
+                    WHERE id = ?
+                ");
+                $stmtUpdate->execute([$progetto['id']]);
+            }
+        }
+        
+        return $scadenze;
+        
+    } catch (PDOException $e) {
+        error_log("Errore verifica scadenze pagamenti mensili: " . $e->getMessage());
+        return [];
     }
 }
 
