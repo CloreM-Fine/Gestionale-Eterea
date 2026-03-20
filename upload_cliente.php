@@ -258,6 +258,30 @@ $csrfToken = generateCsrfToken();
                                    placeholder="Es: Foto evento aziendale, Materiale per campagna...">
                         </div>
                         
+                        <!-- Categoria -->
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-2">Categoria</label>
+                            <select name="categoria" 
+                                    class="w-full px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none bg-white">
+                                <option value="">Seleziona una categoria...</option>
+                                <option value="foto">📷 Foto</option>
+                                <option value="video">🎥 Video</option>
+                                <option value="testo">📝 Testo/Documenti</option>
+                                <option value="grafica">🎨 Grafica</option>
+                                <option value="logo">🏷️ Logo</option>
+                                <option value="social">📱 Social Media</option>
+                                <option value="altro">📦 Altro</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Immagine di Copertina -->
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-2">Immagine di copertina</label>
+                            <p class="text-xs text-slate-500 mb-2">Seleziona un'immagine rappresentativa per questo contenuto</p>
+                            <input type="file" name="immagine_copertina" accept="image/jpeg,image/png,image/webp"
+                                   class="w-full px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-cyan-50 file:text-cyan-700 hover:file:bg-cyan-100">
+                        </div>
+                        
                         <!-- Testo con Editor WYSIWYG -->
                         <div>
                             <label class="block text-sm font-medium text-slate-700 mb-2">Descrizione</label>

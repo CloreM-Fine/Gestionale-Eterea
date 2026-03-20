@@ -505,13 +505,28 @@ function renderContenuti(contenuti) {
                         const hasImmagini = immagini.length > 0;
                         const isUnread = !c.letto && !mostraSoloArchiviati;
                         
+                        // Badge categoria
+                        const categorieLabels = {
+                            'foto': '📷 Foto',
+                            'video': '🎥 Video', 
+                            'testo': '📝 Testo',
+                            'grafica': '🎨 Grafica',
+                            'logo': '🏷️ Logo',
+                            'social': '📱 Social',
+                            'altro': '📦 Altro'
+                        };
+                        const categoriaLabel = c.categoria ? (categorieLabels[c.categoria] || c.categoria) : '';
+                        
+                        // Immagine preview (copertina o prima immagine)
+                        const imgPreview = c.immagine_copertina || (hasImmagini ? immagini[0] : null);
+                        
                         return `
                             <div class="p-4 hover:bg-slate-50 cursor-pointer transition-colors ${isUnread ? 'bg-amber-50/50' : ''}" 
                                  onclick="showDettaglio('${c.id}')">
                                 <div class="flex items-start gap-4">
-                                    ${hasImmagini ? `
+                                    ${imgPreview ? `
                                         <div class="w-16 h-16 rounded-lg bg-slate-200 flex-shrink-0 overflow-hidden">
-                                            <img src="assets/uploads/clienti_contenuti/${immagini[0]}" 
+                                            <img src="assets/uploads/clienti_contenuti/${imgPreview}" 
                                                  alt="" class="w-full h-full object-cover">
                                         </div>
                                     ` : `
@@ -522,8 +537,9 @@ function renderContenuti(contenuti) {
                                         </div>
                                     `}
                                     <div class="flex-1 min-w-0">
-                                        <div class="flex items-center gap-2">
+                                        <div class="flex items-center gap-2 flex-wrap">
                                             <h4 class="font-medium text-slate-800 truncate">${c.titolo || 'Senza titolo'}</h4>
+                                            ${categoriaLabel ? `<span class="px-2 py-0.5 bg-cyan-100 text-cyan-700 text-xs rounded-full">${categoriaLabel}</span>` : ''}
                                             ${isUnread ? `<span class="px-2 py-0.5 bg-amber-100 text-amber-700 text-xs rounded-full">Nuovo</span>` : ''}
                                         </div>
                                         <p class="text-sm text-slate-500 mt-1 line-clamp-2">${c.testo || 'Nessun testo'}</p>
@@ -624,17 +640,34 @@ async function showDettaglio(id) {
     
     const immagini = JSON.parse(contenuto.immagini || '[]');
     
+    // Badge categoria
+    const categorieLabels = {
+        'foto': '📷 Foto',
+        'video': '🎥 Video', 
+        'testo': '📝 Testo',
+        'grafica': '🎨 Grafica',
+        'logo': '🏷️ Logo',
+        'social': '📱 Social',
+        'altro': '📦 Altro'
+    };
+    const categoriaLabel = contenuto.categoria ? (categorieLabels[contenuto.categoria] || contenuto.categoria) : '';
+    
     let html = '';
     
-    // Info autore e data
+    // Info autore, categoria e data
+    html += `<div class="flex items-center gap-2 mb-4 text-sm text-slate-500 flex-wrap">`;
     if (contenuto.autore) {
-        html += `<div class="flex items-center gap-2 mb-4 text-sm text-slate-500">
+        html += `<span class="flex items-center gap-1">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
             </svg>
-            <span>Caricato da: <strong>${contenuto.autore}</strong></span>
-        </div>`;
+            <strong>${contenuto.autore}</strong>
+        </span>`;
     }
+    if (categoriaLabel) {
+        html += `<span class="px-2 py-0.5 bg-cyan-100 text-cyan-700 rounded-full text-xs">${categoriaLabel}</span>`;
+    }
+    html += `</div>`;
     
     if (contenuto.titolo) {
         html += `<h3 class="text-xl font-bold text-slate-800 mb-4">${contenuto.titolo}</h3>`;
@@ -642,6 +675,19 @@ async function showDettaglio(id) {
     
     if (contenuto.testo) {
         html += `<div class="prose max-w-none mb-6"><p class="text-slate-700 whitespace-pre-wrap">${contenuto.testo}</p></div>`;
+    }
+    
+    // Immagine di copertina (se presente)
+    if (contenuto.immagine_copertina) {
+        html += `<div class="mb-6">
+            <span class="text-sm font-medium text-slate-700 mb-2 block">Immagine di copertina</span>
+            <div class="rounded-lg overflow-hidden bg-slate-100 max-h-64">
+                <img src="assets/uploads/clienti_contenuti/${contenuto.immagine_copertina}" 
+                     alt="Copertina" 
+                     class="w-full h-full object-cover cursor-pointer"
+                     onclick="openImageModal('assets/uploads/clienti_contenuti/${contenuto.immagine_copertina}')">
+            </div>
+        </div>`;
     }
     
     if (immagini.length > 0) {

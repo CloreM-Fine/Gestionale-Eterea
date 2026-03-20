@@ -425,6 +425,7 @@ function uploadContenuto() {
     $titolo = trim($_POST['titolo'] ?? '');
     $testo = trim($_POST['testo'] ?? '');
     $autore = trim($_POST['autore'] ?? '');
+    $categoria = trim($_POST['categoria'] ?? '');
     
     if (empty($token)) {
         jsonResponse(false, null, 'Token mancante');
@@ -456,6 +457,28 @@ function uploadContenuto() {
         
         if (!is_dir($uploadDir)) {
             mkdir($uploadDir, 0755, true);
+        }
+        
+        // Immagine di copertina
+        $immagineCopertina = null;
+        if (!empty($_FILES['immagine_copertina']) && $_FILES['immagine_copertina']['error'] === UPLOAD_ERR_OK) {
+            $file = $_FILES['immagine_copertina'];
+            
+            // Verifica tipo
+            $finfo = finfo_open(FILEINFO_MIME_TYPE);
+            $mimeType = finfo_file($finfo, $file['tmp_name']);
+            finfo_close($finfo);
+            
+            $allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
+            if (in_array($mimeType, $allowedTypes) && $file['size'] <= 8 * 1024 * 1024) {
+                $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
+                $newName = 'cover_' . uniqid() . '_' . bin2hex(random_bytes(8)) . '.' . $ext;
+                $destPath = $uploadDir . $newName;
+                
+                if (move_uploaded_file($file['tmp_name'], $destPath)) {
+                    $immagineCopertina = $newName;
+                }
+            }
         }
         
         // Max 10 immagini per invio
@@ -508,8 +531,8 @@ function uploadContenuto() {
             $newId = generateEntityId('cc');
             
             $stmt = $pdo->prepare("
-                INSERT INTO cliente_contenuti (id, cliente_id, progetto_id, token, titolo, autore, testo, immagini, stato, letto, created_at, data_caricamento)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'attivo', 0, NOW(), NOW())
+                INSERT INTO cliente_contenuti (id, cliente_id, progetto_id, token, titolo, autore, testo, categoria, immagine_copertina, immagini, stato, letto, created_at, data_caricamento)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'attivo', 0, NOW(), NOW())
             ");
             $stmt->execute([
                 $newId,
@@ -519,19 +542,23 @@ function uploadContenuto() {
                 $titolo,
                 $autore,
                 $testo,
+                $categoria,
+                $immagineCopertina,
                 $immaginiJson
             ]);
         } else {
             // Primo uso del link: aggiorna record esistente
             $stmt = $pdo->prepare("
                 UPDATE cliente_contenuti 
-                SET titolo = ?, autore = ?, testo = ?, immagini = ?, letto = 0, data_caricamento = NOW()
+                SET titolo = ?, autore = ?, testo = ?, categoria = ?, immagine_copertina = ?, immagini = ?, letto = 0, data_caricamento = NOW()
                 WHERE id = ?
             ");
             $stmt->execute([
                 $titolo,
                 $autore,
                 $testo,
+                $categoria,
+                $immagineCopertina,
                 $immaginiJson,
                 $contenuto['id']
             ]);
@@ -584,7 +611,7 @@ function eliminaContenuto($id) {
     
     try {
         // Recupera immagini per eliminarle fisicamente
-        $stmt = $pdo->prepare("SELECT immagini, token FROM cliente_contenuti WHERE id = ?");
+        $stmt = $pdo->prepare("SELECT immagini, immagine_copertina, token FROM cliente_contenuti WHERE id = ?");
         $stmt->execute([$id]);
         $row = $stmt->fetch();
         
@@ -603,12 +630,22 @@ function eliminaContenuto($id) {
             }
         }
         
+        // Elimina immagine copertina
+        if (!empty($row['immagine_copertina'])) {
+            $coverPath = $uploadDir . $row['immagine_copertina'];
+            if (file_exists($coverPath)) {
+                unlink($coverPath);
+            }
+        }
+        
         // RESET del contenuto (non eliminare il record!)
         // Mantieni token, cliente_id, stato='attivo' per permettere nuovi invii
         $stmt = $pdo->prepare("
             UPDATE cliente_contenuti 
             SET titolo = NULL, 
                 testo = NULL, 
+                categoria = NULL,
+                immagine_copertina = NULL,
                 immagini = '[]', 
                 autore = NULL,
                 letto = 0
@@ -631,7 +668,7 @@ function eliminaLink($id) {
     
     try {
         // Recupera immagini associate per eliminarle fisicamente
-        $stmt = $pdo->prepare("SELECT immagini FROM cliente_contenuti WHERE id = ?");
+        $stmt = $pdo->prepare("SELECT immagini, immagine_copertina FROM cliente_contenuti WHERE id = ?");
         $stmt->execute([$id]);
         $row = $stmt->fetch();
         
@@ -643,6 +680,14 @@ function eliminaLink($id) {
                 $path = $uploadDir . $img;
                 if (file_exists($path)) {
                     unlink($path);
+                }
+            }
+            
+            // Elimina immagine copertina
+            if (!empty($row['immagine_copertina'])) {
+                $coverPath = $uploadDir . $row['immagine_copertina'];
+                if (file_exists($coverPath)) {
+                    unlink($coverPath);
                 }
             }
         }
