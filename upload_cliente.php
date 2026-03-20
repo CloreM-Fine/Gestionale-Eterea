@@ -261,17 +261,10 @@ $csrfToken = generateCsrfToken();
                         <!-- Categoria -->
                         <div>
                             <label class="block text-sm font-medium text-slate-700 mb-2">Categoria</label>
-                            <select name="categoria" 
-                                    class="w-full px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none bg-white">
-                                <option value="">Seleziona una categoria...</option>
-                                <option value="foto">📷 Foto</option>
-                                <option value="video">🎥 Video</option>
-                                <option value="testo">📝 Testo/Documenti</option>
-                                <option value="grafica">🎨 Grafica</option>
-                                <option value="logo">🏷️ Logo</option>
-                                <option value="social">📱 Social Media</option>
-                                <option value="altro">📦 Altro</option>
-                            </select>
+                            <input type="text" name="categoria" 
+                                   class="w-full px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none"
+                                   placeholder="Es: Foto evento, Logo aziendale, Brochure...">
+                            <p class="text-xs text-slate-500 mt-1">Inserisci una categoria personalizzata per organizzare il contenuto</p>
                         </div>
                         
                         <!-- Immagine di Copertina -->

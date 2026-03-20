@@ -505,17 +505,8 @@ function renderContenuti(contenuti) {
                         const hasImmagini = immagini.length > 0;
                         const isUnread = !c.letto && !mostraSoloArchiviati;
                         
-                        // Badge categoria
-                        const categorieLabels = {
-                            'foto': '📷 Foto',
-                            'video': '🎥 Video', 
-                            'testo': '📝 Testo',
-                            'grafica': '🎨 Grafica',
-                            'logo': '🏷️ Logo',
-                            'social': '📱 Social',
-                            'altro': '📦 Altro'
-                        };
-                        const categoriaLabel = c.categoria ? (categorieLabels[c.categoria] || c.categoria) : '';
+                        // Badge categoria (testo libero inserito dal cliente)
+                        const categoriaLabel = c.categoria ? c.categoria : '';
                         
                         // Immagine preview (copertina o prima immagine)
                         const imgPreview = c.immagine_copertina || (hasImmagini ? immagini[0] : null);
@@ -640,17 +631,8 @@ async function showDettaglio(id) {
     
     const immagini = JSON.parse(contenuto.immagini || '[]');
     
-    // Badge categoria
-    const categorieLabels = {
-        'foto': '📷 Foto',
-        'video': '🎥 Video', 
-        'testo': '📝 Testo',
-        'grafica': '🎨 Grafica',
-        'logo': '🏷️ Logo',
-        'social': '📱 Social',
-        'altro': '📦 Altro'
-    };
-    const categoriaLabel = contenuto.categoria ? (categorieLabels[contenuto.categoria] || contenuto.categoria) : '';
+    // Badge categoria (testo libero inserito dal cliente)
+    const categoriaLabel = contenuto.categoria ? contenuto.categoria : '';
     
     let html = '';
     
