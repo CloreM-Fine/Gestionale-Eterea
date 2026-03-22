@@ -110,28 +110,28 @@ define('STATI_PAGAMENTO', [
     'pagamento_completato' => 'Pagamento Completato'
 ]);
 
-// Colori stati
+// Colori stati (palette Eterea Studio)
 define('COLORI_STATO_PROGETTO', [
-    'da_iniziare' => 'gray',
-    'in_corso' => 'cyan',
-    'completato' => 'emerald',
-    'consegnato' => 'blue',
-    'archiviato' => 'slate'
+    'da_iniziare' => '#9ca3af',
+    'in_corso' => '#9bc4d0',
+    'completato' => '#a8b5a0',
+    'consegnato' => '#c4b5d0',
+    'archiviato' => '#909090'
 ]);
 
 define('COLORI_STATO_PAGAMENTO', [
-    'da_pagare' => 'red',
-    'da_pagare_acconto' => 'amber',
-    'acconto_pagato' => 'yellow',
-    'da_saldare' => 'orange',
-    'cat' => 'purple',
-    'pagamento_completato' => 'green'
+    'da_pagare' => '#e8c4b8',
+    'da_pagare_acconto' => '#e8e4b8',
+    'acconto_pagato' => '#e8e4b8',
+    'da_saldare' => '#e8c4b8',
+    'cat' => '#c4b5d0',
+    'pagamento_completato' => '#a8b5a0'
 ]);
 
 define('COLORI_PRIORITA', [
-    'bassa' => 'blue',
-    'media' => 'yellow',
-    'alta' => 'red'
+    'bassa' => '#c4b5d0',
+    'media' => '#e8e4b8',
+    'alta' => '#e8c4b8'
 ]);
 
 // -----------------------------------------------------

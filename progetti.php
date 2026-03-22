@@ -1207,8 +1207,9 @@ function createPipelineCard(p) {
     const statoPagamentoLabel = STATI_PAGAMENTO[statoPagamento] || statoPagamento;
     const statoPagamentoColor = COLORI_STATO_PAGAMENTO[statoPagamento] || 'gray';
     
-    // Colori badge
+    // Colori badge (palette Eterea Studio)
     const badgeColors = {
+        // Colori Tailwind legacy
         'emerald': { bg: '#d1fae5', text: '#065f46' },
         'green': { bg: '#d1fae5', text: '#065f46' },
         'cyan': { bg: '#cffafe', text: '#155e75' },
@@ -1218,7 +1219,15 @@ function createPipelineCard(p) {
         'red': { bg: '#fee2e2', text: '#991b1b' },
         'gray': { bg: '#f3f4f6', text: '#374151' },
         'slate': { bg: '#f1f5f9', text: '#475569' },
-        'purple': { bg: '#f3e8ff', text: '#6b21a8' }
+        'purple': { bg: '#f3e8ff', text: '#6b21a8' },
+        // Colori Eterea (esadecimali)
+        '#9bc4d0': { bg: '#e8f4f6', text: '#5a8a96' },
+        '#a8b5a0': { bg: '#eef1ec', text: '#788570' },
+        '#c4b5d0': { bg: '#f3eff6', text: '#8a7a96' },
+        '#e8e4b8': { bg: '#faf9ef', text: '#9a9668' },
+        '#e8c4b8': { bg: '#faf0ed', text: '#9a7668' },
+        '#9ca3af': { bg: '#f3f4f6', text: '#6b7280' },
+        '#909090': { bg: '#f0f0f0', text: '#505050' }
     };
     const badgeColor = badgeColors[statoPagamentoColor] || badgeColors['gray'];
     
@@ -1880,10 +1889,23 @@ function renderProgettoCardStack(p) {
 // Genera card normale o per stack
 function renderProgettoCard(p, isStackItem = false) {
     try {
-    const statoColor = COLORI_STATO_PROGETTO[p.stato_progetto] || 'gray';
+    const statoColor = COLORI_STATO_PROGETTO[p.stato_progetto] || '#9ca3af';
     const statoLabel = <?php echo json_encode(STATI_PROGETTO); ?>[p.stato_progetto] || p.stato_progetto;
     
-    const statoPagamentoColor = COLORI_STATO_PAGAMENTO[p.stato_pagamento] || 'gray';
+    const statoPagamentoColor = COLORI_STATO_PAGAMENTO[p.stato_pagamento] || '#9ca3af';
+    
+    // Colori badge per stati (palette Eterea)
+    const statoBadgeColors = {
+        '#9bc4d0': { bg: '#e8f4f6', text: '#5a8a96' },
+        '#a8b5a0': { bg: '#eef1ec', text: '#788570' },
+        '#c4b5d0': { bg: '#f3eff6', text: '#8a7a96' },
+        '#e8e4b8': { bg: '#faf9ef', text: '#9a9668' },
+        '#e8c4b8': { bg: '#faf0ed', text: '#9a7668' },
+        '#9ca3af': { bg: '#f3f4f6', text: '#6b7280' },
+        '#909090': { bg: '#f0f0f0', text: '#505050' }
+    };
+    const statoBadge = statoBadgeColors[statoColor] || statoBadgeColors['#9ca3af'];
+    const pagamentoBadge = statoBadgeColors[statoPagamentoColor] || statoBadgeColors['#9ca3af'];
     
     const tipologie = (p.tipologie || []).map(t => 
         `<span class="text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded">${t}</span>`
@@ -1912,7 +1934,7 @@ function renderProgettoCard(p, isStackItem = false) {
             <div class="p-5">
                 <div class="flex items-start justify-between mb-3">
                     <div class="flex items-center gap-2 flex-wrap">
-                        <span class="px-2.5 py-1 rounded-full text-xs font-medium bg-${statoColor}-100 text-${statoColor}-700">
+                        <span class="px-2.5 py-1 rounded-full text-xs font-medium" style="background-color: ${statoBadge.bg}; color: ${statoBadge.text};">
                             ${statoLabel}
                         </span>
                         ${p.nuove_task > 0 ? `
@@ -1921,7 +1943,7 @@ function renderProgettoCard(p, isStackItem = false) {
                             </span>
                         ` : ''}
                     </div>
-                    <span class="px-2.5 py-1 rounded-full text-xs font-medium bg-${statoPagamentoColor}-100 text-${statoPagamentoColor}-700">
+                    <span class="px-2.5 py-1 rounded-full text-xs font-medium" style="background-color: ${pagamentoBadge.bg}; color: ${pagamentoBadge.text};">
                         ${<?php echo json_encode(STATI_PAGAMENTO); ?>[p.stato_pagamento]}
                     </span>
                 </div>

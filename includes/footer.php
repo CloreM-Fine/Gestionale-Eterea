@@ -41,10 +41,10 @@
         const toast = document.createElement('div');
         
         const colors = {
-            success: 'bg-emerald-500',
-            error: 'bg-red-500',
-            warning: 'bg-amber-500',
-            info: 'bg-cyan-500'
+            success: 'bg-[#a8b5a0]',
+            error: 'bg-[#e8c4b8]',
+            warning: 'bg-[#e8e4b8]',
+            info: 'bg-[#9bc4d0]'
         };
         
         const icons = {
@@ -159,16 +159,16 @@
         }
         
         if (notifiche.length === 0) {
-            list.innerHTML = '<p class="px-4 py-8 text-center text-slate-500 text-sm">Nessuna notifica</p>';
+            list.innerHTML = '<p class="px-4 py-8 text-center text-[#909090] text-sm">Nessuna notifica</p>';
             return;
         }
         
         const iconMap = {
-            'appuntamento': '<span class="w-8 h-8 bg-cyan-100 text-cyan-600 rounded-full flex items-center justify-center"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg></span>',
-            'cliente': '<span class="w-8 h-8 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg></span>',
-            'progetto_creato': '<span class="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg></span>',
-            'progetto_consegnato': '<span class="w-8 h-8 bg-green-100 text-green-600 rounded-full flex items-center justify-center"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></span>',
-            'task': '<span class="w-8 h-8 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg></span>'
+            'appuntamento': '<span class="w-8 h-8 bg-[#9bc4d0]/20 text-[#7aa4b0] rounded-full flex items-center justify-center"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg></span>',
+            'cliente': '<span class="w-8 h-8 bg-[#a8b5a0]/20 text-[#889580] rounded-full flex items-center justify-center"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg></span>',
+            'progetto_creato': '<span class="w-8 h-8 bg-[#c4b5d0]/20 text-[#a495b0] rounded-full flex items-center justify-center"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg></span>',
+            'progetto_consegnato': '<span class="w-8 h-8 bg-[#a8b5a0]/20 text-[#889580] rounded-full flex items-center justify-center"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></span>',
+            'task': '<span class="w-8 h-8 bg-[#c4b5d0]/20 text-[#a495b0] rounded-full flex items-center justify-center"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg></span>'
         };
         
         // Funzione per generare URL in base al tipo di notifica
@@ -192,15 +192,15 @@
             const clickAction = url ? `onclick="handleNotificaClick('${n.id}', '${url}')"` : `onclick="markNotificaLette('${n.id}')"`;
             
             return `
-            <div class="px-4 py-3 hover:bg-slate-50 border-b border-slate-100 last:border-0 ${n.letta ? 'opacity-60' : ''} ${cursorClass}" ${clickAction}>
+            <div class="px-4 py-3 hover:bg-[#f5f3ef] border-b border-[#f0f0f0] last:border-0 ${n.letta ? 'opacity-60' : ''} ${cursorClass}" ${clickAction}>
                 <div class="flex items-start gap-3">
                     ${iconMap[n.tipo] || iconMap['appuntamento']}
                     <div class="flex-1 min-w-0">
-                        <p class="font-medium text-slate-800 text-sm">${n.titolo}</p>
-                        <p class="text-slate-500 text-xs truncate">${n.messaggio}</p>
-                        <p class="text-slate-400 text-xs mt-1">${new Date(n.data_creazione).toLocaleString('it-IT')}</p>
+                        <p class="font-medium text-[#2d2d2d] text-sm">${n.titolo}</p>
+                        <p class="text-[#909090] text-xs truncate">${n.messaggio}</p>
+                        <p class="text-[#a0a0a0] text-xs mt-1">${new Date(n.data_creazione).toLocaleString('it-IT')}</p>
                     </div>
-                    ${!n.letta ? '<span class="w-2 h-2 bg-cyan-500 rounded-full mt-2"></span>' : ''}
+                    ${!n.letta ? '<span class="w-2 h-2 bg-[#9bc4d0] rounded-full mt-2"></span>' : ''}
                 </div>
             </div>
         `}).join('');

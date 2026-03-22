@@ -329,7 +329,7 @@ unset($member);
                         <div class="flex-1 min-w-0">
                             <div class="flex items-start justify-between gap-2">
                                 <p class="text-sm font-medium text-slate-800 truncate"><?php echo e($task['titolo']); ?></p>
-                                <span class="flex-shrink-0 w-2 h-2 rounded-full bg-<?php echo $prioritaColor; ?>-500 mt-1.5"></span>
+                                <span class="flex-shrink-0 w-2 h-2 rounded-full mt-1.5" style="background-color: <?php echo $prioritaColor; ?>"></span>
                             </div>
                             <p class="text-xs sm:text-sm text-slate-500 mt-1">
                                 <a href="progetto_dettaglio.php?id=<?php echo $task['progetto_id']; ?>" class="hover:text-cyan-600">

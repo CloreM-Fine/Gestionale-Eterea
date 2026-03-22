@@ -281,10 +281,21 @@ include __DIR__ . '/includes/header.php';
                 </a>
                 <h1 class="text-xl sm:text-2xl font-bold text-slate-800"><?php echo e($progetto['titolo']); ?></h1>
                 <?php 
-                $statoColor = COLORI_STATO_PROGETTO[$progetto['stato_progetto']] ?? 'gray';
+                $statoColor = COLORI_STATO_PROGETTO[$progetto['stato_progetto']] ?? '#9ca3af';
                 $statoLabel = STATI_PROGETTO[$progetto['stato_progetto']] ?? $progetto['stato_progetto'];
+                // Colori badge per stati (palette Eterea)
+                $statoBadgeColors = [
+                    '#9bc4d0' => ['bg' => '#e8f4f6', 'text' => '#5a8a96'],
+                    '#a8b5a0' => ['bg' => '#eef1ec', 'text' => '#788570'],
+                    '#c4b5d0' => ['bg' => '#f3eff6', 'text' => '#8a7a96'],
+                    '#e8e4b8' => ['bg' => '#faf9ef', 'text' => '#9a9668'],
+                    '#e8c4b8' => ['bg' => '#faf0ed', 'text' => '#9a7668'],
+                    '#9ca3af' => ['bg' => '#f3f4f6', 'text' => '#6b7280'],
+                    '#909090' => ['bg' => '#f0f0f0', 'text' => '#505050']
+                ];
+                $statoBadge = $statoBadgeColors[$statoColor] ?? $statoBadgeColors['#9ca3af'];
                 ?>
-                <span class="px-3 py-1 rounded-full text-xs font-medium bg-<?php echo $statoColor; ?>-100 text-<?php echo $statoColor; ?>-700">
+                <span class="px-3 py-1 rounded-full text-xs font-medium" style="background-color: <?php echo $statoBadge['bg']; ?>; color: <?php echo $statoBadge['text']; ?>;">
                     <?php echo $statoLabel; ?>
                 </span>
             </div>
