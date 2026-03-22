@@ -641,10 +641,12 @@ BUROCRAZIA;
     // Logo
     $logoHtml = '';
     if (!empty($datiAzienda['logo'])) {
-        $logoPath = __DIR__ . '/../assets/uploads/logo_azienda/' . $datiAzienda['logo'];
+        // Estrai solo il nome file (il database potrebbe contenere il percorso completo)
+        $logoFilename = basename($datiAzienda['logo']);
+        $logoPath = __DIR__ . '/../assets/uploads/logo_azienda/' . $logoFilename;
         if (file_exists($logoPath)) {
             $logoData = base64_encode(file_get_contents($logoPath));
-            $logoExt = pathinfo($datiAzienda['logo'], PATHINFO_EXTENSION);
+            $logoExt = pathinfo($logoFilename, PATHINFO_EXTENSION);
             $mimeType = ($logoExt === 'svg') ? 'image/svg+xml' : 'image/' . $logoExt;
             $logoHtml = '<img src="data:' . $mimeType . ';base64,' . $logoData . '" style="max-height:60px;max-width:150px;object-fit:contain;" alt="Logo">';
         }
