@@ -69,14 +69,42 @@ $csrfToken = generateCsrfTokenSecure();
     </script>
     
     <style>
+        /* Palette Eterea Studio */
+        :root {
+            --eterea-bg: #f5f3ef;
+            --eterea-azzurro: #9bc4d0;
+            --eterea-verde: #a8b5a0;
+            --eterea-lilla: #c4b5d0;
+            --eterea-giallo: #e8e4b8;
+            --eterea-pesca: #e8c4b8;
+            --eterea-text: #1a1a1a;
+            --eterea-dark: #2d2d2d;
+        }
+        
         .gradient-bg {
-            background: linear-gradient(135deg, #f8fafc 0%, #ecfeff 50%, #f0f9ff 100%);
+            background: linear-gradient(135deg, #f5f3ef 0%, #ebe7e0 50%, #f0ece4 100%);
         }
         
         .glass-card {
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(255, 255, 255, 0.92);
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+        
+        .eterea-gradient {
+            background: linear-gradient(135deg, #9bc4d0 0%, #c4b5d0 50%, #e8c4b8 100%);
+        }
+        
+        .eterea-circles {
+            background: linear-gradient(135deg, #9bc4d0, #a8b5a0, #c4b5d0, #e8e4b8, #e8c4b8);
+            background-size: 300% 300%;
+            animation: gradientShift 8s ease infinite;
+        }
+        
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
         
         @keyframes shake {
@@ -110,8 +138,8 @@ $csrfToken = generateCsrfTokenSecure();
                          alt="Logo" class="w-full h-full object-contain p-2">
                 </div>
             <?php else: ?>
-                <div class="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-2xl shadow-xl mb-4">
-                    <span class="text-white font-bold text-xl sm:text-2xl">LDE</span>
+                <div class="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 eterea-circles rounded-2xl shadow-xl mb-4">
+                    <span class="text-white font-bold text-xl sm:text-2xl drop-shadow-md">LDE</span>
                 </div>
             <?php endif; ?>
             <h1 class="text-xl sm:text-2xl font-bold text-slate-800">Eterea Gestionale</h1>
@@ -152,7 +180,7 @@ $csrfToken = generateCsrfTokenSecure();
                             type="text" 
                             name="username" 
                             required
-                            class="w-full pl-10 pr-4 py-4 text-base min-h-[48px] border border-slate-200 rounded-xl focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all outline-none"
+                            class="w-full pl-10 pr-4 py-4 text-base min-h-[48px] border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#9bc4d0] focus:border-[#9bc4d0] transition-all outline-none"
                             placeholder="Inserisci il tuo nome"
                             autocomplete="username"
                         >
@@ -195,7 +223,7 @@ $csrfToken = generateCsrfTokenSecure();
                 <button 
                     type="submit" 
                     id="submitBtn"
-                    class="w-full bg-gradient-to-r from-cyan-600 to-cyan-500 text-white py-4 text-lg font-medium rounded-xl hover:from-cyan-700 hover:to-cyan-600 focus:ring-4 focus:ring-cyan-200 transition-all flex items-center justify-center gap-2"
+                    class="w-full bg-[#2d2d2d] text-white py-4 text-lg font-medium rounded-xl hover:bg-[#1a1a1a] focus:ring-4 focus:ring-[#e8c4b8]/50 transition-all flex items-center justify-center gap-2 shadow-lg"
                 >
                     <span id="btnText">Accedi</span>
                     <svg id="btnSpinner" class="w-5 h-5 animate-spin hidden" fill="none" viewBox="0 0 24 24">
