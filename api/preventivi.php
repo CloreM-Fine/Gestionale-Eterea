@@ -892,7 +892,7 @@ BUROCRAZIA;
         .totals table { margin: 0; }
         .totals td { padding: 6px; border: none; }
         .totals tr:last-child { 
-            background: linear-gradient(135deg, #9bc4d0, #a8b5a0);
+            background: #9bc4d0;
             color: #2d2d2d;
             font-size: 12px;
             font-weight: 700;
