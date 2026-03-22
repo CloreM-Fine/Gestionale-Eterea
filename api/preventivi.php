@@ -765,7 +765,7 @@ BUROCRAZIA;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             font-size: 10px; 
             line-height: 1.4; 
-            color: #1e293b;
+            color: #2d2d2d;
             padding: 30px;
         }
         /* Stili per elenchi in descrizioni */
@@ -793,7 +793,7 @@ BUROCRAZIA;
             align-items: flex-start;
             margin-bottom: 40px;
             padding-bottom: 20px;
-            border-bottom: 3px solid #151e26;
+            border-bottom: 3px solid #2d2d2d;
         }
         .logo { 
             display: flex; 
@@ -803,26 +803,26 @@ BUROCRAZIA;
         .logo-icon {
             width: 40px;
             height: 40px;
-            background: linear-gradient(135deg, #151e26, #151e26);
+            background: linear-gradient(135deg, #9bc4d0, #a8b5a0, #c4b5d0);
             border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
+            color: #2d2d2d;
             font-size: 16px;
             font-weight: 700;
         }
-        .logo-text h1 { font-size: 18px; font-weight: 700; color: #151e26; }
-        .logo-text p { font-size: 9px; color: #64748b; }
+        .logo-text h1 { font-size: 18px; font-weight: 700; color: #2d2d2d; }
+        .logo-text p { font-size: 9px; color: #6d6d6d; }
         .doc-info { text-align: right; }
         .doc-info h2 { 
             font-size: 14px; 
-            color: #151e26; 
+            color: #2d2d2d; 
             margin-bottom: 6px;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
-        .doc-info p { color: #64748b; font-size: 9px; margin: 2px 0; }
+        .doc-info p { color: #6d6d6d; font-size: 9px; margin: 2px 0; }
         
         .client-section {
             display: flex;
@@ -833,24 +833,24 @@ BUROCRAZIA;
         .client-box, .validita-box {
             flex: 1;
             padding: 15px;
-            background: #f8fafc;
+            background: #f5f3ef;
             border-radius: 8px;
         }
         .client-box h3, .validita-box h3 {
             font-size: 9px;
             text-transform: uppercase;
-            color: #64748b;
+            color: #6d6d6d;
             margin-bottom: 6px;
             letter-spacing: 0.5px;
         }
-        .client-box .nome { font-size: 13px; font-weight: 600; color: #1e293b; }
+        .client-box .nome { font-size: 13px; font-weight: 600; color: #2d2d2d; }
         .cliente-dettagli { 
             font-size: 9px; 
-            color: #64748b; 
+            color: #6d6d6d; 
             margin-top: 4px;
             line-height: 1.4;
         }
-        .validita-box p { color: #475569; font-size: 10px; }
+        .validita-box p { color: #5d5d5d; font-size: 10px; }
         
         table { 
             width: 100%; 
@@ -859,28 +859,28 @@ BUROCRAZIA;
             font-size: 9px;
         }
         th { 
-            background: #f1f5f9; 
+            background: #f5f3ef; 
             padding: 8px 6px; 
             text-align: left; 
             font-weight: 600;
-            color: #475569;
+            color: #5d5d5d;
             text-transform: uppercase;
             font-size: 8px;
             letter-spacing: 0.5px;
-            border-bottom: 2px solid #cbd5e1;
+            border-bottom: 2px solid #d8d4d0;
         }
         td { 
             padding: 8px 6px; 
-            border-bottom: 1px solid #e2e8f0;
+            border-bottom: 1px solid #e8e4e0;
             vertical-align: top;
         }
         tr.categoria td {
-            background: #f8fafc;
+            background: #f5f3ef;
             padding-top: 12px;
-            border-bottom: 1px solid #cbd5e1;
+            border-bottom: 1px solid #d8d4d0;
         }
         tr.categoria td strong {
-            color: #151e26;
+            color: #2d2d2d;
             font-size: 10px;
         }
         
@@ -892,11 +892,11 @@ BUROCRAZIA;
         .totals table { margin: 0; }
         .totals td { padding: 6px; border: none; }
         .totals tr:last-child { 
-            background: linear-gradient(135deg, #151e26, #151e26);
-            color: white;
+            background: linear-gradient(135deg, #9bc4d0, #a8b5a0);
+            color: #2d2d2d;
             font-size: 12px;
             font-weight: 700;
-            border: 2px solid #151e26;
+            border: 2px solid #9bc4d0;
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
         }
@@ -905,35 +905,35 @@ BUROCRAZIA;
         .note {
             margin-top: 20px;
             padding: 12px;
-            background: #fef3c7;
-            border-left: 4px solid #f59e0b;
+            background: #e8e4b8;
+            border-left: 4px solid #c4b5d0;
             border-radius: 0 8px 8px 0;
             font-size: 9px;
-            color: #92400e;
+            color: #5a5640;
             page-break-inside: avoid;
         }
         
         .footer {
             margin-top: 30px;
             padding-top: 15px;
-            border-top: 1px solid #e2e8f0;
+            border-top: 1px solid #e8e4e0;
             text-align: center;
-            color: #94a3b8;
+            color: #909090;
             font-size: 8px;
         }
-        .footer strong { color: #64748b; }
+        .footer strong { color: #6d6d6d; }
         
         .firma-section {
             margin-top: 40px;
             padding: 20px;
-            border: 1px solid #e2e8f0;
+            border: 1px solid #e8e4e0;
             border-radius: 8px;
-            background: #f8fafc;
+            background: #f5f3ef;
             page-break-inside: avoid;
         }
         .firma-section p {
             font-size: 9px;
-            color: #475569;
+            color: #5d5d5d;
             margin-bottom: 20px;
             font-style: italic;
             text-align: center;
@@ -948,31 +948,31 @@ BUROCRAZIA;
         }
         .firma-label {
             font-size: 8px;
-            color: #64748b;
+            color: #6d6d6d;
             text-transform: uppercase;
             margin-bottom: 5px;
         }
         .firma-line {
-            border-bottom: 1px solid #94a3b8;
+            border-bottom: 1px solid #909090;
             height: 40px;
             margin-bottom: 5px;
         }
         .firma-data {
             font-size: 8px;
-            color: #64748b;
+            color: #6d6d6d;
         }
         
         .condizioni {
             margin-top: 20px;
             padding: 15px;
-            background: #f8fafc;
+            background: #f5f3ef;
             border-radius: 8px;
             font-size: 8px;
-            color: #64748b;
+            color: #6d6d6d;
             page-break-inside: avoid;
         }
         .condizioni h4 {
-            color: #475569;
+            color: #5d5d5d;
             margin-bottom: 8px;
             font-size: 9px;
         }
@@ -988,14 +988,14 @@ BUROCRAZIA;
         .condizioni-extra-item {
             flex: 1;
             padding: 12px;
-            background: #f8fafc;
+            background: #f5f3ef;
             border-radius: 8px;
             font-size: 8px;
-            color: #64748b;
-            border: 1px solid #e2e8f0;
+            color: #6d6d6d;
+            border: 1px solid #e8e4e0;
         }
         .condizioni-extra-item h4 {
-            color: #475569;
+            color: #5d5d5d;
             margin-bottom: 6px;
             font-size: 9px;
             font-weight: 600;
@@ -1008,13 +1008,13 @@ BUROCRAZIA;
         .sezione-aggiuntiva {
             margin-top: 15px;
             padding: 12px;
-            background: #f8fafc;
+            background: #f5f3ef;
             border-radius: 8px;
-            border: 1px solid #e2e8f0;
+            border: 1px solid #e8e4e0;
             page-break-inside: avoid;
         }
         .sezione-aggiuntiva h4 {
-            color: #151e26;
+            color: #2d2d2d;
             margin-bottom: 8px;
             font-size: 11px;
             font-weight: 600;
@@ -1023,7 +1023,7 @@ BUROCRAZIA;
         }
         .sezione-contenuto {
             font-size: 9px;
-            color: #475569;
+            color: #5d5d5d;
             line-height: 1.5;
         }
         .sezione-contenuto ul, .sezione-contenuto ol {
