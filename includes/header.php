@@ -283,11 +283,11 @@ try {
             line-height: 1.2;
         }
         
-        /* Menu completo mobile */
+        /* Menu completo mobile - Palette Eterea */
         .mobile-full-menu {
             position: fixed;
             inset: 0;
-            background: #0f172a;
+            background: #2d2d2d;
             z-index: 60;
             transform: translateY(100%);
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -302,9 +302,9 @@ try {
         .mobile-full-menu-header {
             position: sticky;
             top: 0;
-            background: #0f172a;
+            background: #2d2d2d;
             padding: 16px;
-            border-bottom: 1px solid #1e293b;
+            border-bottom: 1px solid #3d3d3d;
             z-index: 10;
         }
         
@@ -322,22 +322,22 @@ try {
             justify-content: center;
             min-height: 80px;
             padding: 16px 8px;
-            background: #1e293b;
+            background: #3d3d3d;
             border-radius: 16px;
-            color: #cbd5e1;
+            color: #d0d0d0;
             transition: all 0.2s ease;
             border: 2px solid transparent;
         }
         
         .mobile-menu-item:active {
             transform: scale(0.96);
-            background: #334155;
+            background: #4d4d4d;
         }
         
         .mobile-menu-item.active {
-            background: rgba(8, 145, 178, 0.2);
-            border-color: #0891b2;
-            color: #22d3ee;
+            background: rgba(155, 196, 208, 0.2);
+            border-color: #9bc4d0;
+            color: #9bc4d0;
         }
         
         .mobile-menu-item svg {

@@ -125,39 +125,39 @@ $csrfToken = generateCsrfToken();
     <style>
         body { font-family: 'Inter', sans-serif; }
         
-        /* Editor WYSIWYG Styles */
+        /* Editor WYSIWYG Styles - Palette Eterea */
         .editor-toolbar {
             display: flex;
             flex-wrap: wrap;
             gap: 4px;
             padding: 8px;
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
+            background: #f5f3ef;
+            border: 1px solid #e8e4e0;
             border-bottom: none;
             border-radius: 8px 8px 0 0;
         }
         .editor-toolbar button {
             padding: 6px 10px;
             background: white;
-            border: 1px solid #e2e8f0;
+            border: 1px solid #e8e4e0;
             border-radius: 4px;
             cursor: pointer;
             font-size: 14px;
             transition: all 0.2s;
         }
         .editor-toolbar button:hover {
-            background: #f1f5f9;
-            border-color: #cbd5e1;
+            background: #f5f3ef;
+            border-color: #d8d4d0;
         }
         .editor-toolbar button.active {
-            background: #0891b2;
-            color: white;
-            border-color: #0891b2;
+            background: #9bc4d0;
+            color: #2d2d2d;
+            border-color: #9bc4d0;
         }
         .editor-content {
             min-height: 200px;
             padding: 16px;
-            border: 1px solid #e2e8f0;
+            border: 1px solid #e8e4e0;
             border-radius: 0 0 8px 8px;
             outline: none;
             font-size: 14px;
@@ -166,31 +166,33 @@ $csrfToken = generateCsrfToken();
             overflow: auto;
         }
         .editor-content:focus {
-            border-color: #0891b2;
-            box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.1);
+            border-color: #9bc4d0;
+            box-shadow: 0 0 0 3px rgba(155, 196, 208, 0.2);
         }
         .editor-content h2 { font-size: 1.5em; font-weight: bold; margin: 1em 0 0.5em; }
         .editor-content h3 { font-size: 1.25em; font-weight: bold; margin: 1em 0 0.5em; }
         .editor-content p { margin: 0.5em 0; }
         .editor-content ul { list-style-type: disc; padding-left: 2em; margin: 0.5em 0; }
         .editor-content ol { list-style-type: decimal; padding-left: 2em; margin: 0.5em 0; }
-        .editor-content blockquote { border-left: 4px solid #e2e8f0; padding-left: 1em; margin: 0.5em 0; color: #64748b; }
+        .editor-content blockquote { border-left: 4px solid #e8e4e0; padding-left: 1em; margin: 0.5em 0; color: #6d6d6d; }
         .editor-content b, .editor-content strong { font-weight: bold; }
         .editor-content i, .editor-content em { font-style: italic; }
         .editor-content u { text-decoration: underline; }
         .editor-content s, .editor-content strike { text-decoration: line-through; }
     </style>
 </head>
-<body class="bg-slate-50 min-h-screen">
+<body class="bg-[#f5f3ef] min-h-screen">
     
     <!-- Header -->
-    <header class="bg-white border-b border-slate-200">
+    <header class="bg-white border-b border-[#e8e4e0]">
         <div class="max-w-7xl mx-auto px-4 py-4">
             <div class="flex items-center gap-3">
-                <img src="assets/favicons/apple-touch-icon.png" alt="Eterea Studio" class="w-10 h-10 rounded-xl">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-[#9bc4d0] via-[#a8b5a0] to-[#c4b5d0] flex items-center justify-center font-bold text-[#2d2d2d] text-lg">
+                    E
+                </div>
                 <div>
-                    <h1 class="font-bold text-slate-800">Eterea Studio</h1>
-                    <p class="text-xs text-slate-500">Carica contenuti</p>
+                    <h1 class="font-bold text-[#2d2d2d]">Eterea Studio</h1>
+                    <p class="text-xs text-[#909090]">Carica contenuti</p>
                 </div>
             </div>
         </div>
@@ -201,27 +203,27 @@ $csrfToken = generateCsrfToken();
         
         <?php if (!empty($error)): ?>
         <!-- Errore -->
-        <div class="max-w-2xl mx-auto bg-red-50 border border-red-200 rounded-xl p-6 text-center">
-            <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="max-w-2xl mx-auto bg-[#faf0ed] border border-[#e8c4b8] rounded-xl p-6 text-center">
+            <div class="w-16 h-16 bg-[#e8c4b8]/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg class="w-8 h-8 text-[#9a7668]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>
             </div>
-            <h2 class="text-lg font-semibold text-red-800 mb-2">Errore</h2>
-            <p class="text-red-600"><?php echo e($error); ?></p>
+            <h2 class="text-lg font-semibold text-[#7a5648] mb-2">Errore</h2>
+            <p class="text-[#9a7668]"><?php echo e($error); ?></p>
         </div>
         
         <?php elseif ($success): ?>
         <!-- Successo -->
-        <div class="max-w-2xl mx-auto bg-emerald-50 border border-emerald-200 rounded-xl p-6 text-center">
-            <div class="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg class="w-8 h-8 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="max-w-2xl mx-auto bg-[#eef1ec] border border-[#a8b5a0] rounded-xl p-6 text-center">
+            <div class="w-16 h-16 bg-[#a8b5a0]/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg class="w-8 h-8 text-[#788570]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                 </svg>
             </div>
-            <h2 class="text-lg font-semibold text-emerald-800 mb-2">Contenuto inviato!</h2>
-            <p class="text-emerald-600 mb-4">Grazie! I tuoi contenuti sono stati inviati con successo allo studio.</p>
-            <a href="?token=<?php echo e($token); ?>" class="inline-block px-6 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium">
+            <h2 class="text-lg font-semibold text-[#586550] mb-2">Contenuto inviato!</h2>
+            <p class="text-[#788570] mb-4">Grazie! I tuoi contenuti sono stati inviati con successo allo studio.</p>
+            <a href="?token=<?php echo e($token); ?>" class="inline-block px-6 py-2 bg-[#2d2d2d] hover:bg-[#1a1a1a] text-white rounded-lg font-medium transition-colors">
                 Carica altro
             </a>
         </div>
@@ -231,10 +233,10 @@ $csrfToken = generateCsrfToken();
         <div class="flex flex-col lg:flex-row gap-6 justify-center">
             <!-- Form: 75% larghezza -->
             <div class="w-full lg:w-[75%]">
-                <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                    <div class="p-6 border-b border-slate-100">
-                        <h2 class="text-xl font-bold text-slate-800">Ciao <?php echo e($clienteNome); ?>!</h2>
-                        <p class="text-slate-500 mt-1">Carica qui le immagini e il testo per il tuo progetto.</p>
+                <div class="bg-white rounded-xl shadow-sm border border-[#e8e4e0] overflow-hidden">
+                    <div class="p-6 border-b border-[#f5f3ef]">
+                        <h2 class="text-xl font-bold text-[#2d2d2d]">Ciao <?php echo e($clienteNome); ?>!</h2>
+                        <p class="text-[#6d6d6d] mt-1">Carica qui le immagini e il testo per il tuo progetto.</p>
                     </div>
                     
                     <form id="uploadForm" class="p-6 space-y-6">
@@ -244,40 +246,40 @@ $csrfToken = generateCsrfToken();
                         
                         <!-- Autore -->
                         <div>
-                            <label class="block text-sm font-medium text-slate-700 mb-2">Nome e cognome autore *</label>
+                            <label class="block text-sm font-medium text-[#2d2d2d] mb-2">Nome e cognome autore *</label>
                             <input type="text" name="autore" required
-                                   class="w-full px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none"
+                                   class="w-full px-4 py-3 border border-[#e8e4e0] rounded-lg focus:ring-2 focus:ring-[#9bc4d0] outline-none bg-white"
                                    placeholder="Es: Mario Rossi">
                         </div>
                 
                         <!-- Titolo -->
                         <div>
-                            <label class="block text-sm font-medium text-slate-700 mb-2">Titolo *</label>
+                            <label class="block text-sm font-medium text-[#2d2d2d] mb-2">Titolo *</label>
                             <input type="text" name="titolo" required
-                                   class="w-full px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none"
+                                   class="w-full px-4 py-3 border border-[#e8e4e0] rounded-lg focus:ring-2 focus:ring-[#9bc4d0] outline-none bg-white"
                                    placeholder="Es: Foto evento aziendale, Materiale per campagna...">
                         </div>
                         
                         <!-- Categoria -->
                         <div>
-                            <label class="block text-sm font-medium text-slate-700 mb-2">Categoria</label>
+                           <label class="block text-sm font-medium text-[#2d2d2d] mb-2">Categoria</label>
                             <input type="text" name="categoria" 
-                                   class="w-full px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none"
+                                   class="w-full px-4 py-3 border border-[#e8e4e0] rounded-lg focus:ring-2 focus:ring-[#9bc4d0] outline-none bg-white"
                                    placeholder="Es: Foto evento, Logo aziendale, Brochure...">
-                            <p class="text-xs text-slate-500 mt-1">Inserisci una categoria personalizzata per organizzare il contenuto</p>
+                            <p class="text-xs text-[#909090] mt-1">Inserisci una categoria personalizzata per organizzare il contenuto</p>
                         </div>
                         
                         <!-- Immagine di Copertina -->
                         <div>
-                            <label class="block text-sm font-medium text-slate-700 mb-2">Immagine di copertina</label>
-                            <p class="text-xs text-slate-500 mb-2">Seleziona un'immagine rappresentativa per questo contenuto</p>
+                           <label class="block text-sm font-medium text-[#2d2d2d] mb-2">Immagine di copertina</label>
+                            <p class="text-xs text-[#909090] mb-2">Seleziona un'immagine rappresentativa per questo contenuto</p>
                             <input type="file" name="immagine_copertina" accept="image/jpeg,image/png,image/webp"
-                                   class="w-full px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-cyan-50 file:text-cyan-700 hover:file:bg-cyan-100">
+                                   class="w-full px-4 py-3 border border-[#e8e4e0] rounded-lg focus:ring-2 focus:ring-[#9bc4d0] outline-none bg-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#e8f4f6] file:text-[#5a8a96] hover:file:bg-[#d8e8ec]">
                         </div>
                         
                         <!-- Testo con Editor WYSIWYG -->
                         <div>
-                            <label class="block text-sm font-medium text-slate-700 mb-2">Descrizione</label>
+                            <label class="block text-sm font-medium text-[#2d2d2d] mb-2">Descrizione</label>
                             
                             <!-- Toolbar Editor -->
                             <div class="editor-toolbar">
@@ -293,16 +295,16 @@ $csrfToken = generateCsrfToken();
                                 <button type="button" data-command="strikeThrough" title="Barrato">
                                     <s>S</s>
                                 </button>
-                                <span class="w-px h-6 bg-slate-300 mx-1"></span>
+                                <span class="w-px h-6 bg-[#e8e4e0] mx-1"></span>
                                 <button type="button" data-command="formatBlock" data-value="H2" title="Titolo grande">
                                     H1
                                 </button>
                                 <button type="button" data-command="formatBlock" data-value="H3" title="Sottotitolo">
                                     H2
                                 </button>
-                                <span class="w-px h-6 bg-slate-300 mx-1"></span>
+                                <span class="w-px h-6 bg-[#e8e4e0] mx-1"></span>
                                 <!-- Selettore grandezza testo -->
-                                <select id="fontSizeSelector" class="px-2 py-1 border border-slate-300 rounded text-sm bg-white" title="Dimensione testo">
+                                <select id="fontSizeSelector" class="px-2 py-1 border border-[#e8e4e0] rounded text-sm bg-white" title="Dimensione testo">
                                     <option value="">Size</option>
                                     <option value="2">10px</option>
                                     <option value="3">12px</option>
@@ -311,14 +313,14 @@ $csrfToken = generateCsrfToken();
                                     <option value="6">24px</option>
                                     <option value="7">36px</option>
                                 </select>
-                                <span class="w-px h-6 bg-slate-300 mx-1"></span>
+                                <span class="w-px h-6 bg-[#e8e4e0] mx-1"></span>
                                 <button type="button" data-command="insertUnorderedList" title="Elenco puntato">
                                     • Lista
                                 </button>
                                 <button type="button" data-command="insertOrderedList" title="Elenco numerato">
                                     1. Lista
                                 </button>
-                                <span class="w-px h-6 bg-slate-300 mx-1"></span>
+                                <span class="w-px h-6 bg-[#e8e4e0] mx-1"></span>
                                 <button type="button" data-command="justifyLeft" title="Allinea a sinistra">
                                     ⬅️
                                 </button>
@@ -328,7 +330,7 @@ $csrfToken = generateCsrfToken();
                                 <button type="button" data-command="justifyRight" title="Allinea a destra">
                                     ➡️
                                 </button>
-                                <span class="w-px h-6 bg-slate-300 mx-1"></span>
+                                <span class="w-px h-6 bg-[#e8e4e0] mx-1"></span>
                                 <button type="button" data-command="removeFormat" title="Rimuovi formattazione">
                                     🧹
                                 </button>
@@ -346,10 +348,10 @@ $csrfToken = generateCsrfToken();
                 <!-- Immagini Esistenti -->
                 <?php if (!empty($existingImages)): ?>
                 <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-2">Immagini già caricate (<?php echo count($existingImages); ?>/10)</label>
+                    <label class="block text-sm font-medium text-[#2d2d2d] mb-2">Immagini già caricate (<?php echo count($existingImages); ?>/10)</label>
                     <div class="grid grid-cols-5 gap-2">
                         <?php foreach ($existingImages as $img): ?>
-                        <div class="aspect-square rounded-lg overflow-hidden bg-slate-100">
+                        <div class="aspect-square rounded-lg overflow-hidden bg-[#f5f3ef]">
                             <img src="assets/uploads/clienti_contenuti/<?php echo e($img); ?>" alt="" class="w-full h-full object-cover">
                         </div>
                         <?php endforeach; ?>
@@ -359,21 +361,21 @@ $csrfToken = generateCsrfToken();
                 
                 <!-- Upload Nuove Immagini -->
                 <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-2">
+                    <label class="block text-sm font-medium text-[#2d2d2d] mb-2">
                         Carica nuove immagini 
                         <?php $remaining = 10 - count($existingImages); ?>
-                        <span class="text-slate-400">(max <?php echo $remaining; ?> rimanenti)</span>
+                        <span class="text-[#909090]">(max <?php echo $remaining; ?> rimanenti)</span>
                     </label>
                     
-                    <div id="dropZone" class="border-2 border-dashed border-slate-300 rounded-xl p-8 text-center hover:border-cyan-500 hover:bg-cyan-50 transition-colors cursor-pointer"
+                    <div id="dropZone" class="border-2 border-dashed border-[#d8d4d0] rounded-xl p-8 text-center hover:border-[#9bc4d0] hover:bg-[#e8f4f6]/30 transition-colors cursor-pointer"
                          onclick="document.getElementById('fileInput').click()">
-                        <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                            <svg class="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="w-16 h-16 bg-[#f5f3ef] rounded-full flex items-center justify-center mx-auto mb-3">
+                            <svg class="w-8 h-8 text-[#9bc4d0]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                             </svg>
                         </div>
-                        <p class="text-slate-600 font-medium">Clicca o trascina qui le immagini</p>
-                        <p class="text-sm text-slate-400 mt-1">JPG, PNG, WEBP - Max 8MB ciascuna</p>
+                        <p class="text-[#2d2d2d] font-medium">Clicca o trascina qui le immagini</p>
+                        <p class="text-sm text-[#909090] mt-1">JPG, PNG, WEBP - Max 8MB ciascuna</p>
                     </div>
                     
                     <input type="file" id="fileInput" name="immagini[]" multiple accept="image/jpeg,image/png,image/webp,image/jpg"
@@ -382,13 +384,13 @@ $csrfToken = generateCsrfToken();
                     <!-- Preview -->
                     <div id="previewContainer" class="grid grid-cols-5 gap-2 mt-4 hidden"></div>
                     
-                    <p id="fileError" class="text-sm text-red-500 mt-2 hidden"></p>
+                    <p id="fileError" class="text-sm text-[#9a7668] mt-2 hidden"></p>
                 </div>
                 
                 <!-- Legenda Editor -->
-                <div class="bg-slate-50 border border-slate-200 rounded-lg p-4">
-                    <p class="text-xs font-medium text-slate-600 mb-2">Legenda editor:</p>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs text-slate-500">
+                <div class="bg-[#f5f3ef] border border-[#e8e4e0] rounded-lg p-4">
+                    <p class="text-xs font-medium text-[#2d2d2d] mb-2">Legenda editor:</p>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs text-[#6d6d6d]">
                         <div class="flex items-center gap-1"><b>B</b> = Grassetto</div>
                         <div class="flex items-center gap-1"><i>I</i> = Corsivo</div>
                         <div class="flex items-center gap-1"><u>U</u> = Sottolineato</div>
@@ -403,12 +405,12 @@ $csrfToken = generateCsrfToken();
                         <div class="flex items-center gap-1">🧹 = Pulisci</div>
                         <div class="flex items-center gap-1">Size = Dimensione testo</div>
                     </div>
-                    <p class="text-xs text-slate-400 mt-2 italic">💡 Trascina l'angolo in basso a destra per ridimensionare l'area di testo</p>
+                    <p class="text-xs text-[#909090] mt-2 italic">💡 Trascina l'angolo in basso a destra per ridimensionare l'area di testo</p>
                 </div>
                 
                 <!-- Info -->
-                <div class="bg-amber-50 border border-amber-200 rounded-lg p-4">
-                    <p class="text-sm text-amber-800">
+                <div class="bg-[#faf9ef] border border-[#e8e4b8] rounded-lg p-4">
+                    <p class="text-sm text-[#9a9668]">
                         <strong>Nota:</strong> Puoi caricare fino a 10 immagini in totale. 
                         Formati accettati: JPG, PNG, WEBP.
                     </p>
@@ -416,7 +418,7 @@ $csrfToken = generateCsrfToken();
                 
                 <!-- Submit -->
                 <button type="submit" id="submitBtn"
-                        class="w-full py-3 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg font-medium flex items-center justify-center gap-2 transition-colors">
+                        class="w-full py-3 bg-[#2d2d2d] hover:bg-[#1a1a1a] text-white rounded-lg font-medium flex items-center justify-center gap-2 transition-colors">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
                     </svg>
@@ -428,44 +430,58 @@ $csrfToken = generateCsrfToken();
             
             <!-- Assistenza: 25% larghezza -->
             <div class="w-full lg:w-[25%]">
-                <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden sticky top-4">
-                    <div class="p-4 border-b border-slate-100 bg-cyan-50">
-                        <h3 class="font-bold text-slate-800 flex items-center gap-2 text-sm">
-                            <svg class="w-4 h-4 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="bg-white rounded-xl shadow-sm border border-[#e8e4e0] overflow-hidden sticky top-4">
+                    <div class="p-4 border-b border-[#f5f3ef] bg-[#e8f4f6]">
+                        <h3 class="font-bold text-[#2d2d2d] flex items-center gap-2 text-sm">
+                            <svg class="w-4 h-4 text-[#7aa4b0]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"/>
                             </svg>
                             Assistenza
                         </h3>
                     </div>
                     <div class="p-4 space-y-3">
-                        <p class="text-xs text-slate-600">
+                        <p class="text-xs text-[#6d6d6d]">
                             Hai bisogno di aiuto? Contatta lo studio.
                         </p>
                         
                         <!-- Telefono -->
-                        <a href="tel:+393465728606" class="flex items-center gap-2 p-2 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
-                            <div class="w-8 h-8 bg-cyan-100 rounded-full flex items-center justify-center flex-shrink-0">
-                                <svg class="w-4 h-4 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <a href="tel:+393465728606" class="flex items-center gap-2 p-2 bg-[#f5f3ef] rounded-lg hover:bg-[#ebe9e5] transition-colors">
+                            <div class="w-8 h-8 bg-[#e8f4f6] rounded-full flex items-center justify-center flex-shrink-0">
+                                <svg class="w-4 h-4 text-[#7aa4b0]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
                                 </svg>
                             </div>
                             <div>
-                                <p class="text-xs text-slate-500">Telefono</p>
-                                <p class="font-medium text-slate-800 text-sm">346 572 8606</p>
+                                <p class="text-xs text-[#909090]">Telefono</p>
+                                <p class="font-medium text-[#2d2d2d] text-sm">346 572 8606</p>
                             </div>
                         </a>
                         
                         <!-- WhatsApp -->
                         <a href="https://wa.me/393465728606" target="_blank" rel="noopener noreferrer" 
-                           class="flex items-center gap-2 p-2 bg-emerald-50 rounded-lg hover:bg-emerald-100 transition-colors">
-                            <div class="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center flex-shrink-0">
-                                <svg class="w-4 h-4 text-emerald-600" fill="currentColor" viewBox="0 0 24 24">
+                           class="flex items-center gap-2 p-2 bg-[#eef1ec] rounded-lg hover:bg-[#e5ebe0] transition-colors">
+                            <div class="w-8 h-8 bg-[#a8b5a0]/30 rounded-full flex items-center justify-center flex-shrink-0">
+                                <svg class="w-4 h-4 text-[#788570]" fill="currentColor" viewBox="0 0 24 24">
                                     <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
                                 </svg>
                             </div>
                             <div>
-                                <p class="text-xs text-slate-500">WhatsApp</p>
-                                <p class="font-medium text-emerald-700 text-sm">Scrivimi</p>
+                                <p class="text-xs text-[#909090]">WhatsApp</p>
+                                <p class="font-medium text-[#788570] text-sm">Scrivimi</p>
+                            </div>
+                        </a>
+                        
+                        <!-- Visita il sito -->
+                        <a href="https://www.etereastudio.it" target="_blank" rel="noopener noreferrer" 
+                           class="flex items-center gap-2 p-2 bg-[#f3eff6] rounded-lg hover:bg-[#ebe5f0] transition-colors">
+                            <div class="w-8 h-8 bg-[#c4b5d0]/30 rounded-full flex items-center justify-center flex-shrink-0">
+                                <svg class="w-4 h-4 text-[#8a7a96]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-xs text-[#909090]">Sito web</p>
+                                <p class="font-medium text-[#8a7a96] text-sm">Visita il sito</p>
                             </div>
                         </a>
                     </div>
@@ -478,7 +494,7 @@ $csrfToken = generateCsrfToken();
     
     <!-- Footer -->
     <footer class="max-w-7xl mx-auto px-4 py-6 text-center">
-        <p class="text-sm text-slate-400">© <?php echo date('Y'); ?> Eterea Studio - Tutti i diritti riservati</p>
+        <p class="text-sm text-[#909090]">© <?php echo date('Y'); ?> Eterea Studio - Tutti i diritti riservati</p>
     </footer>
     
     <script>
@@ -663,11 +679,11 @@ $csrfToken = generateCsrfToken();
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     const div = document.createElement('div');
-                    div.className = 'aspect-square rounded-lg overflow-hidden bg-slate-100 relative';
+                    div.className = 'aspect-square rounded-lg overflow-hidden bg-[#f5f3ef] relative';
                     div.innerHTML = `
                         <img src="${e.target.result}" alt="" class="w-full h-full object-cover">
                         <button type="button" onclick="removeFile(${index})" 
-                                class="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-xs hover:bg-red-600">
+                                class="absolute top-1 right-1 w-6 h-6 bg-[#e8c4b8] text-[#2d2d2d] rounded-full flex items-center justify-center text-xs hover:bg-[#d8b4a8]">
                             ×
                         </button>
                     `;
@@ -706,13 +722,13 @@ $csrfToken = generateCsrfToken();
     
     ['dragenter', 'dragover'].forEach(eventName => {
         dropZone.addEventListener(eventName, () => {
-            dropZone.classList.add('border-cyan-500', 'bg-cyan-50');
+            dropZone.classList.add('border-[#9bc4d0]', 'bg-[#e8f4f6]/50');
         }, false);
     });
     
     ['dragleave', 'drop'].forEach(eventName => {
         dropZone.addEventListener(eventName, () => {
-            dropZone.classList.remove('border-cyan-500', 'bg-cyan-50');
+            dropZone.classList.remove('border-[#9bc4d0]', 'bg-[#e8f4f6]/50');
         }, false);
     });
     
