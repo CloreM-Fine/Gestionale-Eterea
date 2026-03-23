@@ -24,6 +24,10 @@ $action = $_GET['action'] ?? $_POST['action'] ?? '';
 // Log solo azione (senza dati sensibili)
 error_log("API Progetti - Method: $method, Action: $action");
 
+// Debug logging esteso
+debugLog("API Progetti chiamata", ['action' => $action, 'method' => $method]);
+debugRequest();
+
 switch ($method) {
     case 'GET':
         if ($action === 'detail' && isset($_GET['id'])) {
@@ -215,14 +219,16 @@ function listProgetti() {
  */
 function getProgetto($id) {
     global $pdo;
+    debugLog("getProgetto START", ['id' => $id]);
     
     try {
         // Progetto
-        $stmt = $pdo->prepare("
-            SELECT p.*, c.ragione_sociale as cliente_nome, c.email as cliente_email, c.telefono as cliente_telefono
+        $sql = "SELECT p.*, c.ragione_sociale as cliente_nome, c.email as cliente_email, c.telefono as cliente_telefono
             FROM progetti p
             LEFT JOIN clienti c ON p.cliente_id = c.id
-            WHERE p.id = ?
+            WHERE p.id = ?";
+        debugQuery($sql, [$id]);
+        $stmt = $pdo->prepare($sql);
         ");
         $stmt->execute([$id]);
         $progetto = $stmt->fetch();
@@ -294,12 +300,14 @@ function getProgetto($id) {
  */
 function createProgetto() {
     global $pdo;
+    debugLog("createProgetto START", ['titolo' => $_POST['titolo'] ?? 'NOT_SET', 'cliente_id' => $_POST['cliente_id'] ?? 'NOT_SET']);
     
     // Validazione
     $titolo = trim($_POST['titolo'] ?? '');
     $clienteId = $_POST['cliente_id'] ?? '';
     
     if (empty($titolo)) {
+        debugLog("createProgetto ERROR: titolo vuoto", null, 'error');
         jsonResponse(false, null, 'Il titolo è obbligatorio');
     }
     
@@ -392,12 +400,14 @@ function createProgetto() {
  */
 function updateProgetto($id) {
     global $pdo;
+    debugLog("updateProgetto START", ['id' => $id, 'post_data' => $_POST]);
     
     // Verifica esistenza e leggi stato attuale
     $stmt = $pdo->prepare("SELECT stato_progetto FROM progetti WHERE id = ?");
     $stmt->execute([$id]);
     $progetto = $stmt->fetch();
     if (!$progetto) {
+        debugLog("updateProgetto ERROR: progetto non trovato", ['id' => $id], 'error');
         jsonResponse(false, null, 'Progetto non trovato');
     }
     

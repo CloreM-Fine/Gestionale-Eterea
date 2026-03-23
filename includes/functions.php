@@ -10,6 +10,68 @@ require_once __DIR__ . '/functions_security.php';
 // Imposta timezone italiano
 date_default_timezone_set('Europe/Rome');
 
+// Debug mode - imposta a true per abilitare logging dettagliato
+define('DEBUG_MODE', true);
+
+/**
+ * Log di debug
+ * @param string $message Messaggio da loggare
+ * @param mixed $data Dati aggiuntivi (opzionale)
+ * @param string $type Tipo di log (info, error, warning, sql)
+ */
+function debugLog($message, $data = null, $type = 'info') {
+    if (!DEBUG_MODE) return;
+    
+    $prefix = '[DEBUG ' . strtoupper($type) . '] ';
+    $logMessage = $prefix . $message;
+    
+    if ($data !== null) {
+        if (is_array($data) || is_object($data)) {
+            $logMessage .= ' | DATA: ' . json_encode($data);
+        } else {
+            $logMessage .= ' | DATA: ' . $data;
+        }
+    }
+    
+    $logMessage .= ' | URL: ' . ($_SERVER['REQUEST_URI'] ?? 'CLI');
+    $logMessage .= ' | METHOD: ' . ($_SERVER['REQUEST_METHOD'] ?? 'CLI');
+    $logMessage .= ' | TIME: ' . date('Y-m-d H:i:s');
+    
+    error_log($logMessage);
+}
+
+/**
+ * Log delle query SQL
+ * @param string $sql Query SQL
+ * @param array $params Parametri (opzionale)
+ */
+function debugQuery($sql, $params = []) {
+    if (!DEBUG_MODE) return;
+    
+    $message = 'SQL: ' . $sql;
+    if (!empty($params)) {
+        $message .= ' | PARAMS: ' . json_encode($params);
+    }
+    
+    debugLog($message, null, 'sql');
+}
+
+/**
+ * Log delle variabili POST/GET
+ */
+function debugRequest() {
+    if (!DEBUG_MODE) return;
+    
+    $data = [
+        'GET' => $_GET,
+        'POST' => $_POST,
+        'FILES' => !empty($_FILES) ? 'FILES_PRESENT' : 'NO_FILES',
+        'SESSION' => isset($_SESSION) ? ['user_id' => $_SESSION['user_id'] ?? 'not_set'] : 'NO_SESSION'
+    ];
+    
+    debugLog('REQUEST DATA', $data, 'info');
+}
+
 /**
  * Verifica se l'utente è autenticato
  */
