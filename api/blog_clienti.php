@@ -269,7 +269,7 @@ function getByProgetto($progettoId) {
             if (!empty($c['immagini'])) {
                 $immagini = json_decode($c['immagini'], true);
                 if (!empty($immagini[0])) {
-                    $c['file_url'] = BASE_URL . '/assets/uploads/clienti/' . $immagini[0];
+                    $c['file_url'] = BASE_URL . '/assets/uploads/clienti_contenuti/' . $immagini[0];
                 }
             }
             // Determina tipo

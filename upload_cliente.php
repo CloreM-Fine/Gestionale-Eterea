@@ -668,6 +668,17 @@ $csrfToken = generateCsrfToken();
             return;
         }
         
+        // Verifica dimensione file (max 8MB = 8 * 1024 * 1024 bytes)
+        const maxSize = 8 * 1024 * 1024; // 8MB
+        const oversizedFiles = files.filter(file => file.size > maxSize);
+        if (oversizedFiles.length > 0) {
+            const fileNames = oversizedFiles.map(f => f.name).join(', ');
+            errorEl.textContent = `I seguenti file superano i 8MB: ${fileNames}. Comprimi le immagini prima di caricarle.`;
+            errorEl.classList.remove('hidden');
+            input.value = '';
+            return;
+        }
+        
         selectedFiles = files;
         
         // Mostra preview
