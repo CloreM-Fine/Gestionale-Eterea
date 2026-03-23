@@ -229,7 +229,6 @@ function getProgetto($id) {
             WHERE p.id = ?";
         debugQuery($sql, [$id]);
         $stmt = $pdo->prepare($sql);
-        ");
         $stmt->execute([$id]);
         $progetto = $stmt->fetch();
         
