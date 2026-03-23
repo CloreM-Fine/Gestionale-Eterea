@@ -722,29 +722,37 @@ function distribuisciPagamentoRicorrente($id) {
             if ($uid === 'cassa') {
                 // Transazione cassa
                 error_log("DEBUG: Inserisco cassa");
-                $stmt = $pdo->prepare("
-                    INSERT INTO transazioni_economiche 
-                    (progetto_id, tipo, importo, percentuale, descrizione, data_transazione)
-                    VALUES (?, 'cassa', ?, ?, 'Contributo cassa - pagamento ricorrente', NOW())
-                ");
+                $sql = "INSERT INTO transazioni_economiche (progetto_id, tipo, importo, percentuale, descrizione, data_transazione) VALUES (?, 'cassa', ?, ?, 'Contributo cassa - pagamento ricorrente', NOW())";
+                $stmt = $pdo->prepare($sql);
+                if (!$stmt) {
+                    $error = $pdo->errorInfo();
+                    error_log("DEBUG: ERRORE PREPARE cassa: " . print_r($error, true));
+                    throw new Exception("Errore prepare cassa: " . $error[2]);
+                }
                 $stmt->execute([$id, $importoQuota, $percentuale]);
                 error_log("DEBUG: Cassa inserita");
             } else {
                 // Transazione wallet utente
                 error_log("DEBUG: Inserisco wallet per uid=$uid");
-                $stmt = $pdo->prepare("
-                    INSERT INTO transazioni_economiche 
-                    (progetto_id, tipo, utente_id, importo, percentuale, descrizione, data_transazione)
-                    VALUES (?, 'wallet', ?, ?, ?, 'Compenso pagamento ricorrente', NOW())
-                ");
+                $sql = "INSERT INTO transazioni_economiche (progetto_id, tipo, utente_id, importo, percentuale, descrizione, data_transazione) VALUES (?, 'wallet', ?, ?, ?, 'Compenso pagamento ricorrente', NOW())";
+                $stmt = $pdo->prepare($sql);
+                if (!$stmt) {
+                    $error = $pdo->errorInfo();
+                    error_log("DEBUG: ERRORE PREPARE wallet: " . print_r($error, true));
+                    throw new Exception("Errore prepare wallet: " . $error[2]);
+                }
                 $stmt->execute([$id, $uid, $importoQuota, $percentuale]);
                 error_log("DEBUG: Wallet inserito per uid=$uid");
                 
                 // Aggiorna saldo wallet
                 error_log("DEBUG: Aggiorno saldo wallet per uid=$uid");
-                $stmt = $pdo->prepare("
-                    UPDATE utenti SET wallet_saldo = wallet_saldo + ? WHERE id = ?
-                ");
+                $sql = "UPDATE utenti SET wallet_saldo = wallet_saldo + ? WHERE id = ?";
+                $stmt = $pdo->prepare($sql);
+                if (!$stmt) {
+                    $error = $pdo->errorInfo();
+                    error_log("DEBUG: ERRORE PREPARE update wallet: " . print_r($error, true));
+                    throw new Exception("Errore prepare update wallet: " . $error[2]);
+                }
                 $stmt->execute([$importoQuota, $uid]);
                 error_log("DEBUG: Saldo wallet aggiornato per uid=$uid");
             }
