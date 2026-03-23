@@ -671,10 +671,11 @@ function distribuisciPagamentoRicorrente($id) {
     global $pdo;
     
     // Log debug
-    error_log("DEBUG distribuisciPagamentoRicorrente chiamato per progetto: $id");
+    error_log("DEBUG distribuisciPagamentoRicorrente START per progetto: $id");
     
     try {
         $pdo->beginTransaction();
+        error_log("DEBUG: Transaction started");
         
         // Recupera progetto con dati pagamento ricorrente
         $stmt = $pdo->prepare("
@@ -683,48 +684,69 @@ function distribuisciPagamentoRicorrente($id) {
         $stmt->execute([$id]);
         $progetto = $stmt->fetch();
         
+        error_log("DEBUG: Progetto trovato: " . ($progetto ? 'SI' : 'NO'));
+        
         if (!$progetto) {
             jsonResponse(false, null, 'Progetto non trovato o non ha pagamento ricorrente');
         }
         
         $importo = floatval($progetto['importo_ricorrente']);
-        $distribuzioneConfig = json_decode($progetto['distribuzione_ricorrente'] ?? '{}', true);
+        $distribuzioneJson = $progetto['distribuzione_ricorrente'] ?? '{}';
+        $distribuzioneConfig = json_decode($distribuzioneJson, true);
+        
+        error_log("DEBUG: importo=$importo, distribuzioneJson=$distribuzioneJson, distribuzioneConfig=" . print_r($distribuzioneConfig, true));
         
         if ($importo <= 0 || empty($distribuzioneConfig)) {
-            jsonResponse(false, null, 'Configurazione pagamento ricorrente incompleta');
+            jsonResponse(false, null, 'Configurazione pagamento ricorrente incompleta (importo=' . $importo . ', config=' . $distribuzioneJson . ')');
         }
         
         // Esegui distribuzione secondo config
+        error_log("DEBUG: Inizio distribuzione, config=" . print_r($distribuzioneConfig, true));
+        
         foreach ($distribuzioneConfig as $uid => $percentuale) {
             $percentuale = intval($percentuale);
-            if ($percentuale <= 0) continue;
+            error_log("DEBUG: Processo uid=$uid, percentuale=$percentuale");
+            
+            if ($percentuale <= 0) {
+                error_log("DEBUG: Salto uid=$uid perché percentuale <= 0");
+                continue;
+            }
             
             $importoQuota = round($importo * ($percentuale / 100), 2);
+            error_log("DEBUG: uid=$uid, importoQuota=$importoQuota");
             
             if ($uid === 'cassa') {
                 // Transazione cassa
+                error_log("DEBUG: Inserisco cassa");
                 $stmt = $pdo->prepare("
                     INSERT INTO transazioni_economiche 
                     (progetto_id, tipo, importo, percentuale, descrizione, data_transazione)
                     VALUES (?, 'cassa', ?, ?, 'Contributo cassa - pagamento ricorrente', NOW())
                 ");
                 $stmt->execute([$id, $importoQuota, $percentuale]);
+                error_log("DEBUG: Cassa inserita");
             } else {
                 // Transazione wallet utente
+                error_log("DEBUG: Inserisco wallet per uid=$uid");
                 $stmt = $pdo->prepare("
                     INSERT INTO transazioni_economiche 
                     (progetto_id, tipo, utente_id, importo, percentuale, descrizione, data_transazione)
                     VALUES (?, 'wallet', ?, ?, ?, 'Compenso pagamento ricorrente', NOW())
                 ");
                 $stmt->execute([$id, $uid, $importoQuota, $percentuale]);
+                error_log("DEBUG: Wallet inserito per uid=$uid");
                 
                 // Aggiorna saldo wallet
+                error_log("DEBUG: Aggiorno saldo wallet per uid=$uid");
                 $stmt = $pdo->prepare("
                     UPDATE utenti SET wallet_saldo = wallet_saldo + ? WHERE id = ?
                 ");
                 $stmt->execute([$importoQuota, $uid]);
+                error_log("DEBUG: Saldo wallet aggiornato per uid=$uid");
             }
         }
+        
+        error_log("DEBUG: Fine distribuzione, inizio aggiornamento progetto");
         
         // Aggiorna prezzo_totale del progetto
         $nuovoTotale = floatval($progetto['prezzo_totale']) + $importo;
@@ -763,10 +785,13 @@ function distribuisciPagamentoRicorrente($id) {
             WHERE id = ?
         ");
         $stmt->execute([$nuovoTotale, $prossimaData->format('Y-m-d'), $id]);
+        error_log("DEBUG: Progetto aggiornato con nuovo totale=$nuovoTotale, prossima_data=" . $prossimaData->format('Y-m-d'));
         
         $pdo->commit();
+        error_log("DEBUG: Transaction committed");
         
         logTimeline($_SESSION['user_id'], 'distribuito_ricorrente', 'progetto', $id, "Distribuito pagamento ricorrente di €{$importo}");
+        error_log("DEBUG: Log timeline effettuato");
         
         jsonResponse(true, [
             'importo' => $importo,
@@ -775,12 +800,12 @@ function distribuisciPagamentoRicorrente($id) {
         
     } catch (PDOException $e) {
         $pdo->rollBack();
-        error_log("Errore distribuzione ricorrente PDO: " . $e->getMessage());
-        jsonResponse(false, null, 'Errore durante la distribuzione: ' . $e->getMessage());
-    } catch (Exception $e) {
+        error_log("Errore distribuzione ricorrente PDO: " . $e->getMessage() . " | Codice: " . $e->getCode());
+        jsonResponse(false, null, 'Errore DB: ' . $e->getMessage());
+    } catch (Throwable $e) {
         $pdo->rollBack();
-        error_log("Errore distribuzione ricorrente GENERICO: " . $e->getMessage());
-        jsonResponse(false, null, 'Errore durante la distribuzione: ' . $e->getMessage());
+        error_log("Errore distribuzione ricorrente THROWABLE: " . $e->getMessage() . " | File: " . $e->getFile() . ":" . $e->getLine());
+        jsonResponse(false, null, 'Errore: ' . $e->getMessage());
     }
 }
 
