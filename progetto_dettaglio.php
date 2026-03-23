@@ -3606,6 +3606,12 @@ async function saveProgettoChanges() {
     formData.append('action', 'update');
     formData.append('id', progettoId);
     
+    // DEBUG: Log form data
+    console.log('DEBUG - stato_pagamento:', formData.get('stato_pagamento'));
+    console.log('DEBUG - importo_ricorrente:', formData.get('importo_ricorrente'));
+    console.log('DEBUG - frequenza_ricorrente:', formData.get('frequenza_ricorrente'));
+    console.log('DEBUG - prossima_data_ricorrente:', formData.get('prossima_data_ricorrente'));
+    
     // Aggiungi CSRF token
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
     formData.append('csrf_token', csrfToken);

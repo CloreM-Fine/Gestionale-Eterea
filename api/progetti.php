@@ -328,6 +328,10 @@ function createProgetto() {
             ? json_encode($_POST['distribuzione_ricorrente']) 
             : null;
         
+        // Debug logging
+        error_log("DEBUG UPDATE - stato_pagamento: $statoPagamento, importo: " . ($_POST['importo_ricorrente'] ?? 'NOT SET') . ", frequenza: " . ($_POST['frequenza_ricorrente'] ?? 'NOT SET') . ", data: " . ($_POST['prossima_data_ricorrente'] ?? 'NOT SET'));
+        error_log("DEBUG UPDATE - distribuzione: " . (isset($_POST['distribuzione_ricorrente']) ? json_encode($_POST['distribuzione_ricorrente']) : 'NOT SET'));
+        
         $stmt = $pdo->prepare("
             INSERT INTO progetti (
                 id, titolo, cliente_id, descrizione, note, tipologie, prezzo_totale,
