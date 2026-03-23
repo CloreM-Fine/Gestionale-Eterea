@@ -33,6 +33,13 @@ try {
     $progetto['tipologie'] = json_decode($progetto['tipologie'] ?? '[]', true);
     $progetto['partecipanti'] = json_decode($progetto['partecipanti'] ?? '[]', true);
     
+    // Verifica esistenza colonne pagamento ricorrente (mostra avviso se mancanti)
+    $colonneRicorrenteMancanti = [];
+    if (!array_key_exists('importo_ricorrente', $progetto)) $colonneRicorrenteMancanti[] = 'importo_ricorrente';
+    if (!array_key_exists('frequenza_ricorrente', $progetto)) $colonneRicorrenteMancanti[] = 'frequenza_ricorrente';
+    if (!array_key_exists('prossima_data_ricorrente', $progetto)) $colonneRicorrenteMancanti[] = 'prossima_data_ricorrente';
+    if (!array_key_exists('distribuzione_ricorrente', $progetto)) $colonneRicorrenteMancanti[] = 'distribuzione_ricorrente';
+    
     // Recupera avatar partecipanti
     $progetto['partecipanti_avatar'] = [];
     if (!empty($progetto['partecipanti'])) {
@@ -72,6 +79,27 @@ try {
 
 include __DIR__ . '/includes/header.php';
 ?>
+
+<?php if (!empty($colonneRicorrenteMancanti)): ?>
+<!-- Avviso: colonne pagamento ricorrente mancanti -->
+<div class="bg-amber-50 border-l-4 border-amber-500 p-4 mb-4">
+    <div class="flex items-start">
+        <svg class="w-6 h-6 text-amber-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+        </svg>
+        <div>
+            <h3 class="text-amber-800 font-medium">Configurazione Database Richiesta</h3>
+            <p class="text-amber-700 text-sm mt-1">
+                Il pagamento ricorrente richiede l'aggiunta di colonne al database. 
+                Esegui il file <code>config/alter_table_progetti_pagamento_ricorrente.sql</code> nel tuo database MySQL.
+            </p>
+            <p class="text-amber-600 text-xs mt-2">
+                Colonne mancanti: <?php echo implode(', ', $colonneRicorrenteMancanti); ?>
+            </p>
+        </div>
+    </div>
+</div>
+<?php endif; ?>
 
 <!-- Stili per i commenti task -->
 <style>
