@@ -585,6 +585,10 @@ function eseguiPagamentiMensiliAutomatici() {
                             (progetto_id, tipo, importo, percentuale, descrizione, data_transazione)
                             VALUES (?, 'cassa', ?, ?, 'Contributo cassa mensile - {$meseCorrente}/{$annoCorrente}', NOW())
                         ");
+                        if ($stmt === false) {
+                            error_log("Errore prepare transazione cassa: " . print_r($pdo->errorInfo(), true));
+                            continue;
+                        }
                         $stmt->execute([$progetto['id'], $importo, $percentuale]);
                     } else {
                         // Transazione wallet utente
@@ -593,12 +597,20 @@ function eseguiPagamentiMensiliAutomatici() {
                             (progetto_id, tipo, utente_id, importo, percentuale, descrizione, data_transazione)
                             VALUES (?, 'wallet', ?, ?, ?, 'Compenso mensile {$meseCorrente}/{$annoCorrente}', NOW())
                         ");
+                        if ($stmt === false) {
+                            error_log("Errore prepare transazione wallet: " . print_r($pdo->errorInfo(), true));
+                            continue;
+                        }
                         $stmt->execute([$progetto['id'], $id, $importo, $percentuale]);
                         
                         // Aggiorna saldo wallet
                         $stmt = $pdo->prepare("
                             UPDATE utenti SET wallet_saldo = wallet_saldo + ? WHERE id = ?
                         ");
+                        if ($stmt === false) {
+                            error_log("Errore prepare update wallet: " . print_r($pdo->errorInfo(), true));
+                            continue;
+                        }
                         $stmt->execute([$importo, $id]);
                     }
                 }
