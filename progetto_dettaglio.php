@@ -3349,11 +3349,21 @@ function toggleEditPagamentoRicorrente() {
         wrapper.classList.remove('hidden');
         // Imposta default data prossima pagamento a oggi + 1 mese se vuota
         const dataInput = document.getElementById('editProssimaDataRicorrente');
-        if (!dataInput.value) {
+        if (dataInput && !dataInput.value) {
             const oggi = new Date();
             oggi.setMonth(oggi.getMonth() + 1);
             dataInput.valueAsDate = oggi;
         }
+        // Imposta default distribuzione se campi vuoti
+        const defaultDistrib = { 'ucwurog3xr8tf': 30, 'ukl9ipuolsebn': 30, 'u3ghz4f2lnpkx': 30, 'cassa': 10 };
+        Object.keys(defaultDistrib).forEach(key => {
+            const inputId = key === 'cassa' ? 'editDistribuzioneRicorrenteCassa' : 'editDistribuzioneRicorrente' + key;
+            const input = document.getElementById(inputId);
+            if (input && !input.value && input.value !== '0') {
+                input.value = defaultDistrib[key];
+            }
+        });
+        validaEditDistribuzioneRicorrente();
     } else {
         wrapper.classList.add('hidden');
     }
@@ -3512,8 +3522,10 @@ function openEditProgettoModal() {
     document.getElementById('editProgettoDescrizione').value = progetto.descrizione || '';
     document.getElementById('editProgettoNote').value = progetto.note || '';
     
-    // Pagamento ricorrente
-    toggleEditPagamentoRicorrente();
+    // Pagamento ricorrente - gestione visibilità sezione
+    setTimeout(() => {
+        toggleEditPagamentoRicorrente();
+    }, 0);
     document.getElementById('editImportoRicorrente').value = progetto.importo_ricorrente || '';
     document.getElementById('editFrequenzaRicorrente').value = progetto.frequenza_ricorrente || 'mensile';
     document.getElementById('editProssimaDataRicorrente').value = progetto.prossima_data_ricorrente || '';
