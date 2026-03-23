@@ -27,6 +27,15 @@ $isValid = false;
 $existingImages = [];
 $justSubmitted = false;
 
+// Recupera logo personalizzato
+try {
+    $stmt = $pdo->prepare("SELECT valore FROM impostazioni WHERE chiave = 'logo_gestionale'");
+    $stmt->execute();
+    $logoGestionale = $stmt->fetchColumn() ?: '';
+} catch (PDOException $e) {
+    $logoGestionale = '';
+}
+
 // Verifica se è stato appena inviato (per non mostrare immagini precedenti)
 if ($success) {
     $justSubmitted = true;
@@ -187,9 +196,16 @@ $csrfToken = generateCsrfToken();
     <header class="bg-white border-b border-[#e8e4e0]">
         <div class="max-w-7xl mx-auto px-4 py-4">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-[#9bc4d0] via-[#a8b5a0] to-[#c4b5d0] flex items-center justify-center font-bold text-[#2d2d2d] text-lg">
-                    E
-                </div>
+                <?php if ($logoGestionale): ?>
+                    <div class="w-10 h-10 rounded-xl overflow-hidden flex items-center justify-center">
+                        <img src="assets/uploads/logo/<?php echo e($logoGestionale); ?>?v=<?php echo time(); ?>" 
+                             alt="Eterea Studio" class="w-full h-full object-contain">
+                    </div>
+                <?php else: ?>
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-[#9bc4d0] via-[#a8b5a0] to-[#c4b5d0] flex items-center justify-center font-bold text-[#2d2d2d] text-lg">
+                        E
+                    </div>
+                <?php endif; ?>
                 <div>
                     <h1 class="font-bold text-[#2d2d2d]">Eterea Studio</h1>
                     <p class="text-xs text-[#909090]">Carica contenuti</p>
