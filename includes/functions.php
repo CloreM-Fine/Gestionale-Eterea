@@ -66,10 +66,6 @@ function currentUserId() {
 /**
  * Genera un ID univoco (formato simile a quelli esistenti)
  */
-function generateId() {
-    return 'u' . substr(md5(uniqid(mt_rand(), true)), 0, 12) . substr(uniqid(), -1);
-}
-
 /**
  * Genera un ID breve per task/progetti (formato: txxx o pxxx)
  */
@@ -517,20 +513,6 @@ function verificaScadenzePagamentiMensili($giorniAnticipo = 3) {
 function eseguiPagamentiMensiliAutomatici() {
     // Funzione disabilitata - pagamento mensile rimosso
     return [];
-}
-
-/**
- * Ottiene il nome di un utente dal suo ID
- */
-function getUserName($userId) {
-    return USERS[$userId]['nome'] ?? 'Utente sconosciuto';
-}
-
-/**
- * Ottiene il colore di un utente dal suo ID
- */
-function getUserColor($userId) {
-    return USERS[$userId]['colore'] ?? '#3B82F6';
 }
 
 /**

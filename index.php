@@ -19,10 +19,8 @@ try {
     $stmt = $pdo->prepare("SELECT valore FROM impostazioni WHERE chiave = 'logo_gestionale'");
     $stmt->execute();
     $logoGestionale = $stmt->fetchColumn() ?: '';
-    $isLogoSvg = $logoGestionale && str_ends_with(strtolower($logoGestionale), '.svg');
 } catch (PDOException $e) {
     $logoGestionale = '';
-    $isLogoSvg = false;
 }
 
 $error = $_GET['error'] ?? '';

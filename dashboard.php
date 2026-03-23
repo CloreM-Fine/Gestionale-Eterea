@@ -26,9 +26,6 @@ verificaScadenzePagamentiMensili(3);
 // Ottieni statistiche
 $stats = getDashboardStats($_SESSION['user_id']);
 
-// Ottieni tutti gli utenti per riferimento
-$users = USERS;
-
 include __DIR__ . '/includes/header.php';
 ?>
 

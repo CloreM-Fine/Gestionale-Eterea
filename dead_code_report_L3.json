@@ -1,0 +1,8997 @@
+{
+  "meta": {
+    "total_css_classes_defined": 25,
+    "total_css_classes_used": 1015,
+    "total_js_functions_defined": 399,
+    "total_js_functions_called": 1093,
+    "total_html_ids_defined": 549,
+    "total_html_ids_referenced": 402
+  },
+  "css_dead_classes": [
+    {
+      "class": "badge-lg",
+      "locations": [
+        "assets/css/tailwind.css:118"
+      ]
+    },
+    {
+      "class": "badge-md",
+      "locations": [
+        "assets/css/tailwind.css:114"
+      ]
+    },
+    {
+      "class": "badge-sm",
+      "locations": [
+        "assets/css/tailwind.css:110"
+      ]
+    },
+    {
+      "class": "btn-icon",
+      "locations": [
+        "assets/css/tailwind.css:132"
+      ]
+    },
+    {
+      "class": "card-elevated",
+      "locations": [
+        "assets/css/tailwind.css:123"
+      ]
+    },
+    {
+      "class": "card-flat",
+      "locations": [
+        "assets/css/tailwind.css:127"
+      ]
+    },
+    {
+      "class": "glass",
+      "locations": [
+        "assets/css/tailwind.css:53"
+      ]
+    },
+    {
+      "class": "glass-dark",
+      "locations": [
+        "assets/css/tailwind.css:59"
+      ]
+    },
+    {
+      "class": "input-enhanced",
+      "locations": [
+        "assets/css/tailwind.css:137"
+      ]
+    },
+    {
+      "class": "line-clamp-1",
+      "locations": [
+        "assets/css/tailwind.css:31"
+      ]
+    },
+    {
+      "class": "line-clamp-3",
+      "locations": [
+        "assets/css/tailwind.css:45"
+      ]
+    },
+    {
+      "class": "mobile-full",
+      "locations": [
+        "assets/css/tailwind.css:212"
+      ]
+    },
+    {
+      "class": "mobile-stack",
+      "locations": [
+        "assets/css/tailwind.css:216"
+      ]
+    },
+    {
+      "class": "show",
+      "locations": [
+        "assets/css/tailwind.css:175"
+      ]
+    },
+    {
+      "class": "skeleton",
+      "locations": [
+        "assets/css/tailwind.css:195"
+      ]
+    },
+    {
+      "class": "table-enhanced",
+      "locations": [
+        "assets/css/tailwind.css:152"
+      ]
+    },
+    {
+      "class": "table-responsive",
+      "locations": [
+        "assets/css/tailwind.css:148"
+      ]
+    },
+    {
+      "class": "tooltip",
+      "locations": [
+        "assets/css/tailwind.css:180"
+      ]
+    }
+  ],
+  "js_dead_functions": [
+    {
+      "function": "cardsHtml",
+      "locations": [
+        "progetti.php:1794 (inline)"
+      ]
+    },
+    {
+      "function": "codice",
+      "locations": [
+        "impostazioni.php:2132 (inline)"
+      ]
+    },
+    {
+      "function": "costiProgetto",
+      "locations": [
+        "report.php:664 (inline)"
+      ]
+    },
+    {
+      "function": "dayEvents",
+      "locations": [
+        "calendario.php:585 (inline)"
+      ]
+    },
+    {
+      "function": "days",
+      "locations": [
+        "dashboard.php:625 (inline)"
+      ]
+    },
+    {
+      "function": "esclusi",
+      "locations": [
+        "progetto_dettaglio.php:1764 (inline)"
+      ]
+    },
+    {
+      "function": "event",
+      "locations": [
+        "calendario.php:950 (inline)"
+      ]
+    },
+    {
+      "function": "fileNames",
+      "locations": [
+        "upload_cliente.php:675 (inline)"
+      ]
+    },
+    {
+      "function": "grouped",
+      "locations": [
+        "progetti.php:1767 (inline)"
+      ]
+    },
+    {
+      "function": "gruppi",
+      "locations": [
+        "scadenze.php:370 (inline)"
+      ]
+    },
+    {
+      "function": "handleFiles",
+      "locations": [
+        "assets/js/components.js:176"
+      ]
+    },
+    {
+      "function": "hasAllowedExtension",
+      "locations": [
+        "progetto_dettaglio.php:2773 (inline)"
+      ]
+    },
+    {
+      "function": "hasMensile",
+      "locations": [
+        "preventivi.php:954 (inline)",
+        "preventivi.php:2437 (inline)",
+        "preventivi.php:2167 (inline)",
+        "preventivi.php:2536 (inline)"
+      ]
+    },
+    {
+      "function": "hasOraria",
+      "locations": [
+        "preventivi.php:2436 (inline)",
+        "preventivi.php:2535 (inline)"
+      ]
+    },
+    {
+      "function": "hasVisibleOptions",
+      "locations": [
+        "preventivi.php:1123 (inline)"
+      ]
+    },
+    {
+      "function": "hiddenCount",
+      "locations": [
+        "calendario.php:524 (inline)"
+      ]
+    },
+    {
+      "function": "html",
+      "locations": [
+        "assets/js/components.js:341",
+        "progetto_dettaglio.php:698 (inline)",
+        "preventivi.php:905 (inline)",
+        "calendario.php:1089 (inline)"
+      ]
+    },
+    {
+      "function": "iconColors",
+      "locations": [
+        "clienti.php:1050 (inline)"
+      ]
+    },
+    {
+      "function": "inattivi",
+      "locations": [
+        "progetto_dettaglio.php:1869 (inline)"
+      ]
+    },
+    {
+      "function": "inattivi2",
+      "locations": [
+        "progetto_dettaglio.php:1886 (inline)"
+      ]
+    },
+    {
+      "function": "isMobile",
+      "locations": [
+        "calendario.php:506 (inline)"
+      ]
+    },
+    {
+      "function": "item",
+      "locations": [
+        "assets/js/components.js:88"
+      ]
+    },
+    {
+      "function": "items",
+      "locations": [
+        "progetto_dettaglio.php:3274 (inline)",
+        "progetto_dettaglio.php:3306 (inline)"
+      ]
+    },
+    {
+      "function": "labels",
+      "locations": [
+        "report.php:720 (inline)"
+      ]
+    },
+    {
+      "function": "later",
+      "locations": [
+        "assets/js/app.js:195",
+        "clienti.php:977 (inline)",
+        "progetti.php:2183 (inline)"
+      ]
+    },
+    {
+      "function": "maxSize",
+      "locations": [
+        "upload_cliente.php:672 (inline)"
+      ]
+    },
+    {
+      "function": "numServizi",
+      "locations": [
+        "preventivi.php:952 (inline)"
+      ]
+    },
+    {
+      "function": "options",
+      "locations": [
+        "scadenze.php:659 (inline)"
+      ]
+    },
+    {
+      "function": "original",
+      "locations": [
+        "progetto_dettaglio.php:780 (inline)"
+      ]
+    },
+    {
+      "function": "panRafId",
+      "locations": [
+        "progetti.php:1450 (inline)"
+      ]
+    },
+    {
+      "function": "partecipantiAvatars",
+      "locations": [
+        "calendario.php:821 (inline)",
+        "calendario.php:869 (inline)"
+      ]
+    },
+    {
+      "function": "partecipantiHtml",
+      "locations": [
+        "calendario.php:643 (inline)"
+      ]
+    },
+    {
+      "function": "partecipantiText",
+      "locations": [
+        "calendario.php:750 (inline)"
+      ]
+    },
+    {
+      "function": "perCliente",
+      "locations": [
+        "blog_clienti.php:384 (inline)",
+        "blog_clienti.php:487 (inline)"
+      ]
+    },
+    {
+      "function": "periodi",
+      "locations": [
+        "report.php:719 (inline)"
+      ]
+    },
+    {
+      "function": "preventivi",
+      "locations": [
+        "clienti.php:469 (inline)"
+      ]
+    },
+    {
+      "function": "progettiFiltrati",
+      "locations": [
+        "briefing_ai.php:427 (inline)"
+      ]
+    },
+    {
+      "function": "progettiPerStato",
+      "locations": [
+        "progetti.php:1135 (inline)"
+      ]
+    },
+    {
+      "function": "renderChips",
+      "locations": [
+        "assets/js/components.js:86"
+      ]
+    },
+    {
+      "function": "scadenzeInScadenza",
+      "locations": [
+        "includes/header.php:934 (inline)"
+      ]
+    },
+    {
+      "function": "serviziListino",
+      "locations": [
+        "preventivi.php:1718 (inline)"
+      ]
+    },
+    {
+      "function": "share2",
+      "locations": [
+        "progetto_dettaglio.php:1870 (inline)"
+      ]
+    },
+    {
+      "function": "share3",
+      "locations": [
+        "progetto_dettaglio.php:1859 (inline)"
+      ]
+    },
+    {
+      "function": "template",
+      "locations": [
+        "impostazioni.php:2431 (inline)",
+        "impostazioni.php:2637 (inline)"
+      ]
+    },
+    {
+      "function": "tipoIcone",
+      "locations": [
+        "impostazioni.php:2590 (inline)"
+      ]
+    },
+    {
+      "function": "todayEvents",
+      "locations": [
+        "calendario.php:410 (inline)"
+      ]
+    },
+    {
+      "function": "totale",
+      "locations": [
+        "progetto_dettaglio.php:3427 (inline)",
+        "preventivi.php:2163 (inline)",
+        "progetti.php:2085 (inline)"
+      ]
+    },
+    {
+      "function": "totaliOre",
+      "locations": [
+        "report.php:708 (inline)"
+      ]
+    },
+    {
+      "function": "totaliProgetti",
+      "locations": [
+        "report.php:709 (inline)"
+      ]
+    }
+  ],
+  "html_dead_ids": [
+    {
+      "id": " + encodeURIComponent(clienteId);\n    \n    // Gestione filtro archiviati\n    if (mostraSoloArchiviati) {\n        url += ",
+      "locations": [
+        "blog_clienti.php:311"
+      ]
+    },
+    {
+      "id": " + encodeURIComponent(currentEventId), {\n                method: ",
+      "locations": [
+        "dashboard.php:926"
+      ]
+    },
+    {
+      "id": " + encodeURIComponent(eventId), {\n                method: ",
+      "locations": [
+        "calendario.php:1218"
+      ]
+    },
+    {
+      "id": " + encodeURIComponent(eventId), {\n            method: ",
+      "locations": [
+        "calendario.php:1244"
+      ]
+    },
+    {
+      "id": " + n.progetto_id + ",
+      "locations": [
+        "includes/footer.php:184"
+      ]
+    },
+    {
+      "id": "${groupId}",
+      "locations": [
+        "progetti.php:1797"
+      ]
+    },
+    {
+      "id": "${sezioneId}",
+      "locations": [
+        "preventivi.php:2193"
+      ]
+    },
+    {
+      "id": "${sezioneId}-contenuto",
+      "locations": [
+        "preventivi.php:2240"
+      ]
+    },
+    {
+      "id": "${sezioneId}-editor",
+      "locations": [
+        "preventivi.php:2238"
+      ]
+    },
+    {
+      "id": "${sezioneId}-titolo",
+      "locations": [
+        "preventivi.php:2195"
+      ]
+    },
+    {
+      "id": "${v.id}",
+      "locations": [
+        "preventivi.php:1818",
+        "preventivi.php:2015"
+      ]
+    },
+    {
+      "id": "a4Container",
+      "locations": [
+        "preventivi.php:842"
+      ]
+    },
+    {
+      "id": "arrowhead",
+      "locations": [
+        "progetti.php:666"
+      ]
+    },
+    {
+      "id": "associaProgettoModal",
+      "locations": [
+        "preventivi.php:2702"
+      ]
+    },
+    {
+      "id": "avatarForm",
+      "locations": [
+        "impostazioni.php:166"
+      ]
+    },
+    {
+      "id": "avatarPreview",
+      "locations": [
+        "impostazioni.php:143"
+      ]
+    },
+    {
+      "id": "btn-${groupId}",
+      "locations": [
+        "progetti.php:1809"
+      ]
+    },
+    {
+      "id": "btn-checklist-<?php echo e(str_replace(",
+      "locations": [
+        "progetto_dettaglio.php:1435"
+      ]
+    },
+    {
+      "id": "btnScrollNext",
+      "locations": [
+        "preventivi.php:441"
+      ]
+    },
+    {
+      "id": "btnScrollPrev",
+      "locations": [
+        "preventivi.php:364"
+      ]
+    },
+    {
+      "id": "burocraziaModal",
+      "locations": [
+        "impostazioni.php:1194"
+      ]
+    },
+    {
+      "id": "categoriaModal",
+      "locations": [
+        "preventivi.php:589"
+      ]
+    },
+    {
+      "id": "chart-economico-mensile",
+      "locations": [
+        "report.php:273"
+      ]
+    },
+    {
+      "id": "chart-economico-progetti",
+      "locations": [
+        "report.php:279"
+      ]
+    },
+    {
+      "id": "chart-progetti-avanzamento",
+      "locations": [
+        "report.php:212"
+      ]
+    },
+    {
+      "id": "chart-progetti-budget",
+      "locations": [
+        "report.php:206"
+      ]
+    },
+    {
+      "id": "chart-progetti-stato",
+      "locations": [
+        "report.php:111"
+      ]
+    },
+    {
+      "id": "chart-task-stato",
+      "locations": [
+        "report.php:117"
+      ]
+    },
+    {
+      "id": "chart-temporale-andamento",
+      "locations": [
+        "report.php:314"
+      ]
+    },
+    {
+      "id": "chart-utenti-efficienza",
+      "locations": [
+        "report.php:160"
+      ]
+    },
+    {
+      "id": "chart-utenti-ore",
+      "locations": [
+        "report.php:154"
+      ]
+    },
+    {
+      "id": "check_${item.id}",
+      "locations": [
+        "progetto_dettaglio.php:3285"
+      ]
+    },
+    {
+      "id": "clienteModal",
+      "locations": [
+        "clienti.php:85"
+      ]
+    },
+    {
+      "id": "comment_${item.id}",
+      "locations": [
+        "progetto_dettaglio.php:3292"
+      ]
+    },
+    {
+      "id": "commenti-container-${t.id}",
+      "locations": [
+        "progetto_dettaglio.php:1982"
+      ]
+    },
+    {
+      "id": "commento-${c.id}",
+      "locations": [
+        "progetto_dettaglio.php:2948"
+      ]
+    },
+    {
+      "id": "commento-input-${t.id}",
+      "locations": [
+        "progetto_dettaglio.php:2084",
+        "progetto_dettaglio.php:2196"
+      ]
+    },
+    {
+      "id": "contabilitaMensileSection",
+      "locations": [
+        "dashboard.php:467"
+      ]
+    },
+    {
+      "id": "contabilitaPassword",
+      "locations": [
+        "impostazioni.php:281"
+      ]
+    },
+    {
+      "id": "content-dettagli",
+      "locations": [
+        "progetto_dettaglio.php:918"
+      ]
+    },
+    {
+      "id": "content-economia",
+      "locations": [
+        "progetto_dettaglio.php:1373"
+      ]
+    },
+    {
+      "id": "content-task",
+      "locations": [
+        "progetto_dettaglio.php:1189"
+      ]
+    },
+    {
+      "id": "controls-${v.id}",
+      "locations": [
+        "preventivi.php:1841",
+        "preventivi.php:2038"
+      ]
+    },
+    {
+      "id": "count-archiviato",
+      "locations": [
+        "progetti.php:751"
+      ]
+    },
+    {
+      "id": "count-completato",
+      "locations": [
+        "progetti.php:727"
+      ]
+    },
+    {
+      "id": "count-consegnato",
+      "locations": [
+        "progetti.php:739"
+      ]
+    },
+    {
+      "id": "count-da_iniziare",
+      "locations": [
+        "progetti.php:690"
+      ]
+    },
+    {
+      "id": "count-in_corso",
+      "locations": [
+        "progetti.php:703"
+      ]
+    },
+    {
+      "id": "count-in_pausa",
+      "locations": [
+        "progetti.php:715"
+      ]
+    },
+    {
+      "id": "counterProssimoPagamento",
+      "locations": [
+        "progetto_dettaglio.php:1026"
+      ]
+    },
+    {
+      "id": "cronologiaHeader",
+      "locations": [
+        "tasse.php:323"
+      ]
+    },
+    {
+      "id": "dayEventsModal",
+      "locations": [
+        "calendario.php:368"
+      ]
+    },
+    {
+      "id": "deleteAllModal1",
+      "locations": [
+        "impostazioni.php:1050"
+      ]
+    },
+    {
+      "id": "deleteAllModal2",
+      "locations": [
+        "impostazioni.php:1078"
+      ]
+    },
+    {
+      "id": "deleteAllModal3",
+      "locations": [
+        "impostazioni.php:1100"
+      ]
+    },
+    {
+      "id": "deleteCronologiaModal1",
+      "locations": [
+        "impostazioni.php:964"
+      ]
+    },
+    {
+      "id": "deleteCronologiaModal2",
+      "locations": [
+        "impostazioni.php:984"
+      ]
+    },
+    {
+      "id": "desc-listino-${v.id}",
+      "locations": [
+        "preventivi.php:1387"
+      ]
+    },
+    {
+      "id": "desc-preview-${t.id}",
+      "locations": [
+        "progetto_dettaglio.php:2111"
+      ]
+    },
+    {
+      "id": "dettaglioContenutoModal",
+      "locations": [
+        "blog_clienti.php:234"
+      ]
+    },
+    {
+      "id": "dettaglioModal",
+      "locations": [
+        "clienti.php:244"
+      ]
+    },
+    {
+      "id": "distribuzioneModal",
+      "locations": [
+        "progetto_dettaglio.php:1619"
+      ]
+    },
+    {
+      "id": "distribuzioneRicorrenteContainer",
+      "locations": [
+        "progetti.php:920"
+      ]
+    },
+    {
+      "id": "editColore<?php echo str_replace(",
+      "locations": [
+        "progetto_dettaglio.php:600"
+      ]
+    },
+    {
+      "id": "editDistribuzioneRicorrente<?php echo $uid; ?>",
+      "locations": [
+        "progetto_dettaglio.php:526"
+      ]
+    },
+    {
+      "id": "editDistribuzioneRicorrenteCassa",
+      "locations": [
+        "progetto_dettaglio.php:544"
+      ]
+    },
+    {
+      "id": "editDistribuzioneRicorrenteContainer",
+      "locations": [
+        "progetto_dettaglio.php:517"
+      ]
+    },
+    {
+      "id": "editPartecipante<?php echo $id; ?>",
+      "locations": [
+        "progetto_dettaglio.php:567"
+      ]
+    },
+    {
+      "id": "editProgettoModal",
+      "locations": [
+        "progetto_dettaglio.php:384"
+      ]
+    },
+    {
+      "id": "editTipo<?php echo str_replace(",
+      "locations": [
+        "progetto_dettaglio.php:443"
+      ]
+    },
+    {
+      "id": "eventDetailModal",
+      "locations": [
+        "dashboard.php:434"
+      ]
+    },
+    {
+      "id": "eventModal",
+      "locations": [
+        "calendario.php:164"
+      ]
+    },
+    {
+      "id": "events-${dateStr}",
+      "locations": [
+        "calendario.php:461"
+      ]
+    },
+    {
+      "id": "expand-icon-${t.id}",
+      "locations": [
+        "progetto_dettaglio.php:2156"
+      ]
+    },
+    {
+      "id": "filtriMobileBtn",
+      "locations": [
+        "progetti.php:78"
+      ]
+    },
+    {
+      "id": "firmaAziendaPreview",
+      "locations": [
+        "impostazioni.php:557"
+      ]
+    },
+    {
+      "id": "frequenzaRicorrente",
+      "locations": [
+        "progetti.php:900"
+      ]
+    },
+    {
+      "id": "generaLinkModal",
+      "locations": [
+        "blog_clienti.php:140"
+      ]
+    },
+    {
+      "id": "importoRicorrente",
+      "locations": [
+        "progetti.php:894"
+      ]
+    },
+    {
+      "id": "linkGeneratoModal",
+      "locations": [
+        "blog_clienti.php:194"
+      ]
+    },
+    {
+      "id": "logoAziendaPreview",
+      "locations": [
+        "impostazioni.php:522"
+      ]
+    },
+    {
+      "id": "logoForm",
+      "locations": [
+        "impostazioni.php:437"
+      ]
+    },
+    {
+      "id": "logoPreview",
+      "locations": [
+        "clienti.php:104",
+        "impostazioni.php:416"
+      ]
+    },
+    {
+      "id": "modalCodiceAteco",
+      "locations": [
+        "impostazioni.php:793"
+      ]
+    },
+    {
+      "id": "node-archiviato",
+      "locations": [
+        "progetti.php:745"
+      ]
+    },
+    {
+      "id": "node-completato",
+      "locations": [
+        "progetti.php:721"
+      ]
+    },
+    {
+      "id": "node-consegnato",
+      "locations": [
+        "progetti.php:733"
+      ]
+    },
+    {
+      "id": "node-da_iniziare",
+      "locations": [
+        "progetti.php:684"
+      ]
+    },
+    {
+      "id": "node-in_corso",
+      "locations": [
+        "progetti.php:696"
+      ]
+    },
+    {
+      "id": "node-in_pausa",
+      "locations": [
+        "progetti.php:709"
+      ]
+    },
+    {
+      "id": "pipeline-archiviato",
+      "locations": [
+        "progetti.php:753"
+      ]
+    },
+    {
+      "id": "pipeline-completato",
+      "locations": [
+        "progetti.php:729"
+      ]
+    },
+    {
+      "id": "pipeline-consegnato",
+      "locations": [
+        "progetti.php:741"
+      ]
+    },
+    {
+      "id": "pipeline-da_iniziare",
+      "locations": [
+        "progetti.php:692"
+      ]
+    },
+    {
+      "id": "pipeline-in_corso",
+      "locations": [
+        "progetti.php:705"
+      ]
+    },
+    {
+      "id": "pipeline-in_pausa",
+      "locations": [
+        "progetti.php:717"
+      ]
+    },
+    {
+      "id": "placeholder-data-inizio",
+      "locations": [
+        "calendario.php:219"
+      ]
+    },
+    {
+      "id": "prev-qty-${v.id}",
+      "locations": [
+        "preventivi.php:2106"
+      ]
+    },
+    {
+      "id": "prev-voce-${v.id}",
+      "locations": [
+        "preventivi.php:1802",
+        "preventivi.php:1999",
+        "preventivi.php:2089"
+      ]
+    },
+    {
+      "id": "preventiviClienteSection",
+      "locations": [
+        "clienti.php:765"
+      ]
+    },
+    {
+      "id": "preventivoModal",
+      "locations": [
+        "preventivi.php:624"
+      ]
+    },
+    {
+      "id": "previewModal",
+      "locations": [
+        "preventivi.php:813"
+      ]
+    },
+    {
+      "id": "prezzo-${v.id}",
+      "locations": [
+        "preventivi.php:1845"
+      ]
+    },
+    {
+      "id": "progettoModal",
+      "locations": [
+        "progetti.php:780"
+      ]
+    },
+    {
+      "id": "qty-${v.id}",
+      "locations": [
+        "preventivi.php:1854",
+        "preventivi.php:2045"
+      ]
+    },
+    {
+      "id": "report-content-dashboard",
+      "locations": [
+        "report.php:81"
+      ]
+    },
+    {
+      "id": "report-content-economico",
+      "locations": [
+        "report.php:245"
+      ]
+    },
+    {
+      "id": "report-content-progetti",
+      "locations": [
+        "report.php:192"
+      ]
+    },
+    {
+      "id": "report-content-temporale",
+      "locations": [
+        "report.php:286"
+      ]
+    },
+    {
+      "id": "report-content-utenti",
+      "locations": [
+        "report.php:140"
+      ]
+    },
+    {
+      "id": "resetSaldiModal1",
+      "locations": [
+        "impostazioni.php:1006"
+      ]
+    },
+    {
+      "id": "resetSaldiModal2",
+      "locations": [
+        "impostazioni.php:1026"
+      ]
+    },
+    {
+      "id": "row-${v.id}",
+      "locations": [
+        "preventivi.php:1798",
+        "preventivi.php:1995"
+      ]
+    },
+    {
+      "id": "sconto-${v.id}",
+      "locations": [
+        "preventivi.php:1863"
+      ]
+    },
+    {
+      "id": "stack-${groupId}",
+      "locations": [
+        "progetti.php:1817"
+      ]
+    },
+    {
+      "id": "tab-blog",
+      "locations": [
+        "progetto_dettaglio.php:898"
+      ]
+    },
+    {
+      "id": "tab-controllo",
+      "locations": [
+        "progetto_dettaglio.php:907"
+      ]
+    },
+    {
+      "id": "tab-dashboard",
+      "locations": [
+        "report.php:34"
+      ]
+    },
+    {
+      "id": "tab-dettagli",
+      "locations": [
+        "progetto_dettaglio.php:884"
+      ]
+    },
+    {
+      "id": "tab-documenti",
+      "locations": [
+        "progetto_dettaglio.php:893"
+      ]
+    },
+    {
+      "id": "tab-economia",
+      "locations": [
+        "progetto_dettaglio.php:903"
+      ]
+    },
+    {
+      "id": "tab-economico",
+      "locations": [
+        "report.php:58"
+      ]
+    },
+    {
+      "id": "tab-progetti",
+      "locations": [
+        "report.php:50"
+      ]
+    },
+    {
+      "id": "tab-task",
+      "locations": [
+        "progetto_dettaglio.php:888"
+      ]
+    },
+    {
+      "id": "tab-temporale",
+      "locations": [
+        "report.php:66"
+      ]
+    },
+    {
+      "id": "tab-utenti",
+      "locations": [
+        "report.php:42"
+      ]
+    },
+    {
+      "id": "task-${t.id}",
+      "locations": [
+        "progetto_dettaglio.php:1980"
+      ]
+    },
+    {
+      "id": "task-expand-${t.id}",
+      "locations": [
+        "progetto_dettaglio.php:2176"
+      ]
+    },
+    {
+      "id": "taskModal",
+      "locations": [
+        "progetto_dettaglio.php:1485"
+      ]
+    },
+    {
+      "id": "tasseStatusIcon",
+      "locations": [
+        "impostazioni.php:710"
+      ]
+    },
+    {
+      "id": "tasseStatusText",
+      "locations": [
+        "impostazioni.php:716"
+      ]
+    },
+    {
+      "id": "templateModal",
+      "locations": [
+        "impostazioni.php:1131"
+      ]
+    },
+    {
+      "id": "timelineContent",
+      "locations": [
+        "clienti.php:301"
+      ]
+    },
+    {
+      "id": "timelineModal",
+      "locations": [
+        "clienti.php:276"
+      ]
+    },
+    {
+      "id": "timer-btn-desk-pause-${t.id}",
+      "locations": [
+        "progetto_dettaglio.php:2124"
+      ]
+    },
+    {
+      "id": "timer-btn-desk-reset-${t.id}",
+      "locations": [
+        "progetto_dettaglio.php:2133"
+      ]
+    },
+    {
+      "id": "timer-btn-desk-resume-${t.id}",
+      "locations": [
+        "progetto_dettaglio.php:2127"
+      ]
+    },
+    {
+      "id": "timer-btn-desk-start-${t.id}",
+      "locations": [
+        "progetto_dettaglio.php:2121"
+      ]
+    },
+    {
+      "id": "timer-btn-desk-stop-${t.id}",
+      "locations": [
+        "progetto_dettaglio.php:2130"
+      ]
+    },
+    {
+      "id": "timer-btn-pause-${t.id}",
+      "locations": [
+        "progetto_dettaglio.php:2011"
+      ]
+    },
+    {
+      "id": "timer-btn-reset-${t.id}",
+      "locations": [
+        "progetto_dettaglio.php:2020"
+      ]
+    },
+    {
+      "id": "timer-btn-resume-${t.id}",
+      "locations": [
+        "progetto_dettaglio.php:2014"
+      ]
+    },
+    {
+      "id": "timer-btn-start-${t.id}",
+      "locations": [
+        "progetto_dettaglio.php:2008"
+      ]
+    },
+    {
+      "id": "timer-btn-stop-${t.id}",
+      "locations": [
+        "progetto_dettaglio.php:2017"
+      ]
+    },
+    {
+      "id": "timer-display-${t.id}",
+      "locations": [
+        "progetto_dettaglio.php:2007"
+      ]
+    },
+    {
+      "id": "timer-display-desk-${t.id}",
+      "locations": [
+        "progetto_dettaglio.php:2120"
+      ]
+    },
+    {
+      "id": "tipologieControlloButtons",
+      "locations": [
+        "progetto_dettaglio.php:1432"
+      ]
+    },
+    {
+      "id": "totale-${v.id}",
+      "locations": [
+        "preventivi.php:1869",
+        "preventivi.php:2053"
+      ]
+    },
+    {
+      "id": "trans-desktop-${t.id}",
+      "locations": [
+        "finanze.php:603"
+      ]
+    },
+    {
+      "id": "trans-mobile-${t.id}",
+      "locations": [
+        "finanze.php:580"
+      ]
+    },
+    {
+      "id": "voceModal",
+      "locations": [
+        "preventivi.php:466"
+      ]
+    }
+  ],
+  "inline_styles_consolidation_candidates": [
+    {
+      "file": "progetti.php",
+      "line": 156,
+      "size": 10849,
+      "classes": [
+        "pipeline-project-card",
+        "animate",
+        "pipeline-project-price",
+        "card-stack",
+        "pipeline-avatar",
+        "pipeline-project-dot",
+        "node-header",
+        "pipeline-project-footer",
+        "card-stack-container",
+        "dragging",
+        "pipeline-avatar-more",
+        "pipeline-project-title",
+        "node-count",
+        "card-stack-item",
+        "collapsed",
+        "pipeline-project-client",
+        "relative",
+        "node-content",
+        "pipeline-project-payment",
+        "payment-badge",
+        "cliente-group",
+        "stack-toggle-btn",
+        "pipeline-project-header",
+        "active",
+        "pipeline-project-meta",
+        "pipeline-project-avatars",
+        "pipeline-zoom-level",
+        "pipeline-node",
+        "pipeline-connection",
+        "pipeline-controls"
+      ]
+    },
+    {
+      "file": "api/preventivi.php",
+      "line": 761,
+      "size": 8985,
+      "classes": [
+        "burocrazia-content",
+        "note",
+        "no-print",
+        "validita-box",
+        "firma-box",
+        "condizioni-extra-item",
+        "cliente-dettagli",
+        "doc-info",
+        "logo",
+        "firma-boxes",
+        "firma-line",
+        "sezione-contenuto",
+        "firma-data",
+        "totals",
+        "condizioni-extra",
+        "firma-label",
+        "burocrazia",
+        "footer",
+        "condizioni",
+        "logo-icon",
+        "client-section",
+        "nome",
+        "firma-section",
+        "header",
+        "sezione-aggiuntiva",
+        "client-box"
+      ]
+    },
+    {
+      "file": "includes/header.php",
+      "line": 72,
+      "size": 8531,
+      "classes": [
+        "main-wrapper",
+        "mobile-menu",
+        "card-hover",
+        "mobile-menu-grid",
+        "sidebar-collapsed",
+        "bottom-nav",
+        "mobile-menu-item",
+        "open",
+        "bottom-nav-item",
+        "sidebar-text",
+        "slide-in",
+        "mobile-full-menu",
+        "fade-in",
+        "active",
+        "touch-target",
+        "show",
+        "dropdown-menu",
+        "mobile-full-menu-header",
+        "sidebar-logo-text",
+        "sidebar-logo"
+      ]
+    },
+    {
+      "file": "progetto_dettaglio.php",
+      "line": 105,
+      "size": 3850,
+      "classes": [
+        "tooltip-container",
+        "task-commenti-container",
+        "commento-text",
+        "btn-elimina-commento",
+        "task-commento-form",
+        "commento-autore",
+        "tooltip-text",
+        "task-commento"
+      ]
+    },
+    {
+      "file": "preventivi.php",
+      "line": 47,
+      "size": 3295,
+      "classes": [
+        "active",
+        "separator",
+        "scrollbar-hide",
+        "desc-text",
+        "carosello-wrapper",
+        "line-clamp-2",
+        "wysiwyg-toolbar"
+      ]
+    },
+    {
+      "file": "upload_cliente.php",
+      "line": 125,
+      "size": 2221,
+      "classes": [
+        "active",
+        "editor-toolbar",
+        "editor-content"
+      ]
+    },
+    {
+      "file": "index.php",
+      "line": 71,
+      "size": 1827,
+      "classes": [
+        "eterea-circles",
+        "fade-in",
+        "eterea-gradient",
+        "shake",
+        "gradient-bg",
+        "glass-card"
+      ]
+    },
+    {
+      "file": "calendario.php",
+      "line": 289,
+      "size": 1789,
+      "classes": [
+        "appuntamento-card",
+        "calendar-cell",
+        "pb-safe",
+        "cliente-badge",
+        "data-badge"
+      ]
+    },
+    {
+      "file": "briefing_ai.php",
+      "line": 316,
+      "size": 1047,
+      "classes": [
+        "header",
+        "section",
+        "section-content",
+        "cliente",
+        "data"
+      ]
+    },
+    {
+      "file": "setup_security.php",
+      "line": 46,
+      "size": 172,
+      "classes": [
+        "gradient-bg"
+      ]
+    }
+  ],
+  "inline_scripts_consolidation_candidates": [
+    {
+      "file": "progetto_dettaglio.php",
+      "line": 1704,
+      "size": 95030,
+      "functions": [
+        "toggleTaskStatus",
+        "stopTimerInterval",
+        "resumeTaskTimer",
+        "loadTimerStatus",
+        "openImageModal",
+        "toggleEditPagamentoRicorrente",
+        "hasAllowedExtension",
+        "formatDateTime",
+        "esclusi",
+        "getTimerSeconds",
+        "distribuisciPagamentoRicorrente",
+        "showToast",
+        "removeTaskImage",
+        "currentUserId",
+        "items",
+        "aggiungiCommentoDaBottone",
+        "startTimerInterval",
+        "openModal",
+        "showChecklist",
+        "formatCurrency",
+        "escapeHtml",
+        "share2",
+        "resetTaskTimer",
+        "revocaDistribuzione",
+        "saveProgettoChanges",
+        "loadTransazioni",
+        "confermaDistribuzione",
+        "closeModal",
+        "inattivi2",
+        "generaDistribuzione",
+        "toggleTaskExpand",
+        "openTaskModal",
+        "loadChecklists",
+        "validaEditDistribuzioneRicorrente",
+        "renderUtentiDistribuzioneList",
+        "updateTimerUI",
+        "stopTaskTimer",
+        "inattivi",
+        "renderDistribuzione",
+        "formatTimerSeconds",
+        "share3",
+        "salvaChecklist",
+        "totale",
+        "openEditProgettoModal",
+        "aggiungiCommentoDaInput",
+        "formatTime",
+        "partecipanti",
+        "startTaskTimer",
+        "getUtentiEsclusi",
+        "loadDocumenti",
+        "aggiungiCommento",
+        "deleteTask",
+        "saveTask",
+        "editTask",
+        "items",
+        "eliminaCommento",
+        "loadTask",
+        "toggleDescrizione",
+        "ricalcolaDistribuzione",
+        "validateDocumento",
+        "loadCommentiForTask",
+        "uploadDocumento",
+        "previewTaskImage",
+        "calcolaDistribuzione",
+        "getCsrfToken",
+        "pauseTaskTimer",
+        "deleteDocumento"
+      ]
+    },
+    {
+      "file": "preventivi.php",
+      "line": 851,
+      "size": 88927,
+      "functions": [
+        "v",
+        "openCategoriaModal",
+        "rimuoviSezione",
+        "format",
+        "getSezioniAggiuntive",
+        "updateClienteInput",
+        "deleteCategoria",
+        "generaPreventivo",
+        "toggleDescListino",
+        "aggiungiSezione",
+        "renderPreventivoCard",
+        "selezionaServiziPreventivo",
+        "insertList",
+        "loadPreventiviSalvati",
+        "scrollPreventiviSalvati",
+        "toggleDescBtn",
+        "hasMensile",
+        "hasMensile",
+        "salvaAssociazioneProgetto",
+        "loadClientiForSelect",
+        "html",
+        "saveCategoria",
+        "hasVisibleOptions",
+        "hasMensile",
+        "setZoom",
+        "init",
+        "loadListiniSelect",
+        "renderPreventivoServizi",
+        "cleanNode",
+        "totale",
+        "openVoceModal",
+        "toggleServizio",
+        "serviziListino",
+        "cliente",
+        "preventivo",
+        "duplicaVoce",
+        "associaAProgetto",
+        "deleteVoce",
+        "mostraDettagliCliente",
+        "hasMensile",
+        "loadEntrambiListini",
+        "renderPreventivi",
+        "renderPreventiviSalvati",
+        "modificaPreventivo",
+        "renderPreventivoServiziFromListino",
+        "openPreventivoModal",
+        "hasOraria",
+        "saveVoce",
+        "voce",
+        "calcolaPrezzoScontato",
+        "aggiungiSezioneEsistente",
+        "visualizzaPreventivoSalvato",
+        "stampaPreventivo",
+        "escapeHtml",
+        "hasOraria",
+        "setFontSize",
+        "loadPreventivi",
+        "salvaPreventivoGestionale",
+        "subtotale",
+        "eliminaPreventivo",
+        "updatePreventivoPreview",
+        "numServizi",
+        "onListinoChange",
+        "updateQty",
+        "renderPreventivoServiziListino",
+        "scrollCarosello",
+        "editVoce"
+      ]
+    },
+    {
+      "file": "impostazioni.php",
+      "line": 1276,
+      "size": 53442,
+      "functions": [
+        "cambiaPassword",
+        "confirmResetSaldi",
+        "showDeleteAllModal",
+        "toggleContabilitaForm",
+        "caricaImpostazioniTask",
+        "setTemplateBurocraziaDefault",
+        "codice",
+        "caricaDatiAzienda",
+        "salvaImpostazioniContabilita",
+        "showDeleteAllStep2",
+        "chiudiModalCodiceAteco",
+        "salvaTemplate",
+        "confirmDeleteCronologia",
+        "salvaDatiAzienda",
+        "renderizzaCodiciAteco",
+        "closeTemplateModal",
+        "editTemplateBurocrazia",
+        "salvaTemplateBurocrazia",
+        "template",
+        "template",
+        "salvaCodiceAteco",
+        "showDeleteCronologiaStep2",
+        "uploadAvatar",
+        "rimuoviLogo",
+        "nascondiLogoAzienda",
+        "toggleDatiAziendaForm",
+        "apriModalCodiceAteco",
+        "executeDeleteCronologia",
+        "renderTemplateList",
+        "rimuoviLogoAzienda",
+        "eliminaCodiceAteco",
+        "caricaImpostazioniContabilita",
+        "salvaImpostazioniTasse",
+        "executeResetSaldi",
+        "openTemplateModal",
+        "setTemplateDefault",
+        "uploadFirmaAzienda",
+        "escapeHtml",
+        "nascondiFirmaAzienda",
+        "aggiornaStatoDatiAzienda",
+        "rimuoviFirmaAzienda",
+        "toggleTasseForm",
+        "uploadLogo",
+        "eliminaTemplate",
+        "closeBurocraziaModal",
+        "modificaCodiceAteco",
+        "escapeHtml",
+        "eliminaTemplateBurocrazia",
+        "salvaImpostazioniTask",
+        "showDeleteAllStep3",
+        "executeDeleteAll",
+        "showResetSaldiStep2",
+        "uploadLogoAzienda",
+        "tipoIcone",
+        "renderTemplateBurocraziaList",
+        "updateLogoPreview",
+        "editTemplate",
+        "caricaTemplateBurocrazia",
+        "caricaImpostazioniTasse",
+        "mostraFirmaAzienda",
+        "mostraLogoAzienda",
+        "updateNavbarLogo",
+        "loadLogo",
+        "openBurocraziaModal",
+        "caricaTemplateCondizioni",
+        "caricaCodiciAteco"
+      ]
+    },
+    {
+      "file": "progetti.php",
+      "line": 1046,
+      "size": 47776,
+      "functions": [
+        "loadProgetti",
+        "totale",
+        "pipelineZoomIn",
+        "getNodeCenter",
+        "later",
+        "stati",
+        "renderProgettoCard",
+        "executedFunction",
+        "drawPipelineConnections",
+        "createPipelineCard",
+        "toggleArchiviati",
+        "escapeHtml",
+        "renderProgettoCardStack",
+        "editProgetto",
+        "debounce",
+        "toggleFiltriMobile",
+        "renderPipeline",
+        "validaDistribuzioneRicorrente",
+        "cardsHtml",
+        "renderProgetti",
+        "initPipelinePan",
+        "pipelineZoomOut",
+        "pipelineResetView",
+        "togglePipeline",
+        "deleteProgetto",
+        "grouped",
+        "initNodeDragging",
+        "toggleAccontoPercentuale",
+        "toggleGroupExpand",
+        "progettiPerStato",
+        "updatePipelineTransform",
+        "panRafId",
+        "saveProgetto",
+        "toggleGroupByCliente"
+      ]
+    },
+    {
+      "file": "clienti.php",
+      "line": 408,
+      "size": 42269,
+      "functions": [
+        "showDettaglio",
+        "editClienteFromDetail",
+        "loadPreventiviCliente",
+        "editCliente",
+        "iconColors",
+        "resetClienteForm",
+        "loadClienti",
+        "updateLogoPlaceholder",
+        "later",
+        "toggleFilters",
+        "resetLogoPreview",
+        "executedFunction",
+        "preventivi",
+        "fillClienteForm",
+        "renderTimelineGenerale",
+        "debounce",
+        "cliente",
+        "deleteCliente",
+        "renderClienti",
+        "previewLogo",
+        "saveCliente",
+        "showTimelineGenerale"
+      ]
+    },
+    {
+      "file": "calendario.php",
+      "line": 388,
+      "size": 42250,
+      "functions": [
+        "saveEvent",
+        "openEditEventModal",
+        "escapeHtml",
+        "event",
+        "partecipantiHtml",
+        "appuntamenti",
+        "renderCalendar",
+        "updateDaySidebar",
+        "showDayEvents",
+        "partecipantiAvatars",
+        "combineDateTime",
+        "openEventModal",
+        "renderEvents",
+        "changeMonth",
+        "hiddenCount",
+        "goToToday",
+        "loadProssimiAppuntamenti",
+        "updateMobileDaySidebar",
+        "loadEvents",
+        "openDayEventsModal",
+        "partecipantiText",
+        "completaEvento",
+        "html",
+        "deleteEvent",
+        "openEventModalWithDate",
+        "todayEvents",
+        "isMobile",
+        "partecipantiAvatars",
+        "dayEvents"
+      ]
+    },
+    {
+      "file": "blog_clienti.php",
+      "line": 269,
+      "size": 27946,
+      "functions": [
+        "copiaLink",
+        "ripristinaContenuto",
+        "eliminaLink",
+        "contenuto",
+        "c",
+        "renderContenuti",
+        "segnaLetto",
+        "closeImageModal",
+        "loadStats",
+        "eliminaContenuto",
+        "mostraArchiviati",
+        "copiaLinkEsistente",
+        "loadContenuti",
+        "perCliente",
+        "renderLinks",
+        "archiviaContenuto",
+        "showDettaglio",
+        "downloadAllImages",
+        "condividiLink",
+        "openImageModal",
+        "loadLinks",
+        "openGeneraLinkModal",
+        "generaLink",
+        "perCliente",
+        "contenuto"
+      ]
+    },
+    {
+      "file": "scadenze.php",
+      "line": 274,
+      "size": 20658,
+      "functions": [
+        "options",
+        "escapeHtml",
+        "caricaTipologie",
+        "salvaGiorniPreavviso",
+        "completaScadenza",
+        "closeScadenzaModal",
+        "isInScadenza",
+        "openTipologiaModal",
+        "modificaScadenza",
+        "eliminaTipologia",
+        "eliminaScadenza",
+        "aggiornaNotificaSidebar",
+        "renderListaTipologie",
+        "renderScadenzaCard",
+        "salvaScadenza",
+        "closeTipologiaModal",
+        "gruppi",
+        "caricaScadenze",
+        "salvaTipologia",
+        "openScadenzaModal",
+        "caricaGiorniPreavviso"
+      ]
+    },
+    {
+      "file": "report.php",
+      "line": 322,
+      "size": 20031,
+      "functions": [
+        "loadTemporaleReport",
+        "createChart",
+        "loadReportData",
+        "f",
+        "costiProgetto",
+        "totaliProgetti",
+        "switchReportTab",
+        "r",
+        "loadUtentiReport",
+        "f",
+        "destroyChart",
+        "loadEconomicoReport",
+        "loadProgettiReport",
+        "f",
+        "periodi",
+        "totaliOre",
+        "exportReportPDF",
+        "loadDashboardStats",
+        "labels"
+      ]
+    },
+    {
+      "file": "dashboard.php",
+      "line": 608,
+      "size": 19750,
+      "functions": [
+        "deleteEventFromDashboard",
+        "loadMiniCalendar",
+        "selectDay",
+        "formatCurrency",
+        "resetToUpcoming",
+        "showEventDetail",
+        "caricaContabilitaMensile",
+        "toggleTaskStatus",
+        "loadUpcomingEvents",
+        "days"
+      ]
+    },
+    {
+      "file": "includes/footer.php",
+      "line": 7,
+      "size": 15104,
+      "functions": [
+        "closeMobileMenu",
+        "formatCurrency",
+        "openModal",
+        "confirmAction",
+        "updateScadenzeBadge",
+        "caricaNotifiche",
+        "openMobileMenu",
+        "handleNotificaClick",
+        "deleteAllNotifiche",
+        "toggleNotifiche",
+        "showToast",
+        "caricaCountNotifiche",
+        "markAllNotificheLette",
+        "closeModal",
+        "getNotificaUrl",
+        "markNotificaLette",
+        "formatDate",
+        "apiGet",
+        "apiPost",
+        "renderNotifiche"
+      ]
+    },
+    {
+      "file": "tasse.php",
+      "line": 386,
+      "size": 14170,
+      "functions": [
+        "onCodiceAtecoChange",
+        "inserisciFatturato",
+        "salvaCalcolo",
+        "verificaPassword",
+        "setTasseAccess",
+        "renderCronologia",
+        "clearTasseAccess",
+        "formatCurrency",
+        "aggiornaCronologia",
+        "calcolaTasse",
+        "hasTasseAccess",
+        "eliminaCalcolo"
+      ]
+    },
+    {
+      "file": "briefing_ai.php",
+      "line": 237,
+      "size": 12139,
+      "functions": [
+        "escapeHtml",
+        "chiudiModalSalva",
+        "filtraProgetti",
+        "esportaPDF",
+        "generaHTMLStampa",
+        "aggiungiSezione",
+        "filtraClienti",
+        "salvaBriefingFallback",
+        "apriModalSalva",
+        "salvaBriefing",
+        "progettiFiltrati"
+      ]
+    },
+    {
+      "file": "progetto_dettaglio.php",
+      "line": 642,
+      "size": 11421,
+      "functions": [
+        "original",
+        "html",
+        "escapeHtml",
+        "eliminaContenuto",
+        "stopBlogPolling",
+        "stripHtml",
+        "copiaLink",
+        "switchTab",
+        "startBlogPolling",
+        "getTipoIcon",
+        "caricaContenutiProgetto",
+        "generaLinkCliente"
+      ]
+    },
+    {
+      "file": "upload_cliente.php",
+      "line": 500,
+      "size": 11118,
+      "functions": [
+        "removeFile",
+        "maxSize",
+        "fileNames",
+        "updateToolbarState",
+        "cleanNode",
+        "handleFileSelect",
+        "preventDefaults"
+      ]
+    },
+    {
+      "file": "finanze.php",
+      "line": 465,
+      "size": 9466,
+      "functions": [
+        "closeModalAggiunta",
+        "openModalAggiunta",
+        "salvaAggiunta",
+        "formatCurrency",
+        "caricaTransazioni",
+        "eliminaTransazione"
+      ]
+    },
+    {
+      "file": "includes/header.php",
+      "line": 835,
+      "size": 7414,
+      "functions": [
+        "getCsrfToken",
+        "closeMobileMenu",
+        "aggiornaBadgeBlogClienti",
+        "aggiornaBadgeScadenze",
+        "openMobileMenu",
+        "toggleNotifiche",
+        "openMobileFullMenu",
+        "scadenzeInScadenza",
+        "closeMobileFullMenu"
+      ]
+    },
+    {
+      "file": "preventivi.php",
+      "line": 202,
+      "size": 4168,
+      "functions": [
+        "insertList",
+        "init",
+        "format",
+        "getContent",
+        "setContent",
+        "setFontSize",
+        "cleanNode"
+      ]
+    },
+    {
+      "file": "index.php",
+      "line": 248,
+      "size": 3568,
+      "functions": [
+        "togglePassword"
+      ]
+    },
+    {
+      "file": "includes/header.php",
+      "line": 42,
+      "size": 773,
+      "functions": []
+    },
+    {
+      "file": "dashboard.php",
+      "line": 118,
+      "size": 417,
+      "functions": [
+        "toggleResoconto"
+      ]
+    },
+    {
+      "file": "index.php",
+      "line": 59,
+      "size": 250,
+      "functions": []
+    },
+    {
+      "file": "report.php",
+      "line": 320,
+      "size": 94,
+      "functions": []
+    },
+    {
+      "file": "index.php",
+      "line": 52,
+      "size": 51,
+      "functions": []
+    },
+    {
+      "file": "upload_cliente.php",
+      "line": 123,
+      "size": 51,
+      "functions": []
+    },
+    {
+      "file": "setup_security.php",
+      "line": 45,
+      "size": 51,
+      "functions": []
+    },
+    {
+      "file": "includes/header.php",
+      "line": 41,
+      "size": 51,
+      "functions": []
+    }
+  ],
+  "all_css_custom_classes": [
+    {
+      "class": "badge-lg",
+      "used": false,
+      "locations": [
+        "assets/css/tailwind.css:118"
+      ]
+    },
+    {
+      "class": "badge-md",
+      "used": false,
+      "locations": [
+        "assets/css/tailwind.css:114"
+      ]
+    },
+    {
+      "class": "badge-sm",
+      "used": false,
+      "locations": [
+        "assets/css/tailwind.css:110"
+      ]
+    },
+    {
+      "class": "btn-icon",
+      "used": false,
+      "locations": [
+        "assets/css/tailwind.css:132"
+      ]
+    },
+    {
+      "class": "card-elevated",
+      "used": false,
+      "locations": [
+        "assets/css/tailwind.css:123"
+      ]
+    },
+    {
+      "class": "card-flat",
+      "used": false,
+      "locations": [
+        "assets/css/tailwind.css:127"
+      ]
+    },
+    {
+      "class": "dropdown-menu",
+      "used": true,
+      "locations": [
+        "assets/css/tailwind.css:169",
+        "assets/css/tailwind.css:174"
+      ]
+    },
+    {
+      "class": "glass",
+      "used": false,
+      "locations": [
+        "assets/css/tailwind.css:53"
+      ]
+    },
+    {
+      "class": "glass-dark",
+      "used": false,
+      "locations": [
+        "assets/css/tailwind.css:59"
+      ]
+    },
+    {
+      "class": "input-enhanced",
+      "used": false,
+      "locations": [
+        "assets/css/tailwind.css:137"
+      ]
+    },
+    {
+      "class": "line-clamp-1",
+      "used": false,
+      "locations": [
+        "assets/css/tailwind.css:31"
+      ]
+    },
+    {
+      "class": "line-clamp-2",
+      "used": true,
+      "locations": [
+        "assets/css/tailwind.css:38"
+      ]
+    },
+    {
+      "class": "line-clamp-3",
+      "used": false,
+      "locations": [
+        "assets/css/tailwind.css:45"
+      ]
+    },
+    {
+      "class": "mobile-full",
+      "used": false,
+      "locations": [
+        "assets/css/tailwind.css:212"
+      ]
+    },
+    {
+      "class": "mobile-stack",
+      "used": false,
+      "locations": [
+        "assets/css/tailwind.css:216"
+      ]
+    },
+    {
+      "class": "no-print",
+      "used": true,
+      "locations": [
+        "assets/css/tailwind.css:201"
+      ]
+    },
+    {
+      "class": "show",
+      "used": false,
+      "locations": [
+        "assets/css/tailwind.css:175"
+      ]
+    },
+    {
+      "class": "skeleton",
+      "used": false,
+      "locations": [
+        "assets/css/tailwind.css:195"
+      ]
+    },
+    {
+      "class": "table-enhanced",
+      "used": false,
+      "locations": [
+        "assets/css/tailwind.css:152"
+      ]
+    },
+    {
+      "class": "table-responsive",
+      "used": false,
+      "locations": [
+        "assets/css/tailwind.css:148"
+      ]
+    },
+    {
+      "class": "tooltip",
+      "used": false,
+      "locations": [
+        "assets/css/tailwind.css:180"
+      ]
+    }
+  ],
+  "all_js_functions_summary": [
+    {
+      "function": "aggiornaBadgeBlogClienti",
+      "called": true,
+      "locations": [
+        "includes/header.php:1000 (inline)"
+      ]
+    },
+    {
+      "function": "aggiornaBadgeScadenze",
+      "called": true,
+      "locations": [
+        "includes/header.php:919 (inline)"
+      ]
+    },
+    {
+      "function": "aggiornaCronologia",
+      "called": true,
+      "locations": [
+        "tasse.php:620 (inline)"
+      ]
+    },
+    {
+      "function": "aggiornaNotificaSidebar",
+      "called": true,
+      "locations": [
+        "scadenze.php:773 (inline)"
+      ]
+    },
+    {
+      "function": "aggiornaStatoDatiAzienda",
+      "called": true,
+      "locations": [
+        "impostazioni.php:1646 (inline)"
+      ]
+    },
+    {
+      "function": "aggiungiCommento",
+      "called": true,
+      "locations": [
+        "progetto_dettaglio.php:2981 (inline)"
+      ]
+    },
+    {
+      "function": "aggiungiCommentoDaBottone",
+      "called": true,
+      "locations": [
+        "progetto_dettaglio.php:2968 (inline)"
+      ]
+    },
+    {
+      "function": "aggiungiCommentoDaInput",
+      "called": true,
+      "locations": [
+        "progetto_dettaglio.php:2975 (inline)"
+      ]
+    },
+    {
+      "function": "aggiungiSezione",
+      "called": true,
+      "locations": [
+        "briefing_ai.php:242 (inline)",
+        "preventivi.php:2263 (inline)"
+      ]
+    },
+    {
+      "function": "aggiungiSezioneEsistente",
+      "called": true,
+      "locations": [
+        "preventivi.php:2186 (inline)"
+      ]
+    },
+    {
+      "function": "apiGet",
+      "called": true,
+      "locations": [
+        "includes/footer.php:102 (inline)"
+      ]
+    },
+    {
+      "function": "apiPost",
+      "called": true,
+      "locations": [
+        "includes/footer.php:107 (inline)"
+      ]
+    },
+    {
+      "function": "appuntamenti",
+      "called": true,
+      "locations": [
+        "calendario.php:1066 (inline)"
+      ]
+    },
+    {
+      "function": "apriModalCodiceAteco",
+      "called": true,
+      "locations": [
+        "impostazioni.php:2117 (inline)"
+      ]
+    },
+    {
+      "function": "apriModalSalva",
+      "called": true,
+      "locations": [
+        "briefing_ai.php:385 (inline)"
+      ]
+    },
+    {
+      "function": "archiviaContenuto",
+      "called": true,
+      "locations": [
+        "blog_clienti.php:760 (inline)"
+      ]
+    },
+    {
+      "function": "associaAProgetto",
+      "called": true,
+      "locations": [
+        "preventivi.php:1113 (inline)"
+      ]
+    },
+    {
+      "function": "calcolaDistribuzione",
+      "called": true,
+      "locations": [
+        "progetto_dettaglio.php:1725 (inline)"
+      ]
+    },
+    {
+      "function": "calcolaPrezzoScontato",
+      "called": true,
+      "locations": [
+        "preventivi.php:1470 (inline)"
+      ]
+    },
+    {
+      "function": "calcolaTasse",
+      "called": true,
+      "locations": [
+        "tasse.php:488 (inline)"
+      ]
+    },
+    {
+      "function": "cambiaPassword",
+      "called": true,
+      "locations": [
+        "impostazioni.php:1391 (inline)"
+      ]
+    },
+    {
+      "function": "cardsHtml",
+      "called": false,
+      "locations": [
+        "progetti.php:1794 (inline)"
+      ]
+    },
+    {
+      "function": "caricaCodiciAteco",
+      "called": true,
+      "locations": [
+        "impostazioni.php:1976 (inline)"
+      ]
+    },
+    {
+      "function": "caricaContabilitaMensile",
+      "called": true,
+      "locations": [
+        "dashboard.php:960 (inline)"
+      ]
+    },
+    {
+      "function": "caricaContenutiProgetto",
+      "called": true,
+      "locations": [
+        "progetto_dettaglio.php:670 (inline)"
+      ]
+    },
+    {
+      "function": "caricaCountNotifiche",
+      "called": true,
+      "locations": [
+        "includes/footer.php:133 (inline)"
+      ]
+    },
+    {
+      "function": "caricaDatiAzienda",
+      "called": true,
+      "locations": [
+        "impostazioni.php:1605 (inline)"
+      ]
+    },
+    {
+      "function": "caricaGiorniPreavviso",
+      "called": true,
+      "locations": [
+        "scadenze.php:291 (inline)"
+      ]
+    },
+    {
+      "function": "caricaImpostazioniContabilita",
+      "called": true,
+      "locations": [
+        "impostazioni.php:2293 (inline)"
+      ]
+    },
+    {
+      "function": "caricaImpostazioniTask",
+      "called": true,
+      "locations": [
+        "impostazioni.php:2009 (inline)"
+      ]
+    },
+    {
+      "function": "caricaImpostazioniTasse",
+      "called": true,
+      "locations": [
+        "impostazioni.php:1990 (inline)"
+      ]
+    },
+    {
+      "function": "caricaNotifiche",
+      "called": true,
+      "locations": [
+        "includes/footer.php:120 (inline)"
+      ]
+    },
+    {
+      "function": "caricaScadenze",
+      "called": true,
+      "locations": [
+        "scadenze.php:323 (inline)"
+      ]
+    },
+    {
+      "function": "caricaTemplateBurocrazia",
+      "called": true,
+      "locations": [
+        "impostazioni.php:2564 (inline)"
+      ]
+    },
+    {
+      "function": "caricaTemplateCondizioni",
+      "called": true,
+      "locations": [
+        "impostazioni.php:2367 (inline)"
+      ]
+    },
+    {
+      "function": "caricaTipologie",
+      "called": true,
+      "locations": [
+        "scadenze.php:646 (inline)"
+      ]
+    },
+    {
+      "function": "caricaTransazioni",
+      "called": true,
+      "locations": [
+        "finanze.php:547 (inline)"
+      ]
+    },
+    {
+      "function": "changeMonth",
+      "called": true,
+      "locations": [
+        "calendario.php:572 (inline)"
+      ]
+    },
+    {
+      "function": "chiudiModalCodiceAteco",
+      "called": true,
+      "locations": [
+        "impostazioni.php:2151 (inline)"
+      ]
+    },
+    {
+      "function": "chiudiModalSalva",
+      "called": true,
+      "locations": [
+        "briefing_ai.php:391 (inline)"
+      ]
+    },
+    {
+      "function": "cleanNode",
+      "called": true,
+      "locations": [
+        "upload_cliente.php:578 (inline)",
+        "preventivi.php:229 (inline)",
+        "preventivi.php:2300 (inline)"
+      ]
+    },
+    {
+      "function": "clearTasseAccess",
+      "called": true,
+      "locations": [
+        "tasse.php:408 (inline)"
+      ]
+    },
+    {
+      "function": "cliente",
+      "called": true,
+      "locations": [
+        "clienti.php:789 (inline)",
+        "preventivi.php:1242 (inline)"
+      ]
+    },
+    {
+      "function": "closeBurocraziaModal",
+      "called": true,
+      "locations": [
+        "impostazioni.php:2632 (inline)"
+      ]
+    },
+    {
+      "function": "closeImageModal",
+      "called": true,
+      "locations": [
+        "blog_clienti.php:886 (inline)"
+      ]
+    },
+    {
+      "function": "closeMobileFullMenu",
+      "called": true,
+      "locations": [
+        "includes/header.php:866 (inline)"
+      ]
+    },
+    {
+      "function": "closeMobileMenu",
+      "called": true,
+      "locations": [
+        "includes/header.php:847 (inline)",
+        "includes/footer.php:15 (inline)"
+      ]
+    },
+    {
+      "function": "closeModal",
+      "called": true,
+      "locations": [
+        "progetto_dettaglio.php:3522 (inline)",
+        "includes/footer.php:30 (inline)"
+      ]
+    },
+    {
+      "function": "closeModalAggiunta",
+      "called": true,
+      "locations": [
+        "finanze.php:496 (inline)"
+      ]
+    },
+    {
+      "function": "closeScadenzaModal",
+      "called": true,
+      "locations": [
+        "scadenze.php:510 (inline)"
+      ]
+    },
+    {
+      "function": "closeTemplateModal",
+      "called": true,
+      "locations": [
+        "impostazioni.php:2426 (inline)"
+      ]
+    },
+    {
+      "function": "closeTipologiaModal",
+      "called": true,
+      "locations": [
+        "scadenze.php:707 (inline)"
+      ]
+    },
+    {
+      "function": "codice",
+      "called": false,
+      "locations": [
+        "impostazioni.php:2132 (inline)"
+      ]
+    },
+    {
+      "function": "combineDateTime",
+      "called": true,
+      "locations": [
+        "calendario.php:1018 (inline)"
+      ]
+    },
+    {
+      "function": "completaEvento",
+      "called": true,
+      "locations": [
+        "calendario.php:1237 (inline)"
+      ]
+    },
+    {
+      "function": "completaScadenza",
+      "called": true,
+      "locations": [
+        "scadenze.php:588 (inline)"
+      ]
+    },
+    {
+      "function": "condividiLink",
+      "called": true,
+      "locations": [
+        "blog_clienti.php:611 (inline)"
+      ]
+    },
+    {
+      "function": "confermaDistribuzione",
+      "called": true,
+      "locations": [
+        "progetto_dettaglio.php:2639 (inline)"
+      ]
+    },
+    {
+      "function": "confirmAction",
+      "called": true,
+      "locations": [
+        "includes/footer.php:95 (inline)"
+      ]
+    },
+    {
+      "function": "confirmDeleteCronologia",
+      "called": true,
+      "locations": [
+        "impostazioni.php:1280 (inline)"
+      ]
+    },
+    {
+      "function": "confirmResetSaldi",
+      "called": true,
+      "locations": [
+        "impostazioni.php:1309 (inline)"
+      ]
+    },
+    {
+      "function": "contenuto",
+      "called": true,
+      "locations": [
+        "blog_clienti.php:626 (inline)",
+        "blog_clienti.php:723 (inline)"
+      ]
+    },
+    {
+      "function": "copiaLink",
+      "called": true,
+      "locations": [
+        "blog_clienti.php:604 (inline)",
+        "progetto_dettaglio.php:773 (inline)"
+      ]
+    },
+    {
+      "function": "copiaLinkEsistente",
+      "called": true,
+      "locations": [
+        "blog_clienti.php:448 (inline)"
+      ]
+    },
+    {
+      "function": "costiProgetto",
+      "called": false,
+      "locations": [
+        "report.php:664 (inline)"
+      ]
+    },
+    {
+      "function": "createChart",
+      "called": true,
+      "locations": [
+        "report.php:741 (inline)"
+      ]
+    },
+    {
+      "function": "createPipelineCard",
+      "called": true,
+      "locations": [
+        "progetti.php:1164 (inline)"
+      ]
+    },
+    {
+      "function": "currentUserId",
+      "called": true,
+      "locations": [
+        "progetto_dettaglio.php:2939 (inline)"
+      ]
+    },
+    {
+      "function": "dayEvents",
+      "called": false,
+      "locations": [
+        "calendario.php:585 (inline)"
+      ]
+    },
+    {
+      "function": "days",
+      "called": false,
+      "locations": [
+        "dashboard.php:625 (inline)"
+      ]
+    },
+    {
+      "function": "debounce",
+      "called": true,
+      "locations": [
+        "clienti.php:974 (inline)",
+        "progetti.php:2180 (inline)"
+      ]
+    },
+    {
+      "function": "deleteAllNotifiche",
+      "called": true,
+      "locations": [
+        "includes/footer.php:267 (inline)"
+      ]
+    },
+    {
+      "function": "deleteCategoria",
+      "called": true,
+      "locations": [
+        "preventivi.php:1662 (inline)"
+      ]
+    },
+    {
+      "function": "deleteCliente",
+      "called": true,
+      "locations": [
+        "clienti.php:951 (inline)"
+      ]
+    },
+    {
+      "function": "deleteDocumento",
+      "called": true,
+      "locations": [
+        "progetto_dettaglio.php:2896 (inline)"
+      ]
+    },
+    {
+      "function": "deleteEvent",
+      "called": true,
+      "locations": [
+        "calendario.php:1210 (inline)"
+      ]
+    },
+    {
+      "function": "deleteEventFromDashboard",
+      "called": true,
+      "locations": [
+        "dashboard.php:921 (inline)"
+      ]
+    },
+    {
+      "function": "deleteProgetto",
+      "called": true,
+      "locations": [
+        "progetti.php:2152 (inline)"
+      ]
+    },
+    {
+      "function": "deleteTask",
+      "called": true,
+      "locations": [
+        "progetto_dettaglio.php:2234 (inline)"
+      ]
+    },
+    {
+      "function": "deleteVoce",
+      "called": true,
+      "locations": [
+        "preventivi.php:1608 (inline)"
+      ]
+    },
+    {
+      "function": "destroyChart",
+      "called": true,
+      "locations": [
+        "report.php:758 (inline)"
+      ]
+    },
+    {
+      "function": "distribuisciPagamentoRicorrente",
+      "called": true,
+      "locations": [
+        "progetto_dettaglio.php:3451 (inline)"
+      ]
+    },
+    {
+      "function": "downloadAllImages",
+      "called": true,
+      "locations": [
+        "blog_clienti.php:722 (inline)"
+      ]
+    },
+    {
+      "function": "drawPipelineConnections",
+      "called": true,
+      "locations": [
+        "progetti.php:1269 (inline)"
+      ]
+    },
+    {
+      "function": "duplicaVoce",
+      "called": true,
+      "locations": [
+        "preventivi.php:1561 (inline)"
+      ]
+    },
+    {
+      "function": "editCliente",
+      "called": true,
+      "locations": [
+        "clienti.php:788 (inline)"
+      ]
+    },
+    {
+      "function": "editClienteFromDetail",
+      "called": true,
+      "locations": [
+        "clienti.php:783 (inline)"
+      ]
+    },
+    {
+      "function": "editProgetto",
+      "called": true,
+      "locations": [
+        "progetti.php:2006 (inline)"
+      ]
+    },
+    {
+      "function": "editTask",
+      "called": true,
+      "locations": [
+        "progetto_dettaglio.php:2583 (inline)"
+      ]
+    },
+    {
+      "function": "editTemplate",
+      "called": true,
+      "locations": [
+        "impostazioni.php:2430 (inline)"
+      ]
+    },
+    {
+      "function": "editTemplateBurocrazia",
+      "called": true,
+      "locations": [
+        "impostazioni.php:2636 (inline)"
+      ]
+    },
+    {
+      "function": "editVoce",
+      "called": true,
+      "locations": [
+        "preventivi.php:1550 (inline)"
+      ]
+    },
+    {
+      "function": "eliminaCalcolo",
+      "called": true,
+      "locations": [
+        "tasse.php:692 (inline)"
+      ]
+    },
+    {
+      "function": "eliminaCodiceAteco",
+      "called": true,
+      "locations": [
+        "impostazioni.php:2197 (inline)"
+      ]
+    },
+    {
+      "function": "eliminaCommento",
+      "called": true,
+      "locations": [
+        "progetto_dettaglio.php:3021 (inline)"
+      ]
+    },
+    {
+      "function": "eliminaContenuto",
+      "called": true,
+      "locations": [
+        "blog_clienti.php:809 (inline)",
+        "progetto_dettaglio.php:790 (inline)"
+      ]
+    },
+    {
+      "function": "eliminaLink",
+      "called": true,
+      "locations": [
+        "blog_clienti.php:835 (inline)"
+      ]
+    },
+    {
+      "function": "eliminaPreventivo",
+      "called": true,
+      "locations": [
+        "preventivi.php:1192 (inline)"
+      ]
+    },
+    {
+      "function": "eliminaScadenza",
+      "called": true,
+      "locations": [
+        "scadenze.php:615 (inline)"
+      ]
+    },
+    {
+      "function": "eliminaTemplate",
+      "called": true,
+      "locations": [
+        "impostazioni.php:2490 (inline)"
+      ]
+    },
+    {
+      "function": "eliminaTemplateBurocrazia",
+      "called": true,
+      "locations": [
+        "impostazioni.php:2699 (inline)"
+      ]
+    },
+    {
+      "function": "eliminaTipologia",
+      "called": true,
+      "locations": [
+        "scadenze.php:746 (inline)"
+      ]
+    },
+    {
+      "function": "eliminaTransazione",
+      "called": true,
+      "locations": [
+        "finanze.php:634 (inline)"
+      ]
+    },
+    {
+      "function": "escapeHtml",
+      "called": true,
+      "locations": [
+        "scadenze.php:486 (inline)",
+        "impostazioni.php:2110 (inline)",
+        "impostazioni.php:2548 (inline)",
+        "progetto_dettaglio.php:825 (inline)",
+        "progetto_dettaglio.php:3389 (inline)",
+        "briefing_ai.php:538 (inline)",
+        "preventivi.php:1908 (inline)",
+        "calendario.php:1262 (inline)",
+        "progetti.php:2193 (inline)"
+      ]
+    },
+    {
+      "function": "esclusi",
+      "called": false,
+      "locations": [
+        "progetto_dettaglio.php:1764 (inline)"
+      ]
+    },
+    {
+      "function": "esportaPDF",
+      "called": true,
+      "locations": [
+        "briefing_ai.php:264 (inline)"
+      ]
+    },
+    {
+      "function": "event",
+      "called": false,
+      "locations": [
+        "calendario.php:950 (inline)"
+      ]
+    },
+    {
+      "function": "executeDeleteAll",
+      "called": true,
+      "locations": [
+        "impostazioni.php:1563 (inline)"
+      ]
+    },
+    {
+      "function": "executeDeleteCronologia",
+      "called": true,
+      "locations": [
+        "impostazioni.php:1289 (inline)"
+      ]
+    },
+    {
+      "function": "executeResetSaldi",
+      "called": true,
+      "locations": [
+        "impostazioni.php:1318 (inline)"
+      ]
+    },
+    {
+      "function": "executedFunction",
+      "called": true,
+      "locations": [
+        "assets/js/app.js:194",
+        "clienti.php:976 (inline)",
+        "progetti.php:2182 (inline)"
+      ]
+    },
+    {
+      "function": "exportReportPDF",
+      "called": true,
+      "locations": [
+        "report.php:765 (inline)"
+      ]
+    },
+    {
+      "function": "fileNames",
+      "called": false,
+      "locations": [
+        "upload_cliente.php:675 (inline)"
+      ]
+    },
+    {
+      "function": "fillClienteForm",
+      "called": true,
+      "locations": [
+        "clienti.php:858 (inline)"
+      ]
+    },
+    {
+      "function": "filtraClienti",
+      "called": true,
+      "locations": [
+        "briefing_ai.php:395 (inline)"
+      ]
+    },
+    {
+      "function": "filtraProgetti",
+      "called": true,
+      "locations": [
+        "briefing_ai.php:416 (inline)"
+      ]
+    },
+    {
+      "function": "format",
+      "called": true,
+      "locations": [
+        "preventivi.php:273 (inline)",
+        "preventivi.php:2352 (inline)"
+      ]
+    },
+    {
+      "function": "formatCurrency",
+      "called": true,
+      "locations": [
+        "dashboard.php:1019 (inline)",
+        "tasse.php:452 (inline)",
+        "progetto_dettaglio.php:1717 (inline)",
+        "finanze.php:669 (inline)",
+        "includes/footer.php:81 (inline)"
+      ]
+    },
+    {
+      "function": "formatDate",
+      "called": true,
+      "locations": [
+        "includes/footer.php:89 (inline)"
+      ]
+    },
+    {
+      "function": "formatDateTime",
+      "called": true,
+      "locations": [
+        "progetto_dettaglio.php:3373 (inline)"
+      ]
+    },
+    {
+      "function": "formatTime",
+      "called": true,
+      "locations": [
+        "progetto_dettaglio.php:3384 (inline)"
+      ]
+    },
+    {
+      "function": "formatTimerSeconds",
+      "called": true,
+      "locations": [
+        "progetto_dettaglio.php:1941 (inline)"
+      ]
+    },
+    {
+      "function": "generaDistribuzione",
+      "called": true,
+      "locations": [
+        "progetto_dettaglio.php:1804 (inline)"
+      ]
+    },
+    {
+      "function": "generaHTMLStampa",
+      "called": true,
+      "locations": [
+        "briefing_ai.php:275 (inline)"
+      ]
+    },
+    {
+      "function": "generaLink",
+      "called": true,
+      "locations": [
+        "blog_clienti.php:560 (inline)"
+      ]
+    },
+    {
+      "function": "generaLinkCliente",
+      "called": true,
+      "locations": [
+        "progetto_dettaglio.php:734 (inline)"
+      ]
+    },
+    {
+      "function": "generaPreventivo",
+      "called": true,
+      "locations": [
+        "preventivi.php:2409 (inline)"
+      ]
+    },
+    {
+      "function": "getContent",
+      "called": true,
+      "locations": [
+        "preventivi.php:301 (inline)"
+      ]
+    },
+    {
+      "function": "getCsrfToken",
+      "called": true,
+      "locations": [
+        "progetto_dettaglio.php:3510 (inline)",
+        "includes/header.php:1041 (inline)"
+      ]
+    },
+    {
+      "function": "getNodeCenter",
+      "called": true,
+      "locations": [
+        "progetti.php:1281 (inline)"
+      ]
+    },
+    {
+      "function": "getNotificaUrl",
+      "called": true,
+      "locations": [
+        "includes/footer.php:175 (inline)"
+      ]
+    },
+    {
+      "function": "getSezioniAggiuntive",
+      "called": true,
+      "locations": [
+        "preventivi.php:2388 (inline)"
+      ]
+    },
+    {
+      "function": "getTimerSeconds",
+      "called": true,
+      "locations": [
+        "progetto_dettaglio.php:2395 (inline)"
+      ]
+    },
+    {
+      "function": "getTipoIcon",
+      "called": true,
+      "locations": [
+        "progetto_dettaglio.php:813 (inline)"
+      ]
+    },
+    {
+      "function": "getUtentiEsclusi",
+      "called": true,
+      "locations": [
+        "progetto_dettaglio.php:1762 (inline)"
+      ]
+    },
+    {
+      "function": "goToToday",
+      "called": true,
+      "locations": [
+        "calendario.php:578 (inline)"
+      ]
+    },
+    {
+      "function": "grouped",
+      "called": false,
+      "locations": [
+        "progetti.php:1767 (inline)"
+      ]
+    },
+    {
+      "function": "gruppi",
+      "called": false,
+      "locations": [
+        "scadenze.php:370 (inline)"
+      ]
+    },
+    {
+      "function": "handleFileSelect",
+      "called": true,
+      "locations": [
+        "upload_cliente.php:656 (inline)"
+      ]
+    },
+    {
+      "function": "handleFiles",
+      "called": false,
+      "locations": [
+        "assets/js/components.js:176"
+      ]
+    },
+    {
+      "function": "handleNotificaClick",
+      "called": true,
+      "locations": [
+        "includes/footer.php:221 (inline)"
+      ]
+    },
+    {
+      "function": "hasAllowedExtension",
+      "called": false,
+      "locations": [
+        "progetto_dettaglio.php:2773 (inline)"
+      ]
+    },
+    {
+      "function": "hasMensile",
+      "called": false,
+      "locations": [
+        "preventivi.php:954 (inline)",
+        "preventivi.php:2437 (inline)",
+        "preventivi.php:2167 (inline)",
+        "preventivi.php:2536 (inline)"
+      ]
+    },
+    {
+      "function": "hasOraria",
+      "called": false,
+      "locations": [
+        "preventivi.php:2436 (inline)",
+        "preventivi.php:2535 (inline)"
+      ]
+    },
+    {
+      "function": "hasTasseAccess",
+      "called": true,
+      "locations": [
+        "tasse.php:393 (inline)"
+      ]
+    },
+    {
+      "function": "hasVisibleOptions",
+      "called": false,
+      "locations": [
+        "preventivi.php:1123 (inline)"
+      ]
+    },
+    {
+      "function": "hiddenCount",
+      "called": false,
+      "locations": [
+        "calendario.php:524 (inline)"
+      ]
+    },
+    {
+      "function": "html",
+      "called": false,
+      "locations": [
+        "assets/js/components.js:341",
+        "progetto_dettaglio.php:698 (inline)",
+        "preventivi.php:905 (inline)",
+        "calendario.php:1089 (inline)"
+      ]
+    },
+    {
+      "function": "iconColors",
+      "called": false,
+      "locations": [
+        "clienti.php:1050 (inline)"
+      ]
+    },
+    {
+      "function": "inattivi",
+      "called": false,
+      "locations": [
+        "progetto_dettaglio.php:1869 (inline)"
+      ]
+    },
+    {
+      "function": "inattivi2",
+      "called": false,
+      "locations": [
+        "progetto_dettaglio.php:1886 (inline)"
+      ]
+    },
+    {
+      "function": "init",
+      "called": true,
+      "locations": [
+        "preventivi.php:205 (inline)",
+        "preventivi.php:2276 (inline)"
+      ]
+    },
+    {
+      "function": "initNodeDragging",
+      "called": true,
+      "locations": [
+        "progetti.php:1510 (inline)"
+      ]
+    },
+    {
+      "function": "initPipelinePan",
+      "called": true,
+      "locations": [
+        "progetti.php:1445 (inline)"
+      ]
+    },
+    {
+      "function": "inserisciFatturato",
+      "called": true,
+      "locations": [
+        "tasse.php:476 (inline)"
+      ]
+    },
+    {
+      "function": "insertList",
+      "called": true,
+      "locations": [
+        "preventivi.php:279 (inline)",
+        "preventivi.php:2362 (inline)"
+      ]
+    },
+    {
+      "function": "isInScadenza",
+      "called": true,
+      "locations": [
+        "scadenze.php:312 (inline)"
+      ]
+    },
+    {
+      "function": "isMobile",
+      "called": false,
+      "locations": [
+        "calendario.php:506 (inline)"
+      ]
+    },
+    {
+      "function": "item",
+      "called": false,
+      "locations": [
+        "assets/js/components.js:88"
+      ]
+    },
+    {
+      "function": "items",
+      "called": false,
+      "locations": [
+        "progetto_dettaglio.php:3274 (inline)",
+        "progetto_dettaglio.php:3306 (inline)"
+      ]
+    },
+    {
+      "function": "labels",
+      "called": false,
+      "locations": [
+        "report.php:720 (inline)"
+      ]
+    },
+    {
+      "function": "later",
+      "called": false,
+      "locations": [
+        "assets/js/app.js:195",
+        "clienti.php:977 (inline)",
+        "progetti.php:2183 (inline)"
+      ]
+    },
+    {
+      "function": "loadChecklists",
+      "called": true,
+      "locations": [
+        "progetto_dettaglio.php:3215 (inline)"
+      ]
+    },
+    {
+      "function": "loadClienti",
+      "called": true,
+      "locations": [
+        "clienti.php:438 (inline)"
+      ]
+    },
+    {
+      "function": "loadClientiForSelect",
+      "called": true,
+      "locations": [
+        "preventivi.php:1215 (inline)"
+      ]
+    },
+    {
+      "function": "loadCommentiForTask",
+      "called": true,
+      "locations": [
+        "progetto_dettaglio.php:2926 (inline)"
+      ]
+    },
+    {
+      "function": "loadContenuti",
+      "called": true,
+      "locations": [
+        "blog_clienti.php:307 (inline)"
+      ]
+    },
+    {
+      "function": "loadDashboardStats",
+      "called": true,
+      "locations": [
+        "report.php:355 (inline)"
+      ]
+    },
+    {
+      "function": "loadDocumenti",
+      "called": true,
+      "locations": [
+        "progetto_dettaglio.php:2799 (inline)"
+      ]
+    },
+    {
+      "function": "loadEconomicoReport",
+      "called": true,
+      "locations": [
+        "report.php:604 (inline)"
+      ]
+    },
+    {
+      "function": "loadEntrambiListini",
+      "called": true,
+      "locations": [
+        "preventivi.php:1737 (inline)"
+      ]
+    },
+    {
+      "function": "loadEvents",
+      "called": true,
+      "locations": [
+        "calendario.php:479 (inline)"
+      ]
+    },
+    {
+      "function": "loadLinks",
+      "called": true,
+      "locations": [
+        "blog_clienti.php:353 (inline)"
+      ]
+    },
+    {
+      "function": "loadListiniSelect",
+      "called": true,
+      "locations": [
+        "preventivi.php:1687 (inline)"
+      ]
+    },
+    {
+      "function": "loadLogo",
+      "called": true,
+      "locations": [
+        "impostazioni.php:1444 (inline)"
+      ]
+    },
+    {
+      "function": "loadMiniCalendar",
+      "called": true,
+      "locations": [
+        "dashboard.php:618 (inline)"
+      ]
+    },
+    {
+      "function": "loadPreventivi",
+      "called": true,
+      "locations": [
+        "preventivi.php:1290 (inline)"
+      ]
+    },
+    {
+      "function": "loadPreventiviCliente",
+      "called": true,
+      "locations": [
+        "clienti.php:459 (inline)"
+      ]
+    },
+    {
+      "function": "loadPreventiviSalvati",
+      "called": true,
+      "locations": [
+        "preventivi.php:869 (inline)"
+      ]
+    },
+    {
+      "function": "loadProgetti",
+      "called": true,
+      "locations": [
+        "progetti.php:1640 (inline)"
+      ]
+    },
+    {
+      "function": "loadProgettiReport",
+      "called": true,
+      "locations": [
+        "report.php:521 (inline)"
+      ]
+    },
+    {
+      "function": "loadProssimiAppuntamenti",
+      "called": true,
+      "locations": [
+        "calendario.php:1033 (inline)"
+      ]
+    },
+    {
+      "function": "loadReportData",
+      "called": true,
+      "locations": [
+        "report.php:347 (inline)"
+      ]
+    },
+    {
+      "function": "loadStats",
+      "called": true,
+      "locations": [
+        "blog_clienti.php:336 (inline)"
+      ]
+    },
+    {
+      "function": "loadTask",
+      "called": true,
+      "locations": [
+        "progetto_dettaglio.php:1948 (inline)"
+      ]
+    },
+    {
+      "function": "loadTemporaleReport",
+      "called": true,
+      "locations": [
+        "report.php:674 (inline)"
+      ]
+    },
+    {
+      "function": "loadTimerStatus",
+      "called": true,
+      "locations": [
+        "progetto_dettaglio.php:2439 (inline)"
+      ]
+    },
+    {
+      "function": "loadTransazioni",
+      "called": true,
+      "locations": [
+        "progetto_dettaglio.php:2689 (inline)"
+      ]
+    },
+    {
+      "function": "loadUpcomingEvents",
+      "called": true,
+      "locations": [
+        "dashboard.php:760 (inline)"
+      ]
+    },
+    {
+      "function": "loadUtentiReport",
+      "called": true,
+      "locations": [
+        "report.php:434 (inline)"
+      ]
+    },
+    {
+      "function": "markAllNotificheLette",
+      "called": true,
+      "locations": [
+        "includes/footer.php:253 (inline)"
+      ]
+    },
+    {
+      "function": "markNotificaLette",
+      "called": true,
+      "locations": [
+        "includes/footer.php:239 (inline)"
+      ]
+    },
+    {
+      "function": "maxSize",
+      "called": false,
+      "locations": [
+        "upload_cliente.php:672 (inline)"
+      ]
+    },
+    {
+      "function": "modificaCodiceAteco",
+      "called": true,
+      "locations": [
+        "impostazioni.php:2147 (inline)"
+      ]
+    },
+    {
+      "function": "modificaPreventivo",
+      "called": true,
+      "locations": [
+        "preventivi.php:2588 (inline)"
+      ]
+    },
+    {
+      "function": "modificaScadenza",
+      "called": true,
+      "locations": [
+        "scadenze.php:514 (inline)"
+      ]
+    },
+    {
+      "function": "mostraArchiviati",
+      "called": true,
+      "locations": [
+        "blog_clienti.php:280 (inline)"
+      ]
+    },
+    {
+      "function": "mostraDettagliCliente",
+      "called": true,
+      "locations": [
+        "preventivi.php:1252 (inline)"
+      ]
+    },
+    {
+      "function": "mostraFirmaAzienda",
+      "called": true,
+      "locations": [
+        "impostazioni.php:1710 (inline)"
+      ]
+    },
+    {
+      "function": "mostraLogoAzienda",
+      "called": true,
+      "locations": [
+        "impostazioni.php:1679 (inline)"
+      ]
+    },
+    {
+      "function": "nascondiFirmaAzienda",
+      "called": true,
+      "locations": [
+        "impostazioni.php:1726 (inline)"
+      ]
+    },
+    {
+      "function": "nascondiLogoAzienda",
+      "called": true,
+      "locations": [
+        "impostazioni.php:1695 (inline)"
+      ]
+    },
+    {
+      "function": "numServizi",
+      "called": false,
+      "locations": [
+        "preventivi.php:952 (inline)"
+      ]
+    },
+    {
+      "function": "onCodiceAtecoChange",
+      "called": true,
+      "locations": [
+        "tasse.php:459 (inline)"
+      ]
+    },
+    {
+      "function": "onListinoChange",
+      "called": true,
+      "locations": [
+        "preventivi.php:1704 (inline)"
+      ]
+    },
+    {
+      "function": "openBurocraziaModal",
+      "called": true,
+      "locations": [
+        "impostazioni.php:2622 (inline)"
+      ]
+    },
+    {
+      "function": "openCategoriaModal",
+      "called": true,
+      "locations": [
+        "preventivi.php:1629 (inline)"
+      ]
+    },
+    {
+      "function": "openDayEventsModal",
+      "called": true,
+      "locations": [
+        "calendario.php:598 (inline)"
+      ]
+    },
+    {
+      "function": "openEditEventModal",
+      "called": true,
+      "locations": [
+        "calendario.php:949 (inline)"
+      ]
+    },
+    {
+      "function": "openEditProgettoModal",
+      "called": true,
+      "locations": [
+        "progetto_dettaglio.php:3562 (inline)"
+      ]
+    },
+    {
+      "function": "openEventModal",
+      "called": true,
+      "locations": [
+        "calendario.php:933 (inline)"
+      ]
+    },
+    {
+      "function": "openEventModalWithDate",
+      "called": true,
+      "locations": [
+        "calendario.php:940 (inline)"
+      ]
+    },
+    {
+      "function": "openGeneraLinkModal",
+      "called": true,
+      "locations": [
+        "blog_clienti.php:555 (inline)"
+      ]
+    },
+    {
+      "function": "openImageModal",
+      "called": true,
+      "locations": [
+        "blog_clienti.php:859 (inline)",
+        "progetto_dettaglio.php:2564 (inline)"
+      ]
+    },
+    {
+      "function": "openMobileFullMenu",
+      "called": true,
+      "locations": [
+        "includes/header.php:858 (inline)"
+      ]
+    },
+    {
+      "function": "openMobileMenu",
+      "called": true,
+      "locations": [
+        "includes/header.php:837 (inline)",
+        "includes/footer.php:9 (inline)"
+      ]
+    },
+    {
+      "function": "openModal",
+      "called": true,
+      "locations": [
+        "progetto_dettaglio.php:3514 (inline)",
+        "includes/footer.php:22 (inline)"
+      ]
+    },
+    {
+      "function": "openModalAggiunta",
+      "called": true,
+      "locations": [
+        "finanze.php:469 (inline)"
+      ]
+    },
+    {
+      "function": "openPreventivoModal",
+      "called": true,
+      "locations": [
+        "preventivi.php:1948 (inline)"
+      ]
+    },
+    {
+      "function": "openScadenzaModal",
+      "called": true,
+      "locations": [
+        "scadenze.php:497 (inline)"
+      ]
+    },
+    {
+      "function": "openTaskModal",
+      "called": true,
+      "locations": [
+        "progetto_dettaglio.php:2731 (inline)"
+      ]
+    },
+    {
+      "function": "openTemplateModal",
+      "called": true,
+      "locations": [
+        "impostazioni.php:2417 (inline)"
+      ]
+    },
+    {
+      "function": "openTipologiaModal",
+      "called": true,
+      "locations": [
+        "scadenze.php:702 (inline)"
+      ]
+    },
+    {
+      "function": "openVoceModal",
+      "called": true,
+      "locations": [
+        "preventivi.php:1482 (inline)"
+      ]
+    },
+    {
+      "function": "options",
+      "called": false,
+      "locations": [
+        "scadenze.php:659 (inline)"
+      ]
+    },
+    {
+      "function": "original",
+      "called": false,
+      "locations": [
+        "progetto_dettaglio.php:780 (inline)"
+      ]
+    },
+    {
+      "function": "panRafId",
+      "called": false,
+      "locations": [
+        "progetti.php:1450 (inline)"
+      ]
+    },
+    {
+      "function": "partecipanti",
+      "called": true,
+      "locations": [
+        "progetto_dettaglio.php:1806 (inline)"
+      ]
+    },
+    {
+      "function": "partecipantiAvatars",
+      "called": false,
+      "locations": [
+        "calendario.php:821 (inline)",
+        "calendario.php:869 (inline)"
+      ]
+    },
+    {
+      "function": "partecipantiHtml",
+      "called": false,
+      "locations": [
+        "calendario.php:643 (inline)"
+      ]
+    },
+    {
+      "function": "partecipantiText",
+      "called": false,
+      "locations": [
+        "calendario.php:750 (inline)"
+      ]
+    },
+    {
+      "function": "pauseTaskTimer",
+      "called": true,
+      "locations": [
+        "progetto_dettaglio.php:2279 (inline)"
+      ]
+    },
+    {
+      "function": "perCliente",
+      "called": false,
+      "locations": [
+        "blog_clienti.php:384 (inline)",
+        "blog_clienti.php:487 (inline)"
+      ]
+    },
+    {
+      "function": "periodi",
+      "called": false,
+      "locations": [
+        "report.php:719 (inline)"
+      ]
+    },
+    {
+      "function": "pipelineResetView",
+      "called": true,
+      "locations": [
+        "progetti.php:1425 (inline)"
+      ]
+    },
+    {
+      "function": "pipelineZoomIn",
+      "called": true,
+      "locations": [
+        "progetti.php:1415 (inline)"
+      ]
+    },
+    {
+      "function": "pipelineZoomOut",
+      "called": true,
+      "locations": [
+        "progetti.php:1420 (inline)"
+      ]
+    },
+    {
+      "function": "preventDefaults",
+      "called": true,
+      "locations": [
+        "upload_cliente.php:729 (inline)"
+      ]
+    },
+    {
+      "function": "preventivi",
+      "called": false,
+      "locations": [
+        "clienti.php:469 (inline)"
+      ]
+    },
+    {
+      "function": "preventivo",
+      "called": true,
+      "locations": [
+        "preventivi.php:2590 (inline)"
+      ]
+    },
+    {
+      "function": "previewLogo",
+      "called": true,
+      "locations": [
+        "clienti.php:822 (inline)"
+      ]
+    },
+    {
+      "function": "previewTaskImage",
+      "called": true,
+      "locations": [
+        "progetto_dettaglio.php:2462 (inline)"
+      ]
+    },
+    {
+      "function": "progettiFiltrati",
+      "called": false,
+      "locations": [
+        "briefing_ai.php:427 (inline)"
+      ]
+    },
+    {
+      "function": "progettiPerStato",
+      "called": false,
+      "locations": [
+        "progetti.php:1135 (inline)"
+      ]
+    },
+    {
+      "function": "removeFile",
+      "called": true,
+      "locations": [
+        "upload_cliente.php:710 (inline)"
+      ]
+    },
+    {
+      "function": "removeTaskImage",
+      "called": true,
+      "locations": [
+        "progetto_dettaglio.php:2489 (inline)"
+      ]
+    },
+    {
+      "function": "renderCalendar",
+      "called": true,
+      "locations": [
+        "calendario.php:426 (inline)"
+      ]
+    },
+    {
+      "function": "renderChips",
+      "called": false,
+      "locations": [
+        "assets/js/components.js:86"
+      ]
+    },
+    {
+      "function": "renderClienti",
+      "called": true,
+      "locations": [
+        "clienti.php:520 (inline)"
+      ]
+    },
+    {
+      "function": "renderContenuti",
+      "called": true,
+      "locations": [
+        "blog_clienti.php:454 (inline)"
+      ]
+    },
+    {
+      "function": "renderCronologia",
+      "called": true,
+      "locations": [
+        "tasse.php:633 (inline)"
+      ]
+    },
+    {
+      "function": "renderDistribuzione",
+      "called": true,
+      "locations": [
+        "progetto_dettaglio.php:1904 (inline)"
+      ]
+    },
+    {
+      "function": "renderEvents",
+      "called": true,
+      "locations": [
+        "calendario.php:503 (inline)"
+      ]
+    },
+    {
+      "function": "renderLinks",
+      "called": true,
+      "locations": [
+        "blog_clienti.php:367 (inline)"
+      ]
+    },
+    {
+      "function": "renderListaTipologie",
+      "called": true,
+      "locations": [
+        "scadenze.php:678 (inline)"
+      ]
+    },
+    {
+      "function": "renderNotifiche",
+      "called": true,
+      "locations": [
+        "includes/footer.php:152 (inline)"
+      ]
+    },
+    {
+      "function": "renderPipeline",
+      "called": true,
+      "locations": [
+        "progetti.php:1122 (inline)"
+      ]
+    },
+    {
+      "function": "renderPreventivi",
+      "called": true,
+      "locations": [
+        "preventivi.php:1304 (inline)"
+      ]
+    },
+    {
+      "function": "renderPreventiviSalvati",
+      "called": true,
+      "locations": [
+        "preventivi.php:882 (inline)"
+      ]
+    },
+    {
+      "function": "renderPreventivoCard",
+      "called": true,
+      "locations": [
+        "preventivi.php:949 (inline)"
+      ]
+    },
+    {
+      "function": "renderPreventivoServizi",
+      "called": true,
+      "locations": [
+        "preventivi.php:2067 (inline)"
+      ]
+    },
+    {
+      "function": "renderPreventivoServiziFromListino",
+      "called": true,
+      "locations": [
+        "preventivi.php:1780 (inline)"
+      ]
+    },
+    {
+      "function": "renderPreventivoServiziListino",
+      "called": true,
+      "locations": [
+        "preventivi.php:1977 (inline)"
+      ]
+    },
+    {
+      "function": "renderProgetti",
+      "called": true,
+      "locations": [
+        "progetti.php:1715 (inline)"
+      ]
+    },
+    {
+      "function": "renderProgettoCard",
+      "called": true,
+      "locations": [
+        "progetti.php:1862 (inline)"
+      ]
+    },
+    {
+      "function": "renderProgettoCardStack",
+      "called": true,
+      "locations": [
+        "progetti.php:1852 (inline)"
+      ]
+    },
+    {
+      "function": "renderScadenzaCard",
+      "called": true,
+      "locations": [
+        "scadenze.php:399 (inline)"
+      ]
+    },
+    {
+      "function": "renderTemplateBurocraziaList",
+      "called": true,
+      "locations": [
+        "impostazioni.php:2581 (inline)"
+      ]
+    },
+    {
+      "function": "renderTemplateList",
+      "called": true,
+      "locations": [
+        "impostazioni.php:2384 (inline)"
+      ]
+    },
+    {
+      "function": "renderTimelineGenerale",
+      "called": true,
+      "locations": [
+        "clienti.php:1017 (inline)"
+      ]
+    },
+    {
+      "function": "renderUtentiDistribuzioneList",
+      "called": true,
+      "locations": [
+        "progetto_dettaglio.php:1773 (inline)"
+      ]
+    },
+    {
+      "function": "renderizzaCodiciAteco",
+      "called": true,
+      "locations": [
+        "impostazioni.php:2075 (inline)"
+      ]
+    },
+    {
+      "function": "resetClienteForm",
+      "called": true,
+      "locations": [
+        "clienti.php:802 (inline)"
+      ]
+    },
+    {
+      "function": "resetLogoPreview",
+      "called": true,
+      "locations": [
+        "clienti.php:809 (inline)"
+      ]
+    },
+    {
+      "function": "resetTaskTimer",
+      "called": true,
+      "locations": [
+        "progetto_dettaglio.php:2343 (inline)"
+      ]
+    },
+    {
+      "function": "resetToUpcoming",
+      "called": true,
+      "locations": [
+        "dashboard.php:747 (inline)"
+      ]
+    },
+    {
+      "function": "resumeTaskTimer",
+      "called": true,
+      "locations": [
+        "progetto_dettaglio.php:2300 (inline)"
+      ]
+    },
+    {
+      "function": "revocaDistribuzione",
+      "called": true,
+      "locations": [
+        "progetto_dettaglio.php:2665 (inline)"
+      ]
+    },
+    {
+      "function": "ricalcolaDistribuzione",
+      "called": true,
+      "locations": [
+        "progetto_dettaglio.php:1746 (inline)"
+      ]
+    },
+    {
+      "function": "rimuoviFirmaAzienda",
+      "called": true,
+      "locations": [
+        "impostazioni.php:1779 (inline)"
+      ]
+    },
+    {
+      "function": "rimuoviLogo",
+      "called": true,
+      "locations": [
+        "impostazioni.php:1519 (inline)"
+      ]
+    },
+    {
+      "function": "rimuoviLogoAzienda",
+      "called": true,
+      "locations": [
+        "impostazioni.php:1854 (inline)"
+      ]
+    },
+    {
+      "function": "rimuoviSezione",
+      "called": true,
+      "locations": [
+        "preventivi.php:2267 (inline)"
+      ]
+    },
+    {
+      "function": "ripristinaContenuto",
+      "called": true,
+      "locations": [
+        "blog_clienti.php:785 (inline)"
+      ]
+    },
+    {
+      "function": "salvaAggiunta",
+      "called": true,
+      "locations": [
+        "finanze.php:503 (inline)"
+      ]
+    },
+    {
+      "function": "salvaAssociazioneProgetto",
+      "called": true,
+      "locations": [
+        "preventivi.php:1163 (inline)"
+      ]
+    },
+    {
+      "function": "salvaBriefing",
+      "called": true,
+      "locations": [
+        "briefing_ai.php:439 (inline)"
+      ]
+    },
+    {
+      "function": "salvaBriefingFallback",
+      "called": true,
+      "locations": [
+        "briefing_ai.php:509 (inline)"
+      ]
+    },
+    {
+      "function": "salvaCalcolo",
+      "called": true,
+      "locations": [
+        "tasse.php:586 (inline)"
+      ]
+    },
+    {
+      "function": "salvaChecklist",
+      "called": true,
+      "locations": [
+        "progetto_dettaglio.php:3303 (inline)"
+      ]
+    },
+    {
+      "function": "salvaCodiceAteco",
+      "called": true,
+      "locations": [
+        "impostazioni.php:2155 (inline)"
+      ]
+    },
+    {
+      "function": "salvaDatiAzienda",
+      "called": true,
+      "locations": [
+        "impostazioni.php:1888 (inline)"
+      ]
+    },
+    {
+      "function": "salvaGiorniPreavviso",
+      "called": true,
+      "locations": [
+        "scadenze.php:303 (inline)"
+      ]
+    },
+    {
+      "function": "salvaImpostazioniContabilita",
+      "called": true,
+      "locations": [
+        "impostazioni.php:2322 (inline)"
+      ]
+    },
+    {
+      "function": "salvaImpostazioniTask",
+      "called": true,
+      "locations": [
+        "impostazioni.php:2023 (inline)"
+      ]
+    },
+    {
+      "function": "salvaImpostazioniTasse",
+      "called": true,
+      "locations": [
+        "impostazioni.php:2231 (inline)"
+      ]
+    },
+    {
+      "function": "salvaPreventivoGestionale",
+      "called": true,
+      "locations": [
+        "preventivi.php:2492 (inline)"
+      ]
+    },
+    {
+      "function": "salvaScadenza",
+      "called": true,
+      "locations": [
+        "scadenze.php:542 (inline)"
+      ]
+    },
+    {
+      "function": "salvaTemplate",
+      "called": true,
+      "locations": [
+        "impostazioni.php:2442 (inline)"
+      ]
+    },
+    {
+      "function": "salvaTemplateBurocrazia",
+      "called": true,
+      "locations": [
+        "impostazioni.php:2649 (inline)"
+      ]
+    },
+    {
+      "function": "salvaTipologia",
+      "called": true,
+      "locations": [
+        "scadenze.php:711 (inline)"
+      ]
+    },
+    {
+      "function": "saveCategoria",
+      "called": true,
+      "locations": [
+        "preventivi.php:1634 (inline)"
+      ]
+    },
+    {
+      "function": "saveCliente",
+      "called": true,
+      "locations": [
+        "clienti.php:903 (inline)"
+      ]
+    },
+    {
+      "function": "saveEvent",
+      "called": true,
+      "locations": [
+        "calendario.php:1133 (inline)"
+      ]
+    },
+    {
+      "function": "saveProgetto",
+      "called": true,
+      "locations": [
+        "progetti.php:2108 (inline)"
+      ]
+    },
+    {
+      "function": "saveProgettoChanges",
+      "called": true,
+      "locations": [
+        "progetto_dettaglio.php:3627 (inline)"
+      ]
+    },
+    {
+      "function": "saveTask",
+      "called": true,
+      "locations": [
+        "progetto_dettaglio.php:2503 (inline)"
+      ]
+    },
+    {
+      "function": "saveVoce",
+      "called": true,
+      "locations": [
+        "preventivi.php:1518 (inline)"
+      ]
+    },
+    {
+      "function": "scadenzeInScadenza",
+      "called": false,
+      "locations": [
+        "includes/header.php:934 (inline)"
+      ]
+    },
+    {
+      "function": "scrollCarosello",
+      "called": true,
+      "locations": [
+        "preventivi.php:1021 (inline)"
+      ]
+    },
+    {
+      "function": "scrollPreventiviSalvati",
+      "called": true,
+      "locations": [
+        "preventivi.php:1438 (inline)"
+      ]
+    },
+    {
+      "function": "segnaLetto",
+      "called": true,
+      "locations": [
+        "blog_clienti.php:744 (inline)"
+      ]
+    },
+    {
+      "function": "selectDay",
+      "called": true,
+      "locations": [
+        "dashboard.php:690 (inline)"
+      ]
+    },
+    {
+      "function": "selezionaServiziPreventivo",
+      "called": true,
+      "locations": [
+        "preventivi.php:2668 (inline)"
+      ]
+    },
+    {
+      "function": "serviziListino",
+      "called": false,
+      "locations": [
+        "preventivi.php:1718 (inline)"
+      ]
+    },
+    {
+      "function": "setContent",
+      "called": true,
+      "locations": [
+        "preventivi.php:296 (inline)"
+      ]
+    },
+    {
+      "function": "setFontSize",
+      "called": true,
+      "locations": [
+        "preventivi.php:289 (inline)",
+        "preventivi.php:2376 (inline)"
+      ]
+    },
+    {
+      "function": "setTasseAccess",
+      "called": true,
+      "locations": [
+        "tasse.php:404 (inline)"
+      ]
+    },
+    {
+      "function": "setTemplateBurocraziaDefault",
+      "called": true,
+      "locations": [
+        "impostazioni.php:2729 (inline)"
+      ]
+    },
+    {
+      "function": "setTemplateDefault",
+      "called": true,
+      "locations": [
+        "impostazioni.php:2520 (inline)"
+      ]
+    },
+    {
+      "function": "setZoom",
+      "called": true,
+      "locations": [
+        "preventivi.php:2484 (inline)"
+      ]
+    },
+    {
+      "function": "share2",
+      "called": false,
+      "locations": [
+        "progetto_dettaglio.php:1870 (inline)"
+      ]
+    },
+    {
+      "function": "share3",
+      "called": false,
+      "locations": [
+        "progetto_dettaglio.php:1859 (inline)"
+      ]
+    },
+    {
+      "function": "showChecklist",
+      "called": true,
+      "locations": [
+        "progetto_dettaglio.php:3242 (inline)"
+      ]
+    },
+    {
+      "function": "showDayEvents",
+      "called": true,
+      "locations": [
+        "calendario.php:584 (inline)"
+      ]
+    },
+    {
+      "function": "showDeleteAllModal",
+      "called": true,
+      "locations": [
+        "impostazioni.php:1549 (inline)"
+      ]
+    },
+    {
+      "function": "showDeleteAllStep2",
+      "called": true,
+      "locations": [
+        "impostazioni.php:1553 (inline)"
+      ]
+    },
+    {
+      "function": "showDeleteAllStep3",
+      "called": true,
+      "locations": [
+        "impostazioni.php:1558 (inline)"
+      ]
+    },
+    {
+      "function": "showDeleteCronologiaStep2",
+      "called": true,
+      "locations": [
+        "impostazioni.php:1284 (inline)"
+      ]
+    },
+    {
+      "function": "showDettaglio",
+      "called": true,
+      "locations": [
+        "clienti.php:624 (inline)",
+        "blog_clienti.php:624 (inline)"
+      ]
+    },
+    {
+      "function": "showEventDetail",
+      "called": true,
+      "locations": [
+        "dashboard.php:827 (inline)"
+      ]
+    },
+    {
+      "function": "showResetSaldiStep2",
+      "called": true,
+      "locations": [
+        "impostazioni.php:1313 (inline)"
+      ]
+    },
+    {
+      "function": "showTimelineGenerale",
+      "called": true,
+      "locations": [
+        "clienti.php:990 (inline)"
+      ]
+    },
+    {
+      "function": "showToast",
+      "called": true,
+      "locations": [
+        "progetto_dettaglio.php:3530 (inline)",
+        "includes/footer.php:39 (inline)"
+      ]
+    },
+    {
+      "function": "stampaPreventivo",
+      "called": true,
+      "locations": [
+        "preventivi.php:2477 (inline)"
+      ]
+    },
+    {
+      "function": "startBlogPolling",
+      "called": true,
+      "locations": [
+        "progetto_dettaglio.php:852 (inline)"
+      ]
+    },
+    {
+      "function": "startTaskTimer",
+      "called": true,
+      "locations": [
+        "progetto_dettaglio.php:2258 (inline)"
+      ]
+    },
+    {
+      "function": "startTimerInterval",
+      "called": true,
+      "locations": [
+        "progetto_dettaglio.php:2366 (inline)"
+      ]
+    },
+    {
+      "function": "stati",
+      "called": true,
+      "locations": [
+        "progetti.php:1124 (inline)"
+      ]
+    },
+    {
+      "function": "stopBlogPolling",
+      "called": true,
+      "locations": [
+        "progetto_dettaglio.php:862 (inline)"
+      ]
+    },
+    {
+      "function": "stopTaskTimer",
+      "called": true,
+      "locations": [
+        "progetto_dettaglio.php:2321 (inline)"
+      ]
+    },
+    {
+      "function": "stopTimerInterval",
+      "called": true,
+      "locations": [
+        "progetto_dettaglio.php:2388 (inline)"
+      ]
+    },
+    {
+      "function": "stripHtml",
+      "called": true,
+      "locations": [
+        "progetto_dettaglio.php:835 (inline)"
+      ]
+    },
+    {
+      "function": "subtotale",
+      "called": true,
+      "locations": [
+        "preventivi.php:2515 (inline)"
+      ]
+    },
+    {
+      "function": "switchReportTab",
+      "called": true,
+      "locations": [
+        "report.php:326 (inline)"
+      ]
+    },
+    {
+      "function": "switchTab",
+      "called": true,
+      "locations": [
+        "assets/js/components.js:406",
+        "progetto_dettaglio.php:648 (inline)"
+      ]
+    },
+    {
+      "function": "template",
+      "called": false,
+      "locations": [
+        "impostazioni.php:2431 (inline)",
+        "impostazioni.php:2637 (inline)"
+      ]
+    },
+    {
+      "function": "tipoIcone",
+      "called": false,
+      "locations": [
+        "impostazioni.php:2590 (inline)"
+      ]
+    },
+    {
+      "function": "todayEvents",
+      "called": false,
+      "locations": [
+        "calendario.php:410 (inline)"
+      ]
+    },
+    {
+      "function": "toggleAccontoPercentuale",
+      "called": true,
+      "locations": [
+        "progetti.php:2054 (inline)"
+      ]
+    },
+    {
+      "function": "toggleArchiviati",
+      "called": true,
+      "locations": [
+        "progetti.php:1071 (inline)"
+      ]
+    },
+    {
+      "function": "toggleContabilitaForm",
+      "called": true,
+      "locations": [
+        "impostazioni.php:2273 (inline)"
+      ]
+    },
+    {
+      "function": "toggleDatiAziendaForm",
+      "called": true,
+      "locations": [
+        "impostazioni.php:1664 (inline)"
+      ]
+    },
+    {
+      "function": "toggleDescBtn",
+      "called": true,
+      "locations": [
+        "preventivi.php:1916 (inline)"
+      ]
+    },
+    {
+      "function": "toggleDescListino",
+      "called": true,
+      "locations": [
+        "preventivi.php:1447 (inline)"
+      ]
+    },
+    {
+      "function": "toggleDescrizione",
+      "called": true,
+      "locations": [
+        "progetto_dettaglio.php:2536 (inline)"
+      ]
+    },
+    {
+      "function": "toggleEditPagamentoRicorrente",
+      "called": true,
+      "locations": [
+        "progetto_dettaglio.php:3396 (inline)"
+      ]
+    },
+    {
+      "function": "toggleFilters",
+      "called": true,
+      "locations": [
+        "clienti.php:431 (inline)"
+      ]
+    },
+    {
+      "function": "toggleFiltriMobile",
+      "called": true,
+      "locations": [
+        "progetti.php:1058 (inline)"
+      ]
+    },
+    {
+      "function": "toggleGroupByCliente",
+      "called": true,
+      "locations": [
+        "progetti.php:1701 (inline)"
+      ]
+    },
+    {
+      "function": "toggleGroupExpand",
+      "called": true,
+      "locations": [
+        "progetti.php:1985 (inline)"
+      ]
+    },
+    {
+      "function": "toggleNotifiche",
+      "called": true,
+      "locations": [
+        "includes/header.php:891 (inline)",
+        "includes/footer.php:209 (inline)"
+      ]
+    },
+    {
+      "function": "togglePassword",
+      "called": true,
+      "locations": [
+        "index.php:250 (inline)"
+      ]
+    },
+    {
+      "function": "togglePipeline",
+      "called": true,
+      "locations": [
+        "progetti.php:1093 (inline)"
+      ]
+    },
+    {
+      "function": "toggleResoconto",
+      "called": true,
+      "locations": [
+        "dashboard.php:119 (inline)"
+      ]
+    },
+    {
+      "function": "toggleServizio",
+      "called": true,
+      "locations": [
+        "preventivi.php:1883 (inline)"
+      ]
+    },
+    {
+      "function": "toggleTaskExpand",
+      "called": true,
+      "locations": [
+        "progetto_dettaglio.php:2546 (inline)"
+      ]
+    },
+    {
+      "function": "toggleTaskStatus",
+      "called": true,
+      "locations": [
+        "dashboard.php:808 (inline)",
+        "progetto_dettaglio.php:2219 (inline)"
+      ]
+    },
+    {
+      "function": "toggleTasseForm",
+      "called": true,
+      "locations": [
+        "impostazioni.php:2061 (inline)"
+      ]
+    },
+    {
+      "function": "totale",
+      "called": false,
+      "locations": [
+        "progetto_dettaglio.php:3427 (inline)",
+        "preventivi.php:2163 (inline)",
+        "progetti.php:2085 (inline)"
+      ]
+    },
+    {
+      "function": "totaliOre",
+      "called": false,
+      "locations": [
+        "report.php:708 (inline)"
+      ]
+    },
+    {
+      "function": "totaliProgetti",
+      "called": false,
+      "locations": [
+        "report.php:709 (inline)"
+      ]
+    },
+    {
+      "function": "updateClienteInput",
+      "called": true,
+      "locations": [
+        "preventivi.php:1231 (inline)"
+      ]
+    },
+    {
+      "function": "updateDaySidebar",
+      "called": true,
+      "locations": [
+        "calendario.php:772 (inline)"
+      ]
+    },
+    {
+      "function": "updateLogoPlaceholder",
+      "called": true,
+      "locations": [
+        "clienti.php:847 (inline)"
+      ]
+    },
+    {
+      "function": "updateLogoPreview",
+      "called": true,
+      "locations": [
+        "impostazioni.php:1459 (inline)"
+      ]
+    },
+    {
+      "function": "updateMobileDaySidebar",
+      "called": true,
+      "locations": [
+        "calendario.php:703 (inline)"
+      ]
+    },
+    {
+      "function": "updateNavbarLogo",
+      "called": true,
+      "locations": [
+        "impostazioni.php:1543 (inline)"
+      ]
+    },
+    {
+      "function": "updatePipelineTransform",
+      "called": true,
+      "locations": [
+        "progetti.php:1432 (inline)"
+      ]
+    },
+    {
+      "function": "updatePreventivoPreview",
+      "called": true,
+      "locations": [
+        "preventivi.php:2118 (inline)"
+      ]
+    },
+    {
+      "function": "updateQty",
+      "called": true,
+      "locations": [
+        "preventivi.php:1900 (inline)"
+      ]
+    },
+    {
+      "function": "updateScadenzeBadge",
+      "called": true,
+      "locations": [
+        "includes/footer.php:315 (inline)"
+      ]
+    },
+    {
+      "function": "updateTimerUI",
+      "called": true,
+      "locations": [
+        "progetto_dettaglio.php:2401 (inline)"
+      ]
+    },
+    {
+      "function": "updateToolbarState",
+      "called": true,
+      "locations": [
+        "upload_cliente.php:544 (inline)"
+      ]
+    },
+    {
+      "function": "uploadAvatar",
+      "called": true,
+      "locations": [
+        "impostazioni.php:1338 (inline)"
+      ]
+    },
+    {
+      "function": "uploadDocumento",
+      "called": true,
+      "locations": [
+        "progetto_dettaglio.php:2866 (inline)"
+      ]
+    },
+    {
+      "function": "uploadFirmaAzienda",
+      "called": true,
+      "locations": [
+        "impostazioni.php:1738 (inline)"
+      ]
+    },
+    {
+      "function": "uploadLogo",
+      "called": true,
+      "locations": [
+        "impostazioni.php:1476 (inline)"
+      ]
+    },
+    {
+      "function": "uploadLogoAzienda",
+      "called": true,
+      "locations": [
+        "impostazioni.php:1813 (inline)"
+      ]
+    },
+    {
+      "function": "validaDistribuzioneRicorrente",
+      "called": true,
+      "locations": [
+        "progetti.php:2083 (inline)"
+      ]
+    },
+    {
+      "function": "validaEditDistribuzioneRicorrente",
+      "called": true,
+      "locations": [
+        "progetto_dettaglio.php:3425 (inline)"
+      ]
+    },
+    {
+      "function": "validateDocumento",
+      "called": true,
+      "locations": [
+        "progetto_dettaglio.php:2750 (inline)"
+      ]
+    },
+    {
+      "function": "verificaPassword",
+      "called": true,
+      "locations": [
+        "tasse.php:420 (inline)"
+      ]
+    },
+    {
+      "function": "visualizzaPreventivoSalvato",
+      "called": true,
+      "locations": [
+        "preventivi.php:1029 (inline)"
+      ]
+    },
+    {
+      "function": "voce",
+      "called": true,
+      "locations": [
+        "preventivi.php:1497 (inline)"
+      ]
+    }
+  ],
+  "all_html_ids_summary": [
+    {
+      "id": " + encodeURIComponent(clienteId);\n    \n    // Gestione filtro archiviati\n    if (mostraSoloArchiviati) {\n        url += ",
+      "referenced": false,
+      "locations": [
+        "blog_clienti.php:311"
+      ]
+    },
+    {
+      "id": " + encodeURIComponent(currentEventId), {\n                method: ",
+      "referenced": false,
+      "locations": [
+        "dashboard.php:926"
+      ]
+    },
+    {
+      "id": " + encodeURIComponent(eventId), {\n                method: ",
+      "referenced": false,
+      "locations": [
+        "calendario.php:1218"
+      ]
+    },
+    {
+      "id": " + encodeURIComponent(eventId), {\n            method: ",
+      "referenced": false,
+      "locations": [
+        "calendario.php:1244"
+      ]
+    },
+    {
+      "id": " + n.progetto_id + ",
+      "referenced": false,
+      "locations": [
+        "includes/footer.php:184"
+      ]
+    },
+    {
+      "id": "${groupId}",
+      "referenced": false,
+      "locations": [
+        "progetti.php:1797"
+      ]
+    },
+    {
+      "id": "${sezioneId}",
+      "referenced": false,
+      "locations": [
+        "preventivi.php:2193"
+      ]
+    },
+    {
+      "id": "${sezioneId}-contenuto",
+      "referenced": false,
+      "locations": [
+        "preventivi.php:2240"
+      ]
+    },
+    {
+      "id": "${sezioneId}-editor",
+      "referenced": false,
+      "locations": [
+        "preventivi.php:2238"
+      ]
+    },
+    {
+      "id": "${sezioneId}-titolo",
+      "referenced": false,
+      "locations": [
+        "preventivi.php:2195"
+      ]
+    },
+    {
+      "id": "${v.id}",
+      "referenced": false,
+      "locations": [
+        "preventivi.php:1818",
+        "preventivi.php:2015"
+      ]
+    },
+    {
+      "id": "a4Container",
+      "referenced": false,
+      "locations": [
+        "preventivi.php:842"
+      ]
+    },
+    {
+      "id": "a4Wrapper",
+      "referenced": true,
+      "locations": [
+        "preventivi.php:843"
+      ]
+    },
+    {
+      "id": "accessPassword",
+      "referenced": true,
+      "locations": [
+        "tasse.php:101"
+      ]
+    },
+    {
+      "id": "accontoPerc",
+      "referenced": true,
+      "locations": [
+        "tasse.php:222"
+      ]
+    },
+    {
+      "id": "accontoPercentuale",
+      "referenced": true,
+      "locations": [
+        "progetti.php:878"
+      ]
+    },
+    {
+      "id": "accontoPercentualeWrapper",
+      "referenced": true,
+      "locations": [
+        "progetti.php:876"
+      ]
+    },
+    {
+      "id": "aliquotaIrpef",
+      "referenced": true,
+      "locations": [
+        "tasse.php:194"
+      ]
+    },
+    {
+      "id": "annoSelect",
+      "referenced": true,
+      "locations": [
+        "dashboard.php:497"
+      ]
+    },
+    {
+      "id": "arrowhead",
+      "referenced": false,
+      "locations": [
+        "progetti.php:666"
+      ]
+    },
+    {
+      "id": "associaClienteId",
+      "referenced": true,
+      "locations": [
+        "preventivi.php:2716"
+      ]
+    },
+    {
+      "id": "associaClienteNome",
+      "referenced": true,
+      "locations": [
+        "preventivi.php:2725"
+      ]
+    },
+    {
+      "id": "associaPreventivoId",
+      "referenced": true,
+      "locations": [
+        "preventivi.php:2715"
+      ]
+    },
+    {
+      "id": "associaPreventivoNome",
+      "referenced": true,
+      "locations": [
+        "preventivi.php:2720"
+      ]
+    },
+    {
+      "id": "associaProgettoModal",
+      "referenced": false,
+      "locations": [
+        "preventivi.php:2702"
+      ]
+    },
+    {
+      "id": "associaProgettoSelect",
+      "referenced": true,
+      "locations": [
+        "preventivi.php:2730"
+      ]
+    },
+    {
+      "id": "atecoCodice",
+      "referenced": true,
+      "locations": [
+        "impostazioni.php:811"
+      ]
+    },
+    {
+      "id": "atecoCoefficiente",
+      "referenced": true,
+      "locations": [
+        "impostazioni.php:825"
+      ]
+    },
+    {
+      "id": "atecoDescrizione",
+      "referenced": true,
+      "locations": [
+        "impostazioni.php:818"
+      ]
+    },
+    {
+      "id": "atecoId",
+      "referenced": true,
+      "locations": [
+        "impostazioni.php:807"
+      ]
+    },
+    {
+      "id": "atecoTassazione",
+      "referenced": true,
+      "locations": [
+        "impostazioni.php:833"
+      ]
+    },
+    {
+      "id": "avatarForm",
+      "referenced": false,
+      "locations": [
+        "impostazioni.php:166"
+      ]
+    },
+    {
+      "id": "avatarInput",
+      "referenced": true,
+      "locations": [
+        "impostazioni.php:167"
+      ]
+    },
+    {
+      "id": "avatarPreview",
+      "referenced": false,
+      "locations": [
+        "impostazioni.php:143"
+      ]
+    },
+    {
+      "id": "aziendaCap",
+      "referenced": true,
+      "locations": [
+        "impostazioni.php:605"
+      ]
+    },
+    {
+      "id": "aziendaCf",
+      "referenced": true,
+      "locations": [
+        "impostazioni.php:633"
+      ]
+    },
+    {
+      "id": "aziendaCitta",
+      "referenced": true,
+      "locations": [
+        "impostazioni.php:612"
+      ]
+    },
+    {
+      "id": "aziendaEmail",
+      "referenced": true,
+      "locations": [
+        "impostazioni.php:640"
+      ]
+    },
+    {
+      "id": "aziendaIndirizzo",
+      "referenced": true,
+      "locations": [
+        "impostazioni.php:598"
+      ]
+    },
+    {
+      "id": "aziendaPassword",
+      "referenced": true,
+      "locations": [
+        "impostazioni.php:511"
+      ]
+    },
+    {
+      "id": "aziendaPec",
+      "referenced": true,
+      "locations": [
+        "impostazioni.php:654"
+      ]
+    },
+    {
+      "id": "aziendaPiva",
+      "referenced": true,
+      "locations": [
+        "impostazioni.php:626"
+      ]
+    },
+    {
+      "id": "aziendaProvincia",
+      "referenced": true,
+      "locations": [
+        "impostazioni.php:619"
+      ]
+    },
+    {
+      "id": "aziendaRagioneSociale",
+      "referenced": true,
+      "locations": [
+        "impostazioni.php:591"
+      ]
+    },
+    {
+      "id": "aziendaSdi",
+      "referenced": true,
+      "locations": [
+        "impostazioni.php:661"
+      ]
+    },
+    {
+      "id": "aziendaTelefono",
+      "referenced": true,
+      "locations": [
+        "impostazioni.php:647"
+      ]
+    },
+    {
+      "id": "backToUpcoming",
+      "referenced": true,
+      "locations": [
+        "dashboard.php:421"
+      ]
+    },
+    {
+      "id": "blogClientiBadge",
+      "referenced": true,
+      "locations": [
+        "includes/header.php:531"
+      ]
+    },
+    {
+      "id": "blogCountBadge",
+      "referenced": true,
+      "locations": [
+        "progetto_dettaglio.php:901"
+      ]
+    },
+    {
+      "id": "btn-${groupId}",
+      "referenced": false,
+      "locations": [
+        "progetti.php:1809"
+      ]
+    },
+    {
+      "id": "btn-checklist-<?php echo e(str_replace(",
+      "referenced": false,
+      "locations": [
+        "progetto_dettaglio.php:1435"
+      ]
+    },
+    {
+      "id": "btnArchivia",
+      "referenced": true,
+      "locations": [
+        "blog_clienti.php:255"
+      ]
+    },
+    {
+      "id": "btnArchiviati",
+      "referenced": true,
+      "locations": [
+        "blog_clienti.php:38",
+        "progetti.php:55"
+      ]
+    },
+    {
+      "id": "btnPipeline",
+      "referenced": true,
+      "locations": [
+        "progetti.php:64"
+      ]
+    },
+    {
+      "id": "btnRimuoviFirmaAzienda",
+      "referenced": true,
+      "locations": [
+        "impostazioni.php:579"
+      ]
+    },
+    {
+      "id": "btnRimuoviLogoAzienda",
+      "referenced": true,
+      "locations": [
+        "impostazioni.php:544"
+      ]
+    },
+    {
+      "id": "btnSalvaCalcolo",
+      "referenced": true,
+      "locations": [
+        "tasse.php:234"
+      ]
+    },
+    {
+      "id": "btnScrollNext",
+      "referenced": false,
+      "locations": [
+        "preventivi.php:441"
+      ]
+    },
+    {
+      "id": "btnScrollPrev",
+      "referenced": false,
+      "locations": [
+        "preventivi.php:364"
+      ]
+    },
+    {
+      "id": "btnSpinner",
+      "referenced": true,
+      "locations": [
+        "index.php:229"
+      ]
+    },
+    {
+      "id": "btnText",
+      "referenced": true,
+      "locations": [
+        "index.php:228"
+      ]
+    },
+    {
+      "id": "btnToggleContabilita",
+      "referenced": true,
+      "locations": [
+        "impostazioni.php:250"
+      ]
+    },
+    {
+      "id": "burocraziaContenuto",
+      "referenced": true,
+      "locations": [
+        "impostazioni.php:1244"
+      ]
+    },
+    {
+      "id": "burocraziaId",
+      "referenced": true,
+      "locations": [
+        "impostazioni.php:1207"
+      ]
+    },
+    {
+      "id": "burocraziaModal",
+      "referenced": false,
+      "locations": [
+        "impostazioni.php:1194"
+      ]
+    },
+    {
+      "id": "burocraziaModalTitle",
+      "referenced": true,
+      "locations": [
+        "impostazioni.php:1199"
+      ]
+    },
+    {
+      "id": "burocraziaNome",
+      "referenced": true,
+      "locations": [
+        "impostazioni.php:1236"
+      ]
+    },
+    {
+      "id": "burocraziaPassword",
+      "referenced": true,
+      "locations": [
+        "impostazioni.php:1217"
+      ]
+    },
+    {
+      "id": "burocraziaTipo",
+      "referenced": true,
+      "locations": [
+        "impostazioni.php:1225"
+      ]
+    },
+    {
+      "id": "calcolatoreSection",
+      "referenced": true,
+      "locations": [
+        "tasse.php:115"
+      ]
+    },
+    {
+      "id": "calendarGrid",
+      "referenced": true,
+      "locations": [
+        "calendario.php:79"
+      ]
+    },
+    {
+      "id": "caroselloPreventivi",
+      "referenced": true,
+      "locations": [
+        "preventivi.php:920"
+      ]
+    },
+    {
+      "id": "caroselloPreventiviSalvati",
+      "referenced": true,
+      "locations": [
+        "preventivi.php:372"
+      ]
+    },
+    {
+      "id": "categoriaModal",
+      "referenced": false,
+      "locations": [
+        "preventivi.php:589"
+      ]
+    },
+    {
+      "id": "categoriaNome",
+      "referenced": true,
+      "locations": [
+        "preventivi.php:604"
+      ]
+    },
+    {
+      "id": "chart-economico-mensile",
+      "referenced": false,
+      "locations": [
+        "report.php:273"
+      ]
+    },
+    {
+      "id": "chart-economico-progetti",
+      "referenced": false,
+      "locations": [
+        "report.php:279"
+      ]
+    },
+    {
+      "id": "chart-progetti-avanzamento",
+      "referenced": false,
+      "locations": [
+        "report.php:212"
+      ]
+    },
+    {
+      "id": "chart-progetti-budget",
+      "referenced": false,
+      "locations": [
+        "report.php:206"
+      ]
+    },
+    {
+      "id": "chart-progetti-stato",
+      "referenced": false,
+      "locations": [
+        "report.php:111"
+      ]
+    },
+    {
+      "id": "chart-task-stato",
+      "referenced": false,
+      "locations": [
+        "report.php:117"
+      ]
+    },
+    {
+      "id": "chart-temporale-andamento",
+      "referenced": false,
+      "locations": [
+        "report.php:314"
+      ]
+    },
+    {
+      "id": "chart-utenti-efficienza",
+      "referenced": false,
+      "locations": [
+        "report.php:160"
+      ]
+    },
+    {
+      "id": "chart-utenti-ore",
+      "referenced": false,
+      "locations": [
+        "report.php:154"
+      ]
+    },
+    {
+      "id": "check_${item.id}",
+      "referenced": false,
+      "locations": [
+        "progetto_dettaglio.php:3285"
+      ]
+    },
+    {
+      "id": "checklistContainer",
+      "referenced": true,
+      "locations": [
+        "progetto_dettaglio.php:1444"
+      ]
+    },
+    {
+      "id": "checklistEmptyState",
+      "referenced": true,
+      "locations": [
+        "progetto_dettaglio.php:1473"
+      ]
+    },
+    {
+      "id": "checklistItems",
+      "referenced": true,
+      "locations": [
+        "progetto_dettaglio.php:1455"
+      ]
+    },
+    {
+      "id": "cliContatti",
+      "referenced": true,
+      "locations": [
+        "preventivi.php:657"
+      ]
+    },
+    {
+      "id": "cliIndirizzo",
+      "referenced": true,
+      "locations": [
+        "preventivi.php:655"
+      ]
+    },
+    {
+      "id": "cliNome",
+      "referenced": true,
+      "locations": [
+        "preventivi.php:653"
+      ]
+    },
+    {
+      "id": "cliPivaCf",
+      "referenced": true,
+      "locations": [
+        "preventivi.php:656"
+      ]
+    },
+    {
+      "id": "clienteDettagli",
+      "referenced": true,
+      "locations": [
+        "preventivi.php:652"
+      ]
+    },
+    {
+      "id": "clienteFilter",
+      "referenced": true,
+      "locations": [
+        "progetti.php:111"
+      ]
+    },
+    {
+      "id": "clienteForm",
+      "referenced": true,
+      "locations": [
+        "clienti.php:98"
+      ]
+    },
+    {
+      "id": "clienteId",
+      "referenced": true,
+      "locations": [
+        "clienti.php:99"
+      ]
+    },
+    {
+      "id": "clienteModal",
+      "referenced": false,
+      "locations": [
+        "clienti.php:85"
+      ]
+    },
+    {
+      "id": "clientiContainer",
+      "referenced": true,
+      "locations": [
+        "clienti.php:77"
+      ]
+    },
+    {
+      "id": "codiceAteco",
+      "referenced": true,
+      "locations": [
+        "tasse.php:177"
+      ]
+    },
+    {
+      "id": "coeffAteco",
+      "referenced": true,
+      "locations": [
+        "tasse.php:217"
+      ]
+    },
+    {
+      "id": "coloreFilter",
+      "referenced": true,
+      "locations": [
+        "progetti.php:127"
+      ]
+    },
+    {
+      "id": "comment_${item.id}",
+      "referenced": false,
+      "locations": [
+        "progetto_dettaglio.php:3292"
+      ]
+    },
+    {
+      "id": "commenti-container-${t.id}",
+      "referenced": false,
+      "locations": [
+        "progetto_dettaglio.php:1982"
+      ]
+    },
+    {
+      "id": "commento-${c.id}",
+      "referenced": false,
+      "locations": [
+        "progetto_dettaglio.php:2948"
+      ]
+    },
+    {
+      "id": "commento-input-${t.id}",
+      "referenced": false,
+      "locations": [
+        "progetto_dettaglio.php:2084",
+        "progetto_dettaglio.php:2196"
+      ]
+    },
+    {
+      "id": "confirmPassword",
+      "referenced": true,
+      "locations": [
+        "impostazioni.php:222"
+      ]
+    },
+    {
+      "id": "contabilitaContent",
+      "referenced": true,
+      "locations": [
+        "dashboard.php:514"
+      ]
+    },
+    {
+      "id": "contabilitaForm",
+      "referenced": true,
+      "locations": [
+        "impostazioni.php:273"
+      ]
+    },
+    {
+      "id": "contabilitaGiornoInizio",
+      "referenced": true,
+      "locations": [
+        "impostazioni.php:300"
+      ]
+    },
+    {
+      "id": "contabilitaLoading",
+      "referenced": true,
+      "locations": [
+        "dashboard.php:508"
+      ]
+    },
+    {
+      "id": "contabilitaMensileSection",
+      "referenced": false,
+      "locations": [
+        "dashboard.php:467"
+      ]
+    },
+    {
+      "id": "contabilitaMeseFiscale",
+      "referenced": true,
+      "locations": [
+        "impostazioni.php:307"
+      ]
+    },
+    {
+      "id": "contabilitaPassword",
+      "referenced": false,
+      "locations": [
+        "impostazioni.php:281"
+      ]
+    },
+    {
+      "id": "contabilitaPeriodo",
+      "referenced": true,
+      "locations": [
+        "impostazioni.php:289"
+      ]
+    },
+    {
+      "id": "contabilitaPreview",
+      "referenced": true,
+      "locations": [
+        "impostazioni.php:257"
+      ]
+    },
+    {
+      "id": "content-blog",
+      "referenced": true,
+      "locations": [
+        "progetto_dettaglio.php:1303"
+      ]
+    },
+    {
+      "id": "content-controllo",
+      "referenced": true,
+      "locations": [
+        "progetto_dettaglio.php:1416"
+      ]
+    },
+    {
+      "id": "content-dettagli",
+      "referenced": false,
+      "locations": [
+        "progetto_dettaglio.php:918"
+      ]
+    },
+    {
+      "id": "content-documenti",
+      "referenced": true,
+      "locations": [
+        "progetto_dettaglio.php:1207"
+      ]
+    },
+    {
+      "id": "content-economia",
+      "referenced": false,
+      "locations": [
+        "progetto_dettaglio.php:1373"
+      ]
+    },
+    {
+      "id": "content-task",
+      "referenced": false,
+      "locations": [
+        "progetto_dettaglio.php:1189"
+      ]
+    },
+    {
+      "id": "contenutiContainer",
+      "referenced": true,
+      "locations": [
+        "blog_clienti.php:132",
+        "briefing_ai.php:151"
+      ]
+    },
+    {
+      "id": "controls-${v.id}",
+      "referenced": false,
+      "locations": [
+        "preventivi.php:1841",
+        "preventivi.php:2038"
+      ]
+    },
+    {
+      "id": "count-archiviato",
+      "referenced": false,
+      "locations": [
+        "progetti.php:751"
+      ]
+    },
+    {
+      "id": "count-completato",
+      "referenced": false,
+      "locations": [
+        "progetti.php:727"
+      ]
+    },
+    {
+      "id": "count-consegnato",
+      "referenced": false,
+      "locations": [
+        "progetti.php:739"
+      ]
+    },
+    {
+      "id": "count-da_iniziare",
+      "referenced": false,
+      "locations": [
+        "progetti.php:690"
+      ]
+    },
+    {
+      "id": "count-in_corso",
+      "referenced": false,
+      "locations": [
+        "progetti.php:703"
+      ]
+    },
+    {
+      "id": "count-in_pausa",
+      "referenced": false,
+      "locations": [
+        "progetti.php:715"
+      ]
+    },
+    {
+      "id": "countPreventiviSalvati",
+      "referenced": true,
+      "locations": [
+        "preventivi.php:342"
+      ]
+    },
+    {
+      "id": "counterProssimoPagamento",
+      "referenced": false,
+      "locations": [
+        "progetto_dettaglio.php:1026"
+      ]
+    },
+    {
+      "id": "cronologiaEmpty",
+      "referenced": true,
+      "locations": [
+        "tasse.php:373"
+      ]
+    },
+    {
+      "id": "cronologiaHeader",
+      "referenced": false,
+      "locations": [
+        "tasse.php:323"
+      ]
+    },
+    {
+      "id": "cronologiaMensileList",
+      "referenced": true,
+      "locations": [
+        "dashboard.php:537"
+      ]
+    },
+    {
+      "id": "currentMonth",
+      "referenced": true,
+      "locations": [
+        "calendario.php:54"
+      ]
+    },
+    {
+      "id": "currentPassword",
+      "referenced": true,
+      "locations": [
+        "impostazioni.php:207"
+      ]
+    },
+    {
+      "id": "datiAziendaForm",
+      "referenced": true,
+      "locations": [
+        "impostazioni.php:502"
+      ]
+    },
+    {
+      "id": "datiAziendaStatus",
+      "referenced": true,
+      "locations": [
+        "impostazioni.php:483"
+      ]
+    },
+    {
+      "id": "dayDetailContent",
+      "referenced": true,
+      "locations": [
+        "calendario.php:110"
+      ]
+    },
+    {
+      "id": "dayDetailSubtitle",
+      "referenced": true,
+      "locations": [
+        "calendario.php:107"
+      ]
+    },
+    {
+      "id": "dayDetailTitle",
+      "referenced": true,
+      "locations": [
+        "calendario.php:106"
+      ]
+    },
+    {
+      "id": "dayEventsList",
+      "referenced": true,
+      "locations": [
+        "calendario.php:381"
+      ]
+    },
+    {
+      "id": "dayEventsModal",
+      "referenced": false,
+      "locations": [
+        "calendario.php:368"
+      ]
+    },
+    {
+      "id": "dayEventsTitle",
+      "referenced": true,
+      "locations": [
+        "calendario.php:373"
+      ]
+    },
+    {
+      "id": "deleteAllKeyword",
+      "referenced": true,
+      "locations": [
+        "impostazioni.php:1112"
+      ]
+    },
+    {
+      "id": "deleteAllModal1",
+      "referenced": false,
+      "locations": [
+        "impostazioni.php:1050"
+      ]
+    },
+    {
+      "id": "deleteAllModal2",
+      "referenced": false,
+      "locations": [
+        "impostazioni.php:1078"
+      ]
+    },
+    {
+      "id": "deleteAllModal3",
+      "referenced": false,
+      "locations": [
+        "impostazioni.php:1100"
+      ]
+    },
+    {
+      "id": "deleteCronologiaModal1",
+      "referenced": false,
+      "locations": [
+        "impostazioni.php:964"
+      ]
+    },
+    {
+      "id": "deleteCronologiaModal2",
+      "referenced": false,
+      "locations": [
+        "impostazioni.php:984"
+      ]
+    },
+    {
+      "id": "desc-listino-${v.id}",
+      "referenced": false,
+      "locations": [
+        "preventivi.php:1387"
+      ]
+    },
+    {
+      "id": "desc-preview-${t.id}",
+      "referenced": false,
+      "locations": [
+        "progetto_dettaglio.php:2111"
+      ]
+    },
+    {
+      "id": "descrizioneAggiunta",
+      "referenced": true,
+      "locations": [
+        "finanze.php:447"
+      ]
+    },
+    {
+      "id": "detAcconto",
+      "referenced": true,
+      "locations": [
+        "tasse.php:295"
+      ]
+    },
+    {
+      "id": "detAccontoPerc",
+      "referenced": true,
+      "locations": [
+        "tasse.php:294"
+      ]
+    },
+    {
+      "id": "detAliquotaInps",
+      "referenced": true,
+      "locations": [
+        "tasse.php:290"
+      ]
+    },
+    {
+      "id": "detAliquotaIrpef",
+      "referenced": true,
+      "locations": [
+        "tasse.php:286"
+      ]
+    },
+    {
+      "id": "detCoeff",
+      "referenced": true,
+      "locations": [
+        "tasse.php:276"
+      ]
+    },
+    {
+      "id": "detFatturato",
+      "referenced": true,
+      "locations": [
+        "tasse.php:271"
+      ]
+    },
+    {
+      "id": "detImponibile",
+      "referenced": true,
+      "locations": [
+        "tasse.php:281"
+      ]
+    },
+    {
+      "id": "detInps",
+      "referenced": true,
+      "locations": [
+        "tasse.php:291"
+      ]
+    },
+    {
+      "id": "detIrpef",
+      "referenced": true,
+      "locations": [
+        "tasse.php:287"
+      ]
+    },
+    {
+      "id": "detNetto",
+      "referenced": true,
+      "locations": [
+        "tasse.php:306"
+      ]
+    },
+    {
+      "id": "detTotaleTasse",
+      "referenced": true,
+      "locations": [
+        "tasse.php:301"
+      ]
+    },
+    {
+      "id": "dettaglioClienteNome",
+      "referenced": true,
+      "locations": [
+        "blog_clienti.php:240"
+      ]
+    },
+    {
+      "id": "dettaglioContent",
+      "referenced": true,
+      "locations": [
+        "clienti.php:257",
+        "blog_clienti.php:250"
+      ]
+    },
+    {
+      "id": "dettaglioContenutoModal",
+      "referenced": false,
+      "locations": [
+        "blog_clienti.php:234"
+      ]
+    },
+    {
+      "id": "dettaglioData",
+      "referenced": true,
+      "locations": [
+        "blog_clienti.php:241"
+      ]
+    },
+    {
+      "id": "dettaglioModal",
+      "referenced": false,
+      "locations": [
+        "clienti.php:244"
+      ]
+    },
+    {
+      "id": "dettaglioNome",
+      "referenced": true,
+      "locations": [
+        "clienti.php:249"
+      ]
+    },
+    {
+      "id": "distribuzioneModal",
+      "referenced": false,
+      "locations": [
+        "progetto_dettaglio.php:1619"
+      ]
+    },
+    {
+      "id": "distribuzionePreview",
+      "referenced": true,
+      "locations": [
+        "progetto_dettaglio.php:1686"
+      ]
+    },
+    {
+      "id": "distribuzioneRicorrenteContainer",
+      "referenced": false,
+      "locations": [
+        "progetti.php:920"
+      ]
+    },
+    {
+      "id": "distribuzioneUniforme",
+      "referenced": true,
+      "locations": [
+        "progetto_dettaglio.php:1667"
+      ]
+    },
+    {
+      "id": "docCountBadge",
+      "referenced": true,
+      "locations": [
+        "progetto_dettaglio.php:896"
+      ]
+    },
+    {
+      "id": "documentiCounter",
+      "referenced": true,
+      "locations": [
+        "progetto_dettaglio.php:1248"
+      ]
+    },
+    {
+      "id": "documentiList",
+      "referenced": true,
+      "locations": [
+        "progetto_dettaglio.php:1219"
+      ]
+    },
+    {
+      "id": "documentoError",
+      "referenced": true,
+      "locations": [
+        "progetto_dettaglio.php:1237"
+      ]
+    },
+    {
+      "id": "documentoForm",
+      "referenced": true,
+      "locations": [
+        "progetto_dettaglio.php:1226"
+      ]
+    },
+    {
+      "id": "documentoInput",
+      "referenced": true,
+      "locations": [
+        "progetto_dettaglio.php:1231"
+      ]
+    },
+    {
+      "id": "documentoPreview",
+      "referenced": true,
+      "locations": [
+        "progetto_dettaglio.php:1286"
+      ]
+    },
+    {
+      "id": "dropZone",
+      "referenced": true,
+      "locations": [
+        "upload_cliente.php:370"
+      ]
+    },
+    {
+      "id": "eco-entrate",
+      "referenced": true,
+      "locations": [
+        "report.php:257"
+      ]
+    },
+    {
+      "id": "eco-saldo",
+      "referenced": true,
+      "locations": [
+        "report.php:265"
+      ]
+    },
+    {
+      "id": "eco-uscite",
+      "referenced": true,
+      "locations": [
+        "report.php:261"
+      ]
+    },
+    {
+      "id": "editColore<?php echo str_replace(",
+      "referenced": false,
+      "locations": [
+        "progetto_dettaglio.php:600"
+      ]
+    },
+    {
+      "id": "editDistribuzioneRicorrente<?php echo $uid; ?>",
+      "referenced": false,
+      "locations": [
+        "progetto_dettaglio.php:526"
+      ]
+    },
+    {
+      "id": "editDistribuzioneRicorrenteCassa",
+      "referenced": false,
+      "locations": [
+        "progetto_dettaglio.php:544"
+      ]
+    },
+    {
+      "id": "editDistribuzioneRicorrenteContainer",
+      "referenced": false,
+      "locations": [
+        "progetto_dettaglio.php:517"
+      ]
+    },
+    {
+      "id": "editErroreDistribuzioneRicorrente",
+      "referenced": true,
+      "locations": [
+        "progetto_dettaglio.php:557"
+      ]
+    },
+    {
+      "id": "editFrequenzaRicorrente",
+      "referenced": true,
+      "locations": [
+        "progetto_dettaglio.php:497"
+      ]
+    },
+    {
+      "id": "editImportoRicorrente",
+      "referenced": true,
+      "locations": [
+        "progetto_dettaglio.php:491"
+      ]
+    },
+    {
+      "id": "editPagamentoRicorrenteWrapper",
+      "referenced": true,
+      "locations": [
+        "progetto_dettaglio.php:480"
+      ]
+    },
+    {
+      "id": "editPartecipante<?php echo $id; ?>",
+      "referenced": false,
+      "locations": [
+        "progetto_dettaglio.php:567"
+      ]
+    },
+    {
+      "id": "editProgettoCliente",
+      "referenced": true,
+      "locations": [
+        "progetto_dettaglio.php:412"
+      ]
+    },
+    {
+      "id": "editProgettoDataConsegna",
+      "referenced": true,
+      "locations": [
+        "progetto_dettaglio.php:621"
+      ]
+    },
+    {
+      "id": "editProgettoDataInizio",
+      "referenced": true,
+      "locations": [
+        "progetto_dettaglio.php:616"
+      ]
+    },
+    {
+      "id": "editProgettoDescrizione",
+      "referenced": true,
+      "locations": [
+        "progetto_dettaglio.php:423"
+      ]
+    },
+    {
+      "id": "editProgettoForm",
+      "referenced": true,
+      "locations": [
+        "progetto_dettaglio.php:397"
+      ]
+    },
+    {
+      "id": "editProgettoId",
+      "referenced": true,
+      "locations": [
+        "progetto_dettaglio.php:398"
+      ]
+    },
+    {
+      "id": "editProgettoModal",
+      "referenced": false,
+      "locations": [
+        "progetto_dettaglio.php:384"
+      ]
+    },
+    {
+      "id": "editProgettoNote",
+      "referenced": true,
+      "locations": [
+        "progetto_dettaglio.php:431"
+      ]
+    },
+    {
+      "id": "editProgettoPrezzo",
+      "referenced": true,
+      "locations": [
+        "progetto_dettaglio.php:456"
+      ]
+    },
+    {
+      "id": "editProgettoStato",
+      "referenced": true,
+      "locations": [
+        "progetto_dettaglio.php:463"
+      ]
+    },
+    {
+      "id": "editProgettoStatoPagamento",
+      "referenced": true,
+      "locations": [
+        "progetto_dettaglio.php:471"
+      ]
+    },
+    {
+      "id": "editProgettoTitolo",
+      "referenced": true,
+      "locations": [
+        "progetto_dettaglio.php:404"
+      ]
+    },
+    {
+      "id": "editProssimaDataRicorrente",
+      "referenced": true,
+      "locations": [
+        "progetto_dettaglio.php:508"
+      ]
+    },
+    {
+      "id": "editTipo<?php echo str_replace(",
+      "referenced": false,
+      "locations": [
+        "progetto_dettaglio.php:443"
+      ]
+    },
+    {
+      "id": "editTotaleDistribuzioneRicorrente",
+      "referenced": true,
+      "locations": [
+        "progetto_dettaglio.php:555"
+      ]
+    },
+    {
+      "id": "errorContainer",
+      "referenced": true,
+      "locations": [
+        "index.php:237"
+      ]
+    },
+    {
+      "id": "errorText",
+      "referenced": true,
+      "locations": [
+        "index.php:238"
+      ]
+    },
+    {
+      "id": "erroreDistribuzioneRicorrente",
+      "referenced": true,
+      "locations": [
+        "progetti.php:958"
+      ]
+    },
+    {
+      "id": "eventClienteId",
+      "referenced": true,
+      "locations": [
+        "calendario.php:200"
+      ]
+    },
+    {
+      "id": "eventDataFine",
+      "referenced": true,
+      "locations": [
+        "calendario.php:250"
+      ]
+    },
+    {
+      "id": "eventDataFineDate",
+      "referenced": true,
+      "locations": [
+        "calendario.php:236"
+      ]
+    },
+    {
+      "id": "eventDataFineTime",
+      "referenced": true,
+      "locations": [
+        "calendario.php:243"
+      ]
+    },
+    {
+      "id": "eventDataInizio",
+      "referenced": true,
+      "locations": [
+        "calendario.php:229"
+      ]
+    },
+    {
+      "id": "eventDataInizioDate",
+      "referenced": true,
+      "locations": [
+        "calendario.php:215"
+      ]
+    },
+    {
+      "id": "eventDataInizioTime",
+      "referenced": true,
+      "locations": [
+        "calendario.php:222"
+      ]
+    },
+    {
+      "id": "eventDetailContent",
+      "referenced": true,
+      "locations": [
+        "dashboard.php:447"
+      ]
+    },
+    {
+      "id": "eventDetailModal",
+      "referenced": false,
+      "locations": [
+        "dashboard.php:434"
+      ]
+    },
+    {
+      "id": "eventForm",
+      "referenced": true,
+      "locations": [
+        "calendario.php:177"
+      ]
+    },
+    {
+      "id": "eventId",
+      "referenced": true,
+      "locations": [
+        "calendario.php:178"
+      ]
+    },
+    {
+      "id": "eventModal",
+      "referenced": false,
+      "locations": [
+        "calendario.php:164"
+      ]
+    },
+    {
+      "id": "eventModalTitle",
+      "referenced": true,
+      "locations": [
+        "calendario.php:169"
+      ]
+    },
+    {
+      "id": "events-${dateStr}",
+      "referenced": false,
+      "locations": [
+        "calendario.php:461"
+      ]
+    },
+    {
+      "id": "expand-icon-${t.id}",
+      "referenced": false,
+      "locations": [
+        "progetto_dettaglio.php:2156"
+      ]
+    },
+    {
+      "id": "eyeIcon",
+      "referenced": true,
+      "locations": [
+        "index.php:214"
+      ]
+    },
+    {
+      "id": "fatturato",
+      "referenced": true,
+      "locations": [
+        "tasse.php:170"
+      ]
+    },
+    {
+      "id": "field-cliente",
+      "referenced": true,
+      "locations": [
+        "briefing_ai.php:83"
+      ]
+    },
+    {
+      "id": "field-design",
+      "referenced": true,
+      "locations": [
+        "briefing_ai.php:136"
+      ]
+    },
+    {
+      "id": "field-distintivi",
+      "referenced": true,
+      "locations": [
+        "briefing_ai.php:128"
+      ]
+    },
+    {
+      "id": "field-funzionalita",
+      "referenced": true,
+      "locations": [
+        "briefing_ai.php:121"
+      ]
+    },
+    {
+      "id": "field-obiettivo",
+      "referenced": true,
+      "locations": [
+        "briefing_ai.php:90"
+      ]
+    },
+    {
+      "id": "field-struttura",
+      "referenced": true,
+      "locations": [
+        "briefing_ai.php:113"
+      ]
+    },
+    {
+      "id": "field-target",
+      "referenced": true,
+      "locations": [
+        "briefing_ai.php:98"
+      ]
+    },
+    {
+      "id": "field-tono",
+      "referenced": true,
+      "locations": [
+        "briefing_ai.php:105"
+      ]
+    },
+    {
+      "id": "fileError",
+      "referenced": true,
+      "locations": [
+        "upload_cliente.php:387"
+      ]
+    },
+    {
+      "id": "fileInput",
+      "referenced": true,
+      "locations": [
+        "upload_cliente.php:381"
+      ]
+    },
+    {
+      "id": "filter-economico-anno",
+      "referenced": true,
+      "locations": [
+        "report.php:247"
+      ]
+    },
+    {
+      "id": "filter-progetti-stato",
+      "referenced": true,
+      "locations": [
+        "report.php:194"
+      ]
+    },
+    {
+      "id": "filter-temporale-mesi",
+      "referenced": true,
+      "locations": [
+        "report.php:288"
+      ]
+    },
+    {
+      "id": "filter-utenti-periodo",
+      "referenced": true,
+      "locations": [
+        "report.php:142"
+      ]
+    },
+    {
+      "id": "filterArrow",
+      "referenced": true,
+      "locations": [
+        "clienti.php:51"
+      ]
+    },
+    {
+      "id": "filtersContent",
+      "referenced": true,
+      "locations": [
+        "clienti.php:57"
+      ]
+    },
+    {
+      "id": "filtriArrow",
+      "referenced": true,
+      "locations": [
+        "progetti.php:85"
+      ]
+    },
+    {
+      "id": "filtriContainer",
+      "referenced": true,
+      "locations": [
+        "progetti.php:91"
+      ]
+    },
+    {
+      "id": "filtriMobileBtn",
+      "referenced": false,
+      "locations": [
+        "progetti.php:78"
+      ]
+    },
+    {
+      "id": "filtriSection",
+      "referenced": true,
+      "locations": [
+        "progetti.php:76"
+      ]
+    },
+    {
+      "id": "filtroAnno",
+      "referenced": true,
+      "locations": [
+        "scadenze.php:119"
+      ]
+    },
+    {
+      "id": "filtroCliente",
+      "referenced": true,
+      "locations": [
+        "blog_clienti.php:88",
+        "briefing_ai.php:183"
+      ]
+    },
+    {
+      "id": "filtroMese",
+      "referenced": true,
+      "locations": [
+        "scadenze.php:101"
+      ]
+    },
+    {
+      "id": "filtroStato",
+      "referenced": true,
+      "locations": [
+        "scadenze.php:85",
+        "blog_clienti.php:94"
+      ]
+    },
+    {
+      "id": "filtroTipologia",
+      "referenced": true,
+      "locations": [
+        "scadenze.php:95"
+      ]
+    },
+    {
+      "id": "firmaAziendaImg",
+      "referenced": true,
+      "locations": [
+        "impostazioni.php:564"
+      ]
+    },
+    {
+      "id": "firmaAziendaInput",
+      "referenced": true,
+      "locations": [
+        "impostazioni.php:575"
+      ]
+    },
+    {
+      "id": "firmaAziendaPlaceholder",
+      "referenced": true,
+      "locations": [
+        "impostazioni.php:558"
+      ]
+    },
+    {
+      "id": "firmaAziendaPreview",
+      "referenced": false,
+      "locations": [
+        "impostazioni.php:557"
+      ]
+    },
+    {
+      "id": "fontSizeSelector",
+      "referenced": true,
+      "locations": [
+        "upload_cliente.php:307"
+      ]
+    },
+    {
+      "id": "frequenzaRicorrente",
+      "referenced": false,
+      "locations": [
+        "progetti.php:900"
+      ]
+    },
+    {
+      "id": "generaLinkForm",
+      "referenced": true,
+      "locations": [
+        "blog_clienti.php:153"
+      ]
+    },
+    {
+      "id": "generaLinkModal",
+      "referenced": false,
+      "locations": [
+        "blog_clienti.php:140"
+      ]
+    },
+    {
+      "id": "giorniPreavviso",
+      "referenced": true,
+      "locations": [
+        "scadenze.php:67"
+      ]
+    },
+    {
+      "id": "giorniPreavvisoScadenze",
+      "referenced": true,
+      "locations": [
+        "impostazioni.php:894"
+      ]
+    },
+    {
+      "id": "groupByClienteToggle",
+      "referenced": true,
+      "locations": [
+        "progetti.php:41"
+      ]
+    },
+    {
+      "id": "imagePreviewImg",
+      "referenced": true,
+      "locations": [
+        "blog_clienti.php:875"
+      ]
+    },
+    {
+      "id": "importoAggiunta",
+      "referenced": true,
+      "locations": [
+        "finanze.php:439"
+      ]
+    },
+    {
+      "id": "importoRicorrente",
+      "referenced": false,
+      "locations": [
+        "progetti.php:894"
+      ]
+    },
+    {
+      "id": "includiCassa",
+      "referenced": true,
+      "locations": [
+        "progetto_dettaglio.php:1641"
+      ]
+    },
+    {
+      "id": "includiPassivo",
+      "referenced": true,
+      "locations": [
+        "progetto_dettaglio.php:1654"
+      ]
+    },
+    {
+      "id": "infoDestinatario",
+      "referenced": true,
+      "locations": [
+        "finanze.php:433"
+      ]
+    },
+    {
+      "id": "inpsPerc",
+      "referenced": true,
+      "locations": [
+        "tasse.php:211"
+      ]
+    },
+    {
+      "id": "kpi-costi-totali",
+      "referenced": true,
+      "locations": [
+        "report.php:101"
+      ]
+    },
+    {
+      "id": "kpi-ore-lavorate",
+      "referenced": true,
+      "locations": [
+        "report.php:96"
+      ]
+    },
+    {
+      "id": "kpi-progetti-attivi",
+      "referenced": true,
+      "locations": [
+        "report.php:87"
+      ]
+    },
+    {
+      "id": "kpi-progetti-totali",
+      "referenced": true,
+      "locations": [
+        "report.php:86"
+      ]
+    },
+    {
+      "id": "kpi-task-completate",
+      "referenced": true,
+      "locations": [
+        "report.php:91"
+      ]
+    },
+    {
+      "id": "kpi-task-totali",
+      "referenced": true,
+      "locations": [
+        "report.php:92"
+      ]
+    },
+    {
+      "id": "lastSaveControllo",
+      "referenced": true,
+      "locations": [
+        "progetto_dettaglio.php:1424"
+      ]
+    },
+    {
+      "id": "linguaggioSito",
+      "referenced": true,
+      "locations": [
+        "progetto_dettaglio.php:1450"
+      ]
+    },
+    {
+      "id": "linkClienteId",
+      "referenced": true,
+      "locations": [
+        "blog_clienti.php:156"
+      ]
+    },
+    {
+      "id": "linkGenerato",
+      "referenced": true,
+      "locations": [
+        "progetto_dettaglio.php:1344"
+      ]
+    },
+    {
+      "id": "linkGeneratoContainer",
+      "referenced": true,
+      "locations": [
+        "progetto_dettaglio.php:1334"
+      ]
+    },
+    {
+      "id": "linkGeneratoModal",
+      "referenced": false,
+      "locations": [
+        "blog_clienti.php:194"
+      ]
+    },
+    {
+      "id": "linkGeneratoUrl",
+      "referenced": true,
+      "locations": [
+        "blog_clienti.php:211"
+      ]
+    },
+    {
+      "id": "linksContainer",
+      "referenced": true,
+      "locations": [
+        "blog_clienti.php:125"
+      ]
+    },
+    {
+      "id": "listaCodiciAteco",
+      "referenced": true,
+      "locations": [
+        "impostazioni.php:776"
+      ]
+    },
+    {
+      "id": "listaContenutiProgetto",
+      "referenced": true,
+      "locations": [
+        "progetto_dettaglio.php:1358"
+      ]
+    },
+    {
+      "id": "listaTipologie",
+      "referenced": true,
+      "locations": [
+        "scadenze.php:265"
+      ]
+    },
+    {
+      "id": "loginForm",
+      "referenced": true,
+      "locations": [
+        "index.php:164"
+      ]
+    },
+    {
+      "id": "logoActions",
+      "referenced": true,
+      "locations": [
+        "impostazioni.php:447"
+      ]
+    },
+    {
+      "id": "logoAziendaImg",
+      "referenced": true,
+      "locations": [
+        "impostazioni.php:529"
+      ]
+    },
+    {
+      "id": "logoAziendaInput",
+      "referenced": true,
+      "locations": [
+        "impostazioni.php:540"
+      ]
+    },
+    {
+      "id": "logoAziendaPlaceholder",
+      "referenced": true,
+      "locations": [
+        "impostazioni.php:523"
+      ]
+    },
+    {
+      "id": "logoAziendaPreview",
+      "referenced": false,
+      "locations": [
+        "impostazioni.php:522"
+      ]
+    },
+    {
+      "id": "logoExisting",
+      "referenced": true,
+      "locations": [
+        "clienti.php:114"
+      ]
+    },
+    {
+      "id": "logoForm",
+      "referenced": false,
+      "locations": [
+        "impostazioni.php:437"
+      ]
+    },
+    {
+      "id": "logoImg",
+      "referenced": true,
+      "locations": [
+        "clienti.php:106",
+        "impostazioni.php:423"
+      ]
+    },
+    {
+      "id": "logoInput",
+      "referenced": true,
+      "locations": [
+        "clienti.php:110",
+        "impostazioni.php:438"
+      ]
+    },
+    {
+      "id": "logoPlaceholder",
+      "referenced": true,
+      "locations": [
+        "clienti.php:105",
+        "impostazioni.php:417"
+      ]
+    },
+    {
+      "id": "logoPreview",
+      "referenced": false,
+      "locations": [
+        "clienti.php:104",
+        "impostazioni.php:416"
+      ]
+    },
+    {
+      "id": "meseSelect",
+      "referenced": true,
+      "locations": [
+        "dashboard.php:483"
+      ]
+    },
+    {
+      "id": "miniCalendar",
+      "referenced": true,
+      "locations": [
+        "dashboard.php:411"
+      ]
+    },
+    {
+      "id": "mobileDayDetailContent",
+      "referenced": true,
+      "locations": [
+        "calendario.php:91"
+      ]
+    },
+    {
+      "id": "mobileDayDetailSubtitle",
+      "referenced": true,
+      "locations": [
+        "calendario.php:88"
+      ]
+    },
+    {
+      "id": "mobileDayDetailTitle",
+      "referenced": true,
+      "locations": [
+        "calendario.php:87"
+      ]
+    },
+    {
+      "id": "mobileFullMenu",
+      "referenced": true,
+      "locations": [
+        "includes/header.php:695"
+      ]
+    },
+    {
+      "id": "mobileOverlay",
+      "referenced": true,
+      "locations": [
+        "includes/header.php:382"
+      ]
+    },
+    {
+      "id": "modalAggiunta",
+      "referenced": true,
+      "locations": [
+        "finanze.php:416"
+      ]
+    },
+    {
+      "id": "modalCodiceAteco",
+      "referenced": false,
+      "locations": [
+        "impostazioni.php:793"
+      ]
+    },
+    {
+      "id": "modalSalva",
+      "referenced": true,
+      "locations": [
+        "briefing_ai.php:165"
+      ]
+    },
+    {
+      "id": "modalScadenza",
+      "referenced": true,
+      "locations": [
+        "scadenze.php:141"
+      ]
+    },
+    {
+      "id": "modalTipologie",
+      "referenced": true,
+      "locations": [
+        "scadenze.php:232"
+      ]
+    },
+    {
+      "id": "modalTitle",
+      "referenced": true,
+      "locations": [
+        "clienti.php:90",
+        "finanze.php:421",
+        "progetti.php:785"
+      ]
+    },
+    {
+      "id": "newPassword",
+      "referenced": true,
+      "locations": [
+        "impostazioni.php:214"
+      ]
+    },
+    {
+      "id": "node-archiviato",
+      "referenced": false,
+      "locations": [
+        "progetti.php:745"
+      ]
+    },
+    {
+      "id": "node-completato",
+      "referenced": false,
+      "locations": [
+        "progetti.php:721"
+      ]
+    },
+    {
+      "id": "node-consegnato",
+      "referenced": false,
+      "locations": [
+        "progetti.php:733"
+      ]
+    },
+    {
+      "id": "node-da_iniziare",
+      "referenced": false,
+      "locations": [
+        "progetti.php:684"
+      ]
+    },
+    {
+      "id": "node-in_corso",
+      "referenced": false,
+      "locations": [
+        "progetti.php:696"
+      ]
+    },
+    {
+      "id": "node-in_pausa",
+      "referenced": false,
+      "locations": [
+        "progetti.php:709"
+      ]
+    },
+    {
+      "id": "nomeBriefing",
+      "referenced": true,
+      "locations": [
+        "briefing_ai.php:71"
+      ]
+    },
+    {
+      "id": "nomeDestinatario",
+      "referenced": true,
+      "locations": [
+        "finanze.php:434"
+      ]
+    },
+    {
+      "id": "nomeFileSalva",
+      "referenced": true,
+      "locations": [
+        "briefing_ai.php:216"
+      ]
+    },
+    {
+      "id": "noteCalcolo",
+      "referenced": true,
+      "locations": [
+        "tasse.php:201"
+      ]
+    },
+    {
+      "id": "notificheBadge",
+      "referenced": true,
+      "locations": [
+        "includes/header.php:584"
+      ]
+    },
+    {
+      "id": "notificheCount",
+      "referenced": true,
+      "locations": [
+        "includes/header.php:605"
+      ]
+    },
+    {
+      "id": "notificheDropdown",
+      "referenced": true,
+      "locations": [
+        "includes/header.php:579"
+      ]
+    },
+    {
+      "id": "notificheList",
+      "referenced": true,
+      "locations": [
+        "includes/header.php:593"
+      ]
+    },
+    {
+      "id": "notificheMenu",
+      "referenced": true,
+      "locations": [
+        "includes/header.php:588"
+      ]
+    },
+    {
+      "id": "numeroProgetti",
+      "referenced": true,
+      "locations": [
+        "dashboard.php:526"
+      ]
+    },
+    {
+      "id": "nuovaTipologiaColore",
+      "referenced": true,
+      "locations": [
+        "scadenze.php:253"
+      ]
+    },
+    {
+      "id": "nuovaTipologiaNome",
+      "referenced": true,
+      "locations": [
+        "scadenze.php:250"
+      ]
+    },
+    {
+      "id": "pagaOraria",
+      "referenced": true,
+      "locations": [
+        "impostazioni.php:880"
+      ]
+    },
+    {
+      "id": "pagamentoRicorrenteWrapper",
+      "referenced": true,
+      "locations": [
+        "progetti.php:883"
+      ]
+    },
+    {
+      "id": "partecipanteFilter",
+      "referenced": true,
+      "locations": [
+        "progetti.php:119"
+      ]
+    },
+    {
+      "id": "passwordError",
+      "referenced": true,
+      "locations": [
+        "tasse.php:110"
+      ]
+    },
+    {
+      "id": "passwordForm",
+      "referenced": true,
+      "locations": [
+        "impostazioni.php:204"
+      ]
+    },
+    {
+      "id": "passwordSection",
+      "referenced": true,
+      "locations": [
+        "tasse.php:88"
+      ]
+    },
+    {
+      "id": "periodoLabel",
+      "referenced": true,
+      "locations": [
+        "dashboard.php:479"
+      ]
+    },
+    {
+      "id": "pipeline-archiviato",
+      "referenced": false,
+      "locations": [
+        "progetti.php:753"
+      ]
+    },
+    {
+      "id": "pipeline-completato",
+      "referenced": false,
+      "locations": [
+        "progetti.php:729"
+      ]
+    },
+    {
+      "id": "pipeline-consegnato",
+      "referenced": false,
+      "locations": [
+        "progetti.php:741"
+      ]
+    },
+    {
+      "id": "pipeline-da_iniziare",
+      "referenced": false,
+      "locations": [
+        "progetti.php:692"
+      ]
+    },
+    {
+      "id": "pipeline-in_corso",
+      "referenced": false,
+      "locations": [
+        "progetti.php:705"
+      ]
+    },
+    {
+      "id": "pipeline-in_pausa",
+      "referenced": false,
+      "locations": [
+        "progetti.php:717"
+      ]
+    },
+    {
+      "id": "pipelineCanvas",
+      "referenced": true,
+      "locations": [
+        "progetti.php:662"
+      ]
+    },
+    {
+      "id": "pipelineConnections",
+      "referenced": true,
+      "locations": [
+        "progetti.php:664"
+      ]
+    },
+    {
+      "id": "pipelineContainer",
+      "referenced": true,
+      "locations": [
+        "progetti.php:659"
+      ]
+    },
+    {
+      "id": "pipelineGhost",
+      "referenced": true,
+      "locations": [
+        "progetti.php:673"
+      ]
+    },
+    {
+      "id": "placeholder-data-fine",
+      "referenced": true,
+      "locations": [
+        "calendario.php:240"
+      ]
+    },
+    {
+      "id": "placeholder-data-inizio",
+      "referenced": false,
+      "locations": [
+        "calendario.php:219"
+      ]
+    },
+    {
+      "id": "placeholder-ora-fine",
+      "referenced": true,
+      "locations": [
+        "calendario.php:247"
+      ]
+    },
+    {
+      "id": "placeholder-ora-inizio",
+      "referenced": true,
+      "locations": [
+        "calendario.php:226"
+      ]
+    },
+    {
+      "id": "prev-qty-${v.id}",
+      "referenced": false,
+      "locations": [
+        "preventivi.php:2106"
+      ]
+    },
+    {
+      "id": "prev-voce-${v.id}",
+      "referenced": false,
+      "locations": [
+        "preventivi.php:1802",
+        "preventivi.php:1999",
+        "preventivi.php:2089"
+      ]
+    },
+    {
+      "id": "prevCliente",
+      "referenced": true,
+      "locations": [
+        "preventivi.php:648"
+      ]
+    },
+    {
+      "id": "prevClienteSelect",
+      "referenced": true,
+      "locations": [
+        "preventivi.php:644"
+      ]
+    },
+    {
+      "id": "prevMostraBurocrazia",
+      "referenced": true,
+      "locations": [
+        "preventivi.php:727"
+      ]
+    },
+    {
+      "id": "prevNascondiQuantita",
+      "referenced": true,
+      "locations": [
+        "preventivi.php:711"
+      ]
+    },
+    {
+      "id": "prevNascondiSconto",
+      "referenced": true,
+      "locations": [
+        "preventivi.php:716"
+      ]
+    },
+    {
+      "id": "prevNonInclude",
+      "referenced": true,
+      "locations": [
+        "preventivi.php:700"
+      ]
+    },
+    {
+      "id": "prevNote",
+      "referenced": true,
+      "locations": [
+        "preventivi.php:685"
+      ]
+    },
+    {
+      "id": "prevNumero",
+      "referenced": true,
+      "locations": [
+        "preventivi.php:663"
+      ]
+    },
+    {
+      "id": "prevScadenza",
+      "referenced": true,
+      "locations": [
+        "preventivi.php:672"
+      ]
+    },
+    {
+      "id": "prevScontoGlobale",
+      "referenced": true,
+      "locations": [
+        "preventivi.php:677"
+      ]
+    },
+    {
+      "id": "prevScontoRow",
+      "referenced": true,
+      "locations": [
+        "preventivi.php:775"
+      ]
+    },
+    {
+      "id": "prevScontoVal",
+      "referenced": true,
+      "locations": [
+        "preventivi.php:777"
+      ]
+    },
+    {
+      "id": "prevSubtotale",
+      "referenced": true,
+      "locations": [
+        "preventivi.php:773"
+      ]
+    },
+    {
+      "id": "prevTempiConsegna",
+      "referenced": true,
+      "locations": [
+        "preventivi.php:694"
+      ]
+    },
+    {
+      "id": "prevTotale",
+      "referenced": true,
+      "locations": [
+        "preventivi.php:781"
+      ]
+    },
+    {
+      "id": "preventiviClienteContent",
+      "referenced": true,
+      "locations": [
+        "clienti.php:767"
+      ]
+    },
+    {
+      "id": "preventiviClienteSection",
+      "referenced": false,
+      "locations": [
+        "clienti.php:765"
+      ]
+    },
+    {
+      "id": "preventiviContainer",
+      "referenced": true,
+      "locations": [
+        "preventivi.php:458"
+      ]
+    },
+    {
+      "id": "preventiviSalvatiContainer",
+      "referenced": true,
+      "locations": [
+        "preventivi.php:346"
+      ]
+    },
+    {
+      "id": "preventivoId",
+      "referenced": true,
+      "locations": [
+        "preventivi.php:639"
+      ]
+    },
+    {
+      "id": "preventivoModal",
+      "referenced": false,
+      "locations": [
+        "preventivi.php:624"
+      ]
+    },
+    {
+      "id": "preventivoModalTitle",
+      "referenced": true,
+      "locations": [
+        "preventivi.php:629"
+      ]
+    },
+    {
+      "id": "preventivoServizi",
+      "referenced": true,
+      "locations": [
+        "preventivi.php:743"
+      ]
+    },
+    {
+      "id": "previewContainer",
+      "referenced": true,
+      "locations": [
+        "upload_cliente.php:385"
+      ]
+    },
+    {
+      "id": "previewFilename",
+      "referenced": true,
+      "locations": [
+        "progetto_dettaglio.php:1293"
+      ]
+    },
+    {
+      "id": "previewFrame",
+      "referenced": true,
+      "locations": [
+        "preventivi.php:844"
+      ]
+    },
+    {
+      "id": "previewGiornoInizio",
+      "referenced": true,
+      "locations": [
+        "impostazioni.php:264"
+      ]
+    },
+    {
+      "id": "previewMeseFiscale",
+      "referenced": true,
+      "locations": [
+        "impostazioni.php:268"
+      ]
+    },
+    {
+      "id": "previewModal",
+      "referenced": false,
+      "locations": [
+        "preventivi.php:813"
+      ]
+    },
+    {
+      "id": "previewPeriodo",
+      "referenced": true,
+      "locations": [
+        "impostazioni.php:260"
+      ]
+    },
+    {
+      "id": "previewSize",
+      "referenced": true,
+      "locations": [
+        "progetto_dettaglio.php:1294"
+      ]
+    },
+    {
+      "id": "prezzo-${v.id}",
+      "referenced": false,
+      "locations": [
+        "preventivi.php:1845"
+      ]
+    },
+    {
+      "id": "progettiContainer",
+      "referenced": true,
+      "locations": [
+        "progetti.php:651"
+      ]
+    },
+    {
+      "id": "progettoForm",
+      "referenced": true,
+      "locations": [
+        "progetti.php:793"
+      ]
+    },
+    {
+      "id": "progettoId",
+      "referenced": true,
+      "locations": [
+        "progetti.php:794"
+      ]
+    },
+    {
+      "id": "progettoModal",
+      "referenced": false,
+      "locations": [
+        "progetti.php:780"
+      ]
+    },
+    {
+      "id": "prossimaDataRicorrente",
+      "referenced": true,
+      "locations": [
+        "progetti.php:911"
+      ]
+    },
+    {
+      "id": "prossimiAppuntamenti",
+      "referenced": true,
+      "locations": [
+        "calendario.php:133"
+      ]
+    },
+    {
+      "id": "prossimiCount",
+      "referenced": true,
+      "locations": [
+        "calendario.php:131"
+      ]
+    },
+    {
+      "id": "qty-${v.id}",
+      "referenced": false,
+      "locations": [
+        "preventivi.php:1854",
+        "preventivi.php:2045"
+      ]
+    },
+    {
+      "id": "quick-budget",
+      "referenced": true,
+      "locations": [
+        "report.php:125"
+      ]
+    },
+    {
+      "id": "quick-task-dafare",
+      "referenced": true,
+      "locations": [
+        "report.php:133"
+      ]
+    },
+    {
+      "id": "quick-utenti",
+      "referenced": true,
+      "locations": [
+        "report.php:129"
+      ]
+    },
+    {
+      "id": "ragioneSocialeInput",
+      "referenced": true,
+      "locations": [
+        "clienti.php:122"
+      ]
+    },
+    {
+      "id": "removeTaskImageBtn",
+      "referenced": true,
+      "locations": [
+        "progetto_dettaglio.php:1595"
+      ]
+    },
+    {
+      "id": "report-content-dashboard",
+      "referenced": false,
+      "locations": [
+        "report.php:81"
+      ]
+    },
+    {
+      "id": "report-content-economico",
+      "referenced": false,
+      "locations": [
+        "report.php:245"
+      ]
+    },
+    {
+      "id": "report-content-progetti",
+      "referenced": false,
+      "locations": [
+        "report.php:192"
+      ]
+    },
+    {
+      "id": "report-content-temporale",
+      "referenced": false,
+      "locations": [
+        "report.php:286"
+      ]
+    },
+    {
+      "id": "report-content-utenti",
+      "referenced": false,
+      "locations": [
+        "report.php:140"
+      ]
+    },
+    {
+      "id": "resCoeffText",
+      "referenced": true,
+      "locations": [
+        "tasse.php:256"
+      ]
+    },
+    {
+      "id": "resFatturato",
+      "referenced": true,
+      "locations": [
+        "tasse.php:251"
+      ]
+    },
+    {
+      "id": "resImponibile",
+      "referenced": true,
+      "locations": [
+        "tasse.php:255"
+      ]
+    },
+    {
+      "id": "resNetto",
+      "referenced": true,
+      "locations": [
+        "tasse.php:260"
+      ]
+    },
+    {
+      "id": "resetSaldiModal1",
+      "referenced": false,
+      "locations": [
+        "impostazioni.php:1006"
+      ]
+    },
+    {
+      "id": "resetSaldiModal2",
+      "referenced": false,
+      "locations": [
+        "impostazioni.php:1026"
+      ]
+    },
+    {
+      "id": "resocontoContent",
+      "referenced": true,
+      "locations": [
+        "dashboard.php:49"
+      ]
+    },
+    {
+      "id": "resocontoIcon",
+      "referenced": true,
+      "locations": [
+        "dashboard.php:44"
+      ]
+    },
+    {
+      "id": "richTextEditor",
+      "referenced": true,
+      "locations": [
+        "upload_cliente.php:340"
+      ]
+    },
+    {
+      "id": "risultatiCalcolo",
+      "referenced": true,
+      "locations": [
+        "tasse.php:245"
+      ]
+    },
+    {
+      "id": "row-${v.id}",
+      "referenced": false,
+      "locations": [
+        "preventivi.php:1798",
+        "preventivi.php:1995"
+      ]
+    },
+    {
+      "id": "saldoFinale",
+      "referenced": true,
+      "locations": [
+        "dashboard.php:530"
+      ]
+    },
+    {
+      "id": "saldoIniziale",
+      "referenced": true,
+      "locations": [
+        "dashboard.php:518"
+      ]
+    },
+    {
+      "id": "saveStatusControllo",
+      "referenced": true,
+      "locations": [
+        "progetto_dettaglio.php:1468"
+      ]
+    },
+    {
+      "id": "scadenzaCliente",
+      "referenced": true,
+      "locations": [
+        "scadenze.php:199"
+      ]
+    },
+    {
+      "id": "scadenzaData",
+      "referenced": true,
+      "locations": [
+        "scadenze.php:167"
+      ]
+    },
+    {
+      "id": "scadenzaDescrizione",
+      "referenced": true,
+      "locations": [
+        "scadenze.php:181"
+      ]
+    },
+    {
+      "id": "scadenzaId",
+      "referenced": true,
+      "locations": [
+        "scadenze.php:155"
+      ]
+    },
+    {
+      "id": "scadenzaLink",
+      "referenced": true,
+      "locations": [
+        "scadenze.php:211"
+      ]
+    },
+    {
+      "id": "scadenzaTipologia",
+      "referenced": true,
+      "locations": [
+        "scadenze.php:172"
+      ]
+    },
+    {
+      "id": "scadenzaTitolo",
+      "referenced": true,
+      "locations": [
+        "scadenze.php:159"
+      ]
+    },
+    {
+      "id": "scadenzaUser",
+      "referenced": true,
+      "locations": [
+        "scadenze.php:189"
+      ]
+    },
+    {
+      "id": "scadenzeAlertIcon",
+      "referenced": true,
+      "locations": [
+        "includes/header.php:462"
+      ]
+    },
+    {
+      "id": "scadenzeBadgeMobile",
+      "referenced": true,
+      "locations": [
+        "includes/header.php:750"
+      ]
+    },
+    {
+      "id": "scadenzeBadgeSidebar",
+      "referenced": true,
+      "locations": [
+        "includes/header.php:460"
+      ]
+    },
+    {
+      "id": "scadenzeContainer",
+      "referenced": true,
+      "locations": [
+        "scadenze.php:131"
+      ]
+    },
+    {
+      "id": "sconto-${v.id}",
+      "referenced": false,
+      "locations": [
+        "preventivi.php:1863"
+      ]
+    },
+    {
+      "id": "searchInput",
+      "referenced": true,
+      "locations": [
+        "clienti.php:60",
+        "progetti.php:95"
+      ]
+    },
+    {
+      "id": "selectCliente",
+      "referenced": true,
+      "locations": [
+        "briefing_ai.php:195"
+      ]
+    },
+    {
+      "id": "selectProgetto",
+      "referenced": true,
+      "locations": [
+        "briefing_ai.php:207"
+      ]
+    },
+    {
+      "id": "selectedDayTitle",
+      "referenced": true,
+      "locations": [
+        "dashboard.php:418"
+      ]
+    },
+    {
+      "id": "sezioniAggiuntive",
+      "referenced": true,
+      "locations": [
+        "preventivi.php:764"
+      ]
+    },
+    {
+      "id": "sidebar",
+      "referenced": true,
+      "locations": [
+        "includes/header.php:385"
+      ]
+    },
+    {
+      "id": "sitoWebLinguaggio",
+      "referenced": true,
+      "locations": [
+        "progetto_dettaglio.php:1446"
+      ]
+    },
+    {
+      "id": "stack-${groupId}",
+      "referenced": false,
+      "locations": [
+        "progetti.php:1817"
+      ]
+    },
+    {
+      "id": "statClienti",
+      "referenced": true,
+      "locations": [
+        "blog_clienti.php:68"
+      ]
+    },
+    {
+      "id": "statClientiTotali",
+      "referenced": true,
+      "locations": [
+        "clienti.php:321"
+      ]
+    },
+    {
+      "id": "statDaLeggere",
+      "referenced": true,
+      "locations": [
+        "blog_clienti.php:64"
+      ]
+    },
+    {
+      "id": "statNumeroPreventivi",
+      "referenced": true,
+      "locations": [
+        "clienti.php:373"
+      ]
+    },
+    {
+      "id": "statProgettiCompletati",
+      "referenced": true,
+      "locations": [
+        "clienti.php:337"
+      ]
+    },
+    {
+      "id": "statProgettiDaIniziare",
+      "referenced": true,
+      "locations": [
+        "clienti.php:341"
+      ]
+    },
+    {
+      "id": "statProgettiInCorso",
+      "referenced": true,
+      "locations": [
+        "clienti.php:339"
+      ]
+    },
+    {
+      "id": "statProgettiTotali",
+      "referenced": true,
+      "locations": [
+        "clienti.php:335"
+      ]
+    },
+    {
+      "id": "statRecenti",
+      "referenced": true,
+      "locations": [
+        "blog_clienti.php:72"
+      ]
+    },
+    {
+      "id": "statTotaleDaRiscuotere",
+      "referenced": true,
+      "locations": [
+        "clienti.php:359"
+      ]
+    },
+    {
+      "id": "statTotaleFatturato",
+      "referenced": true,
+      "locations": [
+        "clienti.php:355"
+      ]
+    },
+    {
+      "id": "statTotalePagato",
+      "referenced": true,
+      "locations": [
+        "clienti.php:357"
+      ]
+    },
+    {
+      "id": "statTotali",
+      "referenced": true,
+      "locations": [
+        "blog_clienti.php:60"
+      ]
+    },
+    {
+      "id": "statoFilter",
+      "referenced": true,
+      "locations": [
+        "progetti.php:103"
+      ]
+    },
+    {
+      "id": "statoPagamentoSelect",
+      "referenced": true,
+      "locations": [
+        "progetti.php:867"
+      ]
+    },
+    {
+      "id": "statusIcon",
+      "referenced": true,
+      "locations": [
+        "impostazioni.php:485"
+      ]
+    },
+    {
+      "id": "statusText",
+      "referenced": true,
+      "locations": [
+        "impostazioni.php:491"
+      ]
+    },
+    {
+      "id": "submitBtn",
+      "referenced": true,
+      "locations": [
+        "index.php:225",
+        "upload_cliente.php:420"
+      ]
+    },
+    {
+      "id": "tab-blog",
+      "referenced": false,
+      "locations": [
+        "progetto_dettaglio.php:898"
+      ]
+    },
+    {
+      "id": "tab-controllo",
+      "referenced": false,
+      "locations": [
+        "progetto_dettaglio.php:907"
+      ]
+    },
+    {
+      "id": "tab-dashboard",
+      "referenced": false,
+      "locations": [
+        "report.php:34"
+      ]
+    },
+    {
+      "id": "tab-dettagli",
+      "referenced": false,
+      "locations": [
+        "progetto_dettaglio.php:884"
+      ]
+    },
+    {
+      "id": "tab-documenti",
+      "referenced": false,
+      "locations": [
+        "progetto_dettaglio.php:893"
+      ]
+    },
+    {
+      "id": "tab-economia",
+      "referenced": false,
+      "locations": [
+        "progetto_dettaglio.php:903"
+      ]
+    },
+    {
+      "id": "tab-economico",
+      "referenced": false,
+      "locations": [
+        "report.php:58"
+      ]
+    },
+    {
+      "id": "tab-progetti",
+      "referenced": false,
+      "locations": [
+        "report.php:50"
+      ]
+    },
+    {
+      "id": "tab-task",
+      "referenced": false,
+      "locations": [
+        "progetto_dettaglio.php:888"
+      ]
+    },
+    {
+      "id": "tab-temporale",
+      "referenced": false,
+      "locations": [
+        "report.php:66"
+      ]
+    },
+    {
+      "id": "tab-utenti",
+      "referenced": false,
+      "locations": [
+        "report.php:42"
+      ]
+    },
+    {
+      "id": "table-progetti-body",
+      "referenced": true,
+      "locations": [
+        "report.php:236"
+      ]
+    },
+    {
+      "id": "table-utenti-body",
+      "referenced": true,
+      "locations": [
+        "report.php:183"
+      ]
+    },
+    {
+      "id": "task-${t.id}",
+      "referenced": false,
+      "locations": [
+        "progetto_dettaglio.php:1980"
+      ]
+    },
+    {
+      "id": "task-expand-${t.id}",
+      "referenced": false,
+      "locations": [
+        "progetto_dettaglio.php:2176"
+      ]
+    },
+    {
+      "id": "taskCountBadge",
+      "referenced": true,
+      "locations": [
+        "progetto_dettaglio.php:891"
+      ]
+    },
+    {
+      "id": "taskForm",
+      "referenced": true,
+      "locations": [
+        "progetto_dettaglio.php:1503"
+      ]
+    },
+    {
+      "id": "taskIdInput",
+      "referenced": true,
+      "locations": [
+        "progetto_dettaglio.php:1505"
+      ]
+    },
+    {
+      "id": "taskImageLabel",
+      "referenced": true,
+      "locations": [
+        "progetto_dettaglio.php:1592"
+      ]
+    },
+    {
+      "id": "taskImagePreview",
+      "referenced": true,
+      "locations": [
+        "progetto_dettaglio.php:1586"
+      ]
+    },
+    {
+      "id": "taskList",
+      "referenced": true,
+      "locations": [
+        "progetto_dettaglio.php:1201"
+      ]
+    },
+    {
+      "id": "taskModal",
+      "referenced": false,
+      "locations": [
+        "progetto_dettaglio.php:1485"
+      ]
+    },
+    {
+      "id": "taskModalTitle",
+      "referenced": true,
+      "locations": [
+        "progetto_dettaglio.php:1494"
+      ]
+    },
+    {
+      "id": "tassaAcconto",
+      "referenced": true,
+      "locations": [
+        "impostazioni.php:754"
+      ]
+    },
+    {
+      "id": "tassaInps",
+      "referenced": true,
+      "locations": [
+        "impostazioni.php:747"
+      ]
+    },
+    {
+      "id": "tasseForm",
+      "referenced": true,
+      "locations": [
+        "impostazioni.php:727"
+      ]
+    },
+    {
+      "id": "tassePassword",
+      "referenced": true,
+      "locations": [
+        "impostazioni.php:736"
+      ]
+    },
+    {
+      "id": "tasseStatus",
+      "referenced": true,
+      "locations": [
+        "impostazioni.php:708"
+      ]
+    },
+    {
+      "id": "tasseStatusIcon",
+      "referenced": false,
+      "locations": [
+        "impostazioni.php:710"
+      ]
+    },
+    {
+      "id": "tasseStatusText",
+      "referenced": false,
+      "locations": [
+        "impostazioni.php:716"
+      ]
+    },
+    {
+      "id": "temp-ore-totali",
+      "referenced": true,
+      "locations": [
+        "report.php:302"
+      ]
+    },
+    {
+      "id": "temp-progetti-nuovi",
+      "referenced": true,
+      "locations": [
+        "report.php:306"
+      ]
+    },
+    {
+      "id": "temp-task-totali",
+      "referenced": true,
+      "locations": [
+        "report.php:298"
+      ]
+    },
+    {
+      "id": "templateBurocraziaList",
+      "referenced": true,
+      "locations": [
+        "impostazioni.php:390"
+      ]
+    },
+    {
+      "id": "templateContenuto",
+      "referenced": true,
+      "locations": [
+        "impostazioni.php:1170"
+      ]
+    },
+    {
+      "id": "templateId",
+      "referenced": true,
+      "locations": [
+        "impostazioni.php:1144"
+      ]
+    },
+    {
+      "id": "templateList",
+      "referenced": true,
+      "locations": [
+        "impostazioni.php:362"
+      ]
+    },
+    {
+      "id": "templateModal",
+      "referenced": false,
+      "locations": [
+        "impostazioni.php:1131"
+      ]
+    },
+    {
+      "id": "templateModalTitle",
+      "referenced": true,
+      "locations": [
+        "impostazioni.php:1136"
+      ]
+    },
+    {
+      "id": "templateNome",
+      "referenced": true,
+      "locations": [
+        "impostazioni.php:1162"
+      ]
+    },
+    {
+      "id": "templatePassword",
+      "referenced": true,
+      "locations": [
+        "impostazioni.php:1154"
+      ]
+    },
+    {
+      "id": "testoHidden",
+      "referenced": true,
+      "locations": [
+        "upload_cliente.php:345"
+      ]
+    },
+    {
+      "id": "timelineContent",
+      "referenced": false,
+      "locations": [
+        "clienti.php:301"
+      ]
+    },
+    {
+      "id": "timelineEvents",
+      "referenced": true,
+      "locations": [
+        "clienti.php:389"
+      ]
+    },
+    {
+      "id": "timelineLoading",
+      "referenced": true,
+      "locations": [
+        "clienti.php:303"
+      ]
+    },
+    {
+      "id": "timelineModal",
+      "referenced": false,
+      "locations": [
+        "clienti.php:276"
+      ]
+    },
+    {
+      "id": "timelineStats",
+      "referenced": true,
+      "locations": [
+        "clienti.php:309"
+      ]
+    },
+    {
+      "id": "timer-btn-desk-pause-${t.id}",
+      "referenced": false,
+      "locations": [
+        "progetto_dettaglio.php:2124"
+      ]
+    },
+    {
+      "id": "timer-btn-desk-reset-${t.id}",
+      "referenced": false,
+      "locations": [
+        "progetto_dettaglio.php:2133"
+      ]
+    },
+    {
+      "id": "timer-btn-desk-resume-${t.id}",
+      "referenced": false,
+      "locations": [
+        "progetto_dettaglio.php:2127"
+      ]
+    },
+    {
+      "id": "timer-btn-desk-start-${t.id}",
+      "referenced": false,
+      "locations": [
+        "progetto_dettaglio.php:2121"
+      ]
+    },
+    {
+      "id": "timer-btn-desk-stop-${t.id}",
+      "referenced": false,
+      "locations": [
+        "progetto_dettaglio.php:2130"
+      ]
+    },
+    {
+      "id": "timer-btn-pause-${t.id}",
+      "referenced": false,
+      "locations": [
+        "progetto_dettaglio.php:2011"
+      ]
+    },
+    {
+      "id": "timer-btn-reset-${t.id}",
+      "referenced": false,
+      "locations": [
+        "progetto_dettaglio.php:2020"
+      ]
+    },
+    {
+      "id": "timer-btn-resume-${t.id}",
+      "referenced": false,
+      "locations": [
+        "progetto_dettaglio.php:2014"
+      ]
+    },
+    {
+      "id": "timer-btn-start-${t.id}",
+      "referenced": false,
+      "locations": [
+        "progetto_dettaglio.php:2008"
+      ]
+    },
+    {
+      "id": "timer-btn-stop-${t.id}",
+      "referenced": false,
+      "locations": [
+        "progetto_dettaglio.php:2017"
+      ]
+    },
+    {
+      "id": "timer-display-${t.id}",
+      "referenced": false,
+      "locations": [
+        "progetto_dettaglio.php:2007"
+      ]
+    },
+    {
+      "id": "timer-display-desk-${t.id}",
+      "referenced": false,
+      "locations": [
+        "progetto_dettaglio.php:2120"
+      ]
+    },
+    {
+      "id": "tipoAggiunta",
+      "referenced": true,
+      "locations": [
+        "finanze.php:430"
+      ]
+    },
+    {
+      "id": "tipoFilter",
+      "referenced": true,
+      "locations": [
+        "clienti.php:66"
+      ]
+    },
+    {
+      "id": "tipologieControlloButtons",
+      "referenced": false,
+      "locations": [
+        "progetto_dettaglio.php:1432"
+      ]
+    },
+    {
+      "id": "titoloModalAteco",
+      "referenced": true,
+      "locations": [
+        "impostazioni.php:798"
+      ]
+    },
+    {
+      "id": "titoloModalScadenza",
+      "referenced": true,
+      "locations": [
+        "scadenze.php:146"
+      ]
+    },
+    {
+      "id": "toastContainer",
+      "referenced": true,
+      "locations": [
+        "includes/footer.php:4"
+      ]
+    },
+    {
+      "id": "totale-${v.id}",
+      "referenced": false,
+      "locations": [
+        "preventivi.php:1869",
+        "preventivi.php:2053"
+      ]
+    },
+    {
+      "id": "totaleDistribuzioneRicorrente",
+      "referenced": true,
+      "locations": [
+        "progetti.php:956"
+      ]
+    },
+    {
+      "id": "totaleEntrate",
+      "referenced": true,
+      "locations": [
+        "dashboard.php:522"
+      ]
+    },
+    {
+      "id": "trans-desktop-${t.id}",
+      "referenced": false,
+      "locations": [
+        "finanze.php:603"
+      ]
+    },
+    {
+      "id": "trans-mobile-${t.id}",
+      "referenced": false,
+      "locations": [
+        "finanze.php:580"
+      ]
+    },
+    {
+      "id": "transazioniList",
+      "referenced": true,
+      "locations": [
+        "progetto_dettaglio.php:1408",
+        "finanze.php:323"
+      ]
+    },
+    {
+      "id": "txtArchiviati",
+      "referenced": true,
+      "locations": [
+        "progetti.php:60"
+      ]
+    },
+    {
+      "id": "upcomingEvents",
+      "referenced": true,
+      "locations": [
+        "dashboard.php:425"
+      ]
+    },
+    {
+      "id": "uploadForm",
+      "referenced": true,
+      "locations": [
+        "upload_cliente.php:242"
+      ]
+    },
+    {
+      "id": "uploadProgress",
+      "referenced": true,
+      "locations": [
+        "impostazioni.php:177"
+      ]
+    },
+    {
+      "id": "utenteIdAggiunta",
+      "referenced": true,
+      "locations": [
+        "finanze.php:431"
+      ]
+    },
+    {
+      "id": "utentiDistribuzioneList",
+      "referenced": true,
+      "locations": [
+        "progetto_dettaglio.php:1681"
+      ]
+    },
+    {
+      "id": "voceCategoria",
+      "referenced": true,
+      "locations": [
+        "preventivi.php:484"
+      ]
+    },
+    {
+      "id": "voceDescrizione",
+      "referenced": true,
+      "locations": [
+        "preventivi.php:528"
+      ]
+    },
+    {
+      "id": "voceDescrizioneEditor",
+      "referenced": true,
+      "locations": [
+        "preventivi.php:527"
+      ]
+    },
+    {
+      "id": "voceForm",
+      "referenced": true,
+      "locations": [
+        "preventivi.php:479"
+      ]
+    },
+    {
+      "id": "voceFrequenza",
+      "referenced": true,
+      "locations": [
+        "preventivi.php:560"
+      ]
+    },
+    {
+      "id": "voceId",
+      "referenced": true,
+      "locations": [
+        "preventivi.php:480"
+      ]
+    },
+    {
+      "id": "voceModal",
+      "referenced": false,
+      "locations": [
+        "preventivi.php:466"
+      ]
+    },
+    {
+      "id": "voceModalTitle",
+      "referenced": true,
+      "locations": [
+        "preventivi.php:471"
+      ]
+    },
+    {
+      "id": "vocePrezzo",
+      "referenced": true,
+      "locations": [
+        "preventivi.php:534"
+      ]
+    },
+    {
+      "id": "vocePrezzoScontato",
+      "referenced": true,
+      "locations": [
+        "preventivi.php:550"
+      ]
+    },
+    {
+      "id": "voceSconto",
+      "referenced": true,
+      "locations": [
+        "preventivi.php:541"
+      ]
+    },
+    {
+      "id": "voceTipo",
+      "referenced": true,
+      "locations": [
+        "preventivi.php:491"
+      ]
+    },
+    {
+      "id": "zoomLevel",
+      "referenced": true,
+      "locations": [
+        "progetti.php:764"
+      ]
+    }
+  ]
+}

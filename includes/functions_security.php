@@ -172,24 +172,6 @@ function verifyCsrfTokenSecure(string $token, bool $regenerate = false): bool {
     
     return true;
 }
-
-/**
- * Middleware CSRF per API - da chiamare all'inizio di ogni API POST
- * 
- * @return void
- */
-function requireCsrfToken(): void {
-    // Per API JSON, il token può essere nell'header X-CSRF-Token
-    $token = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? ($_POST['csrf_token'] ?? '');
-    
-    if (empty($token) || !verifyCsrfTokenSecure($token)) {
-        header('Content-Type: application/json');
-        http_response_code(403);
-        echo json_encode(['success' => false, 'message' => 'Token CSRF non valido']);
-        exit;
-    }
-}
-
 // =====================================================
 // UPLOAD SECURITY
 // =====================================================
@@ -508,22 +490,6 @@ function validateInput($input, string $type = 'string', array $options = []) {
         default:
             return false;
     }
-}
-
-/**
- * Verifica che tutti i campi richiesti siano presenti
- * 
- * @param array $data Array dati
- * @param array $required Campi richiesti
- * @return bool
- */
-function validateRequired(array $data, array $required): bool {
-    foreach ($required as $field) {
-        if (!isset($data[$field]) || (is_string($data[$field]) && trim($data[$field]) === '')) {
-            return false;
-        }
-    }
-    return true;
 }
 
 // Esegui pulizia file vecchi occasionalmente

@@ -7,18 +7,13 @@
 // Determina pagina corrente per menu attivo
 $currentPage = basename($_SERVER['PHP_SELF'], '.php');
 
-// Ottieni statistiche per notifiche (placeholder)
-$notificheCount = 0; // TODO: Implementare conteggio notifiche
-
 // Recupera logo personalizzato
 try {
     $stmt = $pdo->prepare("SELECT valore FROM impostazioni WHERE chiave = 'logo_gestionale'");
     $stmt->execute();
     $logoNavbar = $stmt->fetchColumn() ?: '';
-    $isLogoNavbarSvg = $logoNavbar && str_ends_with(strtolower($logoNavbar), '.svg');
 } catch (PDOException $e) {
     $logoNavbar = '';
-    $isLogoNavbarSvg = false;
 }
 ?>
 <!DOCTYPE html>

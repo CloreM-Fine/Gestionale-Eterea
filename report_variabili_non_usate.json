@@ -1,0 +1,193 @@
+{
+  "report_type": "LIVELLO 2 - VARIABILI E COSTANTI NON USATE",
+  "project": "Eterea Gestionale",
+  "generated_at": "2026-03-23T14:26:38+01:00",
+  "summary": {
+    "total_variables_unused": 12,
+    "total_constants_unused": 2,
+    "total_params_unused": 4,
+    "total_includes_unused": 1
+  },
+  "details": {
+    "variables_unused": [
+      {
+        "name": "$notificheCount",
+        "file": "includes/header.php",
+        "line": 11,
+        "context": "// Ottieni statistiche per notifiche (placeholder)\n$notificheCount = 0; // TODO: Implementare conteggio notifiche",
+        "note": "Variabile definita con valore 0 ma mai utilizzata nel file. Il commento indica 'TODO'"
+      },
+      {
+        "name": "$isLogoSvg",
+        "file": "index.php",
+        "line": 22,
+        "context": "$isLogoSvg = $logoGestionale && str_ends_with(strtolower($logoGestionale), '.svg');",
+        "note": "Variabile definita ma mai utilizzata nel template HTML. Viene calcolata ma non usata per differenziare il rendering SVG vs altri formati"
+      },
+      {
+        "name": "$isLogoNavbarSvg",
+        "file": "includes/header.php",
+        "line": 18,
+        "context": "$isLogoNavbarSvg = $logoNavbar && str_ends_with(strtolower($logoNavbar), '.svg');",
+        "note": "Variabile definita ma mai utilizzata nel rendering del logo nella navbar"
+      },
+      {
+        "name": "$method",
+        "file": "api/clienti.php",
+        "line": 10,
+        "context": "$method = $_SERVER['REQUEST_METHOD'];",
+        "note": "Variabile definita ma usata solo nel switch. Potrebbe essere sostituita direttamente con $_SERVER['REQUEST_METHOD'] nel switch"
+      },
+      {
+        "name": "$method",
+        "file": "api/task.php",
+        "line": 10,
+        "context": "$method = $_SERVER['REQUEST_METHOD'];",
+        "note": "Variabile definita ma usata solo nel switch. Potrebbe essere sostituita direttamente"
+      },
+      {
+        "name": "$method",
+        "file": "api/progetti.php",
+        "line": 21,
+        "context": "$method = $_SERVER['REQUEST_METHOD'];",
+        "note": "Variabile definita ma usata solo nel switch"
+      },
+      {
+        "name": "$method",
+        "file": "api/finanze.php",
+        "line": 17,
+        "context": "$method = $_SERVER['REQUEST_METHOD'];",
+        "note": "Variabile definita ma usata solo nel switch"
+      },
+      {
+        "name": "$sessionToken",
+        "file": "api/task.php",
+        "line": 38,
+        "context": "$sessionToken = $_SESSION['csrf_token'] ?? 'NESSUNO';",
+        "note": "Variabile usata solo in un error_log di debug, non per logica funzionale"
+      },
+      {
+        "name": "$data",
+        "file": "includes/functions_security.php",
+        "line": 36,
+        "context": "if ($data && isset($data['attempts'])) {",
+        "note": "Variabile $data sovrascritta immediatamente dopo essere stata letta da file. Il contenuto originale non viene verificato prima di sovrascrivere"
+      },
+      {
+        "name": "$uploadDir",
+        "file": "includes/functions_security.php",
+        "line": 291,
+        "context": "$fullPath = UPLOAD_PATH . $destinationDir;",
+        "note": "La variabile $uploadDir viene creata come alias ma $fullPath viene usato direttamente con UPLOAD_PATH concatenato"
+      },
+      {
+        "name": "$users",
+        "file": "dashboard.php",
+        "line": 30,
+        "context": "$users = USERS;",
+        "note": "Variabile $users definita come alias di USERS ma mai utilizzata. USERS viene usato direttamente nel codice"
+      },
+      {
+        "name": "$protocol",
+        "file": "includes/config.php",
+        "line": 51,
+        "context": "$protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';",
+        "note": "Variabile usata solo per definire BASE_URL nella riga successiva, non riutilizzata altrove"
+      }
+    ],
+    "constants_unused": [
+      {
+        "name": "APP_VERSION",
+        "file": "includes/config.php",
+        "line": 46,
+        "context": "define('APP_VERSION', '1.0.0');",
+        "note": "Costante definita ma mai utilizzata nel codice. Potrebbe essere usata per cache-busting o nel footer"
+      },
+      {
+        "name": "ENV_LOADED",
+        "file": "includes/env_loader.php",
+        "line": 71,
+        "context": "define('ENV_LOADED', true);",
+        "note": "Costante definita alla fine del file ma mai verificata o utilizzata nel codice per controllare se l'env è stato caricato"
+      }
+    ],
+    "params_unused": [
+      {
+        "function": "eseguiDistribuzione",
+        "param": "$utentiEsclusi",
+        "file": "includes/functions.php",
+        "line": 318,
+        "context": "function eseguiDistribuzione($progettoId, $totale, $partecipantiIds, $includiCassa = true, $includiPassivo = false, $distribuzioneUniforme = false, $utentiEsclusi = []) {",
+        "note": "Parametro $utentiEsclusi passato alla funzione ma mai utilizzato nel corpo. Viene passato a calcolaDistribuzione che però non lo usa"
+      },
+      {
+        "function": "calcolaDistribuzione",
+        "param": "$configCustom",
+        "file": "includes/functions.php",
+        "line": 166,
+        "context": "function calcolaDistribuzione($totale, $partecipantiIds, $includiCassa = true, $includiPassivo = false, $distribuzioneUniforme = false, $configCustom = null) {",
+        "note": "Parametro usato solo in una condizione if ($configCustom && is_array($configCustom)), ma non viene validato o processato completamente"
+      },
+      {
+        "function": "uploadFileSecure",
+        "param": "$randomizeName",
+        "file": "includes/functions_security.php",
+        "line": 249,
+        "context": "function uploadFileSecure(array $file, string $destinationDir, array $allowedTypes, int $maxSize, bool $randomizeName = true): array|false {",
+        "note": "Parametro presente ma il comportamento di randomizzazione è sempre attivo, il parametro potrebbe non essere effettivamente utilizzato in tutti i casi"
+      },
+      {
+        "function": "handleLogin",
+        "param": "void return type implicito",
+        "file": "api/auth.php",
+        "line": 63,
+        "context": "function handleLogin(): void {",
+        "note": "La funzione dichiara return type void ma contiene chiamate a jsonResponse che fanno exit, rendendo il tipo di ritorno inutilizzato"
+      }
+    ],
+    "includes_unused": [
+      {
+        "file": "index.php",
+        "line": 41,
+        "include": "require_once __DIR__ . '/includes/functions.php';",
+        "context": "// Genera Token CSRF sicuro\nrequire_once __DIR__ . '/includes/functions.php';",
+        "note": "Include duplicato! functions.php è già stato incluso alla riga 15. Questo include è ridondante"
+      }
+    ],
+    "potential_issues": [
+      {
+        "type": "variabile_sovrascritta",
+        "file": "includes/functions_security.php",
+        "line": 290,
+        "name": "$fullPath",
+        "context": "$fullPath = UPLOAD_PATH . $destinationDir;",
+        "note": "La variabile $fullPath viene ridefinita poche righe dopo (riga 300/306), rendendo l'assegnazione iniziale potenzialmente inutile"
+      },
+      {
+        "type": "variabile_non_inizializzata",
+        "file": "api/progetti.php",
+        "line": 133,
+        "name": "$userId",
+        "context": "$userId = $_SESSION['user_id'] ?? '';",
+        "note": "Variabile $userId viene definita ma usata solo per generare $safeUserId. Potrebbe essere unificata"
+      },
+      {
+        "type": "dead_code",
+        "file": "includes/functions.php",
+        "line": 517,
+        "name": "eseguiPagamentiMensiliAutomatici",
+        "context": "function eseguiPagamentiMensiliAutomatici() {\n    // Funzione disabilitata - pagamento mensile rimosso\n    return [];\n}",
+        "note": "Funzione che fa solo return array vuoto, il corpo è commentato come 'disabilitata'"
+      }
+    ]
+  },
+  "recommendations": [
+    "Rimuovere l'include duplicato di functions.php in index.php (riga 41)",
+    "Valutare l'uso di APP_VERSION per cache-busting degli asset",
+    "Implementare il TODO per $notificheCount in header.php o rimuovere la variabile",
+    "Verificare se $isLogoSvg e $isLogoNavbarSvg servono per rendering condizionale SVG",
+    "Rimuovere $users da dashboard.php se USERS viene usato direttamente",
+    "Valutare l'eliminazione della funzione eseguiPagamentiMensiliAutomatici se non più necessaria",
+    "Verificare il parametro $utentiEsclusi in eseguiDistribuzione - o implementarlo o rimuoverlo"
+  ]
+}
