@@ -244,8 +244,16 @@ include __DIR__ . '/includes/header.php';
                 </div>
                 <?php else: ?>
                     <?php foreach ($tuttiProgetti as $p):
-                        $partecipanti = json_decode($p['partecipanti'] ?? '[]', true);
                         $isRicorrente = ($p['tipo_distribuzione'] ?? '') === 'ricorrente';
+                        // Per progetti ricorrenti, usa i partecipanti dalla distribuzione
+                        if ($isRicorrente) {
+                            $distribuzione = json_decode($p['distribuzione_ricorrente'] ?? '{}', true);
+                            $partecipanti = array_keys(array_filter($distribuzione, function($v, $k) {
+                                return $k !== 'cassa' && intval($v) > 0;
+                            }, ARRAY_FILTER_USE_BOTH));
+                        } else {
+                            $partecipanti = json_decode($p['partecipanti'] ?? '[]', true);
+                        }
                     ?>
                     <div class="p-4 md:p-5 hover:bg-slate-50 transition-colors">
                         <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-2">

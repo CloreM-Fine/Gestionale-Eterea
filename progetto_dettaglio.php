@@ -1107,18 +1107,42 @@ startBlogPolling();
                 
                 <div class="space-y-3">
                     <?php 
-                    $countPartecipanti = count($progetto['partecipanti']);
-                    foreach ($progetto['partecipanti'] as $userId):
+                    // Se pagamento mensile, usa partecipanti dalla distribuzione ricorrente
+                    $isMensile = ($progetto['stato_pagamento'] === 'mensile');
+                    $distribuzioneRicorrente = json_decode($progetto['distribuzione_ricorrente'] ?? '{}', true);
+                    
+                    if ($isMensile && !empty($distribuzioneRicorrente)) {
+                        // Usa distribuzione mensile
+                        $partecipantiMensili = [];
+                        foreach ($distribuzioneRicorrente as $uid => $percentuale) {
+                            if ($uid !== 'cassa' && intval($percentuale) > 0 && isset(USERS[$uid])) {
+                                $partecipantiMensili[] = ['id' => $uid, 'percentuale' => intval($percentuale)];
+                            }
+                        }
+                        $cassaPercentuale = intval($distribuzioneRicorrente['cassa'] ?? 0);
+                    } else {
+                        // Usa partecipanti standard del progetto
+                        $partecipantiMensili = [];
+                        $countPartecipanti = count($progetto['partecipanti']);
+                        foreach ($progetto['partecipanti'] as $userId) {
+                            if (isset(USERS[$userId])) {
+                                $percentuale = match($countPartecipanti) {
+                                    1 => 70,
+                                    2 => 40,
+                                    3 => 30,
+                                    default => 0
+                                };
+                                $partecipantiMensili[] = ['id' => $userId, 'percentuale' => $percentuale];
+                            }
+                        }
+                        $cassaPercentuale = 10;
+                    }
+                    
+                    foreach ($partecipantiMensili as $partecipante):
+                        $userId = $partecipante['id'];
+                        $percentuale = $partecipante['percentuale'];
                         $user = USERS[$userId] ?? null;
                         if (!$user) continue;
-                        
-                        // Calcola percentuale
-                        $percentuale = match($countPartecipanti) {
-                            1 => 70,
-                            2 => 40,
-                            3 => 30,
-                            default => 0
-                        };
                     ?>
                     <div class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
                         <?php 
@@ -1136,13 +1160,13 @@ startBlogPolling();
                         <?php endif; ?>
                         <div class="flex-1">
                             <p class="font-medium text-slate-800"><?php echo $user['nome']; ?></p>
-                            <p class="text-sm text-slate-500">Attivo sul progetto</p>
+                            <p class="text-sm text-slate-500"><?php echo $isMensile ? 'Pagamento mensile' : 'Attivo sul progetto'; ?></p>
                         </div>
                         <span class="text-sm font-semibold text-cyan-600"><?php echo $percentuale; ?>%</span>
                     </div>
                     <?php endforeach; ?>
                     
-                    <?php if ($countPartecipanti > 0): ?>
+                    <?php if (!empty($partecipantiMensili) && $cassaPercentuale > 0): ?>
                     <div class="flex items-center gap-3 p-3 bg-emerald-50 rounded-xl border border-emerald-100">
                         <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-medium bg-emerald-500">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1153,7 +1177,7 @@ startBlogPolling();
                             <p class="font-medium text-slate-800">Cassa Aziendale</p>
                             <p class="text-sm text-slate-500">Contributo</p>
                         </div>
-                        <span class="text-sm font-semibold text-emerald-600">10%</span>
+                        <span class="text-sm font-semibold text-emerald-600"><?php echo $cassaPercentuale; ?>%</span>
                     </div>
                     <?php endif; ?>
                 </div>
