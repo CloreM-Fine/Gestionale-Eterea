@@ -722,7 +722,7 @@ function distribuisciPagamentoRicorrente($id) {
             if ($uid === 'cassa') {
                 // Transazione cassa
                 error_log("DEBUG: Inserisco cassa");
-                $sql = "INSERT INTO transazioni_economiche (progetto_id, tipo, importo, percentuale, descrizione, data_transazione) VALUES (?, 'cassa', ?, ?, 'Contributo cassa - pagamento ricorrente', NOW())";
+                $sql = "INSERT INTO transazioni_economiche (progetto_id, tipo, importo, percentuale, descrizione, data) VALUES (?, 'cassa', ?, ?, 'Contributo cassa - pagamento ricorrente', NOW())";
                 $stmt = $pdo->prepare($sql);
                 if (!$stmt) {
                     $error = $pdo->errorInfo();
@@ -734,7 +734,7 @@ function distribuisciPagamentoRicorrente($id) {
             } else {
                 // Transazione wallet utente
                 error_log("DEBUG: Inserisco wallet per uid=$uid");
-                $sql = "INSERT INTO transazioni_economiche (progetto_id, tipo, utente_id, importo, percentuale, descrizione, data_transazione) VALUES (?, 'wallet', ?, ?, ?, 'Compenso pagamento ricorrente', NOW())";
+                $sql = "INSERT INTO transazioni_economiche (progetto_id, tipo, utente_id, importo, percentuale, descrizione, data) VALUES (?, 'wallet', ?, ?, ?, 'Compenso pagamento ricorrente', NOW())";
                 $stmt = $pdo->prepare($sql);
                 if (!$stmt) {
                     $error = $pdo->errorInfo();
