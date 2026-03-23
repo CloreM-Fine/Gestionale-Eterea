@@ -406,116 +406,6 @@ include __DIR__ . '/includes/header.php';
                         <p class="text-xs text-slate-500 mt-1">Note visibili solo ai membri del team</p>
                     </div>
                     
-                    <!-- Pagamento Mensile -->
-                    <div class="border border-slate-200 rounded-xl p-4 bg-slate-50/50">
-                        <label class="flex items-center gap-3 cursor-pointer mb-4">
-                            <input type="checkbox" name="pagamento_mensile" id="editPagamentoMensile" value="1" 
-                                   onchange="toggleEditPagamentoMensile(this)"
-                                   class="w-5 h-5 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500">
-                            <div class="flex-1">
-                                <span class="font-medium text-slate-800">Pagamento mensile ricorrente</span>
-                                <p class="text-xs text-slate-500">Il progetto ha un pagamento mensile fisso</p>
-                            </div>
-                            <span class="text-lg">📅</span>
-                        </label>
-                        
-                        <div id="editPagamentoMensileFields" class="hidden space-y-4">
-                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                                <div>
-                                    <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-2">Prezzo Mensile</label>
-                                    <div class="relative">
-                                        <span class="absolute left-3 top-2.5 text-slate-400">€</span>
-                                        <input type="number" name="prezzo_mensile" id="editPrezzoMensile" step="0.01" min="0"
-                                               class="w-full pl-8 pr-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none min-h-[44px]"
-                                               placeholder="0.00">
-                                    </div>
-                                </div>
-                                <div>
-                                    <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-2">Giorno scadenza (1-31)</label>
-                                    <input type="number" name="giorno_scadenza_mensile" id="editGiornoScadenzaMensile" min="1" max="31"
-                                           class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none min-h-[44px]"
-                                           placeholder="Es: 1">
-                                </div>
-                                <div>
-                                    <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-2">Data inizio pagamento</label>
-                                    <input type="date" name="data_inizio_pagamento" id="editDataInizioPagamento"
-                                           class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none min-h-[44px]">
-                                </div>
-                            </div>
-                            
-                            <!-- Modalità Distribuzione -->
-                            <div class="bg-blue-50 rounded-xl p-4 border border-blue-100 mt-4">
-                                <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-3">Modalità di distribuzione</label>
-                                <div class="space-y-3">
-                                    <label class="flex items-center gap-3 cursor-pointer">
-                                        <input type="radio" name="distribuzione_automatica" value="0" id="editDistribuzioneManuale"
-                                               class="w-4 h-4 text-cyan-600 border-slate-300 focus:ring-cyan-500">
-                                        <div class="flex-1">
-                                            <span class="text-sm font-medium text-slate-800">Manuale</span>
-                                            <p class="text-xs text-slate-500">Decido io quando distribuire l'economia accumulata</p>
-                                        </div>
-                                    </label>
-                                    <label class="flex items-center gap-3 cursor-pointer">
-                                        <input type="radio" name="distribuzione_automatica" value="1" id="editDistribuzioneAutomatica"
-                                               class="w-4 h-4 text-cyan-600 border-slate-300 focus:ring-cyan-500">
-                                        <div class="flex-1">
-                                            <span class="text-sm font-medium text-slate-800">Automatica</span>
-                                            <p class="text-xs text-slate-500">Ogni mese distribuisce automaticamente il pagamento ai wallet</p>
-                                        </div>
-                                    </label>
-                                </div>
-                            </div>
-                            
-                            <!-- Configurazione Distribuzione -->
-                            <div class="border-t border-slate-200 pt-4 mt-4">
-                                <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-3">Distribuzione percentuale</label>
-                                <p class="text-xs text-slate-500 mb-3">Definisci come dividere il pagamento mensile (deve sommare a 100%)</p>
-                                
-                                <div class="space-y-3" id="editDistribuzioneMensileContainer">
-                                    <?php foreach (USERS as $uid => $user): ?>
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-medium" style="background-color: <?php echo $user['colore']; ?>">
-                                            <?php echo substr($user['nome'], 0, 1); ?>
-                                        </div>
-                                        <span class="text-sm text-slate-700 flex-1"><?php echo e($user['nome']); ?></span>
-                                        <div class="relative w-24">
-                                            <input type="number" name="distribuzione_mensile[<?php echo $uid; ?>]" 
-                                                   id="editDistribuzione<?php echo $uid; ?>"
-                                                   class="edit-distribuzione-mensile-input w-full px-3 py-2 border border-slate-200 rounded-lg text-right text-sm"
-                                                   placeholder="0" min="0" max="100" value="0"
-                                                   onchange="validaEditDistribuzioneMensile()">
-                                            <span class="absolute right-3 top-2 text-slate-400 text-sm">%</span>
-                                        </div>
-                                    </div>
-                                    <?php endforeach; ?>
-                                    
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-medium bg-emerald-500">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-                                            </svg>
-                                        </div>
-                                        <span class="text-sm text-slate-700 flex-1">Cassa Aziendale</span>
-                                        <div class="relative w-24">
-                                            <input type="number" name="distribuzione_mensile[cassa]" 
-                                                   id="editDistribuzioneCassa"
-                                                   class="edit-distribuzione-mensile-input w-full px-3 py-2 border border-slate-200 rounded-lg text-right text-sm"
-                                                   placeholder="0" min="0" max="100" value="0"
-                                                   onchange="validaEditDistribuzioneMensile()">
-                                            <span class="absolute right-3 top-2 text-slate-400 text-sm">%</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="flex items-center justify-between mt-3 pt-3 border-t border-slate-200">
-                                    <span class="text-sm text-slate-600">Totale:</span>
-                                    <span id="editTotaleDistribuzioneMensile" class="text-sm font-semibold text-slate-800">0%</span>
-                                </div>
-                                <p id="editErroreDistribuzioneMensile" class="text-xs text-red-500 mt-1 hidden">La somma deve essere 100%</p>
-                            </div>
-                        </div>
-                    </div>
-                    
                     <!-- Tipologie -->
                     <div>
                         <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-2">Tipologie</label>
@@ -944,56 +834,7 @@ startBlogPolling();
                     </div>
                     <?php endif; ?>
                     
-                    <?php if ($progetto['pagamento_mensile']): ?>
-                    <div class="bg-emerald-50 rounded-xl p-4 border border-emerald-100">
-                        <label class="text-sm text-emerald-700 flex items-center gap-2 mb-2">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                            </svg>
-                            Pagamento Mensile - 
-                            <span class="px-2 py-0.5 rounded-full text-xs font-medium <?php echo $progetto['distribuzione_automatica'] ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700'; ?>">
-                                <?php echo $progetto['distribuzione_automatica'] ? '🔄 Automatica' : '✌️ Manuale'; ?>
-                            </span>
-                        </label>
-                        <div class="grid grid-cols-2 gap-3 mt-2">
-                            <div>
-                                <span class="text-xs text-slate-500">Prezzo mensile:</span>
-                                <p class="font-semibold text-slate-800">€ <?php echo number_format($progetto['prezzo_mensile'], 2, ',', '.'); ?></p>
-                            </div>
-                            <div>
-                                <span class="text-xs text-slate-500">Scadenza:</span>
-                                <p class="font-semibold text-slate-800">Giorno <?php echo $progetto['giorno_scadenza_mensile']; ?> di ogni mese</p>
-                            </div>
-                            <div>
-                                <span class="text-xs text-slate-500">Inizio:</span>
-                                <p class="font-semibold text-slate-800"><?php echo formatDate($progetto['data_inizio_pagamento']); ?></p>
-                            </div>
-                            <div>
-                                <span class="text-xs text-slate-500">Totale accumulato:</span>
-                                <p class="font-semibold text-emerald-600">€ <?php echo number_format($progetto['prezzo_totale'], 2, ',', '.'); ?></p>
-                            </div>
-                        </div>
-                        <?php 
-                        $distribuzioneConfig = json_decode($progetto['distribuzione_mensile_config'] ?? '{}', true);
-                        if ($distribuzioneConfig): 
-                        ?>
-                        <div class="mt-3 pt-3 border-t border-emerald-200">
-                            <span class="text-xs text-slate-500">Distribuzione:</span>
-                            <div class="flex flex-wrap gap-2 mt-1">
-                                <?php foreach ($distribuzioneConfig as $uid => $percentuale): 
-                                    if ($percentuale > 0):
-                                        $nome = ($uid === 'cassa') ? 'Cassa' : (USERS[$uid]['nome'] ?? $uid);
-                                ?>
-                                <span class="px-2 py-1 bg-white rounded text-xs text-slate-700 border border-emerald-200">
-                                    <?php echo e($nome); ?>: <?php echo $percentuale; ?>%
-                                </span>
-                                <?php endif; endforeach; ?>
-                            </div>
-                        </div>
-                        <?php endif; ?>
-                    </div>
-                    <?php endif; ?>
-                    
+
                     <div>
                         <label class="text-sm text-slate-500">Tipologie</label>
                         <div class="flex flex-wrap gap-2 mt-1">
@@ -3422,32 +3263,6 @@ function openEditProgettoModal() {
     document.getElementById('editProgettoDescrizione').value = progetto.descrizione || '';
     document.getElementById('editProgettoNote').value = progetto.note || '';
     
-    // Pagamento mensile
-    const pagamentoMensileCheck = document.getElementById('editPagamentoMensile');
-    pagamentoMensileCheck.checked = progetto.pagamento_mensile == 1;
-    toggleEditPagamentoMensile(pagamentoMensileCheck);
-    
-    document.getElementById('editPrezzoMensile').value = progetto.prezzo_mensile || '';
-    document.getElementById('editGiornoScadenzaMensile').value = progetto.giorno_scadenza_mensile || '';
-    document.getElementById('editDataInizioPagamento').value = progetto.data_inizio_pagamento || '';
-    
-    // Distribuzione automatica/manuale
-    if (progetto.distribuzione_automatica == 1) {
-        document.getElementById('editDistribuzioneAutomatica').checked = true;
-    } else {
-        document.getElementById('editDistribuzioneManuale').checked = true;
-    }
-    
-    // Distribuzione mensile
-    const distribuzioneConfig = progetto.distribuzione_mensile_config || {};
-    if (distribuzioneConfig) {
-        Object.keys(distribuzioneConfig).forEach(key => {
-            const input = document.getElementById('editDistribuzione' + (key === 'cassa' ? 'Cassa' : key));
-            if (input) input.value = distribuzioneConfig[key];
-        });
-    }
-    validaEditDistribuzioneMensile();
-    
     // Reset e imposta tipologie
     document.querySelectorAll('input[name="tipologie[]"]').forEach(cb => {
         cb.checked = false;
@@ -3481,14 +3296,6 @@ function openEditProgettoModal() {
 
 async function saveProgettoChanges() {
     const form = document.getElementById('editProgettoForm');
-    
-    // Valida distribuzione mensile se attiva
-    const pagamentoMensile = document.getElementById('editPagamentoMensile').checked;
-    if (pagamentoMensile && !validaEditDistribuzioneMensile()) {
-        showToast('La distribuzione percentuale deve sommare a 100%', 'error');
-        return;
-    }
-    
     const formData = new FormData(form);
     formData.append('action', 'update');
     formData.append('id', progettoId);
@@ -3520,43 +3327,6 @@ async function saveProgettoChanges() {
         showToast('Errore di connessione', 'error');
     }
 }
-
-// Toggle pagamento mensile in edit
-function toggleEditPagamentoMensile(checkbox) {
-    const fields = document.getElementById('editPagamentoMensileFields');
-    if (checkbox.checked) {
-        fields.classList.remove('hidden');
-    } else {
-        fields.classList.add('hidden');
-    }
-}
-
-// Valida distribuzione mensile in edit
-function validaEditDistribuzioneMensile() {
-    const inputs = document.querySelectorAll('.edit-distribuzione-mensile-input');
-    let totale = 0;
-    inputs.forEach(input => {
-        totale += parseFloat(input.value) || 0;
-    });
-    
-    const totaleEl = document.getElementById('editTotaleDistribuzioneMensile');
-    const erroreEl = document.getElementById('editErroreDistribuzioneMensile');
-    
-    totaleEl.textContent = totale + '%';
-    
-    if (totale !== 100) {
-        totaleEl.classList.add('text-red-500');
-        totaleEl.classList.remove('text-emerald-600');
-        erroreEl.classList.remove('hidden');
-        return false;
-    } else {
-        totaleEl.classList.remove('text-red-500');
-        totaleEl.classList.add('text-emerald-600');
-        erroreEl.classList.add('hidden');
-        return true;
-    }
-}
-};
 </script>
 
 <?php include __DIR__ . '/includes/footer.php'; ?>
