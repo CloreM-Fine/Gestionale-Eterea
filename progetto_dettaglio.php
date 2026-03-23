@@ -2829,24 +2829,53 @@ async function loadDocumenti() {
                 return;
             }
             
-            list.innerHTML = documenti.map(d => `
-                <div class="flex items-center gap-4 p-4 bg-slate-50 rounded-xl group">
-                    <div class="w-12 h-12 bg-red-100 text-red-600 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-                        </svg>
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <p class="font-medium text-slate-800 truncate">${d.filename}</p>
+            list.innerHTML = documenti.map(d => {
+                const fileExt = d.filename.split('.').pop().toLowerCase();
+                const isImage = ['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(fileExt);
+                const isPdf = fileExt === 'pdf';
+                const fileUrl = `assets/uploads/${d.file_path}`;
+                
+                // Anteprima cliccabile
+                let previewHtml = '';
+                if (isImage) {
+                    previewHtml = `
+                        <div class="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 cursor-pointer border border-slate-200 hover:border-cyan-400 transition-colors" 
+                             onclick="openAnteprimaDocumento('${fileUrl}', 'image', '${d.filename}')">
+                            <img src="${fileUrl}" alt="${d.filename}" class="w-full h-full object-cover">
+                        </div>
+                    `;
+                } else if (isPdf) {
+                    previewHtml = `
+                        <div class="w-16 h-16 bg-red-100 text-red-600 rounded-lg flex items-center justify-center flex-shrink-0 cursor-pointer hover:bg-red-200 transition-colors"
+                             onclick="openAnteprimaDocumento('${fileUrl}', 'pdf', '${d.filename}')">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                    `;
+                } else {
+                    previewHtml = `
+                        <div class="w-16 h-16 bg-slate-200 text-slate-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                        </div>
+                    `;
+                }
+                
+                return `
+                <div class="flex items-center gap-4 p-4 bg-slate-50 rounded-xl group hover:bg-slate-100 transition-colors">
+                    ${previewHtml}
+                    <div class="flex-1 min-w-0 cursor-pointer" onclick="openAnteprimaDocumento('${fileUrl}', '${isImage ? 'image' : (isPdf ? 'pdf' : 'other')}', '${d.filename}')">
+                        <p class="font-medium text-slate-800 truncate hover:text-cyan-600 transition-colors">${d.filename}</p>
                         <p class="text-sm text-slate-500">${(d.file_size / 1024).toFixed(1)} KB • ${new Date(d.uploaded_at).toLocaleDateString('it-IT')}</p>
                         ${d.note ? `<p class="text-sm text-slate-600 mt-1 italic">"${d.note}"</p>` : ''}
                     </div>
                     <div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <a href="assets/uploads/${d.file_path}" target="_blank" 
-                           class="p-2 text-cyan-600 hover:bg-cyan-50 rounded-lg" title="Visualizza">
+                        <a href="${fileUrl}" target="_blank" 
+                           class="p-2 text-cyan-600 hover:bg-cyan-50 rounded-lg" title="Apri in nuova scheda">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
                             </svg>
                         </a>
                         <button onclick="deleteDocumento(${d.id})" class="p-2 text-red-600 hover:bg-red-50 rounded-lg" title="Elimina">
@@ -2856,7 +2885,7 @@ async function loadDocumenti() {
                         </button>
                     </div>
                 </div>
-            `).join('');
+            `}).join('');
         }
     } catch (error) {
         console.error('Errore caricamento documenti:', error);
@@ -3665,6 +3694,86 @@ async function saveProgettoChanges() {
         showToast('Errore di connessione', 'error');
     }
 }
+
+// Funzione per aprire l'anteprima di un documento
+function openAnteprimaDocumento(url, type, filename) {
+    const modal = document.createElement('div');
+    modal.id = 'modalAnteprimaDocumento';
+    modal.className = 'fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm';
+    modal.onclick = (e) => {
+        if (e.target === modal) closeAnteprimaDocumento();
+    };
+    
+    let contentHtml = '';
+    if (type === 'image') {
+        contentHtml = `
+            <img src="${url}" alt="${filename}" class="max-w-full max-h-[85vh] object-contain rounded-lg shadow-2xl">
+        `;
+    } else if (type === 'pdf') {
+        contentHtml = `
+            <iframe src="${url}#view=FitH" class="w-full h-[85vh] max-w-4xl rounded-lg shadow-2xl bg-white" title="${filename}"></iframe>
+        `;
+    } else {
+        contentHtml = `
+            <div class="bg-white rounded-xl p-8 text-center max-w-md">
+                <svg class="w-16 h-16 text-slate-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                <p class="text-slate-600 mb-4">Questo file non può essere visualizzato in anteprima</p>
+                <a href="${url}" target="_blank" class="px-4 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 inline-flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4-4m0 0L8 8m4-4v12"/>
+                    </svg>
+                    Scarica file
+                </a>
+            </div>
+        `;
+    }
+    
+    modal.innerHTML = `
+        <div class="relative max-w-5xl w-full flex flex-col items-center">
+            <!-- Header con titolo e pulsante chiudi -->
+            <div class="flex items-center justify-between w-full mb-4 px-2">
+                <h3 class="text-white font-medium truncate max-w-md" title="${filename}">${filename}</h3>
+                <div class="flex items-center gap-2">
+                    <a href="${url}" target="_blank" 
+                       class="p-2 text-white hover:bg-white/20 rounded-lg transition-colors" title="Apri in nuova scheda">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                        </svg>
+                    </a>
+                    <button onclick="closeAnteprimaDocumento()" class="p-2 text-white hover:bg-white/20 rounded-lg transition-colors" title="Chiudi">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Contenuto -->
+            <div class="flex items-center justify-center w-full">
+                ${contentHtml}
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    document.body.style.overflow = 'hidden';
+}
+
+// Funzione per chiudere l'anteprima
+function closeAnteprimaDocumento() {
+    const modal = document.getElementById('modalAnteprimaDocumento');
+    if (modal) {
+        modal.remove();
+        document.body.style.overflow = '';
+    }
+}
+
+// Chiudi con tasto ESC
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeAnteprimaDocumento();
+});
 </script>
 
 <?php include __DIR__ . '/includes/footer.php'; ?>
