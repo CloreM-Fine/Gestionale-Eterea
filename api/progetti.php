@@ -61,6 +61,8 @@ switch ($method) {
             distribuisciProgetto($_POST['id'], $includiCassa, $includiPassivo, $distribuzioneUniforme, $utentiEsclusi);
         } elseif ($action === 'revoca_distribuzione' && isset($_POST['id'])) {
             revocaDistribuzione($_POST['id']);
+        } elseif ($action === 'distribuisci_ricorrente' && isset($_POST['id'])) {
+            distribuisciPagamentoRicorrente($_POST['id']);
         } elseif ($action === 'upload_documento') {
             uploadDocumento();
         } elseif ($action === 'delete_documento' && isset($_POST['id'])) {
@@ -232,6 +234,7 @@ function getProgetto($id) {
         // Decodifica JSON
         $progetto['tipologie'] = json_decode($progetto['tipologie'] ?? '[]', true);
         $progetto['partecipanti'] = json_decode($progetto['partecipanti'] ?? '[]', true);
+        $progetto['distribuzione_ricorrente'] = json_decode($progetto['distribuzione_ricorrente'] ?? '{}', true);
         
         // Recupera avatar partecipanti
         $progetto['partecipanti_avatar'] = [];
@@ -317,12 +320,21 @@ function createProgetto() {
         
         $coloreTag = $_POST['colore_tag'] ?? '#FFFFFF';
         
+        // Pagamento ricorrente
+        $importoRicorrente = ($statoPagamento === 'mensile') ? floatval($_POST['importo_ricorrente'] ?? 0) : null;
+        $frequenzaRicorrente = ($statoPagamento === 'mensile') ? ($_POST['frequenza_ricorrente'] ?? 'mensile') : null;
+        $prossimaDataRicorrente = ($statoPagamento === 'mensile') ? ($_POST['prossima_data_ricorrente'] ?: null) : null;
+        $distribuzioneRicorrente = ($statoPagamento === 'mensile' && isset($_POST['distribuzione_ricorrente'])) 
+            ? json_encode($_POST['distribuzione_ricorrente']) 
+            : null;
+        
         $stmt = $pdo->prepare("
             INSERT INTO progetti (
                 id, titolo, cliente_id, descrizione, note, tipologie, prezzo_totale,
                 stato_progetto, stato_pagamento, acconto_percentuale, acconto_importo, saldo_importo,
-                partecipanti, data_inizio, data_consegna_prevista, colore_tag, created_by
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                partecipanti, data_inizio, data_consegna_prevista, colore_tag, created_by,
+                importo_ricorrente, frequenza_ricorrente, prossima_data_ricorrente, distribuzione_ricorrente
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
         
         $stmt->execute([
@@ -342,7 +354,11 @@ function createProgetto() {
             $_POST['data_inizio'] ?: null,
             $_POST['data_consegna_prevista'] ?: null,
             $coloreTag,
-            $_SESSION['user_id']
+            $_SESSION['user_id'],
+            $importoRicorrente,
+            $frequenzaRicorrente,
+            $prossimaDataRicorrente,
+            $distribuzioneRicorrente
         ]);
         
         // Log
@@ -413,6 +429,14 @@ function updateProgetto($id) {
         
         $coloreTag = $_POST['colore_tag'] ?? '#FFFFFF';
         
+        // Pagamento ricorrente
+        $importoRicorrente = ($statoPagamento === 'mensile') ? floatval($_POST['importo_ricorrente'] ?? 0) : null;
+        $frequenzaRicorrente = ($statoPagamento === 'mensile') ? ($_POST['frequenza_ricorrente'] ?? 'mensile') : null;
+        $prossimaDataRicorrente = ($statoPagamento === 'mensile') ? ($_POST['prossima_data_ricorrente'] ?: null) : null;
+        $distribuzioneRicorrente = ($statoPagamento === 'mensile' && isset($_POST['distribuzione_ricorrente'])) 
+            ? json_encode($_POST['distribuzione_ricorrente']) 
+            : null;
+        
         $stmt = $pdo->prepare("
             UPDATE progetti SET
                 titolo = ?,
@@ -431,7 +455,11 @@ function updateProgetto($id) {
                 data_consegna_prevista = ?,
                 data_consegna_effettiva = ?,
                 data_pagamento = ?,
-                colore_tag = ?
+                colore_tag = ?,
+                importo_ricorrente = ?,
+                frequenza_ricorrente = ?,
+                prossima_data_ricorrente = ?,
+                distribuzione_ricorrente = ?
             WHERE id = ?
         ");
         
@@ -453,6 +481,10 @@ function updateProgetto($id) {
             $dataConsegnaEffettiva,
             $dataPagamento,
             $coloreTag,
+            $importoRicorrente,
+            $frequenzaRicorrente,
+            $prossimaDataRicorrente,
+            $distribuzioneRicorrente,
             $id
         ]);
         
@@ -625,6 +657,107 @@ function revocaDistribuzione($id) {
         $pdo->rollBack();
         error_log("Errore revoca distribuzione: " . $e->getMessage());
         jsonResponse(false, null, 'Errore durante la revoca della distribuzione');
+    }
+}
+
+/**
+ * Distribuisci pagamento ricorrente di un progetto
+ */
+function distribuisciPagamentoRicorrente($id) {
+    global $pdo;
+    
+    try {
+        $pdo->beginTransaction();
+        
+        // Recupera progetto con dati pagamento ricorrente
+        $stmt = $pdo->prepare("
+            SELECT * FROM progetti WHERE id = ? AND stato_pagamento = 'mensile'
+        ");
+        $stmt->execute([$id]);
+        $progetto = $stmt->fetch();
+        
+        if (!$progetto) {
+            jsonResponse(false, null, 'Progetto non trovato o non ha pagamento ricorrente');
+        }
+        
+        $importo = floatval($progetto['importo_ricorrente']);
+        $distribuzioneConfig = json_decode($progetto['distribuzione_ricorrente'] ?? '{}', true);
+        
+        if ($importo <= 0 || empty($distribuzioneConfig)) {
+            jsonResponse(false, null, 'Configurazione pagamento ricorrente incompleta');
+        }
+        
+        // Esegui distribuzione secondo config
+        foreach ($distribuzioneConfig as $uid => $percentuale) {
+            if ($percentuale <= 0) continue;
+            
+            $importoQuota = round($importo * ($percentuale / 100), 2);
+            
+            if ($uid === 'cassa') {
+                // Transazione cassa
+                $stmt = $pdo->prepare("
+                    INSERT INTO transazioni_economiche 
+                    (progetto_id, tipo, importo, percentuale, descrizione, data_transazione)
+                    VALUES (?, 'cassa', ?, ?, 'Contributo cassa - pagamento ricorrente', NOW())
+                ");
+                $stmt->execute([$id, $importoQuota, $percentuale]);
+            } else {
+                // Transazione wallet utente
+                $stmt = $pdo->prepare("
+                    INSERT INTO transazioni_economiche 
+                    (progetto_id, tipo, utente_id, importo, percentuale, descrizione, data_transazione)
+                    VALUES (?, 'wallet', ?, ?, ?, 'Compenso pagamento ricorrente', NOW())
+                ");
+                $stmt->execute([$id, $uid, $importoQuota, $percentuale]);
+                
+                // Aggiorna saldo wallet
+                $stmt = $pdo->prepare("
+                    UPDATE utenti SET wallet_saldo = wallet_saldo + ? WHERE id = ?
+                ");
+                $stmt->execute([$importoQuota, $uid]);
+            }
+        }
+        
+        // Aggiorna prezzo_totale del progetto
+        $nuovoTotale = floatval($progetto['prezzo_totale']) + $importo;
+        
+        // Calcola prossima data in base alla frequenza
+        $frequenza = $progetto['frequenza_ricorrente'] ?? 'mensile';
+        $prossimaData = new DateTime();
+        switch ($frequenza) {
+            case 'settimanale':
+                $prossimaData->modify('+1 week');
+                break;
+            case 'bimestrale':
+                $prossimaData->modify('+2 months');
+                break;
+            case 'mensile':
+            default:
+                $prossimaData->modify('+1 month');
+                break;
+        }
+        
+        $stmt = $pdo->prepare("
+            UPDATE progetti 
+            SET prezzo_totale = ?, 
+                prossima_data_ricorrente = ?
+            WHERE id = ?
+        ");
+        $stmt->execute([$nuovoTotale, $prossimaData->format('Y-m-d'), $id]);
+        
+        $pdo->commit();
+        
+        logTimeline($_SESSION['user_id'], 'distribuito_ricorrente', 'progetto', $id, "Distribuito pagamento ricorrente di €{$importo}");
+        
+        jsonResponse(true, [
+            'importo' => $importo,
+            'prossima_data' => $prossimaData->format('Y-m-d')
+        ], 'Pagamento ricorrente distribuito con successo');
+        
+    } catch (PDOException $e) {
+        $pdo->rollBack();
+        error_log("Errore distribuzione ricorrente: " . $e->getMessage());
+        jsonResponse(false, null, 'Errore durante la distribuzione');
     }
 }
 

@@ -879,6 +879,86 @@ include __DIR__ . '/includes/header.php';
                                class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none min-h-[44px]">
                     </div>
                     
+                    <!-- Pagamento Ricorrente (mostrato solo se stato = mensile) -->
+                    <div id="pagamentoRicorrenteWrapper" class="hidden border border-slate-200 rounded-xl p-4 bg-slate-50/50">
+                        <div class="flex items-center gap-2 mb-4">
+                            <svg class="w-5 h-5 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <h3 class="font-medium text-slate-800">Configurazione Pagamento Ricorrente</h3>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-700 mb-2">Importo per pagamento (€)</label>
+                                <input type="number" name="importo_ricorrente" id="importoRicorrente" step="0.01" min="0"
+                                       class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none"
+                                       placeholder="0.00">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-700 mb-2">Frequenza</label>
+                                <select name="frequenza_ricorrente" id="frequenzaRicorrente" 
+                                        class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
+                                    <option value="settimanale">Settimanale</option>
+                                    <option value="mensile" selected>Mensile</option>
+                                    <option value="bimestrale">Bimestrale</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="block text-xs font-medium text-slate-700 mb-2">Prossima data pagamento</label>
+                            <input type="date" name="prossima_data_ricorrente" id="prossimaDataRicorrente"
+                                   class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
+                        </div>
+                        
+                        <!-- Distribuzione percentuale -->
+                        <div class="border-t border-slate-200 pt-4">
+                            <label class="block text-xs font-medium text-slate-700 mb-3">Distribuzione importo</label>
+                            <p class="text-xs text-slate-500 mb-3">Definisci come dividere l'importo (deve sommare a 100%)</p>
+                            
+                            <div class="space-y-2" id="distribuzioneRicorrenteContainer">
+                                <?php foreach (USERS as $uid => $user): ?>
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-medium" style="background-color: <?php echo $user['colore']; ?>">
+                                        <?php echo substr($user['nome'], 0, 1); ?>
+                                    </div>
+                                    <span class="text-sm text-slate-700 flex-1"><?php echo e($user['nome']); ?></span>
+                                    <div class="relative w-24">
+                                        <input type="number" name="distribuzione_ricorrente[<?php echo $uid; ?>]" 
+                                               class="distribuzione-ricorrente-input w-full px-3 py-2 border border-slate-200 rounded-lg text-right text-sm"
+                                               placeholder="0" min="0" max="100" value="30"
+                                               onchange="validaDistribuzioneRicorrente()">
+                                        <span class="absolute right-3 top-2 text-slate-400 text-sm">%</span>
+                                    </div>
+                                </div>
+                                <?php endforeach; ?>
+                                
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-medium bg-emerald-500">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                                        </svg>
+                                    </div>
+                                    <span class="text-sm text-slate-700 flex-1">Cassa Aziendale</span>
+                                    <div class="relative w-24">
+                                        <input type="number" name="distribuzione_ricorrente[cassa]" 
+                                               class="distribuzione-ricorrente-input w-full px-3 py-2 border border-slate-200 rounded-lg text-right text-sm"
+                                               placeholder="0" min="0" max="100" value="10"
+                                               onchange="validaDistribuzioneRicorrente()">
+                                        <span class="absolute right-3 top-2 text-slate-400 text-sm">%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center justify-between mt-3 pt-3 border-t border-slate-200">
+                                <span class="text-sm text-slate-600">Totale:</span>
+                                <span id="totaleDistribuzioneRicorrente" class="text-sm font-semibold text-slate-800">100%</span>
+                            </div>
+                            <p id="erroreDistribuzioneRicorrente" class="text-xs text-red-500 mt-1 hidden">La somma deve essere 100%</p>
+                        </div>
+                    </div>
+                    
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     </div>
                     
@@ -1973,16 +2053,55 @@ async function editProgetto(id) {
 
 function toggleAccontoPercentuale() {
     const select = document.getElementById('statoPagamentoSelect');
-    const wrapper = document.getElementById('accontoPercentualeWrapper');
-    const input = document.getElementById('accontoPercentuale');
+    const wrapperAcconto = document.getElementById('accontoPercentualeWrapper');
+    const inputAcconto = document.getElementById('accontoPercentuale');
+    const wrapperRicorrente = document.getElementById('pagamentoRicorrenteWrapper');
     
+    // Gestione acconto
     if (select.value === 'da_pagare_acconto') {
-        wrapper.classList.remove('hidden');
-        input.required = true;
+        wrapperAcconto.classList.remove('hidden');
+        inputAcconto.required = true;
     } else {
-        wrapper.classList.add('hidden');
-        input.required = false;
-        input.value = '';
+        wrapperAcconto.classList.add('hidden');
+        inputAcconto.required = false;
+        inputAcconto.value = '';
+    }
+    
+    // Gestione pagamento ricorrente
+    if (select.value === 'mensile') {
+        wrapperRicorrente.classList.remove('hidden');
+        // Imposta default data prossima pagamento a oggi + 1 mese
+        const oggi = new Date();
+        oggi.setMonth(oggi.getMonth() + 1);
+        document.getElementById('prossimaDataRicorrente').valueAsDate = oggi;
+    } else {
+        wrapperRicorrente.classList.add('hidden');
+    }
+}
+
+// Validazione distribuzione ricorrente
+function validaDistribuzioneRicorrente() {
+    const inputs = document.querySelectorAll('.distribuzione-ricorrente-input');
+    let totale = 0;
+    inputs.forEach(input => {
+        totale += parseFloat(input.value) || 0;
+    });
+    
+    const totaleEl = document.getElementById('totaleDistribuzioneRicorrente');
+    const erroreEl = document.getElementById('erroreDistribuzioneRicorrente');
+    
+    totaleEl.textContent = totale + '%';
+    
+    if (totale !== 100) {
+        totaleEl.classList.add('text-red-500');
+        totaleEl.classList.remove('text-slate-800', 'text-emerald-600');
+        erroreEl.classList.remove('hidden');
+        return false;
+    } else {
+        totaleEl.classList.remove('text-red-500');
+        totaleEl.classList.add('text-emerald-600');
+        erroreEl.classList.add('hidden');
+        return true;
     }
 }
 

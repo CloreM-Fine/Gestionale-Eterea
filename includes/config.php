@@ -107,6 +107,7 @@ define('STATI_PAGAMENTO', [
     'acconto_pagato' => 'Acconto Pagato',
     'da_saldare' => 'Da Saldare',
     'cat' => 'CAT',
+    'mensile' => 'Pagamento Ricorrente',
     'pagamento_completato' => 'Pagamento Completato'
 ]);
 
@@ -125,6 +126,7 @@ define('COLORI_STATO_PAGAMENTO', [
     'acconto_pagato' => '#e8e4b8',
     'da_saldare' => '#e8c4b8',
     'cat' => '#c4b5d0',
+    'mensile' => '#9bc4d0',
     'pagamento_completato' => '#a8b5a0'
 ]);
 
