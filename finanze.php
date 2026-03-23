@@ -28,7 +28,7 @@ try {
     
     // Progetti consegnati con distribuzione
     $stmt = $pdo->query("
-        SELECT p.*, c.ragione_sociale as cliente_nome
+        SELECT p.*, c.ragione_sociale as cliente_nome, 'tradizionale' as tipo_distribuzione
         FROM progetti p
         LEFT JOIN clienti c ON p.cliente_id = c.id
         WHERE p.distribuzione_effettuata = TRUE
@@ -36,6 +36,18 @@ try {
         LIMIT 10
     ");
     $progettiDistribuiti = $stmt->fetchAll();
+    
+    // Progetti con pagamento ricorrente (mensile)
+    $stmt = $pdo->query("
+        SELECT p.*, c.ragione_sociale as cliente_nome, 'ricorrente' as tipo_distribuzione
+        FROM progetti p
+        LEFT JOIN clienti c ON p.cliente_id = c.id
+        WHERE p.stato_pagamento = 'mensile' 
+        AND p.importo_ricorrente > 0
+        ORDER BY p.updated_at DESC
+        LIMIT 5
+    ");
+    $progettiRicorrenti = $stmt->fetchAll();
     
     // Progetti CAT (Consegnati/Archiviati con pagamento CAT)
     $stmt = $pdo->query("
@@ -137,7 +149,7 @@ include __DIR__ . '/includes/header.php';
             <div class="flex items-center justify-between">
                 <div class="min-w-0 flex-1">
                     <p class="text-purple-100 text-xs md:text-sm font-medium">Progetti Distribuiti</p>
-                    <h3 class="text-lg md:text-2xl lg:text-3xl font-bold mt-1"><?php echo count($progettiDistribuiti); ?></h3>
+                    <h3 class="text-lg md:text-2xl lg:text-3xl font-bold mt-1"><?php echo count($progettiDistribuiti) + count($progettiRicorrenti); ?></h3>
                 </div>
                 <div class="w-10 h-10 md:w-14 md:h-14 bg-white/20 rounded-lg md:rounded-xl flex items-center justify-center flex-shrink-0 ml-2">
                     <svg class="w-5 h-5 md:w-7 md:h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -219,7 +231,11 @@ include __DIR__ . '/includes/header.php';
             </div>
             
             <div class="divide-y divide-slate-100">
-                <?php if (empty($progettiDistribuiti)): ?>
+                <?php 
+                // Unisci progetti distribuiti e ricorrenti
+                $tuttiProgetti = array_merge($progettiDistribuiti, $progettiRicorrenti);
+                if (empty($tuttiProgetti)): 
+                ?>
                 <div class="p-8 text-center text-slate-400">
                     <svg class="w-16 h-16 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
@@ -227,19 +243,36 @@ include __DIR__ . '/includes/header.php';
                     <p>Nessun progetto distribuito ancora</p>
                 </div>
                 <?php else: ?>
-                    <?php foreach ($progettiDistribuiti as $p):
+                    <?php foreach ($tuttiProgetti as $p):
                         $partecipanti = json_decode($p['partecipanti'] ?? '[]', true);
+                        $isRicorrente = ($p['tipo_distribuzione'] ?? '') === 'ricorrente';
                     ?>
                     <div class="p-4 md:p-5 hover:bg-slate-50 transition-colors">
                         <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
                             <div class="flex-1 min-w-0">
-                                <h3 class="font-semibold text-slate-800 text-sm md:text-base"><?php echo e($p['titolo']); ?></h3>
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <h3 class="font-semibold text-slate-800 text-sm md:text-base"><?php echo e($p['titolo']); ?></h3>
+                                    <?php if ($isRicorrente): ?>
+                                    <span class="px-2 py-0.5 bg-cyan-100 text-cyan-700 rounded-full text-xs font-medium">Ricorrente</span>
+                                    <?php endif; ?>
+                                </div>
                                 <p class="text-xs md:text-sm text-slate-500 mt-1">
                                     <?php echo e($p['cliente_nome'] ?: 'Nessun cliente'); ?> • 
-                                    Pagato il <?php echo formatDate($p['data_pagamento']); ?>
+                                    <?php if ($isRicorrente): ?>
+                                        <?php echo ucfirst($p['frequenza_ricorrente'] ?? 'mensile'); ?> • 
+                                        Prossimo: <?php echo formatDate($p['prossima_data_ricorrente']); ?>
+                                    <?php else: ?>
+                                        Pagato il <?php echo formatDate($p['data_pagamento']); ?>
+                                    <?php endif; ?>
                                 </p>
                             </div>
-                            <span class="font-bold text-slate-800 text-sm md:text-base whitespace-nowrap"><?php echo formatCurrency($p['prezzo_totale']); ?></span>
+                            <span class="font-bold text-slate-800 text-sm md:text-base whitespace-nowrap">
+                                <?php if ($isRicorrente): ?>
+                                    <?php echo formatCurrency($p['importo_ricorrente']); ?>/ciclo
+                                <?php else: ?>
+                                    <?php echo formatCurrency($p['prezzo_totale']); ?>
+                                <?php endif; ?>
+                            </span>
                         </div>
                         
                         <div class="mt-3 flex items-center gap-2 flex-wrap">
