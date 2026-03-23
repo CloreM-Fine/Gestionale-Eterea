@@ -320,7 +320,10 @@ function createProgetto() {
         
         $coloreTag = $_POST['colore_tag'] ?? '#FFFFFF';
         
-        // Pagamento ricorrente
+        // Pagamento ricorrente - LOG DEBUG
+        error_log("DEBUG UPDATE POST data: " . print_r($_POST, true));
+        error_log("DEBUG UPDATE stato_pagamento=$statoPagamento, raw_importo=" . ($_POST['importo_ricorrente'] ?? 'NOT SET'));
+        
         $importoRicorrente = ($statoPagamento === 'mensile') ? floatval($_POST['importo_ricorrente'] ?? 0) : null;
         $frequenzaRicorrente = ($statoPagamento === 'mensile') ? ($_POST['frequenza_ricorrente'] ?? 'mensile') : null;
         $prossimaDataRicorrente = ($statoPagamento === 'mensile') ? ($_POST['prossima_data_ricorrente'] ?: null) : null;
@@ -328,9 +331,7 @@ function createProgetto() {
             ? json_encode($_POST['distribuzione_ricorrente']) 
             : null;
         
-        // Debug logging
-        error_log("DEBUG UPDATE - stato_pagamento: $statoPagamento, importo: " . ($_POST['importo_ricorrente'] ?? 'NOT SET') . ", frequenza: " . ($_POST['frequenza_ricorrente'] ?? 'NOT SET') . ", data: " . ($_POST['prossima_data_ricorrente'] ?? 'NOT SET'));
-        error_log("DEBUG UPDATE - distribuzione: " . (isset($_POST['distribuzione_ricorrente']) ? json_encode($_POST['distribuzione_ricorrente']) : 'NOT SET'));
+        error_log("DEBUG UPDATE salvato: importoRicorrente=$importoRicorrente, frequenza=$frequenzaRicorrente, data=$prossimaDataRicorrente");
         
         $stmt = $pdo->prepare("
             INSERT INTO progetti (
@@ -696,8 +697,11 @@ function distribuisciPagamentoRicorrente($id) {
         
         error_log("DEBUG: importo=$importo, distribuzioneJson=$distribuzioneJson, distribuzioneConfig=" . print_r($distribuzioneConfig, true));
         
-        if ($importo <= 0 || empty($distribuzioneConfig)) {
-            jsonResponse(false, null, 'Configurazione pagamento ricorrente incompleta (importo=' . $importo . ', config=' . $distribuzioneJson . ')');
+        if ($importo <= 0) {
+            jsonResponse(false, null, 'Importo ricorrente è zero. Modifica il progetto e assicurati di salvare un importo maggiore di zero.');
+        }
+        if (empty($distribuzioneConfig)) {
+            jsonResponse(false, null, 'Configurazione distribuzione mancante. Modifica il progetto e imposta le percentuali di distribuzione.');
         }
         
         // Esegui distribuzione secondo config
