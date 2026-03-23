@@ -670,6 +670,9 @@ function revocaDistribuzione($id) {
 function distribuisciPagamentoRicorrente($id) {
     global $pdo;
     
+    // Log debug
+    error_log("DEBUG distribuisciPagamentoRicorrente chiamato per progetto: $id");
+    
     try {
         $pdo->beginTransaction();
         
@@ -693,6 +696,7 @@ function distribuisciPagamentoRicorrente($id) {
         
         // Esegui distribuzione secondo config
         foreach ($distribuzioneConfig as $uid => $percentuale) {
+            $percentuale = intval($percentuale);
             if ($percentuale <= 0) continue;
             
             $importoQuota = round($importo * ($percentuale / 100), 2);
@@ -727,7 +731,18 @@ function distribuisciPagamentoRicorrente($id) {
         
         // Calcola prossima data in base alla frequenza
         $frequenza = $progetto['frequenza_ricorrente'] ?? 'mensile';
-        $prossimaData = new DateTime();
+        $dataAttuale = $progetto['prossima_data_ricorrente'] ?? null;
+        
+        try {
+            if ($dataAttuale) {
+                $prossimaData = new DateTime($dataAttuale);
+            } else {
+                $prossimaData = new DateTime();
+            }
+        } catch (Exception $e) {
+            $prossimaData = new DateTime();
+        }
+        
         switch ($frequenza) {
             case 'settimanale':
                 $prossimaData->modify('+1 week');
@@ -760,8 +775,12 @@ function distribuisciPagamentoRicorrente($id) {
         
     } catch (PDOException $e) {
         $pdo->rollBack();
-        error_log("Errore distribuzione ricorrente: " . $e->getMessage());
-        jsonResponse(false, null, 'Errore durante la distribuzione');
+        error_log("Errore distribuzione ricorrente PDO: " . $e->getMessage());
+        jsonResponse(false, null, 'Errore durante la distribuzione: ' . $e->getMessage());
+    } catch (Exception $e) {
+        $pdo->rollBack();
+        error_log("Errore distribuzione ricorrente GENERICO: " . $e->getMessage());
+        jsonResponse(false, null, 'Errore durante la distribuzione: ' . $e->getMessage());
     }
 }
 
