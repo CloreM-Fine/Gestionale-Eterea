@@ -3632,9 +3632,11 @@ async function saveProgettoChanges() {
     
     // DEBUG: Log form data
     console.log('DEBUG - stato_pagamento:', formData.get('stato_pagamento'));
+    console.log('DEBUG - note:', formData.get('note'));
     console.log('DEBUG - importo_ricorrente:', formData.get('importo_ricorrente'));
     console.log('DEBUG - frequenza_ricorrente:', formData.get('frequenza_ricorrente'));
     console.log('DEBUG - prossima_data_ricorrente:', formData.get('prossima_data_ricorrente'));
+    console.log('DEBUG - distribuzione_ricorrente:', formData.get('distribuzione_ricorrente[ucwurog3xr8tf]'), formData.get('distribuzione_ricorrente[ukl9ipuolsebn]'), formData.get('distribuzione_ricorrente[u3ghz4f2lnpkx]'), formData.get('distribuzione_ricorrente[cassa]'));
     
     // Aggiungi CSRF token
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';

@@ -321,8 +321,8 @@ function createProgetto() {
         $coloreTag = $_POST['colore_tag'] ?? '#FFFFFF';
         
         // Pagamento ricorrente - LOG DEBUG
-        error_log("DEBUG UPDATE POST data: " . print_r($_POST, true));
-        error_log("DEBUG UPDATE stato_pagamento=$statoPagamento, raw_importo=" . ($_POST['importo_ricorrente'] ?? 'NOT SET'));
+        error_log("DEBUG UPDATE stato_pagamento=$statoPagamento, raw_importo=" . ($_POST['importo_ricorrente'] ?? 'NOT SET') . ", raw_note=" . ($_POST['note'] ?? 'NOT SET'));
+        error_log("DEBUG UPDATE raw_distribuzione=" . (isset($_POST['distribuzione_ricorrente']) ? json_encode($_POST['distribuzione_ricorrente']) : 'NOT SET'));
         
         $importoRicorrente = ($statoPagamento === 'mensile') ? floatval($_POST['importo_ricorrente'] ?? 0) : null;
         $frequenzaRicorrente = ($statoPagamento === 'mensile') ? ($_POST['frequenza_ricorrente'] ?? 'mensile') : null;
@@ -331,7 +331,7 @@ function createProgetto() {
             ? json_encode($_POST['distribuzione_ricorrente']) 
             : null;
         
-        error_log("DEBUG UPDATE salvato: importoRicorrente=$importoRicorrente, frequenza=$frequenzaRicorrente, data=$prossimaDataRicorrente");
+        error_log("DEBUG UPDATE salvato: importoRicorrente=$importoRicorrente, note=" . ($_POST['note'] ?? 'NOT SET') . ", distribuzione=$distribuzioneRicorrente");
         
         $stmt = $pdo->prepare("
             INSERT INTO progetti (
