@@ -2901,6 +2901,9 @@ async function uploadDocumento() {
         return;
     }
     
+    // Aggiungi CSRF token
+    formData.append('csrf_token', csrfToken);
+    
     try {
         const response = await fetch('api/progetti.php?action=upload_documento', {
             method: 'POST',
@@ -2928,7 +2931,7 @@ async function deleteDocumento(docId) {
             const response = await fetch('api/progetti.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: `action=delete_documento&id=${docId}&progetto_id=${progettoId}`
+                body: `action=delete_documento&id=${docId}&progetto_id=${progettoId}&csrf_token=${encodeURIComponent(csrfToken)}`
             });
             
             const data = await response.json();
