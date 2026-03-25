@@ -39,6 +39,10 @@ define('CSRF_SECRET_KEY', env('CSRF_SECRET_KEY', bin2hex(random_bytes(32))));
 define('ENCRYPTION_KEY', env('ENCRYPTION_KEY', ''));
 define('TASSE_PASSWORD_HASH', env('TASSE_PASSWORD_HASH', ''));
 
+// Password per operazioni amministrative (DA SPOSTARE IN .ENV)
+// TODO: Rimuovere fallback hardcoded dopo aggiornamento .env su server
+define('ADMIN_PASSWORD', env('ADMIN_PASSWORD', 'Tomato2399Andromeda2399!?'));
+
 // -----------------------------------------------------
 // CONFIGURAZIONE APPLICAZIONE
 // -----------------------------------------------------

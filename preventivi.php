@@ -1892,6 +1892,7 @@ function toggleServizio(id) {
         controls.classList.add('hidden');
         row.classList.remove('bg-cyan-600/5', 'border-l-4', 'border-l-cyan-500');
         document.getElementById(`qty-${id}`).value = 1;
+        document.getElementById(`sconto-${id}`).value = 0;
     }
     
     updatePreventivoPreview();
@@ -2688,10 +2689,14 @@ function selezionaServiziPreventivo() {
         if (checkbox) {
             checkbox.checked = true;
             // Imposta quantità se diversa da 1
-            const qtyInput = document.getElementById(`prev-qty-${voce.id}`) || 
-                             checkbox.closest('.flex')?.querySelector('input[type="number"]');
+            const qtyInput = document.getElementById(`qty-${voce.id}`);
             if (qtyInput && voce.quantita > 1) {
                 qtyInput.value = voce.quantita;
+            }
+            // Imposta sconto singolo se presente
+            const scontoInput = document.getElementById(`sconto-${voce.id}`);
+            if (scontoInput && voce.sconto_singolo > 0) {
+                scontoInput.value = voce.sconto_singolo;
             }
         }
     });

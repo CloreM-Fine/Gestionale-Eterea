@@ -1020,7 +1020,7 @@ function saveTemplateCondizioni(): void {
     
     // Verifica password
     $password = $_POST['password'] ?? '';
-    if ($password !== 'Tomato2399!?') {
+    if ($password !== ADMIN_PASSWORD) {
         jsonResponse(false, null, 'Password errata');
         return;
     }
@@ -1068,7 +1068,7 @@ function deleteTemplateCondizioni(int $id): void {
     
     // Verifica password
     $password = $_POST['password'] ?? '';
-    if ($password !== 'Tomato2399!?') {
+    if ($password !== ADMIN_PASSWORD) {
         jsonResponse(false, null, 'Password errata');
         return;
     }
@@ -1117,7 +1117,7 @@ function setTemplateDefault(int $id): void {
     
     // Verifica password
     $password = $_POST['password'] ?? '';
-    if ($password !== 'Tomato2399!?') {
+    if ($password !== ADMIN_PASSWORD) {
         jsonResponse(false, null, 'Password errata');
         return;
     }
@@ -1217,7 +1217,7 @@ function saveTemplateBurocrazia(): void {
     
     // Verifica password
     $password = $_POST['password'] ?? '';
-    if ($password !== 'Tomato2399!?') {
+    if ($password !== ADMIN_PASSWORD) {
         jsonResponse(false, null, 'Password errata');
         return;
     }
@@ -1277,7 +1277,7 @@ function deleteTemplateBurocrazia(int $id): void {
     
     // Verifica password
     $password = $_POST['password'] ?? '';
-    if ($password !== 'Tomato2399!?') {
+    if ($password !== ADMIN_PASSWORD) {
         jsonResponse(false, null, 'Password errata');
         return;
     }
@@ -1326,7 +1326,7 @@ function setTemplateBurocraziaDefault(int $id): void {
     
     // Verifica password
     $password = $_POST['password'] ?? '';
-    if ($password !== 'Tomato2399!?') {
+    if ($password !== ADMIN_PASSWORD) {
         jsonResponse(false, null, 'Password errata');
         return;
     }
@@ -1372,7 +1372,7 @@ function uploadFirmaAzienda(): void {
     
     // Verifica password
     $password = $_POST['password'] ?? '';
-    if ($password !== 'Tomato2399!?') {
+    if ($password !== ADMIN_PASSWORD) {
         jsonResponse(false, null, 'Password errata');
         return;
     }

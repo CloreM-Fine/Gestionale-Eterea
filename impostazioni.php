@@ -1274,7 +1274,7 @@ TERMINI E CONDIZIONI
 
 
 <script>
-const KEYWORD_SICUREZZA = 'Tomato2399Andromeda2399!?';
+const KEYWORD_SICUREZZA = <?php echo json_encode(ADMIN_PASSWORD); ?>;
 
 // Elimina Cronologia
 function confirmDeleteCronologia() {

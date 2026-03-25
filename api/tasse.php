@@ -151,7 +151,7 @@ function verificaPasswordTasse(): void {
     }
     
     // Fallback per retrocompatibilità (da rimuovere in futuro)
-    if ($password === 'Tomato2399!?') {
+    if ($password === ADMIN_PASSWORD) {
         jsonResponse(true, null, 'Accesso consentito');
         return;
     }
