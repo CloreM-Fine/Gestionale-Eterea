@@ -843,6 +843,28 @@ include __DIR__ . '/includes/header.php';
                         </div>
                     </div>
                     
+                    <!-- Gestione Social -->
+                    <div class="flex items-center gap-3 p-3 bg-gradient-to-r from-pink-50 to-purple-50 border border-pink-200 rounded-xl">
+                        <div class="flex items-center gap-2 flex-1">
+                            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 via-purple-500 to-indigo-500 flex items-center justify-center flex-shrink-0">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="checkbox" name="gestione_social" id="gestioneSocialCheckbox" value="1" 
+                                           class="w-5 h-5 text-pink-600 rounded border-slate-300 focus:ring-pink-500">
+                                    <span class="text-sm font-medium text-slate-800">Gestione Social Media</span>
+                                </label>
+                                <p class="text-xs text-slate-500 mt-0.5">Attiva il piano editoriale per questo progetto</p>
+                            </div>
+                        </div>
+                        <a href="piano_editoriale.php" id="pianoEditorialeLink" class="hidden text-xs bg-pink-600 text-white px-3 py-1.5 rounded-lg hover:bg-pink-700 transition-colors">
+                            Vai al Piano
+                        </a>
+                    </div>
+                    
                     <!-- Prezzo e Stati -->
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div>
@@ -2038,6 +2060,12 @@ async function editProgetto(id) {
         document.querySelectorAll('input[name="partecipanti[]"]').forEach(cb => {
             cb.checked = (p.partecipanti || []).includes(cb.value);
         });
+        
+        // Gestione Social
+        const gestioneSocialCheckbox = document.getElementById('gestioneSocialCheckbox');
+        if (gestioneSocialCheckbox) {
+            gestioneSocialCheckbox.checked = p.gestione_social == 1;
+        }
         
         // Colore tag
         const coloreTag = p.colore_tag || '#FFFFFF';

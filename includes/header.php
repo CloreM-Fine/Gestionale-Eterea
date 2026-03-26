@@ -507,6 +507,16 @@ try {
                     </a>
                 </li>
                 <li>
+                    <a href="piano_editoriale.php" 
+                       class="flex items-center gap-3 px-3 py-3 rounded-lg transition-colors <?php echo $currentPage === 'piano_editoriale' ? 'bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 text-white font-medium' : 'text-[#d0d0d0] hover:bg-[#3d3d3d] hover:text-[#f5f3ef]'; ?>">
+                        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37zm1.5-4.87h.01"/>
+                        </svg>
+                        <span class="sidebar-text">Piano Editoriale</span>
+                    </a>
+                </li>
+                <li>
                     <a href="report.php" 
                        class="flex items-center gap-3 px-3 py-3 rounded-lg transition-colors <?php echo $currentPage === 'report' ? 'bg-[#9bc4d0] text-[#2d2d2d] font-medium' : 'text-[#d0d0d0] hover:bg-[#3d3d3d] hover:text-[#f5f3ef]'; ?>">
                         <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">

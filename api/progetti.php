@@ -340,13 +340,16 @@ function createProgetto() {
         
         error_log("DEBUG UPDATE salvato: importoRicorrente=$importoRicorrente, note=" . ($_POST['note'] ?? 'NOT SET') . ", distribuzione=$distribuzioneRicorrente");
         
+        $gestioneSocial = isset($_POST['gestione_social']) ? 1 : 0;
+        
         $stmt = $pdo->prepare("
             INSERT INTO progetti (
                 id, titolo, cliente_id, descrizione, note, tipologie, prezzo_totale,
                 stato_progetto, stato_pagamento, acconto_percentuale, acconto_importo, saldo_importo,
                 partecipanti, data_inizio, data_consegna_prevista, colore_tag, created_by,
-                importo_ricorrente, frequenza_ricorrente, prossima_data_ricorrente, distribuzione_ricorrente
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                importo_ricorrente, frequenza_ricorrente, prossima_data_ricorrente, distribuzione_ricorrente,
+                gestione_social
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
         
         $stmt->execute([
@@ -370,7 +373,8 @@ function createProgetto() {
             $importoRicorrente,
             $frequenzaRicorrente,
             $prossimaDataRicorrente,
-            $distribuzioneRicorrente
+            $distribuzioneRicorrente,
+            $gestioneSocial
         ]);
         
         // Log
@@ -451,6 +455,8 @@ function updateProgetto($id) {
             ? json_encode($_POST['distribuzione_ricorrente']) 
             : null;
         
+        $gestioneSocial = isset($_POST['gestione_social']) ? 1 : 0;
+        
         $stmt = $pdo->prepare("
             UPDATE progetti SET
                 titolo = ?,
@@ -473,7 +479,8 @@ function updateProgetto($id) {
                 importo_ricorrente = ?,
                 frequenza_ricorrente = ?,
                 prossima_data_ricorrente = ?,
-                distribuzione_ricorrente = ?
+                distribuzione_ricorrente = ?,
+                gestione_social = ?
             WHERE id = ?
         ");
         
@@ -499,6 +506,7 @@ function updateProgetto($id) {
             $frequenzaRicorrente,
             $prossimaDataRicorrente,
             $distribuzioneRicorrente,
+            $gestioneSocial,
             $id
         ]);
         
