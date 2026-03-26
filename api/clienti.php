@@ -194,9 +194,9 @@ function createCliente() {
         
         $stmt = $pdo->prepare("
             INSERT INTO clienti (
-                id, ragione_sociale, tipo, piva_cf, indirizzo, citta, cap, provincia,
+                id, ragione_sociale, tipo, piva_cf, codice_sdi, indirizzo, citta, cap, provincia,
                 telefono, cellulare, email, pec, instagram, facebook, linkedin, sito_web, note, created_by
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
         
         $stmt->execute([
@@ -204,6 +204,7 @@ function createCliente() {
             $ragioneSociale,
             $_POST['tipo'] ?? 'Azienda',
             $_POST['piva_cf'] ?? '',
+            $_POST['codice_sdi'] ?? '',
             $_POST['indirizzo'] ?? '',
             $_POST['citta'] ?? '',
             $_POST['cap'] ?? '',
@@ -280,6 +281,7 @@ function updateCliente($id) {
                 ragione_sociale = ?,
                 tipo = ?,
                 piva_cf = ?,
+                codice_sdi = ?,
                 indirizzo = ?,
                 citta = ?,
                 cap = ?,

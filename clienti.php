@@ -133,11 +133,20 @@ include __DIR__ . '/includes/header.php';
                         </div>
                     </div>
                     
-                    <!-- P.IVA/CF -->
-                    <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-2">Partita IVA / Codice Fiscale</label>
-                        <input type="text" name="piva_cf"
-                               class="w-full px-4 py-3 sm:py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none min-h-[44px]">
+                    <!-- P.IVA/CF e Codice SDI -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-2">Partita IVA / Codice Fiscale</label>
+                            <input type="text" name="piva_cf"
+                                   class="w-full px-4 py-3 sm:py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none min-h-[44px]">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-2">Codice SDI (Fatturazione)</label>
+                            <input type="text" name="codice_sdi" maxlength="7"
+                                   class="w-full px-4 py-3 sm:py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none min-h-[44px]"
+                                   placeholder="Es: ABC1234">
+                            <p class="text-xs text-slate-400 mt-1">Codice destinatario per fatturazione elettronica</p>
+                        </div>
                     </div>
                     
                     <!-- Indirizzo -->
@@ -862,6 +871,7 @@ function fillClienteForm(c) {
     document.querySelector('input[name="ragione_sociale"]').value = c.ragione_sociale;
     document.querySelector('select[name="tipo"]').value = c.tipo;
     document.querySelector('input[name="piva_cf"]').value = c.piva_cf || '';
+    document.querySelector('input[name="codice_sdi"]').value = c.codice_sdi || '';
     document.querySelector('input[name="indirizzo"]').value = c.indirizzo || '';
     document.querySelector('input[name="citta"]').value = c.citta || '';
     document.querySelector('input[name="cap"]').value = c.cap || '';
