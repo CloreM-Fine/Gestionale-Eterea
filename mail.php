@@ -165,7 +165,7 @@ try {
 // Carica progetti attivi
 $progetti = [];
 try {
-    $stmt = $pdo->query("SELECT id, nome, cliente_id FROM progetti WHERE stato IN ('da_iniziare', 'in_corso') ORDER BY nome");
+    $stmt = $pdo->query("SELECT id, titolo as nome, cliente_id FROM progetti WHERE stato IN ('da_iniziare', 'in_corso') ORDER BY titolo");
     $progetti = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (Exception $e) {
     error_log("Errore caricamento progetti: " . $e->getMessage());
