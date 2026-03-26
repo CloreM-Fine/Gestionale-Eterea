@@ -302,6 +302,7 @@ function updateCliente($id) {
             $_POST['ragione_sociale'],
             $_POST['tipo'],
             $_POST['piva_cf'] ?? '',
+            $_POST['codice_sdi'] ?? '',
             $_POST['indirizzo'] ?? '',
             $_POST['citta'] ?? '',
             $_POST['cap'] ?? '',
