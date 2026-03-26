@@ -2253,7 +2253,8 @@ function fillProviderConfig(provider) {
         gmail: { imap: 'imap.gmail.com', imapPort: 993, smtp: 'smtp.gmail.com', smtpPort: 587 },
         outlook: { imap: 'outlook.office365.com', imapPort: 993, smtp: 'smtp.office365.com', smtpPort: 587 },
         yahoo: { imap: 'imap.mail.yahoo.com', imapPort: 993, smtp: 'smtp.mail.yahoo.com', smtpPort: 587 },
-        aruba: { imap: 'imaps.aruba.it', imapPort: 993, smtp: 'smtps.aruba.it', smtpPort: 465 }
+        aruba: { imap: 'imaps.aruba.it', imapPort: 993, smtp: 'smtps.aruba.it', smtpPort: 465 },
+        siteground: { imap: 'mail.etereastudio.it', imapPort: 993, smtp: 'mail.etereastudio.it', smtpPort: 465 }
     };
     
     const c = configs[provider];
