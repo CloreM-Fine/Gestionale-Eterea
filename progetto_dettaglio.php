@@ -547,7 +547,7 @@ include __DIR__ . '/includes/header.php';
                                         <input type="number" name="distribuzione_ricorrente[<?php echo $uid; ?>]" 
                                                id="editDistribuzioneRicorrente<?php echo $uid; ?>"
                                                class="edit-distribuzione-ricorrente-input w-full px-3 py-2 border border-slate-200 rounded-lg text-right text-sm"
-                                               placeholder="0" min="0" max="100" value="30"
+                                               placeholder="0" min="0" max="100"
                                                onchange="validaEditDistribuzioneRicorrente()">
                                         <span class="absolute right-3 top-2 text-slate-400 text-sm">%</span>
                                     </div>
@@ -565,7 +565,7 @@ include __DIR__ . '/includes/header.php';
                                         <input type="number" name="distribuzione_ricorrente[cassa]" 
                                                id="editDistribuzioneRicorrenteCassa"
                                                class="edit-distribuzione-ricorrente-input w-full px-3 py-2 border border-slate-200 rounded-lg text-right text-sm"
-                                               placeholder="0" min="0" max="100" value="10"
+                                               placeholder="0" min="0" max="100"
                                                onchange="validaEditDistribuzioneRicorrente()">
                                         <span class="absolute right-3 top-2 text-slate-400 text-sm">%</span>
                                     </div>
@@ -3651,23 +3651,34 @@ function openEditProgettoModal() {
     toggleEditPianoEditorialeLink();
     
     // Pagamento ricorrente - gestione visibilità sezione
-    setTimeout(() => {
-        toggleEditPagamentoRicorrente();
-    }, 0);
     document.getElementById('editImportoRicorrente').value = progetto.importo_ricorrente || '';
     document.getElementById('editFrequenzaRicorrente').value = progetto.frequenza_ricorrente || 'mensile';
     document.getElementById('editProssimaDataRicorrente').value = progetto.prossima_data_ricorrente || '';
     
     // Distribuzione ricorrente
-    const distribuzioneRicorrente = progetto.distribuzione_ricorrente || {};
-    if (distribuzioneRicorrente) {
-        Object.keys(distribuzioneRicorrente).forEach(key => {
-            const inputId = key === 'cassa' ? 'editDistribuzioneRicorrenteCassa' : 'editDistribuzioneRicorrente' + key;
-            const input = document.getElementById(inputId);
-            if (input) input.value = distribuzioneRicorrente[key];
-        });
+    let distribuzioneRicorrente = progetto.distribuzione_ricorrente || {};
+    // Se è una stringa JSON, parsala
+    if (typeof distribuzioneRicorrente === 'string') {
+        try {
+            distribuzioneRicorrente = JSON.parse(distribuzioneRicorrente);
+        } catch (e) {
+            distribuzioneRicorrente = {};
+        }
     }
-    validaEditDistribuzioneRicorrente();
+    
+    // Gestione visibilità e caricamento valori (usa setTimeout per assicurarsi che i campi esistano)
+    setTimeout(() => {
+        toggleEditPagamentoRicorrente();
+        // Carica i valori salvati DOPO aver impostato i default
+        if (distribuzioneRicorrente && Object.keys(distribuzioneRicorrente).length > 0) {
+            Object.keys(distribuzioneRicorrente).forEach(key => {
+                const inputId = key === 'cassa' ? 'editDistribuzioneRicorrenteCassa' : 'editDistribuzioneRicorrente' + key;
+                const input = document.getElementById(inputId);
+                if (input) input.value = distribuzioneRicorrente[key];
+            });
+        }
+        validaEditDistribuzioneRicorrente();
+    }, 0);
     
     // Reset e imposta tipologie
     document.querySelectorAll('input[name="tipologie[]"]').forEach(cb => {
