@@ -11,7 +11,7 @@ $pageTitle = 'Piano Editoriale';
 
 // Recupera dati
 $progettiSocial = $pdo->query("
-    SELECT p.*, c.ragione_sociale as cliente_nome, c.logo as cliente_logo, c.email as cliente_email
+    SELECT p.*, c.ragione_sociale as cliente_nome, c.logo_path as cliente_logo, c.email as cliente_email
     FROM progetti p
     LEFT JOIN clienti c ON p.cliente_id = c.id
     WHERE p.gestione_social = 1
@@ -172,8 +172,8 @@ require_once __DIR__ . '/includes/header.php';
                 <!-- Header con logo e cliente -->
                 <div class="flex items-start gap-4 mb-4">
                     <div class="w-14 h-14 rounded-xl bg-slate-100 flex items-center justify-center flex-shrink-0 overflow-hidden">
-                        <?php if (!empty($prj['cliente_logo']) && file_exists(__DIR__ . '/assets/uploads/clienti/' . $prj['cliente_logo'])): ?>
-                        <img src="assets/uploads/clienti/<?php echo e($prj['cliente_logo']); ?>" alt="" class="w-full h-full object-cover">
+                        <?php if (!empty($prj['cliente_logo']) && file_exists(__DIR__ . '/assets/uploads/' . $prj['cliente_logo'])): ?>
+                        <img src="assets/uploads/<?php echo e($prj['cliente_logo']); ?>" alt="" class="w-full h-full object-cover">
                         <?php else: ?>
                         <div class="w-full h-full bg-gradient-to-br from-slate-300 to-slate-400 flex items-center justify-center text-white font-bold text-lg">
                             <?php echo strtoupper(substr($prj['cliente_nome'] ?? 'C', 0, 1)); ?>
