@@ -11,7 +11,7 @@ $pageTitle = 'Piano Editoriale';
 
 // Recupera dati
 $progettiSocial = $pdo->query("
-    SELECT p.*, c.ragione_sociale as cliente_nome 
+    SELECT p.*, c.ragione_sociale as cliente_nome, c.logo as cliente_logo, c.email as cliente_email
     FROM progetti p
     LEFT JOIN clienti c ON p.cliente_id = c.id
     WHERE p.gestione_social = 1
@@ -106,8 +106,27 @@ require_once __DIR__ . '/includes/header.php';
             </div>
             <div>
                 <label class="block text-xs font-medium text-slate-600 mb-1.5">Mese</label>
-                <input type="month" id="filtroMese" onchange="loadPosts()" value="<?php echo date('Y-m'); ?>" 
-                       class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 outline-none">
+                <select id="filtroMese" onchange="loadPosts()" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 outline-none">
+                    <?php
+                    $mesi = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
+                    $meseCorrente = date('n');
+                    foreach ($mesi as $idx => $nome): 
+                        $val = str_pad($idx + 1, 2, '0', STR_PAD_LEFT);
+                    ?>
+                    <option value="<?php echo $val; ?>" <?php echo ($idx + 1) == $meseCorrente ? 'selected' : ''; ?>><?php echo $nome; ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-slate-600 mb-1.5">Anno</label>
+                <select id="filtroAnno" onchange="loadPosts()" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 outline-none">
+                    <?php
+                    $annoCorrente = date('Y');
+                    for ($a = $annoCorrente - 2; $a <= $annoCorrente + 2; $a++):
+                    ?>
+                    <option value="<?php echo $a; ?>" <?php echo $a == $annoCorrente ? 'selected' : ''; ?>><?php echo $a; ?></option>
+                    <?php endfor; ?>
+                </select>
             </div>
             <div class="flex items-end">
                 <button onclick="loadPosts()" class="w-full px-4 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors text-sm font-medium">
@@ -136,6 +155,93 @@ require_once __DIR__ . '/includes/header.php';
     <div id="postsList" class="mt-6 space-y-3 hidden">
         <!-- JS popolerà -->
     </div>
+
+    <!-- Progetti con Piano Editoriale Attivo -->
+    <?php if (!empty($progettiSocial)): ?>
+    <div class="mt-8">
+        <h2 class="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
+            <svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+            </svg>
+            Progetti con Piano Editoriale
+            <span class="text-sm font-normal text-slate-500">(<?php echo count($progettiSocial); ?>)</span>
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <?php foreach ($progettiSocial as $prj): ?>
+            <div class="bg-white rounded-xl border border-slate-200 p-5 hover:shadow-md transition-shadow">
+                <!-- Header con logo e cliente -->
+                <div class="flex items-start gap-4 mb-4">
+                    <div class="w-14 h-14 rounded-xl bg-slate-100 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                        <?php if (!empty($prj['cliente_logo']) && file_exists(__DIR__ . '/assets/uploads/clienti/' . $prj['cliente_logo'])): ?>
+                        <img src="assets/uploads/clienti/<?php echo e($prj['cliente_logo']); ?>" alt="" class="w-full h-full object-cover">
+                        <?php else: ?>
+                        <div class="w-full h-full bg-gradient-to-br from-slate-300 to-slate-400 flex items-center justify-center text-white font-bold text-lg">
+                            <?php echo strtoupper(substr($prj['cliente_nome'] ?? 'C', 0, 1)); ?>
+                        </div>
+                        <?php endif; ?>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-semibold text-slate-800 truncate"><?php echo e($prj['titolo']); ?></h3>
+                        <p class="text-sm text-slate-500"><?php echo e($prj['cliente_nome'] ?? 'Cliente non specificato'); ?></p>
+                        <?php if (!empty($prj['cliente_email'])): ?>
+                        <p class="text-xs text-slate-400 mt-0.5"><?php echo e($prj['cliente_email']); ?></p>
+                        <?php endif; ?>
+                    </div>
+                </div>
+                
+                <!-- Dettagli progetto -->
+                <div class="space-y-3">
+                    <?php if (!empty($prj['budget']) || !empty($prj['prezzo'])): ?>
+                    <div class="flex items-center justify-between py-2 border-b border-slate-100">
+                        <span class="text-sm text-slate-500">Budget/Prezzo</span>
+                        <span class="font-medium text-slate-800">€ <?php echo number_format($prj['budget'] ?? $prj['prezzo'], 2, ',', '.'); ?></span>
+                    </div>
+                    <?php endif; ?>
+                    
+                    <?php if (!empty($prj['note'])): ?>
+                    <div class="py-2">
+                        <span class="text-xs text-slate-400 uppercase tracking-wider">Note</span>
+                        <p class="text-sm text-slate-600 mt-1 line-clamp-3"><?php echo e($prj['note']); ?></p>
+                    </div>
+                    <?php endif; ?>
+                    
+                    <div class="flex items-center gap-2 pt-2">
+                        <span class="text-xs px-2 py-1 rounded-full bg-emerald-100 text-emerald-700 font-medium">
+                            Piano Editoriale Attivo
+                        </span>
+                        <span class="text-xs px-2 py-1 rounded-full bg-slate-100 text-slate-600">
+                            <?php echo e(ucfirst(str_replace('_', ' ', $prj['stato'] ?? 'in_corso'))); ?>
+                        </span>
+                    </div>
+                </div>
+                
+                <!-- Azioni -->
+                <div class="mt-4 pt-4 border-t border-slate-100 flex gap-2">
+                    <a href="progetto_dettaglio.php?id=<?php echo e($prj['id']); ?>" class="flex-1 text-center px-3 py-2 bg-slate-800 text-white text-sm rounded-lg hover:bg-slate-700 transition-colors">
+                        Vedi Progetto
+                    </a>
+                    <button onclick="filtraPerProgetto('<?php echo e($prj['id']); ?>')" class="px-3 py-2 bg-slate-100 text-slate-700 text-sm rounded-lg hover:bg-slate-200 transition-colors">
+                        Filtra Post
+                    </button>
+                </div>
+            </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+    <?php else: ?>
+    <div class="mt-8 bg-amber-50 border border-amber-200 rounded-xl p-6">
+        <div class="flex items-start gap-3">
+            <svg class="w-5 h-5 text-amber-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+            </svg>
+            <div>
+                <h3 class="font-medium text-amber-800">Nessun progetto con Piano Editoriale</h3>
+                <p class="text-sm text-amber-700 mt-1">Vai nella sezione Progetti e attiva "Gestione Social" per i progetti che vuoi gestire qui.</p>
+                <a href="progetti.php" class="inline-block mt-3 text-sm font-medium text-amber-800 hover:underline">Vai ai Progetti →</a>
+            </div>
+        </div>
+    </div>
+    <?php endif; ?>
 </main>
 
 <!-- Modal Post - Design Pulito -->
@@ -316,6 +422,15 @@ require_once __DIR__ . '/includes/header.php';
     <div class="absolute inset-0 bg-black/40"></div>
     <div class="absolute inset-0 flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-hidden flex flex-col">
+            <!-- Header con tasto chiudi -->
+            <div class="flex items-center justify-between p-4 border-b border-slate-100">
+                <h3 class="text-lg font-semibold text-slate-800">Dettaglio Post</h3>
+                <button onclick="closeDetailModal()" class="p-2 hover:bg-slate-100 rounded-lg transition-colors">
+                    <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
             <div id="detailContent" class="flex-1 overflow-y-auto p-6">
                 <!-- JS popolerà -->
             </div>
@@ -324,6 +439,9 @@ require_once __DIR__ . '/includes/header.php';
                     Elimina
                 </button>
                 <div class="flex gap-2">
+                    <button onclick="closeDetailModal()" class="px-4 py-2 text-slate-600 hover:text-slate-800 font-medium text-sm">
+                        Chiudi
+                    </button>
                     <button onclick="editPost()" class="px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700 font-medium text-sm">
                         Modifica
                     </button>
@@ -337,13 +455,21 @@ require_once __DIR__ . '/includes/header.php';
 let posts = [];
 let currentPostId = null;
 
+// Filtra per progetto dai card
+function filtraPerProgetto(progettoId) {
+    document.getElementById('filtroProgetto').value = progettoId;
+    loadPosts();
+    // Scroll al calendario
+    document.getElementById('calendarGrid').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
 // Carica posts
 async function loadPosts() {
     const params = new URLSearchParams({
         action: 'list',
         progetto_id: document.getElementById('filtroProgetto').value,
         stato: document.getElementById('filtroStato').value,
-        mese: document.getElementById('filtroMese').value
+        mese: document.getElementById('filtroAnno').value + '-' + document.getElementById('filtroMese').value
     });
     
     try {
@@ -361,8 +487,8 @@ async function loadPosts() {
 // Render calendario
 function renderCalendar() {
     const grid = document.getElementById('calendarGrid');
-    const mese = document.getElementById('filtroMese').value;
-    const [anno, meseNum] = mese.split('-').map(Number);
+    const anno = parseInt(document.getElementById('filtroAnno').value);
+    const meseNum = parseInt(document.getElementById('filtroMese').value);
     
     const primo = new Date(anno, meseNum - 1, 1);
     const ultimo = new Date(anno, meseNum, 0);
@@ -431,6 +557,7 @@ function openPostModal(data = null) {
 
 function closePostModal() {
     document.getElementById('postModal').classList.add('hidden');
+    document.body.style.overflow = '';
 }
 
 async function openDetailModal(id) {
@@ -489,6 +616,7 @@ async function openDetailModal(id) {
     `;
     
     document.getElementById('detailModal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
 }
 
 function closeDetailModal() {

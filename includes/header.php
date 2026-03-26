@@ -507,8 +507,17 @@ try {
                     </a>
                 </li>
                 <li>
+                    <a href="report.php" 
+                       class="flex items-center gap-3 px-3 py-3 rounded-lg transition-colors <?php echo $currentPage === 'report' ? 'bg-[#9bc4d0] text-[#2d2d2d] font-medium' : 'text-[#d0d0d0] hover:bg-[#3d3d3d] hover:text-[#f5f3ef]'; ?>">
+                        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                        </svg>
+                        <span class="sidebar-text">Report</span>
+                    </a>
+                </li>
+                <li>
                     <a href="piano_editoriale.php" 
-                       class="flex items-center gap-3 px-3 py-3 rounded-lg transition-colors <?php echo $currentPage === 'piano_editoriale' ? 'bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 text-white font-medium' : 'text-[#d0d0d0] hover:bg-[#3d3d3d] hover:text-[#f5f3ef]'; ?>">
+                       class="flex items-center gap-3 px-3 py-3 rounded-lg transition-colors <?php echo $currentPage === 'piano_editoriale' ? 'bg-[#9bc4d0] text-[#2d2d2d] font-medium' : 'text-[#d0d0d0] hover:bg-[#3d3d3d] hover:text-[#f5f3ef]'; ?>">
                         <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37zm1.5-4.87h.01"/>
@@ -517,12 +526,12 @@ try {
                     </a>
                 </li>
                 <li>
-                    <a href="report.php" 
-                       class="flex items-center gap-3 px-3 py-3 rounded-lg transition-colors <?php echo $currentPage === 'report' ? 'bg-[#9bc4d0] text-[#2d2d2d] font-medium' : 'text-[#d0d0d0] hover:bg-[#3d3d3d] hover:text-[#f5f3ef]'; ?>">
+                    <a href="mail.php" 
+                       class="flex items-center gap-3 px-3 py-3 rounded-lg transition-colors <?php echo $currentPage === 'mail' ? 'bg-[#9bc4d0] text-[#2d2d2d] font-medium' : 'text-[#d0d0d0] hover:bg-[#3d3d3d] hover:text-[#f5f3ef]'; ?>">
                         <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                         </svg>
-                        <span class="sidebar-text">Report</span>
+                        <span class="sidebar-text">Mail</span>
                     </a>
                 </li>
                 <?php if (($_SESSION['user_id'] ?? '') === 'ucwurog3xr8tf'): ?>
@@ -678,12 +687,21 @@ try {
             <span>Clienti</span>
         </a>
         
-        <!-- Calendario -->
-        <a href="calendario.php" class="bottom-nav-item <?php echo $currentPage === 'calendario' ? 'active' : ''; ?>">
+        <!-- Piano Editoriale -->
+        <a href="piano_editoriale.php" class="bottom-nav-item <?php echo $currentPage === 'piano_editoriale' ? 'active' : ''; ?>">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37zm1.5-4.87h.01"/>
             </svg>
-            <span>Calendario</span>
+            <span>Piano Ed.</span>
+        </a>
+        
+        <!-- Mail -->
+        <a href="mail.php" class="bottom-nav-item <?php echo $currentPage === 'mail' ? 'active' : ''; ?>">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+            </svg>
+            <span>Mail</span>
         </a>
         
         <!-- Menu (apre menu completo) -->
@@ -763,6 +781,15 @@ try {
             <span>Preventivi</span>
         </a>
         
+        <!-- Piano Editoriale -->
+        <a href="piano_editoriale.php" class="mobile-menu-item <?php echo $currentPage === 'piano_editoriale' ? 'active' : ''; ?>">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37zm1.5-4.87h.01"/>
+            </svg>
+            <span>Piano Ed.</span>
+        </a>
+        
         <!-- Calendario -->
         <a href="calendario.php" class="mobile-menu-item <?php echo $currentPage === 'calendario' ? 'active' : ''; ?>">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -801,6 +828,14 @@ try {
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
             </svg>
             <span>Report</span>
+        </a>
+        
+        <!-- Mail -->
+        <a href="mail.php" class="mobile-menu-item <?php echo $currentPage === 'mail' ? 'active' : ''; ?>">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+            </svg>
+            <span>Mail</span>
         </a>
         
         <?php if (($_SESSION['user_id'] ?? '') === 'ucwurog3xr8tf'): ?>
