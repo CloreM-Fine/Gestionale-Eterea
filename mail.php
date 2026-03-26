@@ -143,7 +143,11 @@ if ($activeAccount) {
             GROUP BY cartella
         ");
         $stmt->execute([$accountId]);
-        $folderCounts = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+        $folderCountsRaw = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $folderCounts = [];
+        foreach ($folderCountsRaw as $row) {
+            $folderCounts[$row['cartella']] = $row;
+        }
     } catch (Exception $e) {
         error_log("Errore conteggio cartelle: " . $e->getMessage());
     }
@@ -264,9 +268,9 @@ if ($activeAccount && $view === 'list') {
 
 // Carica template risposta rapida
 $templateRisposte = [
-    ' Grazie per la tua email.\n\nTi rispondo al più presto.\n\nCordiali saluti,',
-    ' Gentile Cliente,\n\nGrazie per averci contattato.\n\nCordiali saluti,',
-    ' Ciao,\n\n ricevuta, procedo con le verifiche del caso.\n\nA presto,',
+    "Grazie per la tua email.\n\nTi rispondo al più presto.\n\nCordiali saluti,",
+    "Gentile Cliente,\n\nGrazie per averci contattato.\n\nCordiali saluti,",
+    "Ciao,\n\nricevuta, procedo con le verifiche del caso.\n\nA presto,",
 ];
 
 try {
@@ -1330,7 +1334,7 @@ require_once __DIR__ . '/includes/header.php';
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-xs font-medium text-[#64748b] mb-1">Username (se diverso dall'email)</label>
-                                <input type="text" name="imap_username" placeholder="<?php echo e($account['email'] ?? ''); ?>" class="w-full px-3 py-2 border border-[#e2e8f0] rounded-lg text-sm focus:outline-none focus:border-[#9bc4d0]">
+                                <input type="text" name="imap_username" placeholder="esempio@mail.com" class="w-full px-3 py-2 border border-[#e2e8f0] rounded-lg text-sm focus:outline-none focus:border-[#9bc4d0]">
                             </div>
                             <div>
                                 <label class="block text-xs font-medium text-[#64748b] mb-1">Password / App Password *</label>
@@ -1571,12 +1575,7 @@ require_once __DIR__ . '/includes/header.php';
                                     </svg>
                                     Preventivo (PDF)
                                 </div>
-                                <div class="attach-option" onclick="insertBlogLink()">
-                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
-                                    </svg>
-                                    Link contenuto
-                                </div>
+                                <!-- Blog link disabilitato temporaneamente -->
                             </div>
                         </div>
                         
@@ -1696,7 +1695,7 @@ require_once __DIR__ . '/includes/header.php';
             <div class="detail-body">
                 <?php if ($currentMessage['corpo_html']): ?>
                 <div class="email-html-content">
-                    <?php echo $currentMessage['corpo_html']; ?>
+                    <?php echo $currentMessage['corpo_html'] ? strip_tags($currentMessage['corpo_html'], '<p><br><strong><em><a><ul><ol><li><h1><h2><h3><h4><blockquote>') : ''; ?>
                 </div>
                 <?php else: ?>
                 <pre class="whitespace-pre-wrap font-sans"><?php echo nl2br(e($currentMessage['corpo_text'])); ?></pre>
@@ -1967,10 +1966,10 @@ function updateProgetti(clienteId) {
 
 // Template risposta
 function insertTemplate() {
-    const templates = <?php echo json_encode($templateRisposte); ?>;
+    const templates = <?php echo json_encode($templateRisposte ?? [], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
     const choice = prompt('Scegli template:\n1. Rispondi breve\n2. Saluto formale\n3. Ricevuta in lavorazione');
     
-    if (choice && templates[choice - 1]) {
+    if (choice && templates && templates[choice - 1]) {
         const body = document.getElementById('composeBody');
         body.value = templates[choice - 1] + '\n\n' + body.value;
     }
@@ -2091,7 +2090,7 @@ function openPreventiviSelector() {
             const container = document.getElementById('preventiviContent');
             if (data.success && data.preventivi.length > 0) {
                 container.innerHTML = data.preventivi.map(p => `
-                    <div class="flex items-center gap-3 p-3 hover:bg-[#f8fafc] rounded-lg cursor-pointer border-b border-[#f1f5f9]" onclick="selectPreventivo('${p.id}', '${p.codice}', '${p.cliente_nome}')">
+                    <div class="flex items-center gap-3 p-3 hover:bg-[#f8fafc] rounded-lg cursor-pointer border-b border-[#f1f5f9]" onclick="selectPreventivo('${p.id}', '${p.codice}')">
                         <svg class="w-8 h-8 text-[#9bc4d0]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.121 15.536c-1.171 1.952-3.07 1.952-4.242 0-1.172-1.953-1.172-5.119 0-7.072 1.171-1.952 3.07-1.952 4.242 0M8 10.5h4m-4 3h4m9-1.5a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
@@ -2113,7 +2112,7 @@ function closePreventiviSelector() {
     document.getElementById('preventiviModal').classList.remove('flex');
 }
 
-function selectPreventivo(id, codice, cliente) {
+function selectPreventivo(id, codice) {
     const preview = document.getElementById('attachmentPreview');
     const badge = document.createElement('span');
     badge.className = 'inline-flex items-center gap-1 px-2 py-1 bg-[#c4b5d0] text-white text-xs rounded';

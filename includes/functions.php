@@ -471,6 +471,19 @@ function formatDateTime($datetime, $format = 'd/m/Y H:i') {
 }
 
 /**
+ * Formatta bytes in formato leggibile
+ */
+function formatBytes($bytes, $precision = 1) {
+    if ($bytes === 0 || $bytes === null) return '0 B';
+    $units = ['B', 'KB', 'MB', 'GB', 'TB'];
+    $bytes = max($bytes, 0);
+    $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
+    $pow = min($pow, count($units) - 1);
+    $bytes /= pow(1024, $pow);
+    return round($bytes, $precision) . ' ' . $units[$pow];
+}
+
+/**
  * Verifica i pagamenti mensili in scadenza e crea notifiche
  * Da chiamare nel dashboard o in un cron job
  * 
