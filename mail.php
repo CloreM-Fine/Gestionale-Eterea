@@ -156,7 +156,7 @@ if ($activeAccount) {
 // Carica clienti per associazione
 $clienti = [];
 try {
-    $stmt = $pdo->query("SELECT id, nome, cognome, email, azienda FROM clienti WHERE email IS NOT NULL AND email != '' ORDER BY nome, cognome");
+    $stmt = $pdo->query("SELECT id, ragione_sociale as nome, email FROM clienti WHERE email IS NOT NULL AND email != '' ORDER BY ragione_sociale");
     $clienti = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (Exception $e) {
     error_log("Errore caricamento clienti: " . $e->getMessage());
@@ -188,8 +188,7 @@ $currentMessage = null;
 if ($messageId && $view === 'detail') {
     try {
         $stmt = $pdo->prepare("
-            SELECT m.*, c.nome as cliente_nome, c.cognome as cliente_cognome, c.azienda as cliente_azienda,
-                   p.nome as progetto_nome
+            SELECT m.*, c.ragione_sociale as cliente_nome, p.titolo as progetto_nome
             FROM mail_messages m
             LEFT JOIN clienti c ON m.cliente_id = c.id
             LEFT JOIN progetti p ON m.progetto_id = p.id
@@ -251,7 +250,7 @@ if ($activeAccount && $view === 'list') {
         
         // Email recenti (limit 50)
         $stmt = $pdo->prepare("
-            SELECT m.*, c.nome as cliente_nome, c.cognome as cliente_cognome, c.azienda as cliente_azienda
+            SELECT m.*, c.ragione_sociale as cliente_nome
             FROM mail_messages m
             LEFT JOIN clienti c ON m.cliente_id = c.id
             WHERE $where
@@ -1510,7 +1509,7 @@ require_once __DIR__ . '/includes/header.php';
                             <option value="">-- Seleziona cliente --</option>
                             <?php foreach ($clienti as $cli): ?>
                             <option value="<?php echo $cli['id']; ?>" <?php echo (isset($_GET['cliente_id']) && $_GET['cliente_id'] === $cli['id']) ? 'selected' : ''; ?>>
-                                <?php echo e(($cli['nome'] . ' ' . $cli['cognome'] . ($cli['azienda'] ? ' - ' . $cli['azienda'] : ''))); ?>
+                                <?php echo e($cli['nome']); ?>
                             </option>
                             <?php endforeach; ?>
                         </select>
@@ -1658,9 +1657,9 @@ require_once __DIR__ . '/includes/header.php';
                         <option value="">-- Seleziona cliente --</option>
                         <?php foreach ($clienti as $cli): ?>
                         <?php if ($cli['email'] === $currentMessage['mittente_email']): ?>
-                        <option value="<?php echo $cli['id']; ?>" selected><?php echo e($cli['nome'] . ' ' . $cli['cognome'] . ' - MATCH EMAIL'); ?></option>
+                        <option value="<?php echo $cli['id']; ?>" selected><?php echo e($cli['nome'] . ' - MATCH EMAIL'); ?></option>
                         <?php else: ?>
-                        <option value="<?php echo $cli['id']; ?>"><?php echo e($cli['nome'] . ' ' . $cli['cognome'] . ($cli['azienda'] ? ' - ' . $cli['azienda'] : '')); ?></option>
+                        <option value="<?php echo $cli['id']; ?>"><?php echo e($cli['nome']); ?></option>
                         <?php endif; ?>
                         <?php endforeach; ?>
                     </select>
@@ -1681,7 +1680,7 @@ require_once __DIR__ . '/includes/header.php';
                     </svg>
                     <div class="association-info">
                         <div class="association-name">
-                            Associato a: <?php echo e(($currentMessage['cliente_nome'] . ' ' . $currentMessage['cliente_cognome'] . ($currentMessage['cliente_azienda'] ? ' - ' . $currentMessage['cliente_azienda'] : ''))); ?>
+                            Associato a: <?php echo e($currentMessage['cliente_nome'] ?? 'Cliente'); ?>
                         </div>
                         <?php if ($currentMessage['progetto_nome']): ?>
                         <div class="association-type">Progetto: <?php echo e($currentMessage['progetto_nome']); ?></div>
@@ -1785,7 +1784,7 @@ require_once __DIR__ . '/includes/header.php';
                     <div class="email-badges">
                         <?php if ($msg['cliente_id']): ?>
                         <span class="email-badge badge-client">
-                            <?php echo e(substr($msg['cliente_nome'] . ' ' . $msg['cliente_cognome'], 0, 20)); ?>
+                            <?php echo e(substr($msg['cliente_nome'] ?? '', 0, 20)); ?>
                         </span>
                         <?php endif; ?>
                         <?php if ($msg['has_allegati']): ?>
