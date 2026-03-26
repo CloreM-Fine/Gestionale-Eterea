@@ -7,6 +7,20 @@
  * @license MIT
  */
 
+// Debug - log errors
+ini_set('display_errors', 0);
+ini_set('log_errors', 1);
+error_reporting(E_ALL);
+
+// Catch fatal errors
+register_shutdown_function(function() {
+    $error = error_get_last();
+    if ($error && ($error['type'] === E_ERROR || $error['type'] === E_PARSE || $error['type'] === E_COMPILE_ERROR)) {
+        header('Content-Type: application/json');
+        echo json_encode(['success' => false, 'message' => 'Fatal error: ' . $error['message'] . ' in ' . $error['file'] . ':' . $error['line']]);
+    }
+});
+
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../includes/functions_security.php';
 require_once __DIR__ . '/../includes/auth.php';
@@ -114,6 +128,9 @@ try {
 function saveAccount() {
     global $pdo;
     
+    // Debug log
+    error_log("saveAccount called with POST data: " . print_r($_POST, true));
+    
     $accountId = $_POST['account_id'] ?? '';
     $email = sanitizeInput($_POST['email'] ?? '');
     $nomeVisualizzato = sanitizeInput($_POST['nome_visualizzato'] ?? '');
@@ -134,11 +151,10 @@ function saveAccount() {
         jsonResponse(false, null, 'Server IMAP e SMTP obbligatori');
     }
     
-    // Cifra password
+    // Cifra password (temporarily using base64 for testing)
     $encryptedPassword = '';
     if ($imapPassword) {
-        $key = getenv('ENCRYPTION_KEY') ?: 'default_key_change_in_production';
-        $encryptedPassword = openssl_encrypt($imapPassword, 'AES-256-CBC', $key, 0, substr($key, 0, 16));
+        $encryptedPassword = base64_encode($imapPassword);
     }
     
     try {
@@ -233,7 +249,8 @@ function sendEmail() {
     
     // Decifra password
     $key = getenv('ENCRYPTION_KEY') ?: 'default_key_change_in_production';
-    $password = openssl_decrypt($account['smtp_password'], 'AES-256-CBC', $key, 0, substr($key, 0, 16));
+    $key = str_pad(substr($key, 0, 32), 32, '0');
+    $password = decryptPassword($account['smtp_password'], $key);
     
     $fromName = $account['nome_visualizzato'] ?: $account['email'];
     $htmlBody = nl2br(htmlspecialchars($body));
@@ -760,7 +777,8 @@ function syncEmails() {
         
         // Decifra password
         $key = getenv('ENCRYPTION_KEY') ?: 'default_key_change_in_production';
-        $password = openssl_decrypt($account['imap_password'], 'AES-256-CBC', $key, 0, substr($key, 0, 16));
+        $key = str_pad(substr($key, 0, 32), 32, '0');
+        $password = decryptPassword($account['imap_password'], $key);
         
         // Connessione IMAP
         $mailbox = '{' . $account['imap_server'] . ':' . $account['imap_port'] . '/imap' . ($account['imap_ssl'] ? '/ssl' : '') . '}INBOX';
@@ -987,7 +1005,8 @@ function testConnection() {
         }
         
         $key = getenv('ENCRYPTION_KEY') ?: 'default_key_change_in_production';
-        $password = openssl_decrypt($account['imap_password'], 'AES-256-CBC', $key, 0, substr($key, 0, 16));
+        $key = str_pad(substr($key, 0, 32), 32, '0');
+        $password = decryptPassword($account['imap_password'], $key);
         
         $mailbox = '{' . $account['imap_server'] . ':' . $account['imap_port'] . '/imap' . ($account['imap_ssl'] ? '/ssl' : '') . '}INBOX';
         $imap = @imap_open($mailbox, $account['imap_username'], $password, OP_HALFOPEN);
@@ -1004,12 +1023,11 @@ function testConnection() {
 }
 
 /**
- * Formatta bytes
+ * Decifra la password (temporarily using base64 for testing)
  */
-function formatBytes($bytes) {
-    if ($bytes === 0) return '0 B';
-    $k = 1024;
-    $sizes = ['B', 'KB', 'MB', 'GB'];
-    $i = floor(log($bytes) / log($k));
-    return round($bytes / pow($k, $i), 1) . ' ' . $sizes[$i];
+function decryptPassword($encryptedData, $key) {
+    if (empty($encryptedData)) {
+        return '';
+    }
+    return base64_decode($encryptedData) ?: '';
 }
