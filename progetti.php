@@ -2067,6 +2067,31 @@ async function editProgetto(id) {
             gestioneSocialCheckbox.checked = p.gestione_social == 1;
         }
         
+        // Pagamento Ricorrente - popola i campi se presenti
+        if (p.stato_pagamento === 'mensile') {
+            document.getElementById('importoRicorrente').value = p.importo_ricorrente || '';
+            document.getElementById('frequenzaRicorrente').value = p.frequenza_ricorrente || 'mensile';
+            document.getElementById('prossimaDataRicorrente').value = p.prossima_data_ricorrente || '';
+            
+            // Popola distribuzione ricorrente
+            if (p.distribuzione_ricorrente) {
+                try {
+                    const distribuzione = JSON.parse(p.distribuzione_ricorrente);
+                    Object.keys(distribuzione).forEach(key => {
+                        const input = document.querySelector(`input[name="distribuzione_ricorrente[${key}]"]`);
+                        if (input) {
+                            input.value = distribuzione[key];
+                        }
+                    });
+                } catch (e) {
+                    console.error('Errore parsing distribuzione:', e);
+                }
+            }
+        }
+        
+        // Aggiorna visibilità wrapper pagamento ricorrente
+        toggleAccontoPercentuale();
+        
         // Colore tag
         const coloreTag = p.colore_tag || '#FFFFFF';
         document.querySelectorAll('input[name="colore_tag"]').forEach(rb => {
