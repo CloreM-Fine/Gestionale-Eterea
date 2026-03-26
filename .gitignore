@@ -38,6 +38,7 @@ composer.lock
 *.temp
 cache/
 temp/
+assets/temp/*
 
 # File di backup
 copia di sicurezza/
