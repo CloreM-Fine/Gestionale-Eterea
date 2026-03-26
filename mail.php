@@ -1986,7 +1986,7 @@ async function sendEmail() {
     });
     
     try {
-        const response = await fetch('api/mail.php', {
+        const response = await fetch('api/mail_simple_save.php', {
             method: 'POST',
             body: formData
         });
