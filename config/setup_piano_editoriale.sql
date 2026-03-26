@@ -139,7 +139,7 @@ CREATE TABLE piano_editoriale_contenuti (
     -- Indici
     INDEX idx_post_id (post_id),
     INDEX idx_tipo (tipo),
-    INDEX idx_ordine (ordice),
+    INDEX idx_ordine (ordine),
     
     -- Vincoli
     FOREIGN KEY (post_id) REFERENCES piano_editoriale(id) ON DELETE CASCADE,
