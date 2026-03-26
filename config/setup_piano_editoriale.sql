@@ -6,37 +6,16 @@
 -- -----------------------------------------------------
 -- 1. AGGIUNGI COLONNA gestione_social ALLA TABELLA progetti
 -- -----------------------------------------------------
--- Verifica se la colonna esiste già
-SET @dbname = DATABASE();
-SET @tablename = 'progetti';
-SET @columnname = 'gestione_social';
-
-SET @sql = CONCAT(
-    'SELECT COUNT(*) INTO @col_exists FROM information_schema.columns ',
-    'WHERE table_schema = ''', @dbname, ''' ',
-    'AND table_name = ''', @tablename, ''' ',
-    'AND column_name = ''', @columnname, ''''
-);
-PREPARE stmt FROM @sql;
-EXECUTE stmt;
-DEALLOCATE PREPARE stmt;
-
--- Aggiungi colonna solo se non esiste
-SET @sql = CONCAT(
-    'ALTER TABLE progetti ',
-    'ADD COLUMN gestione_social TINYINT(1) NOT NULL DEFAULT 0 ',
-    'COMMENT ''Indica se il progetto include gestione social (1=si, 0=no)'''
-);
-SET @sql = IF(@col_exists = 0, @sql, 'SELECT 1');
-PREPARE stmt FROM @sql;
-EXECUTE stmt;
-DEALLOCATE PREPARE stmt;
+-- Se la colonna non esiste, la aggiunge
+ALTER TABLE progetti 
+ADD COLUMN IF NOT EXISTS gestione_social TINYINT(1) NOT NULL DEFAULT 0 
+COMMENT 'Indica se il progetto include gestione social (1=si, 0=no)';
 
 -- -----------------------------------------------------
 -- 2. TABELLA piano_editoriale
 -- Contiene i post pianificati per i progetti social
 -- -----------------------------------------------------
-CREATE TABLE piano_editoriale (
+CREATE TABLE IF NOT EXISTS piano_editoriale (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     progetto_id VARCHAR(20) NOT NULL COMMENT 'ID del progetto collegato',
     cliente_id VARCHAR(20) DEFAULT NULL COMMENT 'ID del cliente (per reference)',
@@ -115,7 +94,7 @@ COMMENT='Tabella per la gestione del piano editoriale social media';
 -- 3. TABELLA piano_editoriale_contenuti
 -- Contenuti multimediali allegati ai post (immagini, video)
 -- -----------------------------------------------------
-CREATE TABLE piano_editoriale_contenuti (
+CREATE TABLE IF NOT EXISTS piano_editoriale_contenuti (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     post_id INT UNSIGNED NOT NULL COMMENT 'ID del post in piano_editoriale',
     
@@ -152,7 +131,7 @@ COMMENT='Contenuti multimediali allegati ai post del piano editoriale';
 -- 4. TABELLA piano_editoriale_approvazioni
 -- Traccia lo storico delle approvazioni/rifiuti
 -- -----------------------------------------------------
-CREATE TABLE piano_editoriale_approvazioni (
+CREATE TABLE IF NOT EXISTS piano_editoriale_approvazioni (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     post_id INT UNSIGNED NOT NULL COMMENT 'ID del post',
     utente_id VARCHAR(20) NOT NULL COMMENT 'ID utente che ha approvato/rifiutato',
@@ -175,7 +154,7 @@ COMMENT='Storico approvazioni post piano editoriale';
 -- 5. TABELLA piano_editoriale_template
 -- Template riutilizzabili per post ricorrenti
 -- -----------------------------------------------------
-CREATE TABLE piano_editoriale_template (
+CREATE TABLE IF NOT EXISTS piano_editoriale_template (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     nome VARCHAR(255) NOT NULL COMMENT 'Nome del template',
     descrizione TEXT COMMENT 'Descrizione del template',
