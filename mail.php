@@ -2262,7 +2262,7 @@ function fillProviderConfig(provider) {
         document.querySelector('input[name="imap_server"]').value = c.imap;
         document.querySelector('input[name="imap_port"]').value = c.imapPort;
         document.querySelector('input[name="smtp_server"]').value = c.smtp;
-        document.querySelector('input[name="smtp_port"]').value = c.smtpPort;
+        document.querySelector('select[name="smtp_port"]').value = c.smtpPort;
     }
 }
 
