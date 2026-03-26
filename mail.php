@@ -1306,15 +1306,20 @@ require_once __DIR__ . '/includes/header.php';
                             </div>
                             <div>
                                 <label class="block text-xs font-medium text-[#64748b] mb-1">Porta</label>
-                                <input type="number" name="smtp_port" value="587" class="w-full px-3 py-2 border border-[#e2e8f0] rounded-lg text-sm focus:outline-none focus:border-[#9bc4d0]">
+                                <select name="smtp_port" class="w-full px-3 py-2 border border-[#e2e8f0] rounded-lg text-sm focus:outline-none focus:border-[#9bc4d0]">
+                                    <option value="587">587 (STARTTLS)</option>
+                                    <option value="465">465 (SSL)</option>
+                                    <option value="25">25 (Non sicura)</option>
+                                </select>
                             </div>
                         </div>
                         <div class="mt-3">
                             <label class="flex items-center gap-2">
                                 <input type="checkbox" name="smtp_ssl" value="1" checked class="rounded border-[#e2e8f0] text-[#9bc4d0] focus:ring-[#9bc4d0]">
-                                <span class="text-sm text-[#64748b]">Usa TLS</span>
+                                <span class="text-sm text-[#64748b]">Usa SSL/TLS</span>
                             </label>
                         </div>
+                        <p class="text-xs text-[#94a3b8] mt-2">Nota: Porta 465 = SSL, Porta 587 = STARTTLS</p>
                     </div>
                     
                     <div class="border-t border-[#e2e8f0] pt-4">
@@ -1357,6 +1362,10 @@ require_once __DIR__ . '/includes/header.php';
                     <button onclick="fillProviderConfig('aruba')" class="p-3 border border-[#e2e8f0] rounded-lg text-left hover:border-[#9bc4d0] hover:bg-[#f8fafc] transition-colors">
                         <div class="font-medium text-sm text-[#334155]">Aruba</div>
                         <div class="text-xs text-[#94a3b8]">Pec / Mail</div>
+                    </button>
+                    <button onclick="fillProviderConfig('siteground')" class="p-3 border border-[#e2e8f0] rounded-lg text-left hover:border-[#9bc4d0] hover:bg-[#f8fafc] transition-colors">
+                        <div class="font-medium text-sm text-[#334155]">SiteGround</div>
+                        <div class="text-xs text-[#94a3b8]">Eterea Mail</div>
                     </button>
                 </div>
                 <p class="text-xs text-[#64748b] mt-3">Nota: Per Gmail usa una "App Password". Vai su Google Account → Sicurezza → Verifica in 2 passaggi → App Password.</p>

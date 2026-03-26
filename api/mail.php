@@ -11,6 +11,13 @@ require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../includes/functions_security.php';
 require_once __DIR__ . '/../includes/auth.php';
 
+// Polyfill per str_starts_with (PHP < 8.0)
+if (!function_exists('str_starts_with')) {
+    function str_starts_with($haystack, $needle) {
+        return (string)$needle !== '' && strncmp($haystack, $needle, strlen($needle)) === 0;
+    }
+}
+
 header('Content-Type: application/json');
 
 $method = $_SERVER['REQUEST_METHOD'];
@@ -198,7 +205,7 @@ function saveAccount() {
 }
 
 /**
- * Invia una email via SMTP
+ * Invia una email via SMTP/PHP mail()
  */
 function sendEmail() {
     global $pdo;
@@ -228,21 +235,38 @@ function sendEmail() {
     $key = getenv('ENCRYPTION_KEY') ?: 'default_key_change_in_production';
     $password = openssl_decrypt($account['smtp_password'], 'AES-256-CBC', $key, 0, substr($key, 0, 16));
     
-    // Headers
     $fromName = $account['nome_visualizzato'] ?: $account['email'];
-    $headers = "From: \"" . $fromName . "\" <" . $account['email'] . ">\r\n";
-    $headers .= "Reply-To: " . $account['email'] . "\r\n";
-    $headers .= "MIME-Version: 1.0\r\n";
-    $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
-    
-    // HTML body
     $htmlBody = nl2br(htmlspecialchars($body));
     
-    // Invia via mail() di PHP (per hosting condiviso)
-    // In produzione con SiteGround questo funziona se configurato correttamente
-    $success = mail($to, $subject, $htmlBody, $headers);
+    // Prova invio SMTP diretto se configurato
+    $smtpSuccess = false;
+    if ($account['smtp_server'] && $account['smtp_port']) {
+        $smtpSuccess = sendViaSmtp(
+            $account['smtp_server'],
+            $account['smtp_port'],
+            $account['smtp_ssl'],
+            $account['smtp_username'] ?: $account['email'],
+            $password,
+            $account['email'],
+            $fromName,
+            $to,
+            $subject,
+            $htmlBody
+        );
+    }
     
-    if ($success) {
+    // Se SMTP fallisce, prova con mail() nativo di PHP
+    if (!$smtpSuccess) {
+        $headers = "From: \"" . $fromName . "\" <" . $account['email'] . ">\r\n";
+        $headers .= "Reply-To: " . $account['email'] . "\r\n";
+        $headers .= "MIME-Version: 1.0\r\n";
+        $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
+        $headers .= "X-Mailer: PHP/" . phpversion() . "\r\n";
+        
+        $smtpSuccess = mail($to, $subject, $htmlBody, $headers);
+    }
+    
+    if ($smtpSuccess) {
         // Salva copia in "Inviate"
         $messageId = generateEntityId('msg');
         $stmt = $pdo->prepare("
@@ -265,8 +289,127 @@ function sendEmail() {
         
         jsonResponse(true, ['message_id' => $messageId], 'Email inviata con successo');
     } else {
-        jsonResponse(false, null, 'Errore durante l\'invio');
+        jsonResponse(false, null, 'Errore durante l\'invio. Verifica le impostazioni SMTP.');
     }
+}
+
+/**
+ * Invia email via SMTP diretto
+ */
+function sendViaSmtp($host, $port, $ssl, $username, $password, $from, $fromName, $to, $subject, $body) {
+    $timeout = 10;
+    $errno = 0;
+    $errstr = '';
+    
+    // Connessione
+    $protocol = $ssl ? 'ssl://' : '';
+    $socket = @fsockopen($protocol . $host, $port, $errno, $errstr, $timeout);
+    
+    if (!$socket) {
+        error_log("SMTP Connection failed: $errstr ($errno)");
+        return false;
+    }
+    
+    stream_set_timeout($socket, $timeout);
+    
+    // Leggi greeting
+    $response = fgets($socket, 515);
+    if (!str_starts_with($response, '220')) {
+        fclose($socket);
+        return false;
+    }
+    
+    // EHLO
+    fputs($socket, "EHLO " . $_SERVER['SERVER_NAME'] . "\r\n");
+    while ($line = fgets($socket, 515)) {
+        if (str_starts_with($line, '250 ')) break;
+    }
+    
+    // STARTTLS se porta 587
+    if ($port == 587 && !$ssl) {
+        fputs($socket, "STARTTLS\r\n");
+        $response = fgets($socket, 515);
+        if (!str_starts_with($response, '220')) {
+            fclose($socket);
+            return false;
+        }
+        stream_socket_enable_crypto($socket, true, STREAM_CRYPTO_METHOD_TLS_CLIENT);
+        
+        // EHLO again dopo TLS
+        fputs($socket, "EHLO " . $_SERVER['SERVER_NAME'] . "\r\n");
+        while ($line = fgets($socket, 515)) {
+            if (str_starts_with($line, '250 ')) break;
+        }
+    }
+    
+    // AUTH LOGIN
+    fputs($socket, "AUTH LOGIN\r\n");
+    $response = fgets($socket, 515);
+    if (!str_starts_with($response, '334')) {
+        fclose($socket);
+        return false;
+    }
+    
+    fputs($socket, base64_encode($username) . "\r\n");
+    $response = fgets($socket, 515);
+    if (!str_starts_with($response, '334')) {
+        fclose($socket);
+        return false;
+    }
+    
+    fputs($socket, base64_encode($password) . "\r\n");
+    $response = fgets($socket, 515);
+    if (!str_starts_with($response, '235')) {
+        fclose($socket);
+        return false;
+    }
+    
+    // MAIL FROM
+    fputs($socket, "MAIL FROM:<$from>\r\n");
+    $response = fgets($socket, 515);
+    if (!str_starts_with($response, '250')) {
+        fclose($socket);
+        return false;
+    }
+    
+    // RCPT TO
+    fputs($socket, "RCPT TO:<$to>\r\n");
+    $response = fgets($socket, 515);
+    if (!str_starts_with($response, '250') && !str_starts_with($response, '251')) {
+        fclose($socket);
+        return false;
+    }
+    
+    // DATA
+    fputs($socket, "DATA\r\n");
+    $response = fgets($socket, 515);
+    if (!str_starts_with($response, '354')) {
+        fclose($socket);
+        return false;
+    }
+    
+    // Headers e body
+    $message = "From: \"" . $fromName . "\" <$from>\r\n";
+    $message .= "To: $to\r\n";
+    $message .= "Subject: $subject\r\n";
+    $message .= "MIME-Version: 1.0\r\n";
+    $message .= "Content-Type: text/html; charset=UTF-8\r\n";
+    $message .= "\r\n";
+    $message .= $body;
+    $message .= "\r\n.\r\n";
+    
+    fputs($socket, $message);
+    $response = fgets($socket, 515);
+    if (!str_starts_with($response, '250')) {
+        fclose($socket);
+        return false;
+    }
+    
+    // QUIT
+    fputs($socket, "QUIT\r\n");
+    fclose($socket);
+    
+    return true;
 }
 
 /**
