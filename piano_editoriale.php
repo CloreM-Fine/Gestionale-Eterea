@@ -192,11 +192,16 @@ require_once __DIR__ . '/includes/header.php';
                            placeholder="Es: Post di presentazione nuovo servizio">
                 </div>
                 
-                <!-- Data e Stato -->
-                <div class="grid grid-cols-2 gap-4 mb-4">
+                <!-- Data, Ora e Stato -->
+                <div class="grid grid-cols-3 gap-4 mb-4">
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1.5">Data pubblicazione *</label>
+                        <label class="block text-sm font-medium text-slate-700 mb-1.5">Data *</label>
                         <input type="date" name="data_prevista" required 
+                               class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1.5">Ora</label>
+                        <input type="time" name="ora_prevista"
                                class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 outline-none">
                     </div>
                     <div>
@@ -206,6 +211,22 @@ require_once __DIR__ . '/includes/header.php';
                             <option value="<?php echo e($key); ?>"><?php echo e($s['label']); ?></option>
                             <?php endforeach; ?>
                         </select>
+                    </div>
+                </div>
+                
+                <!-- Sponsorizzato -->
+                <div class="mb-4 p-3 bg-slate-50 rounded-lg border border-slate-200">
+                    <div class="flex items-center gap-3">
+                        <input type="checkbox" name="is_sponsored" id="isSponsored" value="1" 
+                               class="w-4 h-4 text-slate-800 rounded border-slate-300 focus:ring-slate-500"
+                               onchange="document.getElementById('budgetWrapper').classList.toggle('hidden', !this.checked)">
+                        <label for="isSponsored" class="text-sm font-medium text-slate-700 cursor-pointer flex-1">
+                            Post sponsorizzato (paid)
+                        </label>
+                        <div id="budgetWrapper" class="hidden">
+                            <input type="number" name="budget_sponsorizzato" step="0.01" min="0" placeholder="Budget €"
+                                   class="w-28 px-3 py-1.5 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-slate-500 outline-none">
+                        </div>
                     </div>
                 </div>
                 
@@ -262,6 +283,23 @@ require_once __DIR__ . '/includes/header.php';
                     <textarea name="note" rows="2" 
                               class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 outline-none resize-none"
                               placeholder="Note visibili solo al team..."></textarea>
+                </div>
+                
+                <!-- Upload Contenuti -->
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-slate-700 mb-1.5">Contenuti multimediali</label>
+                    <div id="filePreview" class="grid grid-cols-4 gap-2 mb-2">
+                        <!-- Preview files -->
+                    </div>
+                    <label class="flex items-center justify-center w-full h-20 border-2 border-dashed border-slate-300 rounded-lg cursor-pointer hover:border-slate-500 hover:bg-slate-50 transition-colors">
+                        <div class="text-center">
+                            <svg class="mx-auto h-6 w-6 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                            <span class="text-xs text-slate-500 mt-1">Carica foto/video</span>
+                        </div>
+                        <input type="file" name="contenuti[]" multiple accept="image/*,video/*" class="hidden" onchange="previewFiles(this)">
+                    </label>
                 </div>
             </form>
             
@@ -475,12 +513,20 @@ async function editPost() {
     document.querySelector('select[name="progetto_id"]').value = post.progetto_id;
     document.querySelector('input[name="titolo"]').value = post.titolo;
     document.querySelector('input[name="data_prevista"]').value = post.data_prevista;
+    document.querySelector('input[name="ora_prevista"]').value = post.ora_prevista || '';
     document.querySelector('select[name="stato"]').value = post.stato;
     document.querySelector('textarea[name="descrizione"]').value = post.descrizione || '';
     document.querySelector('input[name="hashtag"]').value = post.hashtag || '';
     document.querySelector('select[name="assegnato_a"]').value = post.assegnato_a || '';
     document.querySelector('select[name="tipologia"]').value = post.tipologia;
     document.querySelector('textarea[name="note"]').value = post.note || '';
+    
+    // Sponsorizzato
+    if (post.is_sponsored == 1) {
+        document.getElementById('isSponsored').checked = true;
+        document.getElementById('budgetWrapper').classList.remove('hidden');
+        document.querySelector('input[name="budget_sponsorizzato"]').value = post.budget_sponsorizzato || '';
+    }
     
     // Radio piattaforma
     document.querySelector(`input[name="piattaforma"][value="${post.piattaforma}"]`).checked = true;
@@ -533,6 +579,35 @@ async function deletePost() {
     } catch (e) {
         showToast('Errore eliminazione', 'error');
     }
+}
+
+function previewFiles(input) {
+    const preview = document.getElementById('filePreview');
+    preview.innerHTML = '';
+    
+    Array.from(input.files).forEach(file => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const div = document.createElement('div');
+            div.className = 'aspect-square rounded-lg overflow-hidden bg-slate-100 relative';
+            
+            if (file.type.startsWith('image/')) {
+                div.innerHTML = `<img src="${e.target.result}" class="w-full h-full object-cover">`;
+            } else if (file.type.startsWith('video/')) {
+                div.innerHTML = `
+                    <video src="${e.target.result}" class="w-full h-full object-cover"></video>
+                    <div class="absolute inset-0 flex items-center justify-center bg-black/30">
+                        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"/>
+                        </svg>
+                    </div>
+                `;
+            }
+            
+            preview.appendChild(div);
+        };
+        reader.readAsDataURL(file);
+    });
 }
 
 function addEmoji(emoji) {
