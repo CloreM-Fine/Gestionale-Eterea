@@ -66,18 +66,18 @@ require_once __DIR__ . '/includes/header.php';
         </button>
     </div>
 
-    <!-- Stats Cards -->
-    <div class="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-6">
-        <div class="bg-white rounded-xl border border-slate-200 p-4">
-            <div class="text-2xl font-bold text-slate-800"><?php echo array_sum($statsStato); ?></div>
-            <div class="text-xs text-slate-500">Post questo mese</div>
+    <!-- Stats Cards - Compatte -->
+    <div class="grid grid-cols-3 lg:grid-cols-6 gap-2 mb-6">
+        <div class="bg-white rounded-lg border border-slate-200 p-3">
+            <div class="text-xl font-bold text-slate-800"><?php echo array_sum($statsStato); ?></div>
+            <div class="text-[10px] text-slate-500 uppercase tracking-wider">Totale</div>
         </div>
         <?php foreach ($stati as $key => $s): ?>
-        <div class="bg-white rounded-xl border border-slate-200 p-4">
-            <div class="text-2xl font-bold text-slate-800"><?php echo $statsStato[$key] ?? 0; ?></div>
-            <div class="flex items-center gap-2 mt-1">
-                <span class="w-2 h-2 rounded-full <?php echo str_replace('bg-', 'bg-', explode(' ', $s['colore'])[0]); ?>"></span>
-                <span class="text-xs text-slate-500"><?php echo $s['label']; ?></span>
+        <div class="bg-white rounded-lg border border-slate-200 p-3">
+            <div class="text-xl font-bold text-slate-800"><?php echo $statsStato[$key] ?? 0; ?></div>
+            <div class="flex items-center gap-1.5 mt-1">
+                <span class="w-1.5 h-1.5 rounded-full <?php echo explode(' ', $s['colore'])[0]; ?>"></span>
+                <span class="text-[10px] text-slate-500"><?php echo $s['label']; ?></span>
             </div>
         </div>
         <?php endforeach; ?>
@@ -171,16 +171,11 @@ require_once __DIR__ . '/includes/header.php';
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-slate-700 mb-1.5">Piattaforma *</label>
-                        <div class="flex gap-2 flex-wrap">
+                        <select name="piattaforma" required class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-500 outline-none">
                             <?php foreach ($piattaforme as $key => $p): ?>
-                            <label class="cursor-pointer">
-                                <input type="radio" name="piattaforma" value="<?php echo e($key); ?>" class="peer sr-only" <?php echo $key === 'instagram' ? 'checked' : ''; ?>>
-                                <div class="px-3 py-2 rounded-lg border-2 border-slate-200 peer-checked:border-slate-800 peer-checked:bg-slate-800 peer-checked:text-white transition-all text-sm font-medium">
-                                    <?php echo e($p['nome']); ?>
-                                </div>
-                            </label>
+                            <option value="<?php echo e($key); ?>" <?php echo $key === 'instagram' ? 'selected' : ''; ?>><?php echo e($p['nome']); ?></option>
                             <?php endforeach; ?>
-                        </div>
+                        </select>
                     </div>
                 </div>
                 
@@ -528,8 +523,8 @@ async function editPost() {
         document.querySelector('input[name="budget_sponsorizzato"]').value = post.budget_sponsorizzato || '';
     }
     
-    // Radio piattaforma
-    document.querySelector(`input[name="piattaforma"][value="${post.piattaforma}"]`).checked = true;
+    // Select piattaforma
+    document.querySelector('select[name="piattaforma"]').value = post.piattaforma;
 }
 
 async function savePost() {
