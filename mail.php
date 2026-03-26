@@ -106,10 +106,13 @@ $messageId = $_GET['message'] ?? '';
 
 // Carica account email utente
 $accounts = [];
+$currentUserId = $_SESSION['user_id'] ?? '';
 try {
-    $stmt = $pdo->prepare("SELECT * FROM mail_accounts WHERE utente_id = ? AND attivo = 1 ORDER BY is_default DESC, email ASC");
-    $stmt->execute([$_SESSION['user_id']]);
-    $accounts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    if ($currentUserId) {
+        $stmt = $pdo->prepare("SELECT * FROM mail_accounts WHERE utente_id = ? AND attivo = 1 ORDER BY is_default DESC, email ASC");
+        $stmt->execute([$currentUserId]);
+        $accounts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 } catch (Exception $e) {
     error_log("Errore caricamento account: " . $e->getMessage());
 }
