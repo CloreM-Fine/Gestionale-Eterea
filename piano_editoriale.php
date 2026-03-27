@@ -553,6 +553,7 @@ function openPostModal(data = null) {
     }
     
     document.getElementById('postModal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
 }
 
 function closePostModal() {
