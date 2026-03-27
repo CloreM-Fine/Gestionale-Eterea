@@ -668,10 +668,17 @@ async function showDettaglio(id) {
                         <p class="text-sm text-slate-500 mb-1">P.IVA / CF</p>
                         <p class="font-medium text-slate-800 text-sm sm:text-base">${c.piva_cf || '-'}</p>
                     </div>
+                    ${c.codice_sdi ? `
                     <div class="p-4 bg-slate-50 rounded-xl">
-                        <p class="text-sm text-slate-500 mb-1">Progetti</p>
-                        <p class="font-medium text-slate-800 text-sm sm:text-base">${c.progetti ? c.progetti.length : 0}</p>
+                        <p class="text-sm text-slate-500 mb-1">Codice SDI</p>
+                        <p class="font-medium text-slate-800 text-sm sm:text-base">${c.codice_sdi}</p>
                     </div>
+                    ` : ''}
+                </div>
+                
+                <div class="p-4 bg-slate-50 rounded-xl">
+                    <p class="text-sm text-slate-500 mb-1">Progetti</p>
+                    <p class="font-medium text-slate-800 text-sm sm:text-base">${c.progetti ? c.progetti.length : 0}</p>
                 </div>
                 
                 ${c.indirizzo ? `
