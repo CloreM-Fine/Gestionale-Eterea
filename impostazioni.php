@@ -1489,7 +1489,7 @@ async function uploadLogo(input) {
     
     const formData = new FormData();
     formData.append('logo', file);
-    formData.append('action', 'save_logo');
+    formData.append('action', 'upload_logo_azienda');
     
     try {
         const response = await fetch('api/impostazioni.php', {

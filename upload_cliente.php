@@ -29,7 +29,7 @@ $justSubmitted = false;
 
 // Recupera logo personalizzato
 try {
-    $stmt = $pdo->prepare("SELECT valore FROM impostazioni WHERE chiave = 'logo_gestionale'");
+    $stmt = $pdo->prepare("SELECT valore FROM impostazioni WHERE chiave = 'logo_azienda'");
     $stmt->execute();
     $logoGestionale = $stmt->fetchColumn() ?: '';
 } catch (PDOException $e) {
@@ -198,7 +198,7 @@ $csrfToken = generateCsrfToken();
             <div class="flex items-center gap-3">
                 <?php if ($logoGestionale): ?>
                     <div class="w-10 h-10 rounded-xl overflow-hidden flex items-center justify-center">
-                        <img src="assets/uploads/logo/<?php echo e($logoGestionale); ?>?v=<?php echo time(); ?>" 
+                        <img src="<?php echo e($logoGestionale); ?>?v=<?php echo time(); ?>" 
                              alt="Eterea Studio" class="w-full h-full object-contain">
                     </div>
                 <?php else: ?>

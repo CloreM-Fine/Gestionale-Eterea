@@ -16,7 +16,7 @@ require_once __DIR__ . '/includes/functions.php';
 
 // Recupera logo personalizzato
 try {
-    $stmt = $pdo->prepare("SELECT valore FROM impostazioni WHERE chiave = 'logo_gestionale'");
+    $stmt = $pdo->prepare("SELECT valore FROM impostazioni WHERE chiave = 'logo_azienda'");
     $stmt->execute();
     $logoGestionale = $stmt->fetchColumn() ?: '';
 } catch (PDOException $e) {
@@ -132,7 +132,7 @@ $csrfToken = generateCsrfTokenSecure();
         <div class="text-center mb-6">
             <?php if ($logoGestionale): ?>
                 <div class="inline-flex items-center justify-center w-20 h-20 sm:w-24 sm:h-24 rounded-2xl shadow-xl mb-4 overflow-hidden">
-                    <img src="assets/uploads/logo/<?php echo e($logoGestionale); ?>?v=<?php echo time(); ?>" 
+                    <img src="<?php echo e($logoGestionale); ?>?v=<?php echo time(); ?>" 
                          alt="Logo" class="w-full h-full object-contain p-2">
                 </div>
             <?php else: ?>

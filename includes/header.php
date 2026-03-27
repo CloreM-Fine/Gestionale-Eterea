@@ -9,7 +9,7 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
 
 // Recupera logo personalizzato
 try {
-    $stmt = $pdo->prepare("SELECT valore FROM impostazioni WHERE chiave = 'logo_gestionale'");
+    $stmt = $pdo->prepare("SELECT valore FROM impostazioni WHERE chiave = 'logo_azienda'");
     $stmt->execute();
     $logoNavbar = $stmt->fetchColumn() ?: '';
 } catch (PDOException $e) {
@@ -382,7 +382,7 @@ try {
         <div class="p-4 border-b border-[#3d3d3d] sidebar-logo flex items-center gap-3 h-16">
             <?php if ($logoNavbar): ?>
                 <div class="w-10 h-10 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
-                    <img src="assets/uploads/logo/<?php echo e($logoNavbar); ?>?v=<?php echo time(); ?>" 
+                    <img src="<?php echo e($logoNavbar); ?>?v=<?php echo time(); ?>" 
                          alt="Logo" class="w-full h-full object-contain p-1">
                 </div>
             <?php else: ?>
