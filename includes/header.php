@@ -33,7 +33,7 @@ try {
     <meta name="application-name" content="Eterea">
     
     <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com" crossorigin="anonymous"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             theme: {
