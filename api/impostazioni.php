@@ -320,13 +320,15 @@ function uploadAvatar(): void {
     $filepath = $uploadDir . $filename;
     
     if (move_uploaded_file($file['tmp_name'], $filepath)) {
-        // Aggiorna DB
+        // Aggiorna DB - salva SOLO il filename, non il path completo
         global $pdo;
-        $avatarUrl = 'assets/uploads/avatars/' . $filename;
         $stmt = $pdo->prepare("UPDATE utenti SET avatar = ? WHERE id = ?");
-        $stmt->execute([$avatarUrl, $userId]);
+        $stmt->execute([$filename, $userId]);
         
-        jsonResponse(true, ['avatar_url' => $avatarUrl], 'Avatar aggiornato');
+        // Aggiorna anche la sessione
+        $_SESSION['user_avatar'] = $filename;
+        
+        jsonResponse(true, ['avatar_url' => 'assets/uploads/avatars/' . $filename], 'Avatar aggiornato');
     } else {
         jsonResponse(false, null, 'Errore durante il salvataggio');
     }
