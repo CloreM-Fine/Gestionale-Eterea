@@ -525,15 +525,6 @@ try {
                         <span class="sidebar-text">Piano Editoriale</span>
                     </a>
                 </li>
-                <li>
-                    <a href="mail.php" 
-                       class="flex items-center gap-3 px-3 py-3 rounded-lg transition-colors <?php echo $currentPage === 'mail' ? 'bg-[#9bc4d0] text-[#2d2d2d] font-medium' : 'text-[#d0d0d0] hover:bg-[#3d3d3d] hover:text-[#f5f3ef]'; ?>">
-                        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                        </svg>
-                        <span class="sidebar-text">Mail</span>
-                    </a>
-                </li>
                 <?php if (($_SESSION['user_id'] ?? '') === 'ucwurog3xr8tf'): ?>
                 <li>
                     <a href="blog_clienti.php" 
@@ -696,14 +687,6 @@ try {
             <span>Piano Ed.</span>
         </a>
         
-        <!-- Mail -->
-        <a href="mail.php" class="bottom-nav-item <?php echo $currentPage === 'mail' ? 'active' : ''; ?>">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-            </svg>
-            <span>Mail</span>
-        </a>
-        
         <!-- Menu (apre menu completo) -->
         <button onclick="openMobileFullMenu()" class="bottom-nav-item" type="button">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -828,14 +811,6 @@ try {
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
             </svg>
             <span>Report</span>
-        </a>
-        
-        <!-- Mail -->
-        <a href="mail.php" class="mobile-menu-item <?php echo $currentPage === 'mail' ? 'active' : ''; ?>">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-            </svg>
-            <span>Mail</span>
         </a>
         
         <?php if (($_SESSION['user_id'] ?? '') === 'ucwurog3xr8tf'): ?>
