@@ -75,7 +75,7 @@ function listClienti() {
         }
         
         $sql = "
-            SELECT c.id, c.ragione_sociale, c.tipo, c.piva_cf, c.email, c.telefono, c.cellulare, 
+            SELECT c.id, c.ragione_sociale, c.tipo, c.piva_cf, c.codice_sdi, c.email, c.telefono, c.cellulare, 
                    c.indirizzo, c.citta, c.cap, c.provincia, c.logo_path,
                    c.pec, c.sito_web, c.instagram, c.facebook, c.linkedin, c.note,
                    COUNT(p.id) as num_progetti,
