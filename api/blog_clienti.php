@@ -300,7 +300,6 @@ function generaLink() {
     
     $clienteId = $_POST['cliente_id'] ?? '';
     $progettoId = $_POST['progetto_id'] ?? '';
-    $note = $_POST['note'] ?? '';
     
     if (empty($clienteId)) {
         jsonResponse(false, null, 'Cliente obbligatorio');

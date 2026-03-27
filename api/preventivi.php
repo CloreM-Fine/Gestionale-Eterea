@@ -522,7 +522,6 @@ function generaHTMLPreventivo(array $voci, string $cliente, string $numero, stri
     $data = date('d/m/Y');
     $validita = $dataScadenza ? date('d/m/Y', strtotime($dataScadenza)) : date('d/m/Y', strtotime('+30 days'));
     $clienteEsc = htmlspecialchars($cliente);
-    $numeroEsc = htmlspecialchars($numero);
     $noteEsc = $note ? nl2br(htmlspecialchars($note)) : '';
     
     // Prepara dettagli cliente
@@ -656,7 +655,6 @@ BUROCRAZIA;
     $ragioneSociale = htmlspecialchars($datiAzienda['ragione_sociale']);
     $piva = $datiAzienda['piva'] ? 'P.IVA ' . htmlspecialchars($datiAzienda['piva']) : '';
     $cf = $datiAzienda['cf'] ? 'CF ' . htmlspecialchars($datiAzienda['cf']) : '';
-    $sdi = $datiAzienda['sdi'] ? 'SDI: ' . htmlspecialchars($datiAzienda['sdi']) : '';
     
     // Raggruppa per categoria
     $grouped = [];

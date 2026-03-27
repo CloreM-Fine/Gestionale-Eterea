@@ -6,7 +6,6 @@
 
 require_once __DIR__ . '/includes/functions.php';
 require_once __DIR__ . '/includes/auth_check.php';
-require_once __DIR__ . '/includes/config.php';
 
 // Carica preventivi salvati
 $preventiviSalvati = [];

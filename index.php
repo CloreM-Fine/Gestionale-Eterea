@@ -36,7 +36,6 @@ switch ($error) {
 }
 
 // Genera Token CSRF sicuro
-require_once __DIR__ . '/includes/functions.php';
 $csrfToken = generateCsrfTokenSecure();
 ?>
 <!DOCTYPE html>

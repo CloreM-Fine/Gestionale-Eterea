@@ -11,7 +11,7 @@ require_once __DIR__ . '/functions_security.php';
 date_default_timezone_set('Europe/Rome');
 
 // Debug mode - imposta a true per abilitare logging dettagliato
-define('DEBUG_MODE', true);
+define('DEBUG_MODE', false);
 
 /**
  * Log di debug
@@ -471,19 +471,6 @@ function formatDateTime($datetime, $format = 'd/m/Y H:i') {
 }
 
 /**
- * Formatta bytes in formato leggibile
- */
-function formatBytes($bytes, $precision = 1) {
-    if ($bytes === 0 || $bytes === null) return '0 B';
-    $units = ['B', 'KB', 'MB', 'GB', 'TB'];
-    $bytes = max($bytes, 0);
-    $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
-    $pow = min($pow, count($units) - 1);
-    $bytes /= pow(1024, $pow);
-    return round($bytes, $precision) . ' ' . $units[$pow];
-}
-
-/**
  * Verifica i pagamenti mensili in scadenza e crea notifiche
  * Da chiamare nel dashboard o in un cron job
  * 
@@ -513,7 +500,6 @@ function verificaScadenzePagamentiMensili($giorniAnticipo = 3) {
         
         foreach ($progetti as $progetto) {
             $giornoScadenza = intval($progetto['giorno_scadenza_mensile']);
-            $dataInizio = new DateTime($progetto['data_inizio_pagamento']);
             $lastNotified = $progetto['last_pagamento_mensile_notified'] ? new DateTime($progetto['last_pagamento_mensile_notified']) : null;
             
             // Calcola la prossima scadenza

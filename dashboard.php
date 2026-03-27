@@ -4,10 +4,6 @@
  * Dashboard
  */
 
-// Debug
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
 try {
     require_once __DIR__ . '/includes/functions.php';
     require_once __DIR__ . '/includes/auth_check.php';
@@ -223,7 +219,6 @@ unset($member);
                             $scadenza = $progetto['data_consegna_prevista'] ? date('d/m', strtotime($progetto['data_consegna_prevista'])) : 'N/D';
                             $isScaduto = $progetto['data_consegna_prevista'] && strtotime($progetto['data_consegna_prevista']) < strtotime('today');
                             $coloreProgetto = $progetto['colore_tag'] ?? '#F8FAFC';
-                            $isDefaultColor = $coloreProgetto === '#FFFFFF' || $coloreProgetto === '#F8FAFC';
                         ?>
                         <a href="progetto_dettaglio.php?id=<?php echo $progetto['id']; ?>" class="block p-2 sm:p-3 rounded-lg hover:brightness-95 transition-all group border border-slate-100" 
                            style="background-color: <?php echo $coloreProgetto; ?>">

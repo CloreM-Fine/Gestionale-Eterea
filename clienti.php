@@ -925,21 +925,13 @@ async function saveCliente() {
     const action = id ? 'update' : 'create';
     if (id) formData.append('id', id);
     
-    // Debug: log formData contents
-    for (let pair of formData.entries()) {
-        console.log('FormData:', pair[0], pair[1] instanceof File ? `File: ${pair[1].name} (${pair[1].size} bytes)` : pair[1]);
-    }
-    
     try {
         const response = await fetch(`api/clienti.php?action=${action}`, {
             method: 'POST',
             body: formData
         });
         
-        console.log('Response status:', response.status);
-        
         const text = await response.text();
-        console.log('Response text:', text);
         
         let data;
         try {

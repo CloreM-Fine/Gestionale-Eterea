@@ -139,7 +139,7 @@ function listProgetti() {
         // Verifica se tabella task_visualizzazioni esiste
         $hasNotificationTable = false;
         try {
-            $checkStmt = $pdo->query("SELECT 1 FROM task_visualizzazioni LIMIT 1");
+            $pdo->query("SELECT 1 FROM task_visualizzazioni LIMIT 1");
             $hasNotificationTable = true;
         } catch (PDOException $e) {
             $hasNotificationTable = false;

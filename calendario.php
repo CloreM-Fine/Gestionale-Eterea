@@ -953,11 +953,6 @@ async function openEditEventModal(eventId) {
         return;
     }
     
-    // DEBUG
-    console.log('=== DEBUG EVENT OBJECT ===', event);
-    console.log('cliente_id:', event.cliente_id, 'type:', typeof event.cliente_id);
-    console.log('==========================');
-    
     document.getElementById('eventForm').reset();
     document.getElementById('eventId').value = event.id;
     document.getElementById('eventModalTitle').textContent = 'Modifica Evento';
@@ -969,24 +964,18 @@ async function openEditEventModal(eventId) {
     // Popola cliente se presente
     const clienteSelect = document.getElementById('eventClienteId');
     if (clienteSelect) {
-        console.log('DEBUG cliente_id evento:', event.cliente_id);
-        console.log('DEBUG opzioni disponibili:', Array.from(clienteSelect.options).map(o => o.value));
-        
         // Imposta direttamente il valore
         if (event.cliente_id) {
             clienteSelect.value = event.cliente_id;
-            console.log('DEBUG valore impostato:', clienteSelect.value);
             
             // Se il valore non è stato impostato, cerca l'opzione manualmente
             if (clienteSelect.value !== event.cliente_id) {
                 const option = Array.from(clienteSelect.options).find(o => o.value === event.cliente_id);
                 if (option) {
                     clienteSelect.selectedIndex = option.index;
-                    console.log('DEBUG impostato manualmente via index');
-                } else {
-                    console.log('DEBUG cliente_id non trovato nelle opzioni!');
                 }
             }
+        }
         } else {
             clienteSelect.value = '';
         }
@@ -1136,17 +1125,6 @@ async function saveEvent() {
     const form = document.getElementById('eventForm');
     const formData = new FormData(form);
     
-    // DEBUG: Controlla direttamente il select
-    const clienteSelect = document.getElementById('eventClienteId');
-    console.log('DEBUG SELECT cliente_id value:', clienteSelect ? clienteSelect.value : 'SELECT NON TROVATO');
-    
-    // Log per debug - TUTTI i campi
-    console.log('=== DEBUG FORM DATA ===');
-    for (let [key, value] of formData.entries()) {
-        console.log(key + ':', value);
-    }
-    console.log('========================');
-    
     const eventId = document.getElementById('eventId').value;
     
     const titolo = formData.get('titolo');
@@ -1185,12 +1163,6 @@ async function saveEvent() {
         } catch (e) {
             showToast('Errore risposta server: ' + responseText.substring(0, 100), 'error');
             return;
-        }
-        
-        // DEBUG: Mostra la risposta completa
-        console.log('=== SERVER RESPONSE ===', data);
-        if (data.data && data.data.debug) {
-            console.log('=== DEBUG INFO ===', data.data.debug);
         }
         
         if (data.success) {

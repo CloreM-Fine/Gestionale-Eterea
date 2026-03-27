@@ -984,7 +984,6 @@ startBlogPolling();
                         <div class="flex items-center gap-3 mt-1">
                             <?php 
                             $coloreTag = $progetto['colore_tag'] ?: '#FFFFFF';
-                            $isDefault = $coloreTag === '#FFFFFF';
                             $coloriNomi = [
                                 '#FFFFFF' => 'Bianco (default)',
                                 '#22D3EE' => 'Ciano',
@@ -3033,7 +3032,6 @@ async function aggiungiCommentoDaInput(input) {
 
 // Funzione principale
 async function aggiungiCommento(taskId, input) {
-    console.log('aggiungiCommento chiamato per task:', taskId);
     if (!input) {
         input = document.getElementById(`commento-input-${taskId}`);
     }
@@ -3042,7 +3040,6 @@ async function aggiungiCommento(taskId, input) {
         return;
     }
     const commento = input.value.trim();
-    console.log('Commento:', commento);
     
     if (!commento) return;
     
@@ -3716,14 +3713,6 @@ async function saveProgettoChanges() {
     const formData = new FormData(form);
     formData.append('action', 'update');
     formData.append('id', progettoId);
-    
-    // DEBUG: Log form data
-    console.log('DEBUG - stato_pagamento:', formData.get('stato_pagamento'));
-    console.log('DEBUG - note:', formData.get('note'));
-    console.log('DEBUG - importo_ricorrente:', formData.get('importo_ricorrente'));
-    console.log('DEBUG - frequenza_ricorrente:', formData.get('frequenza_ricorrente'));
-    console.log('DEBUG - prossima_data_ricorrente:', formData.get('prossima_data_ricorrente'));
-    console.log('DEBUG - distribuzione_ricorrente:', formData.get('distribuzione_ricorrente[ucwurog3xr8tf]'), formData.get('distribuzione_ricorrente[ukl9ipuolsebn]'), formData.get('distribuzione_ricorrente[u3ghz4f2lnpkx]'), formData.get('distribuzione_ricorrente[cassa]'));
     
     // Aggiungi CSRF token
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
