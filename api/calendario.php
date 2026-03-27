@@ -12,17 +12,31 @@ header('Content-Type: application/json');
 $method = $_SERVER['REQUEST_METHOD'];
 $action = $_GET['action'] ?? $_POST['action'] ?? '';
 
+// Verifica CSRF token per operazioni state-changing
+function verifyCsrfForAction(): bool {
+    $csrfToken = $_POST['csrf_token'] ?? $_GET['csrf_token'] ?? '';
+    if (empty($csrfToken) || !verifyCsrfToken($csrfToken)) {
+        jsonResponse(false, null, 'Token CSRF non valido');
+        return false;
+    }
+    return true;
+}
+
 if ($method === 'GET' && $action === 'events') {
     getEvents();
 } elseif ($method === 'POST' && $action === 'create') {
+    if (!verifyCsrfForAction()) exit;
     createEvent();
 } elseif ($method === 'POST' && $action === 'update' && isset($_POST['id'])) {
+    if (!verifyCsrfForAction()) exit;
     updateEvent($_POST['id']);
 } elseif ($method === 'POST' && $action === 'delete') {
+    if (!verifyCsrfForAction()) exit;
     $id = $_POST['id'] ?? $_GET['id'] ?? null;
     if ($id) deleteEvent($id);
     else jsonResponse(false, null, 'ID mancante');
 } elseif ($method === 'POST' && $action === 'complete') {
+    if (!verifyCsrfForAction()) exit;
     $id = $_POST['id'] ?? $_GET['id'] ?? null;
     if ($id) completeEvent($id);
     else jsonResponse(false, null, 'ID mancante');

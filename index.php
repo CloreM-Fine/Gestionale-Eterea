@@ -47,7 +47,7 @@ $csrfToken = generateCsrfTokenSecure();
     <title>Login - Eterea Gestionale</title>
     
     <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com" crossorigin="anonymous"></script>
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">

@@ -56,6 +56,13 @@ switch ($method) {
         break;
         
     case 'POST':
+        // Verifica CSRF token per tutte le operazioni state-changing
+        $csrfToken = $_POST['csrf_token'] ?? '';
+        if (empty($csrfToken) || !verifyCsrfToken($csrfToken)) {
+            echo json_encode(['success' => false, 'message' => 'Token CSRF non valido']);
+            exit;
+        }
+        
         switch ($action) {
             case 'create':
                 createScadenza();

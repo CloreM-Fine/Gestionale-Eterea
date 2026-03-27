@@ -1,17 +1,42 @@
 # Proteggi accesso diretto ai file caricati
 # I file devono essere accessibili solo tramite il proxy PHP (api/upload.php)
 
-# Però permetti l'accesso alle immagini dei loghi clienti
-<FilesMatch "\.(jpg|jpeg|png|gif)$">
-    Allow from all
-</FilesMatch>
+# Apache 2.4+ syntax
+<IfModule mod_authz_core.c>
+    # Blocca tutto di default
+    Require all denied
+    
+    # Permetti solo immagini (loghi, avatar)
+    <FilesMatch "\.(jpg|jpeg|png|gif|webp|svg)$">
+        Require all granted
+    </FilesMatch>
+</IfModule>
 
-# Nega accesso diretto a PDF e altri file
-<FilesMatch "\.(pdf|doc|docx|xls|xlsx)$">
-    Order deny,allow
-    Deny from all
-</FilesMatch>
+# Fallback Apache 2.2 (deprecato)
+<IfModule !mod_authz_core.c>
+    <FilesMatch "\.(jpg|jpeg|png|gif|webp|svg)$">
+        Allow from all
+    </FilesMatch>
+    
+    <FilesMatch "\.(pdf|doc|docx|xls|xlsx|php|pl|py|jsp|asp|sh|cgi)$">
+        Order deny,allow
+        Deny from all
+    </FilesMatch>
+</IfModule>
 
-# Disabilita esecuzione di script
-Options -ExecCGI
+# Disabilita esecuzione di script e directory listing
+Options -ExecCGI -Indexes
 AddHandler cgi-script .php .pl .py .jsp .asp .sh .cgi
+
+# Disabilita esecuzione PHP
+<IfModule mod_php.c>
+    php_flag engine off
+</IfModule>
+
+<IfModule mod_php7.c>
+    php_flag engine off
+</IfModule>
+
+<IfModule mod_php8.c>
+    php_flag engine off
+</IfModule>

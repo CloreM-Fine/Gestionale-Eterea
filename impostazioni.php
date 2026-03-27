@@ -1274,7 +1274,8 @@ TERMINI E CONDIZIONI
 
 
 <script>
-const KEYWORD_SICUREZZA = <?php echo json_encode(ADMIN_PASSWORD); ?>;
+// La keyword di sicurezza non viene più esposta nel frontend
+// La verifica viene fatta server-side in api/impostazioni.php
 
 // Elimina Cronologia
 function confirmDeleteCronologia() {

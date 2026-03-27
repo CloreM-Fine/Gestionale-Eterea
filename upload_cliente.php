@@ -129,7 +129,7 @@ $csrfToken = generateCsrfToken();
     <meta name="twitter:description" content="Carica qui le immagini e il testo per il tuo progetto con Eterea Studio">
     <meta name="twitter:image" content="<?php echo BASE_URL; ?>/assets/favicons/android-chrome-512x512.png">
     
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com" crossorigin="anonymous"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; }

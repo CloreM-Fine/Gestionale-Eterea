@@ -59,6 +59,14 @@ RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
     Header always unset Server
 </IfModule>
 
+# -----------------------------------------------------
+# ERROR DOCUMENT
+# -----------------------------------------------------
+ErrorDocument 403 /error?code=403
+ErrorDocument 404 /error?code=404
+ErrorDocument 500 /error?code=500
+ErrorDocument 503 /error?code=503
+
 <IfModule mod_rewrite.c>
     # Rimuovi header PHP X-Powered-By
     RewriteRule ^ - [E=HTTP_X_POWERED_BY:off]

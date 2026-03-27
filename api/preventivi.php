@@ -26,6 +26,13 @@ switch ($method) {
         break;
         
     case 'POST':
+        // Verifica CSRF token per tutte le operazioni state-changing
+        $csrfToken = $_POST['csrf_token'] ?? '';
+        if (empty($csrfToken) || !verifyCsrfToken($csrfToken)) {
+            jsonResponse(false, null, 'Token CSRF non valido');
+            break;
+        }
+        
         if ($action === 'save_voce') {
             saveVoce();
         } elseif ($action === 'delete_voce' && isset($_POST['id'])) {
@@ -39,12 +46,6 @@ switch ($method) {
         } elseif ($action === 'salva_preventivo') {
             salvaPreventivoGestionale();
         } elseif ($action === 'associa_progetto') {
-            // Verifica CSRF token
-            $csrfToken = $_POST['csrf_token'] ?? '';
-            if (empty($csrfToken) || !verifyCsrfToken($csrfToken)) {
-                jsonResponse(false, null, 'Token CSRF non valido');
-                break;
-            }
             associaPreventivoAProgetto();
         } elseif ($action === 'delete_preventivo' && !empty($_POST['id'])) {
             deletePreventivoSalvato($_POST['id']);

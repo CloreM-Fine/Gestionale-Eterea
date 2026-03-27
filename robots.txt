@@ -1,0 +1,38 @@
+# robots.txt per Eterea Gestionale
+# https://gestionale.etereastudio.it
+
+User-agent: *
+
+# Consenti indicizzazione pagina login e pagina upload pubblica
+Allow: /
+Allow: /index
+Allow: /upload_cliente
+
+# Blocca aree sensibili
+Disallow: /includes/
+Disallow: /config/
+Disallow: /logs/
+Disallow: /api/
+Disallow: /assets/uploads/
+Disallow: /vendor/
+Disallow: /.git/
+Disallow: /.github/
+
+# Blocca pagine admin
+Disallow: /dashboard
+Disallow: /progetti
+Disallow: /progetto_dettaglio
+Disallow: /clienti
+Disallow: /calendario
+Disallow: /finanze
+Disallow: /preventivi
+Disallow: /impostazioni
+Disallow: /scadenze
+Disallow: /tasse
+Disallow: /report
+Disallow: /briefing_ai
+Disallow: /blog_clienti
+Disallow: /piano_editoriale
+
+# Sitemap (se disponibile in futuro)
+# Sitemap: https://gestionale.etereastudio.it/sitemap.xml
