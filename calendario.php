@@ -975,7 +975,6 @@ async function openEditEventModal(eventId) {
                     clienteSelect.selectedIndex = option.index;
                 }
             }
-        }
         } else {
             clienteSelect.value = '';
         }
